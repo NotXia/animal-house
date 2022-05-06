@@ -31,8 +31,19 @@ passport.use("local", new LocalStrategy(
     }
 ));
 
+function createTokens(username) {
+    const jwt_payload = { username: username };
+    const access_token  = jwt.sign(jwt_payload, process.env.ACCESS_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.ACCESS_TOKEN_EXP });
+    const refresh_token = jwt.sign(jwt_payload, process.env.REFRESH_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.REFRESH_TOKEN_EXP });
+
+    return {
+        access: access_token,
+        refresh: refresh_token
+    };
+}
+
 router.post("/login", function (req, res) {
-    const INVALID_LOGIN = { auth: false };
+    const INVALID_LOGIN = { message: "Invalid credentials" };
 
     passport.authenticate("local", { session: false }, function (err, user) {
         if (err || !user) { return res.status(400).json(INVALID_LOGIN); }
@@ -40,24 +51,57 @@ router.post("/login", function (req, res) {
         req.login(user, { session: false }, async function (err) {
             if (err) { console.log(err); return res.status(400).json(INVALID_LOGIN); }
 
-            // Generazione token JWT
-            const jwt_payload = { username: user.username };
-            const access_token  = jwt.sign(jwt_payload, process.env.ACCESS_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.ACCESS_TOKEN_EXP });
-            const refresh_token = jwt.sign(jwt_payload, process.env.REFRESH_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.REFRESH_TOKEN_EXP });
+            const tokens = createTokens(user.username);
             
             // Salvataggio del refresh token
             let dbo = db.dbo;
-            await dbo.collection("tokens").insertOne({ username: user.username, token: refresh_token, timestamp: new Date() }).catch((err) => {
-                return res.status(400).json(INVALID_LOGIN);
+            await dbo.collection("tokens").insertOne({ username: user.username, token: tokens.refresh, timestamp: new Date() }).catch((err) => {
+                return res.sendStatus(500);
             });
 
             res.status(200).json({
                 auth: true,
-                access_token: access_token,
-                refresh_token: refresh_token,
+                access_token: tokens.access,
+                refresh_token: tokens.refresh
             });
         });
     })(req, res);
+});
+
+router.post("/refresh", function (req, res) {
+    const INVALID_LOGIN = { message: "Invalid token" };
+    const old_refresh_token = req.body.refresh_token;
+
+    jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
+        if (err) { return res.status(400).json(INVALID_LOGIN); }
+        
+        let dbo = db.dbo;
+        let new_access_token = null;
+        let new_refresh_token = null;
+
+        try {
+            // Verifica validità del token
+            const token_entry = await dbo.collection("tokens").findOne({token: old_refresh_token});
+            if (!token_entry) { return res.status(400).json(INVALID_LOGIN); }
+    
+            // Rinnovo token
+            const tokens = createTokens(token.username);
+            new_access_token  = tokens.access;
+            new_refresh_token = tokens.refresh;
+           
+            await dbo.collection("tokens").deleteOne({ token: old_refresh_token });
+            await dbo.collection("tokens").insertOne({ username: token.username, token: new_refresh_token, timestamp: new Date() });
+        }
+        catch (err) {
+            return res.sendStatus(500);
+        }
+
+        return res.status(200).json({
+            access_token: new_access_token,
+            refresh_token: new_refresh_token
+        })
+    });
+
 });
 
 module.exports = router;
