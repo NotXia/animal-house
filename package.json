@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "initdb": "node db_init.js",
     "startdb": "sudo systemctl start mongod",
     "stopdb": "sudo systemctl stop mongod"
   },
