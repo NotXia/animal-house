@@ -1,6 +1,7 @@
 const MongoClient = require("mongodb").MongoClient;
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const ms = require("ms");
 
 async function createAdmin() {
     let username = "admin";
@@ -32,6 +33,12 @@ module.exports.connect = async function () {
         await dbo.collection("users").insertOne(await createAdmin()).catch((err) => {
             if (err.code !== 11000) { throw err; } // Duplicato
         });
+    });
+
+    dbo.createCollection("tokens", (err) => {
+        if (err.codeName === "NamespaceExists") { return; }
+        else if (err.codeName !== "NamespaceExists") { throw err; }
+        dbo.collection("tokens").createIndex({ "timestamp": 1 }, { expireAfterSeconds: ms(process.env.REFRESH_TOKEN_EXP) })
     });
 
 
