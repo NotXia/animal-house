@@ -19,7 +19,7 @@ passport.use("local", new LocalStrategy(
         let dbo = db.dbo;
 
         // Autenticazione dell'utente
-        dbo.collection("users").findOne({ username: in_username }, function (err, user_data) {
+        dbo.users.findOne({ username: in_username }, function (err, user_data) {
             if (err) { return done(err); }
             if (!user_data) { return done(null, false); }
 
@@ -55,7 +55,7 @@ router.post("/login", function (req, res) {
             
             // Salvataggio del refresh token
             let dbo = db.dbo;
-            await dbo.collection("tokens").insertOne({ username: user.username, token: tokens.refresh, timestamp: new Date() }).catch((err) => {
+            await dbo.tokens.insertOne({ username: user.username, token: tokens.refresh, timestamp: new Date() }).catch((err) => {
                 return res.sendStatus(500);
             });
 
@@ -81,7 +81,7 @@ router.post("/refresh", function (req, res) {
 
         try {
             // Verifica validità del token
-            const token_entry = await dbo.collection("tokens").findOne({token: old_refresh_token});
+            const token_entry = await dbo.tokens.findOne({token: old_refresh_token});
             if (!token_entry) { return res.status(400).json(INVALID_LOGIN); }
     
             // Rinnovo token
@@ -89,8 +89,8 @@ router.post("/refresh", function (req, res) {
             new_access_token  = tokens.access;
             new_refresh_token = tokens.refresh;
            
-            await dbo.collection("tokens").deleteOne({ token: old_refresh_token });
-            await dbo.collection("tokens").insertOne({ username: token.username, token: new_refresh_token, timestamp: new Date() });
+            await dbo.tokens.deleteOne({ token: old_refresh_token });
+            await dbo.tokens.insertOne({ username: token.username, token: new_refresh_token, timestamp: new Date() });
         }
         catch (err) {
             return res.sendStatus(500);
@@ -113,8 +113,8 @@ router.post("/logout", function(req, res) {
 
         // Cancella il token salvato
         let dbo = db.dbo;
-        await dbo.collection("tokens").deleteOne({ token: refresh_token }).catch((err) => { return res.sendStatus(500); });
-        
+        await dbo.tokens.deleteOne({ token: refresh_token }).catch((err) => { return res.sendStatus(500); });
+
         res.redirect(200, "/");
     });
 });

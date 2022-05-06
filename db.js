@@ -1,19 +1,5 @@
 const MongoClient = require("mongodb").MongoClient;
 require("dotenv").config();
-const bcrypt = require("bcrypt");
-const ms = require("ms");
-
-async function createAdmin() {
-    let username = "admin";
-    let password = "admin";
-    
-    let password_hash = await bcrypt.hash(password, 10);
-    
-    return {
-        username: username,
-        password: password_hash,
-    };
-}
 
 module.exports.connect = async function () {
     console.log(`Connecting to MongoDB at ${process.env.MONGODB_URL}`);
@@ -22,25 +8,11 @@ module.exports.connect = async function () {
 
     console.log(`Connecting to database ${process.env.MONGODB_DATABASE_NAME}`);
     let dbo = client.db(process.env.MONGODB_DATABASE_NAME);
-    module.exports.dbo = dbo; // Per permettere di accedere alla connessione tramite il modulo
 
-    // Creazione delle collezioni (se mancanti)
-    dbo.createCollection("users", async (err) => {
-        if (err.codeName === "NamespaceExists") { return; }
-        else if (err.codeName !== "NamespaceExists") { throw err; }
-
-        await dbo.collection("users").createIndex({ "username": 1 }, { unique: true });
-        await dbo.collection("users").insertOne(await createAdmin()).catch((err) => {
-            if (err.code !== 11000) { throw err; } // Duplicato
-        });
-    });
-
-    dbo.createCollection("tokens", (err) => {
-        if (err.codeName === "NamespaceExists") { return; }
-        else if (err.codeName !== "NamespaceExists") { throw err; }
-        dbo.collection("tokens").createIndex({ "timestamp": 1 }, { expireAfterSeconds: ms(process.env.REFRESH_TOKEN_EXP) })
-    });
-
+    // Per permettere di accedere alla connessione tramite il modulo
+    module.exports.dbo = dbo;
+    module.exports.dbo.users = dbo.collection("users");
+    module.exports.dbo.tokens = dbo.collection("tokens"); 
 
     console.log("Connected");
 }
