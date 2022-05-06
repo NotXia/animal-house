@@ -1,9 +1,16 @@
 const express = require('express');
 const app = express();
-const port = 8080;
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.use('/', express.static('public'))
+const db = require("./db");
 
-app.listen(port, () => {
-    console.log(`http://localhost:${port}`)
+
+app.use('/', express.static('public'));
+
+// Crea la connessione al database prima di avviare il server
+db.connect().then(() => {
+    app.listen(process.env.NODE_PORT, () => {
+        console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
+    });
 });
