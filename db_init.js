@@ -29,7 +29,7 @@ async function init() {
     dbo.createCollection("tokens", async function(err) {
         if (err) { throw err; }
 
-        await dbo.collection("tokens").createIndex({ "timestamp": 1 }, { expireAfterSeconds: ms(process.env.REFRESH_TOKEN_EXP) });
+        await dbo.collection("tokens").createIndex({ "expiration": 1 }, { expireAfterSeconds: 0 }); // In questo modo la data del campo expiration indica la validità
     });
 };
 
