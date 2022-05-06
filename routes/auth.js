@@ -104,4 +104,19 @@ router.post("/refresh", function (req, res) {
 
 });
 
+router.post("/logout", function(req, res) {
+    const INVALID_LOGIN = { message: "Invalid token" };
+    const refresh_token = req.body.refresh_token;
+
+    jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
+        if (err) { return res.status(400).json(INVALID_LOGIN); }
+
+        // Cancella il token salvato
+        let dbo = db.dbo;
+        await dbo.collection("tokens").deleteOne({ token: refresh_token }).catch((err) => { return res.sendStatus(500); });
+        
+        res.redirect(200, "/");
+    });
+});
+
 module.exports = router;
