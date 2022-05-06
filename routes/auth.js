@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 require('dotenv').config();
 const db = require("./../db");
+const ObjectId = require("mongodb").ObjectId;
 
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -63,6 +64,18 @@ async function storeToken(username, token, expiration_time) {
     return insert_result.insertedId;
 }
 
+function setRefreshTokenCookie(res, token, token_id, expiration) {
+    const cookie_option = {
+        expires: new Date(expiration),
+        httpOnly: true,
+        path: "/auth",
+        secure: true
+    };
+
+    res.cookie("refresh_token", token, cookie_option);
+    res.cookie("refresh_token_id", token_id, cookie_option);
+}
+
 
 router.post("/login", function (req, res) {
     const INVALID_LOGIN = { message: "Invalid credentials" };
@@ -79,6 +92,7 @@ router.post("/login", function (req, res) {
             tokens.refresh.id = await storeToken(user.username, tokens.refresh.value, tokens.refresh.expiration)
                                       .catch((err) => {return res.sendStatus(500)});
             
+            setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
             res.status(200).json({
                 access_token: tokens.access,
                 refresh_token: tokens.refresh
@@ -89,8 +103,8 @@ router.post("/login", function (req, res) {
 
 router.post("/refresh", function (req, res) {
     const INVALID_LOGIN = { message: "Invalid token" };
-    const old_refresh_token = req.body.refresh_token;
-    const old_refresh_token_id = req.body.id;
+    const old_refresh_token = req.cookies.refresh_token;
+    const old_refresh_token_id = req.cookies.refresh_token_id;
 
     jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
         if (err) { return res.status(400).json(INVALID_LOGIN); }
@@ -100,7 +114,7 @@ router.post("/refresh", function (req, res) {
 
         try {
             // Verifica validità del token
-            const token_entry = await dbo.tokens.findOne({ _id: old_refresh_token_id });
+            const token_entry = await dbo.tokens.findOne({ _id: ObjectId(old_refresh_token_id) });
             if (!token_entry) { return res.status(400).json(INVALID_LOGIN); }
 
             if (!await bcrypt.compare(old_refresh_token, token_entry.token_hash)) {
@@ -108,16 +122,17 @@ router.post("/refresh", function (req, res) {
             }
     
             // Rinnovo token
-            await dbo.tokens.deleteOne({ _id: old_refresh_token_id });
+            await dbo.tokens.deleteOne({ _id: ObjectId(old_refresh_token_id) });
 
             tokens = createTokens(token.username);
-            tokens.refresh.id = await storeToken(token.username, tokens.refresh.value, tokens.refresh.expiration)
+            tokens.refresh.id = await storeToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration)
                                       .catch((err) => { return res.sendStatus(500) });
         }
         catch (err) {
             return res.sendStatus(500);
         }
 
+        setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
         return res.status(200).json({
             access_token: tokens.access,
             refresh_token: tokens.refresh
@@ -128,17 +143,18 @@ router.post("/refresh", function (req, res) {
 
 router.post("/logout", function(req, res) {
     const INVALID_LOGIN = { message: "Invalid token" };
-    const refresh_token = req.body.refresh_token;
-    const refresh_token_id = req.body.id;
+    const refresh_token = req.cookies.refresh_token;
+    const refresh_token_id = req.cookies.refresh_token_id;
 
     jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
         if (err) { return res.status(400).json(INVALID_LOGIN); }
 
         // Cancella il token salvato
         let dbo = db.dbo;
-        await dbo.tokens.deleteOne({ _id: refresh_token_id }).catch((err) => { return res.sendStatus(500); });
+        await dbo.tokens.deleteOne({ _id: ObjectId(refresh_token_id) }).catch((err) => { return res.sendStatus(500); });
+        setRefreshTokenCookie(res, 0, 0, 0); // Per invalidare il cookie
 
-        res.status(200);
+        return res.status(200);
     });
 });
 
