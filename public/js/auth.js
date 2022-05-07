@@ -81,10 +81,13 @@ async function login(username, password) {
     }).done(function (data, textStatus, jqXHR) {
         _setAccessToken(data.access_token.value, data.access_token.expiration);
         logged = true;
-    }).catch((err) => {
-        console.log(err.responseJSON);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        logged = false;
+    }) 
+    .catch((err) => {
+        logged = false;
     });
-
+    
     return logged;
 }
 
