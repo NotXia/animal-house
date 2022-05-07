@@ -3,16 +3,15 @@ const router = express.Router();
 require('dotenv').config();
 const db = require("./../db");
 const ObjectId = require("mongodb").ObjectId;
+const ms = require("ms");
 
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
 
-const ms = require("ms");
 
-
-// Strategia Passport per autenticazione username + password
+/* Strategia Passport per autenticazione username + password */
 passport.use("local", new LocalStrategy(
     {
         usernameField: "username",
@@ -24,16 +23,21 @@ passport.use("local", new LocalStrategy(
         // Autenticazione dell'utente
         dbo.users.findOne({ username: in_username }, function (err, user_data) {
             if (err) { return done(err); }
-            if (!user_data) { return done(null, false); }
+            if (!user_data) { return done(null, false); } // Non esiste l'utente
 
             bcrypt.compare(in_password, user_data.password).then((hash_match) => {
-                if (hash_match) { return done(null, user_data); }
+                if (hash_match) { return done(null, {username: user_data.username}); }
                 else { return done(null, false); }
             });
         });
     }
 ));
 
+/**
+ * Crea i token (access + refresh) associati ad un utente.
+ * @param username
+ * @returns I token creati nel formato { tipo { valore, scadenza } }
+ */
 function createTokens(username) {
     const jwt_payload = { username: username };
     const access_token  = jwt.sign(jwt_payload, process.env.ACCESS_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.ACCESS_TOKEN_EXP });
@@ -51,6 +55,13 @@ function createTokens(username) {
     };
 }
 
+/**
+ * Memorizza il refresh token.
+ * @param {string} username         Utente associato al token
+ * @param {string} token            Valore del token
+ * @param {number} expiration_time  Timestamp di scadenza del token
+ * @returns id associato al token inserito
+ */
 async function storeToken(username, token, expiration_time) {
     let dbo = db.dbo;
     const refresh_token_hash = await bcrypt.hash(token, 10);
@@ -64,6 +75,13 @@ async function storeToken(username, token, expiration_time) {
     return insert_result.insertedId;
 }
 
+/**
+ * Imposta il refresh token nei cookie del client.
+ * @param res Oggetto res dell'endpoint
+ * @param {string} token        Valore del token
+ * @param {string} token_id     Id del token
+ * @param {number} expiration   Timestamp di scadenza del token
+ */
 function setRefreshTokenCookie(res, token, token_id, expiration) {
     const cookie_option = {
         expires: new Date(expiration),
@@ -76,7 +94,7 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
     res.cookie("refresh_token_id", token_id, cookie_option);
 }
 
-
+/* Gestisce l'autenticazione di un utente e l'emissione dei token */
 router.post("/login", function (req, res) {
     const INVALID_LOGIN = { message: "Invalid credentials" };
 
@@ -101,6 +119,7 @@ router.post("/login", function (req, res) {
     })(req, res);
 });
 
+/* Gestisce il rinnovo dei token */
 router.post("/refresh", function (req, res) {
     const INVALID_LOGIN = { message: "Invalid token" };
     const old_refresh_token = req.cookies.refresh_token;
@@ -113,7 +132,7 @@ router.post("/refresh", function (req, res) {
         let tokens = null;
 
         try {
-            // Verifica validità del token
+            // Verifica validità del token dal database
             const token_entry = await dbo.tokens.findOne({ _id: ObjectId(old_refresh_token_id) });
             if (!token_entry) { return res.status(401).json(INVALID_LOGIN); }
 
@@ -121,12 +140,10 @@ router.post("/refresh", function (req, res) {
                 return res.status(401).json(INVALID_LOGIN);
             }
     
-            // Rinnovo token
+            // Rinnovo e salvataggio token
             await dbo.tokens.deleteOne({ _id: ObjectId(old_refresh_token_id) });
-
             tokens = createTokens(token.username);
-            tokens.refresh.id = await storeToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration)
-                                      .catch((err) => { return res.sendStatus(500) });
+            tokens.refresh.id = await storeToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
         }
         catch (err) {
             return res.sendStatus(500);
@@ -141,6 +158,7 @@ router.post("/refresh", function (req, res) {
 
 });
 
+/* Gestisce il logout di un utente */
 router.post("/logout", function(req, res) {
     const refresh_token = req.cookies.refresh_token;
     const refresh_token_id = req.cookies.refresh_token_id;

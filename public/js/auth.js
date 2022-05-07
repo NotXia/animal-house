@@ -45,7 +45,7 @@ function _removeAccessToken() {
 
 
 /** 
- * Indica se l'utente è autenticato
+ * Indica se l'utente è autenticato.
  * @returns {boolean} true se l'utente è autenticato, false altrimenti
 */
 function isAuthenticated() {
@@ -53,7 +53,7 @@ function isAuthenticated() {
 }
 
 /** 
- * Wrapper di $.ajax per fare richieste che richiedono autenticazione
+ * Wrapper di $.ajax per fare richieste che richiedono autenticazione.
  * @param ajax_request parametri della richiesta (stessi di $.ajax)
  * @returns Promise della richiesta
 */
@@ -66,7 +66,7 @@ function api_request(ajax_request) {
 }
 
 /**
- * Gestisce l'autenticazione dell'utente
+ * Gestisce l'autenticazione dell'utente.
  * @param {string} username 
  * @param {string} password 
  * @returns {boolean} true se l'autenticazione ha avuto successo, false altrimenti
@@ -89,7 +89,7 @@ async function login(username, password) {
 }
 
 /**
- * Gestisce il logout dell'utente
+ * Gestisce il logout dell'utente.
  */
 async function logout() {
     await $.ajax({
