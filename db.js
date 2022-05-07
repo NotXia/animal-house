@@ -10,9 +10,9 @@ module.exports.connect = async function () {
     let dbo = client.db(process.env.MONGODB_DATABASE_NAME);
 
     // Per permettere di accedere alla connessione tramite il modulo
-    module.exports.dbo = dbo;
-    module.exports.dbo.users = dbo.collection("users");
-    module.exports.dbo.tokens = dbo.collection("tokens"); 
+    module.exports.client = client;
+    module.exports.users = dbo.collection("users");
+    module.exports.tokens = dbo.collection("tokens"); 
 
     console.log("Connected");
 }

@@ -1,7 +1,6 @@
 const MongoClient = require("mongodb").MongoClient;
 require("dotenv").config();
 const bcrypt = require("bcrypt");
-const ms = require("ms");
 
 async function createAdmin() {
     let username = "admin";

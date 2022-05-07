@@ -18,10 +18,8 @@ passport.use("local", new LocalStrategy(
         passwordField: "password"
     },
     function (in_username, in_password, done) {
-        let dbo = db.dbo;
-
         // Autenticazione dell'utente
-        dbo.users.findOne({ username: in_username }, function (err, user_data) {
+        db.users.findOne({ username: in_username }, function (err, user_data) {
             if (err) { return done(err); }
             if (!user_data) { return done(null, false); } // Non esiste l'utente
 
@@ -63,10 +61,9 @@ function createTokens(username) {
  * @returns id associato al token inserito
  */
 async function storeToken(username, token, expiration_time) {
-    let dbo = db.dbo;
     const refresh_token_hash = await bcrypt.hash(token, 10);
 
-    let insert_result = await dbo.tokens.insertOne({
+    let insert_result = await db.tokens.insertOne({
         username: username,
         token_hash: refresh_token_hash,
         expiration: expiration_time
@@ -128,12 +125,11 @@ router.post("/refresh", function (req, res) {
     jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
         if (err) { return res.status(401).json(INVALID_LOGIN); }
         
-        let dbo = db.dbo;
         let tokens = null;
 
         try {
             // Verifica validità del token dal database
-            const token_entry = await dbo.tokens.findOne({ _id: ObjectId(old_refresh_token_id) });
+            const token_entry = await db.tokens.findOne({ _id: ObjectId(old_refresh_token_id) });
             if (!token_entry) { return res.status(401).json(INVALID_LOGIN); }
 
             if (!await bcrypt.compare(old_refresh_token, token_entry.token_hash)) {
@@ -141,7 +137,7 @@ router.post("/refresh", function (req, res) {
             }
     
             // Rinnovo e salvataggio token
-            await dbo.tokens.deleteOne({ _id: ObjectId(old_refresh_token_id) });
+            await db.tokens.deleteOne({ _id: ObjectId(old_refresh_token_id) });
             tokens = createTokens(token.username);
             tokens.refresh.id = await storeToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
         }
@@ -169,8 +165,7 @@ router.post("/logout", function(req, res) {
         if (err) { return res.sendStatus(401); }
 
         // Cancella il token salvato
-        let dbo = db.dbo;
-        await dbo.tokens.deleteOne({ _id: ObjectId(refresh_token_id) }).catch((err) => { return res.sendStatus(500); });
+        await db.tokens.deleteOne({ _id: ObjectId(refresh_token_id) }).catch((err) => { return res.sendStatus(500); });
 
         return res.sendStatus(200);
     });
