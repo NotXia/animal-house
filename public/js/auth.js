@@ -49,7 +49,7 @@ function _removeAccessToken() {
  * @returns {boolean} true se l'utente è autenticato, false altrimenti
 */
 function isAuthenticated() {
-    return !_getAccessToken();
+    return (_getAccessToken() != null);
 }
 
 /** 
