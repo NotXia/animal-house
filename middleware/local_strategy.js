@@ -1,4 +1,4 @@
-const db = require("./../db");
+const db = require("../db");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
