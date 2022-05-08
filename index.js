@@ -5,16 +5,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 require("dotenv").config();
-const db = require("./db");
+
+const mongoose = require("mongoose");
+mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 
 const auth = require("./routes/auth");
 
 app.use("/", express.static("public"));
 app.use("/auth", auth);
-
-app.get("/test", (req, res) => {
-    res.sendStatus(200);
-})
 
 /* Gestore degli errori */
 app.use(function (err, req, res, next) {
@@ -27,10 +25,8 @@ app.use(function (err, req, res, next) {
 
 if (!process.env.TESTING) {
     // Crea la connessione al database prima di avviare il server
-    db.connect().then(function () {
-        app.listen(process.env.NODE_PORT, function () {
-            console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
-        });
+    app.listen(process.env.NODE_PORT, function () {
+        console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
     });
 }
 else {

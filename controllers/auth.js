@@ -1,7 +1,7 @@
 require('dotenv').config();
-const db = require("./../db");
-const ObjectId = require("mongodb").ObjectId;
 const ms = require("ms");
+
+const TokenModel = require("../models/token");
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
@@ -38,13 +38,13 @@ function createTokens(username) {
 async function storeRefreshToken(username, token, expiration_time) {
     const refresh_token_hash = await bcrypt.hash(token, 10);
 
-    let insert_result = await db.tokens.insertOne({
+    const token_entry = await new TokenModel({
         username: username,
         token_hash: refresh_token_hash,
         expiration: expiration_time
-    }).catch((err) => { throw err; });
+    }).save().catch((err) => { throw err; });
 
-    return insert_result.insertedId;
+    return token_entry._id;
 }
 
 /**
@@ -59,7 +59,7 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
         expires: new Date(expiration),
         httpOnly: true,
         path: "/auth",
-        secure: process.env.TESTING ? false : true
+        secure: process.env.TESTING ? false : true // Altrimenti l'ambiente di test non riesce a utilizzarli
     };
 
     res.cookie("refresh_token", token, cookie_option);
@@ -79,9 +79,7 @@ async function loginController(req, res) {
         .catch((err) => { return res.sendStatus(500) });
 
     setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
-    res.status(200).json({
-        access_token: tokens.access
-    });
+    return res.status(200).json({ access_token: tokens.access });
 }
 
 /**
@@ -98,7 +96,7 @@ function refreshController(req, res) {
 
         try {
             // Verifica validità del token dal database
-            const token_entry = await db.tokens.findOne({ _id: ObjectId(old_refresh_token_id) });
+            const token_entry = await TokenModel.findById(old_refresh_token_id).exec();
             if (!token_entry) { return res.sendStatus(401); }
 
             if (!await bcrypt.compare(old_refresh_token, token_entry.token_hash)) {
@@ -106,20 +104,17 @@ function refreshController(req, res) {
             }
 
             // Rinnovo e salvataggio token
-            await db.tokens.deleteOne({ _id: ObjectId(old_refresh_token_id) });
+            await TokenModel.findByIdAndDelete(old_refresh_token_id);
             tokens = createTokens(token.username);
-            tokens.refresh.id = await storeRefreshToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
+            tokens.refresh.id = await storeRefreshToken(token.username, tokens.refresh.value, tokens.refresh.expiration);
         }
         catch (err) {
             return res.sendStatus(500);
         }
 
         setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
-        return res.status(200).json({
-            access_token: tokens.access,
-        });
+        return res.status(200).json({ access_token: tokens.access });
     });
-
 }
 
 /**
@@ -135,7 +130,7 @@ function logoutController(req, res) {
         if (err) { return res.sendStatus(401); }
 
         // Cancella il token salvato
-        await db.tokens.deleteOne({ _id: ObjectId(refresh_token_id) }).catch((err) => { return res.sendStatus(500); });
+        await TokenModel.findByIdAndDelete(refresh_token_id).catch((err) => { return res.sendStatus(500); });
 
         return res.sendStatus(200);
     });

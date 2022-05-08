@@ -4,8 +4,7 @@
 
 require("dotenv").config();
 process.env.TESTING = true;
-
-const db = require("../db");
+const mongoose = require("mongoose");
 
 // Per nascondere i console.log
 global.console = {
@@ -17,9 +16,9 @@ global.console = {
 };
 
 beforeAll(async function () {
-    await db.connect();
+    mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 });
 
 afterAll(async function () {
-    db.client.close();
+    mongoose.connection.close()
 });

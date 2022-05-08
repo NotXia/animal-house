@@ -1,26 +1,18 @@
-const MongoClient = require("mongodb").MongoClient;
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
+const UserModel = require("./models/user");
 
-async function createAdmin() {
-    return {
-        username: "admin",
-        password: await bcrypt.hash("admin", 10)
-    };
-}
 
 async function init() {
-    const client = await MongoClient.connect(process.env.MONGODB_URL).catch((err) => { console.log(err); });
-    let dbo = client.db(process.env.MONGODB_DATABASE_NAME);
+    mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 
-    await dbo.createCollection("users").catch((err) => { console.log(err) });
-    await dbo.collection("users").createIndex({ "username": 1 }, { unique: true });
-    await dbo.collection("users").insertOne(await createAdmin()).catch((err) => { console.log(err); });
-    
-    await dbo.createCollection("tokens").catch((err) => { console.log(err); });
-    await dbo.collection("tokens").createIndex({ "expiration": 1 }, { expireAfterSeconds: 0 }); // In questo modo la data del campo expiration indica la validità
+    await new UserModel({
+        username: "admin",
+        password: await bcrypt.hash("admin", 10)
+    }).save().catch((err) => { console.log(err.message); });
 
-    client.close();
+    mongoose.connection.close()
 };
 
 
