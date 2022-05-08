@@ -5,13 +5,14 @@
 require("dotenv").config();
 process.env.TESTING = true;
 
-require("../db_init");
 const db = require("../db");
+const db_init = require("../db_init");
 
-beforeAll(async () => {
+beforeAll(async function () {
+    await db_init();
     await db.connect();
 });
 
-afterAll(async () => {
+afterAll(async function () {
     db.client.close();
 });

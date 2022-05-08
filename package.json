@@ -14,7 +14,8 @@
     "testRegex": "./tests/.*.js",
     "testPathIgnorePatterns": [
       "./tests/init.js"
-    ]
+    ],
+    "setupFilesAfterEnv": ["./tests/init.js"]
   },
   "repository": {
     "type": "git",

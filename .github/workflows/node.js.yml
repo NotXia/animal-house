@@ -1,9 +1,15 @@
 name: Run tests
 
-on:
-  push:
-    branches:
-      - "**"
+on: [push, pull_request]
+
+env:
+  MONGODB_URL: mongodb://localhost:27017/
+  MONGODB_DATABASE_NAME: AnimalHouse
+  JWT_ALGORITHM: HS256
+  ACCESS_TOKEN_KEY: ${{secrets.ACCESS_TOKEN_KEY}}
+  REFRESH_TOKEN_KEY: ${{secrets.REFRESH_TOKEN_KEY}}
+  ACCESS_TOKEN_EXP: 10m
+  REFRESH_TOKEN_EXP: 14d
 
 jobs:  
   build:
@@ -22,10 +28,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Start MongoDB v${{ matrix.mongodb-version }}
-      uses: supercharge/mongodb-github-action@1.2.0
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.7.0
       with:
-        mongodb-version: ${{ matrix.mongodb-version }}
+        mongodb-version: 4.4
+        mongodb-db: AnimalHouse
 
     - run: npm install
     - run: npm test

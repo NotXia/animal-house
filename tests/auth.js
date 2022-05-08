@@ -1,9 +1,7 @@
-require("./init");
 require("dotenv").config();
 const request = require("supertest");
 const app = require("../index.js");
 const ms = require("ms");
-
 
 describe("Autenticazione", function () {
     test("Login con credenziali corrette", async function () {
