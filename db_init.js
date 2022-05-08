@@ -3,14 +3,9 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 
 async function createAdmin() {
-    let username = "admin";
-    let password = "admin";
-
-    let password_hash = await bcrypt.hash(password, 10);
-
     return {
-        username: username,
-        password: password_hash,
+        username: "admin",
+        password: await bcrypt.hash("admin", 10)
     };
 }
 

@@ -35,7 +35,7 @@ function createTokens(username) {
  * @param {number} expiration_time  Timestamp di scadenza del token
  * @returns id associato al token inserito
  */
-async function storeToken(username, token, expiration_time) {
+async function storeRefreshToken(username, token, expiration_time) {
     const refresh_token_hash = await bcrypt.hash(token, 10);
 
     let insert_result = await db.tokens.insertOne({
@@ -71,17 +71,16 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
  * Gestisce l'autenticazione di un utente e l'emissione dei token 
  */
 async function loginController(req, res) {
-    const user = req.user;
+    const user = req.user; // I dati dell'utente elaborati da Passport
     const tokens = createTokens(user.username);
 
     // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
-    tokens.refresh.id = await storeToken(user.username, tokens.refresh.value, tokens.refresh.expiration)
+    tokens.refresh.id = await storeRefreshToken(user.username, tokens.refresh.value, tokens.refresh.expiration)
         .catch((err) => { return res.sendStatus(500) });
 
     setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
     res.status(200).json({
-        access_token: tokens.access,
-        refresh_token: tokens.refresh
+        access_token: tokens.access
     });
 }
 
@@ -89,28 +88,27 @@ async function loginController(req, res) {
  * Gestisce il rinnovo dei token
  */
 function refreshController(req, res) {
-    const INVALID_LOGIN = { message: "Invalid token" };
     const old_refresh_token = req.cookies.refresh_token;
     const old_refresh_token_id = req.cookies.refresh_token_id;
 
     jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
-        if (err) { return res.status(401).json(INVALID_LOGIN); }
+        if (err) { return res.sendStatus(401); }
 
         let tokens = null;
 
         try {
             // Verifica validità del token dal database
             const token_entry = await db.tokens.findOne({ _id: ObjectId(old_refresh_token_id) });
-            if (!token_entry) { return res.status(401).json(INVALID_LOGIN); }
+            if (!token_entry) { return res.sendStatus(401); }
 
             if (!await bcrypt.compare(old_refresh_token, token_entry.token_hash)) {
-                return res.status(401).json(INVALID_LOGIN);
+                return res.sendStatus(401);
             }
 
             // Rinnovo e salvataggio token
             await db.tokens.deleteOne({ _id: ObjectId(old_refresh_token_id) });
             tokens = createTokens(token.username);
-            tokens.refresh.id = await storeToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
+            tokens.refresh.id = await storeRefreshToken(token.username, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
         }
         catch (err) {
             return res.sendStatus(500);
@@ -119,8 +117,7 @@ function refreshController(req, res) {
         setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
         return res.status(200).json({
             access_token: tokens.access,
-            refresh_token: tokens.refresh
-        })
+        });
     });
 
 }

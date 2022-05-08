@@ -3,8 +3,7 @@ require("dotenv").config();
 
 module.exports.connect = async function () {
     console.log(`Connecting to MongoDB at ${process.env.MONGODB_URL}`);
-    const client = await MongoClient.connect(process.env.MONGODB_URL)
-                                    .catch((err) => { throw err });
+    const client = await MongoClient.connect(process.env.MONGODB_URL).catch((err) => { throw err });
 
     console.log(`Connecting to database ${process.env.MONGODB_DATABASE_NAME}`);
     let dbo = client.db(process.env.MONGODB_DATABASE_NAME);
