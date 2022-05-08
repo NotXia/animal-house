@@ -1,6 +1,6 @@
-name: Run tests
+name: Test vari ed eventuali
 
-on: [push, pull_request]
+on: [push]
 
 env:
   MONGODB_URL: mongodb://localhost:27017/
@@ -23,7 +23,7 @@ jobs:
     - name: Git checkout
       uses: actions/checkout@v1
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
@@ -34,5 +34,6 @@ jobs:
         mongodb-version: 4.4
         mongodb-db: AnimalHouse
 
-    - run: npm install
+    - run: npm ci
+    - run: npm run initdb
     - run: npm test
