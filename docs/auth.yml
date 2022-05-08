@@ -1,0 +1,100 @@
+swagger: "2.0"
+info:
+  description: "Descrizione degli edpoint di autenticazione"
+  version: "1.0.0"
+  title: "Autenticazione"
+basePath: "/auth"
+tags:
+- name: "Login"
+- name: "Refresh"
+- name: "Logout"
+
+paths:
+  /auth/login:
+    post:
+      tags:
+      - "Login"
+      summary: "Autentica l'utente ed emette i token"
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Credenziali dell'utente"
+        required: true
+        schema:
+          $ref: "#/definitions/UserData"
+      responses:
+        200:
+          description: "Autenticazione effettuata"
+          schema:
+              $ref: "#/definitions/AccessTokenData"
+        401:
+          description: "Credenziali non valide"
+        500:
+          description: "Errore lato server"
+
+      
+  /auth/refresh:
+    post:
+      tags:
+      - "Refresh"
+      summary: "Rinnova i token"
+      description: "Estrae il refresh token dai cookie."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Token rinnovati"
+          schema:
+              $ref: "#/definitions/AccessTokenData"
+        401:
+          description: "Refresh token non valido"
+        500:
+          description: "Errore lato server"
+
+  /auth/logout:
+    post:
+      tags:
+      - "Logout"
+      summary: "Disconnette l'utente."
+      description: |
+        Estrae il refresh token dai cookie. 
+        In ogni caso, il token viene rimosso dai cookie dell'utente.
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Refresh token invalidato"
+        401:
+          description: "Refresh token non valido"
+        500:
+          description: "Errore lato server"
+    
+
+definitions:
+
+  UserData:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+
+  AccessTokenData:
+    type: object
+    properties:
+      value:
+        type: string
+      expiration:
+        type: integer
+        format: timestamp
