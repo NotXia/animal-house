@@ -4,7 +4,7 @@
   "description": "🐕🐄🦒🦥➡️🏠",
   "main": "index.js",
   "scripts": {
-    "test": "jest --silent",
+    "test": "jest",
     "start": "node index.js",
     "initdb": "node db_init.js",
     "startdb": "sudo systemctl start mongod",

@@ -59,7 +59,7 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
         expires: new Date(expiration),
         httpOnly: true,
         path: "/auth",
-        secure: true
+        secure: process.env.TESTING ? false : true
     };
 
     res.cookie("refresh_token", token, cookie_option);

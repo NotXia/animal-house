@@ -6,10 +6,17 @@ require("dotenv").config();
 process.env.TESTING = true;
 
 const db = require("../db");
-const db_init = require("../db_init");
+
+// Per nascondere i console.log
+global.console = {
+    log: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    // warn: jest.fn(),
+    // error: jest.fn(),
+};
 
 beforeAll(async function () {
-    await db_init();
     await db.connect();
 });
 
