@@ -36,7 +36,7 @@ function createTokens(username) {
  * @returns id associato al token inserito
  */
 async function storeRefreshToken(username, token, expiration_time) {
-    const refresh_token_hash = await bcrypt.hash(token, 10);
+    const refresh_token_hash = await bcrypt.hash(token, process.env.SALT_ROUNDS);
 
     const token_entry = await new TokenModel({
         username: username,

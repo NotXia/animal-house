@@ -5,6 +5,7 @@ on: [push]
 env:
   MONGODB_URL: mongodb://localhost:27017
   MONGODB_DATABASE_NAME: AnimalHouse
+  SALT_ROUNDS: 1
   JWT_ALGORITHM: HS256
   ACCESS_TOKEN_KEY: ${{secrets.ACCESS_TOKEN_KEY}}
   REFRESH_TOKEN_KEY: ${{secrets.REFRESH_TOKEN_KEY}}

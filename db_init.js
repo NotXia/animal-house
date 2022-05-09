@@ -9,7 +9,7 @@ async function init() {
 
     await new UserModel({
         username: "admin",
-        password: await bcrypt.hash("admin", 10)
+        password: await bcrypt.hash("admin", process.env.SALT_ROUNDS)
     }).save().catch((err) => { console.log(err.message); });
 
     mongoose.connection.close()
