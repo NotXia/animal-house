@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: "Descrizione degli edpoint di autenticazione"
+  description: "Descrizione degli endpoint di autenticazione"
   version: "1.0.0"
   title: "Autenticazione"
 basePath: "/auth"
