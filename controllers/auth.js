@@ -89,6 +89,8 @@ function refreshController(req, res) {
     const old_refresh_token = req.cookies.refresh_token;
     const old_refresh_token_id = req.cookies.refresh_token_id;
 
+    if (!old_refresh_token || !old_refresh_token_id) { return res.sendStatus(401); }
+
     jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
         if (err) { return res.sendStatus(401); }
 
@@ -123,8 +125,9 @@ function refreshController(req, res) {
 function logoutController(req, res) {
     const refresh_token = req.cookies.refresh_token;
     const refresh_token_id = req.cookies.refresh_token_id;
-
+    
     setRefreshTokenCookie(res, 0, 0, 0); // Per invalidare il cookie
+    if (!refresh_token || !refresh_token_id) { return res.sendStatus(401); }
 
     jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
         if (err) { return res.sendStatus(401); }
