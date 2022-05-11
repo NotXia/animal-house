@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const token = mongoose.Schema({
+const tokenScheme = mongoose.Schema({
     username: { 
         type: String, 
         required: true 
@@ -16,4 +16,4 @@ const token = mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("tokens", token);
+module.exports = mongoose.model("tokens", tokenScheme);
