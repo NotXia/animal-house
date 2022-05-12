@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const agendaSchema = require("../utils/agenda");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const operatorScheme = mongoose.Schema({
@@ -38,22 +39,11 @@ const operatorScheme = mongoose.Schema({
         required: true 
     },
     working_time: {
-        monday: { slot: [{ start: Date, end: Date }] },
-        tuesday: { slot: [{ start: Date, end: Date }] },
-        wednesday: { slot: [{ start: Date, end: Date }] },
-        thursday: { slot: [{ start: Date, end: Date }] },
-        friday: { slot: [{ start: Date, end: Date }] },
-        saturday: { slot: [{ start: Date, end: Date }] },
-        sunday: { slot: [{ start: Date, end: Date }] }
+        type: agendaSchema,
+        required: true
     },
     absence_time: {
-        monday: { slot: [{ start: Date, end: Date }] },
-        tuesday: { slot: [{ start: Date, end: Date }] },
-        wednesday: { slot: [{ start: Date, end: Date }] },
-        thursday: { slot: [{ start: Date, end: Date }] },
-        friday: { slot: [{ start: Date, end: Date }] },
-        saturday: { slot: [{ start: Date, end: Date }] },
-        sunday: { slot: [{ start: Date, end: Date }] }
+        type: agendaSchema
     }
 
 });

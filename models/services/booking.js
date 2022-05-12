@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
+const timeSlotSchema = require("../utils/timeSlotSchema");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const bookingScheme = mongoose.Schema({
-    time_slot: { start: Date, end: Date },
+    time_slot: { type: timeSlotSchema, required: true },
     service_id: { type: ObjectId, ref: "services", required: true },
 
     customer_id: { type: ObjectId, ref: "users", required: true },
