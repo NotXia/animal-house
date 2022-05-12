@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const CategoryModel = require("category");
-const ProductModel = require("products");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const itemSchema = mongoose.Schema({
     name: {
@@ -12,14 +11,14 @@ const itemSchema = mongoose.Schema({
         required: true,
         default: ""
     },
-    catergory: {
-        type: CategoryModel.scheme,
+    catergory_id: {
+        type: ObjectId, ref: "categories",
         requied: true
     },
-    products: { 
-        type: [ProductModel.scheme],
+    products_id: [{ 
+        type: ObjectId, ref: "products",
         required: true
-    },
+    }],
 });
 
 module.exports = mongoose.model("items", itemSchema);

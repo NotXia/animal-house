@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const bookingScheme = mongoose.Schema({
     time_slot: { start: Date, end: Date },
-    service: { type: String, required: true },
+    service_id: { type: ObjectId, ref: "services", required: true },
 
-    customer: { type: String, required: true },
-    operator: { type: String, required: true },
-    service_hub: { type: String, required: true }
+    customer_id: { type: ObjectId, ref: "users", required: true },
+    operator_id: { type: ObjectId, ref: "operators", required: true },
+    service_hub_id: { type: ObjectId, ref: "hubs", required: true }
 });
 
 module.exports = mongoose.model("booking", bookingScheme);

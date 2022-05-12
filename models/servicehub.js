@@ -22,4 +22,4 @@ const serviceHubSchema = mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("serviceHub", serviceHubSchema);
+module.exports = mongoose.model("hubs", serviceHubSchema);

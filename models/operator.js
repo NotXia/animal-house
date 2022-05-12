@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const operatorScheme = mongoose.Schema({
     username: {
@@ -32,7 +33,10 @@ const operatorScheme = mongoose.Schema({
         default: new Date()
     },
 
-    role: { type: String },
+    role_id: { 
+        type: ObjectId, ref: "roles", 
+        required: true 
+    },
     working_time: {
         monday: { slot: [{ start: Date, end: Date }] },
         tuesday: { slot: [{ start: Date, end: Date }] },
