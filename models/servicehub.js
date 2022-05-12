@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const serviceHubSchema = mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     address: { 
         city: String,

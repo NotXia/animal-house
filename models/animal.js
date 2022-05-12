@@ -10,15 +10,9 @@ const animalScheme = mongoose.Schema ({
         type: String, 
         required: true
     },
-    weight: { 
-        type: Number, 
-    },
-    height: { 
-        type: Number, 
-    },
-    image_path: {
-        type: String
-    }
+    weight: { type: Number },
+    height: { type: Number },
+    image_path: { type: String }
 });
 
 module.exports = mongoose.model("animals", animalScheme);
