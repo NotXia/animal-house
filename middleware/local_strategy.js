@@ -16,7 +16,7 @@ passport.use("local", new LocalStrategy(
 
         bcrypt.compare(in_password, user_data.password).then((hash_match) => {
             if (hash_match) { 
-                return done(null, { username: user_data.username }); 
+                return done(null, { id: user_data._id, username: user_data.username }); 
             }
             else { 
                 return done(null, false); 

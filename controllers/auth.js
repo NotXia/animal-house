@@ -8,11 +8,11 @@ const bcrypt = require("bcrypt");
 
 /**
  * Crea i token (access + refresh) associati ad un utente.
- * @param username
+ * @param user_id   Id dell'utente
  * @returns I token creati nel formato { tipo { valore, scadenza } }
  */
-function createTokens(username) {
-    const jwt_payload = { username: username };
+function createTokens(user_id) {
+    const jwt_payload = { id: user_id };
     const access_token = jwt.sign(jwt_payload, process.env.ACCESS_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.ACCESS_TOKEN_EXP });
     const refresh_token = jwt.sign(jwt_payload, process.env.REFRESH_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.REFRESH_TOKEN_EXP });
 
@@ -30,16 +30,16 @@ function createTokens(username) {
 
 /**
  * Memorizza il refresh token.
- * @param {string} username         Utente associato al token
+ * @param {string} user_id          Id dell'utente associato al token
  * @param {string} token            Valore del token
  * @param {number} expiration_time  Timestamp di scadenza del token
  * @returns id associato al token inserito
  */
-async function storeRefreshToken(username, token, expiration_time) {
+async function storeRefreshToken(user_id, token, expiration_time) {
     const refresh_token_hash = await bcrypt.hash(token, parseInt(process.env.SALT_ROUNDS));
 
     const token_entry = await new TokenModel({
-        username: username,
+        user_id: user_id,
         token_hash: refresh_token_hash,
         expiration: expiration_time
     }).save().catch((err) => { throw err; });
@@ -72,10 +72,10 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
  */
 async function loginController(req, res) {
     const user = req.user; // I dati dell'utente elaborati da Passport
-    const tokens = createTokens(user.username);
+    const tokens = createTokens(user.id);
 
     // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
-    tokens.refresh.id = await storeRefreshToken(user.username, tokens.refresh.value, tokens.refresh.expiration)
+    tokens.refresh.id = await storeRefreshToken(user.id, tokens.refresh.value, tokens.refresh.expiration)
         .catch((err) => { return res.sendStatus(500) });
 
     setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
@@ -107,8 +107,8 @@ function refreshController(req, res) {
 
             // Rinnovo e salvataggio token
             await TokenModel.findByIdAndDelete(old_refresh_token_id);
-            tokens = createTokens(token.username);
-            tokens.refresh.id = await storeRefreshToken(token.username, tokens.refresh.value, tokens.refresh.expiration);
+            tokens = createTokens(token.id);
+            tokens.refresh.id = await storeRefreshToken(token.id, tokens.refresh.value, tokens.refresh.expiration);
         }
         catch (err) {
             return res.sendStatus(500);
