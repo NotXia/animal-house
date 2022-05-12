@@ -1,7 +1,7 @@
 require('dotenv').config();
 const ms = require("ms");
 
-const TokenModel = require("../models/token");
+const TokenModel = require("../models/auth/token");
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");

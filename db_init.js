@@ -1,7 +1,7 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const UserModel = require("./models/user");
+const UserModel = require("./models/auth/user");
 
 
 async function init() {
