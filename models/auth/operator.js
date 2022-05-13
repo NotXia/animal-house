@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
-const agendaSchema = require("../utils/agenda");
+const timeSlotSchema = require("../utils/timeSlotSchema");
+const getAgendaSchema = require("../utils/agenda");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const workingSlot = mongoose.Schema({
+    time: { 
+        type: timeSlotSchema, 
+        required: true 
+    },
+    hub_id: {
+        type: ObjectId, ref: "hubs",
+        required: true
+    }
+}, { _id: false });
 
 const operatorScheme = mongoose.Schema({
     username: {
@@ -39,13 +51,12 @@ const operatorScheme = mongoose.Schema({
         required: true 
     },
     working_time: {
-        type: agendaSchema,
+        type: getAgendaSchema(workingSlot),
         required: true
     },
     absence_time: {
-        type: agendaSchema
+        type: getAgendaSchema(timeSlotSchema)
     }
-
 });
 
 module.exports = mongoose.model("operators", operatorScheme);

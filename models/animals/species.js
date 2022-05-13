@@ -3,10 +3,9 @@ const mongoose = require("mongoose");
 const speciesSchema = mongoose.Schema({
     type: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
-    race: { type: String } // TODO Rivedere gestione
+    race: { type: String }
 });
 
 module.exports = mongoose.model("species", speciesSchema);

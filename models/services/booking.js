@@ -8,7 +8,7 @@ const bookingScheme = mongoose.Schema({
 
     customer_id: { type: ObjectId, ref: "users", required: true },
     operator_id: { type: ObjectId, ref: "operators", required: true },
-    service_hub_id: { type: ObjectId, ref: "hubs", required: true }
+    hub_id:      { type: ObjectId, ref: "hubs", required: true }
 });
 
 module.exports = mongoose.model("booking", bookingScheme);
