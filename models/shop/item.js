@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const ValidationError = mongoose.Error.ValidationError
 
 const itemSchema = mongoose.Schema({
     name: {
@@ -21,7 +22,7 @@ const itemSchema = mongoose.Schema({
 
 itemSchema.pre("validate", function (next) {
     if (this.products_id.length <= 0) {
-        next(new Error("No products"));
+        next(new ValidationError());
     } else {
         next();
     }

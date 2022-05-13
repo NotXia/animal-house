@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const addressSchema = require("../utils/address");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const ValidationError = mongoose.Error.ValidationError
 
 const orderSchema = mongoose.Schema({
     user_id: {
@@ -21,7 +22,7 @@ const orderSchema = mongoose.Schema({
 
 orderSchema.pre("validate", function (next) {
     if (this.products_id.length <= 0) {
-        next(new Error("No products"));
+        next(new ValidationError());
     } else {
         next();
     }
