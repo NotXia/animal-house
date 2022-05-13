@@ -5,7 +5,7 @@ const UserModel = require("./models/auth/user");
 
 
 async function init() {
-    mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
+    await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 
     await new UserModel({
         username: "admin",
@@ -16,7 +16,7 @@ async function init() {
         enabled: true
     }).save().catch((err) => { console.log(err.message); });
 
-    mongoose.connection.close()
+    await mongoose.connection.close();
 };
 
 

@@ -7,7 +7,6 @@ app.use(cookieParser());
 require("dotenv").config();
 
 const mongoose = require("mongoose");
-mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 
 const auth = require("./routes/auth");
 
@@ -25,9 +24,12 @@ app.use(function (err, req, res, next) {
 
 if (!process.env.TESTING) {
     // Crea la connessione al database prima di avviare il server
-    app.listen(process.env.NODE_PORT, function () {
-        console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
-    });
+    mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`).then(function () {
+        app.listen(process.env.NODE_PORT, function () {
+            console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
+        });
+    })
+
 }
 else {
     module.exports = app;
