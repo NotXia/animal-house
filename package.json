@@ -13,10 +13,12 @@
   "jest": {
     "testRegex": "./tests/.*.js",
     "testPathIgnorePatterns": [
-      "./tests/init.js"
+      "./tests/test_init.js",
+      "./tests/global_init.js"
     ],
+    "globalSetup": "./tests/global_init.js",
     "setupFilesAfterEnv": [
-      "./tests/init.js"
+      "./tests/test_init.js"
     ]
   },
   "repository": {
