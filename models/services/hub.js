@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const timeSlotSchema = require("../utils/timeSlotSchema");
 const getAgendaSchema = require("../utils/agenda");
+const addressSchema = require("../utils/address");
 
 const hubSchema = mongoose.Schema({
     name: {
@@ -8,9 +9,8 @@ const hubSchema = mongoose.Schema({
         required: true,
     },
     address: { 
-        city: String,
-        street: String,
-        house_number: String
+        type: addressSchema, 
+        required: true 
     },
     opening_time: {
         type: getAgendaSchema(timeSlotSchema),

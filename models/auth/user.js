@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const addressSchema = require("../utils/address");
 
 const userScheme = mongoose.Schema({
     username: { 
@@ -22,10 +24,8 @@ const userScheme = mongoose.Schema({
     gender: { type: String },
 
     address: { 
-        city: String,
-        street: String,
-        house_number: String,
-        postal_code: String
+        type: addressSchema, 
+        required: true 
     },
     phone: { type: String },
 
@@ -40,7 +40,8 @@ const userScheme = mongoose.Schema({
         default: new Date() 
     },
 
-    vip: { type: Boolean, required: true, default: false }
+    vip: { type: Boolean, required: true, default: false },
+    animals_id: [{ type: ObjectId, ref: "animals" }]
 });
 
 module.exports = mongoose.model("users", userScheme);
