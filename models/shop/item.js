@@ -8,17 +8,23 @@ const itemSchema = mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
         default: ""
     },
-    catergory_id: {
+    category_id: {
         type: ObjectId, ref: "categories",
         requied: true
     },
     products_id: [{ 
         type: ObjectId, ref: "products",
-        required: true
     }],
+});
+
+itemSchema.pre("validate", function (next) {
+    if (this.products_id.length <= 0) {
+        next(new Error("No products"));
+    } else {
+        next();
+    }
 });
 
 module.exports = mongoose.model("items", itemSchema);
