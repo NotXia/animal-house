@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const timeSlotSchema = require("../utils/timeSlotSchema");
 const getAgendaSchema = require("../utils/agenda");
-const permissionSchema = require("../utils/permission");
+const permissionSchema = require("../utils/permission.operator");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const workingSlot = mongoose.Schema({

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const addressSchema = require("../utils/address");
+const permissionSchema = require("../utils/permission.user");
 
 const userScheme = mongoose.Schema({
     username: { 
@@ -39,7 +40,7 @@ const userScheme = mongoose.Schema({
         default: new Date() 
     },
 
-    vip: { type: Boolean, required: true, default: false },
+    permission: { type: permissionSchema, default: {} }, // Eredita i campi default dello Schema
     animals_id: [{ type: ObjectId, ref: "animals" }],
 
     cart: [{ type: ObjectId, ref: "products" }]
