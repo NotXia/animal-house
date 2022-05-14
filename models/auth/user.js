@@ -23,9 +23,9 @@ const userScheme = mongoose.Schema({
     surname: { type: String, required: true },
     gender: { type: String },
 
-    address: { 
-        type: addressSchema, 
-    },
+    address: [{ // [0] contiene l'indirizzo principale
+        type: addressSchema,
+    }],
     phone: { type: String },
 
     enabled: { 
@@ -40,7 +40,9 @@ const userScheme = mongoose.Schema({
     },
 
     vip: { type: Boolean, required: true, default: false },
-    animals_id: [{ type: ObjectId, ref: "animals" }]
+    animals_id: [{ type: ObjectId, ref: "animals" }],
+
+    cart: [{ type: ObjectId, ref: "products" }]
 });
 
 module.exports = mongoose.model("users", userScheme);

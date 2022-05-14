@@ -11,7 +11,11 @@ const orderSchema = mongoose.Schema({
     products_id: [{
         type: ObjectId, ref: "products",
     }],
-    total: { type: Number, required: true },
+    total: { 
+        type: Number, 
+        required: true,
+        validate: (val) => { return val >= 0; }
+    },
     address: { type: addressSchema, required: true },
     creationDate: {
         type: Date,
