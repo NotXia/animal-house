@@ -49,7 +49,6 @@ const operatorScheme = mongoose.Schema({
 
     role_id: { 
         type: ObjectId, ref: "roles", 
-        required: true 
     },
     permission: {
         type: permissionSchema,
@@ -57,7 +56,8 @@ const operatorScheme = mongoose.Schema({
     },
     working_time: {
         type: getAgendaSchema(workingSlot),
-        required: true
+        required: true,
+        default: {}
     },
     absence_time: {
         type: getAgendaSchema(timeSlotSchema)

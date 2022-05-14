@@ -69,14 +69,15 @@ function api_request(ajax_request) {
  * Gestisce l'autenticazione dell'utente.
  * @param {string} username 
  * @param {string} password 
+ * @param {boolean} operator se true richiede l'autenticazione per un dipendente, se false per un cliente
  * @returns {boolean} true se l'autenticazione ha avuto successo, false altrimenti
  */ 
-async function login(username, password) {
+async function login(username, password, operator=false) {
     let logged = false;
 
     await $.ajax({
         type: "POST",
-        url: "/auth/login",
+        url: operator ? "/auth/login_operator" : "/auth/login",
         data: { username: username, password: password }
     }).done(function (data, textStatus, jqXHR) {
         _setAccessToken(data.access_token.value, data.access_token.expiration);
