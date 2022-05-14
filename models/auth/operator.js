@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const timeSlotSchema = require("../utils/timeSlotSchema");
 const getAgendaSchema = require("../utils/agenda");
+const permissionSchema = require("../utils/permission");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const workingSlot = mongoose.Schema({
@@ -49,6 +50,10 @@ const operatorScheme = mongoose.Schema({
     role_id: { 
         type: ObjectId, ref: "roles", 
         required: true 
+    },
+    permission: {
+        type: permissionSchema,
+        default: {} // Eredita i campi default dello Schema
     },
     working_time: {
         type: getAgendaSchema(workingSlot),
