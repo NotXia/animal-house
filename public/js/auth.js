@@ -5,22 +5,32 @@
 const _ACCESS_TOKEN_NAME = "access_token";
 const _ACCESS_TOKEN_EXPIRATION = "access_token_expiration"; 
 
+let _current_refresh_request = null; // Per salvare la richiesta di refresh dei token attualmente in corso (ed evitare richieste multiple)
+
 /* Indica se l'access token corrente è valido */
 function _isAccessTokenValid() {
+    if (!sessionStorage.getItem(_ACCESS_TOKEN_EXPIRATION) || !sessionStorage.getItem(_ACCESS_TOKEN_NAME)) { return false; }
+
     const expiration = parseInt(sessionStorage.getItem(_ACCESS_TOKEN_EXPIRATION));
     return (new Date(expiration) > new Date());
 }
 
 /* Rinnova l'access token */
 async function _requestNewToken() {
-    await $.ajax({
-        type: "POST",
-        url: "/auth/refresh",
-    }).done(function (data, textStatus, jqXHR) {
-        _setAccessToken(data.access_token.value, data.access_token.expiration);
-    }).catch((err) => {
-        console.log(err.responseJSON);
-    });
+    if (!_current_refresh_request) {
+        _current_refresh_request = $.ajax({
+            type: "POST",
+            url: "/auth/refresh",
+        }).done(function (data, textStatus, jqXHR) {
+            _setAccessToken(data.access_token.value, data.access_token.expiration);
+        }).catch((err) => {
+            console.log(err.responseJSON);
+        }).always(() => {
+            _current_refresh_request = null;
+        });
+    }
+
+    await _current_refresh_request;
 }
 
 /* Salva il valore dell'access token */
@@ -30,8 +40,8 @@ function _setAccessToken(token, expiration) {
 }
 
 /* Restituisce l'access token, rinnovandolo se necessario */
-function _getAccessToken() {
-    if (!_isAccessTokenValid()) { _requestNewToken(); }
+async function _getAccessToken() {
+    if (!_isAccessTokenValid()) { await _requestNewToken(); }
 
     return sessionStorage.getItem(_ACCESS_TOKEN_NAME);
 }
@@ -43,13 +53,12 @@ function _removeAccessToken() {
 }
 
 
-
 /** 
  * Indica se l'utente è autenticato.
  * @returns {boolean} true se l'utente è autenticato, false altrimenti
 */
-function isAuthenticated() {
-    return (_getAccessToken() != undefined);
+async function isAuthenticated() {
+    return (await _getAccessToken() != undefined);
 }
 
 /** 
@@ -57,10 +66,10 @@ function isAuthenticated() {
  * @param ajax_request parametri della richiesta (stessi di $.ajax)
  * @returns Promise della richiesta
 */
-function api_request(ajax_request) {
+async function api_request(ajax_request) {
     // Aggiunge l'header di autenticazione
     if (!ajax_request.headers) { ajax_request.headers = {}; }
-    ajax_request.headers.Authorization = `Bearer ${_getAccessToken()}`;
+    ajax_request.headers.Authorization = `Bearer ${await _getAccessToken()}`;
     
     return $.ajax(ajax_request);
 }
