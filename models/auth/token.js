@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const token = mongoose.Schema({
-    username: { 
-        type: String, 
+const tokenScheme = mongoose.Schema({
+    user_id: { 
+        type: ObjectId, ref: "users",
         required: true 
     },
     token_hash: { 
@@ -16,4 +17,4 @@ const token = mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("tokens", token);
+module.exports = mongoose.model("tokens", tokenScheme);

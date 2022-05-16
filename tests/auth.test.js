@@ -9,7 +9,7 @@ describe("Autenticazione", function () {
     let curr_session = session(app);
 
     test("Login con credenziali corrette", async function () {
-        const res = await curr_session.post('/auth/login').send({ username: "admin", password: "admin" }).expect(200);
+        const res = await curr_session.post('/auth/login_operator').send({ username: "admin", password: "admin" }).expect(200);
         expect(res.body.access_token).toBeDefined();
 
         // Verifica validità access token
@@ -39,7 +39,7 @@ describe("Autenticazione", function () {
 
 describe("Autenticazione errata", function () {
     test("Login con credenziali errate", async function () {
-        const res = await request(app).post('/auth/login').send({ username: "username_sbagliato", password: "password_sbagliata" }).expect(401);
+        const res = await request(app).post('/auth/login_operator').send({ username: "username_sbagliato", password: "password_sbagliata" }).expect(401);
         expect(res.body.access_token).toBeUndefined();
     });
 

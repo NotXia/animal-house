@@ -1,18 +1,23 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const UserModel = require("./models/user");
+const OperatorModel = require("./models/auth/operator");
 
 
 async function init() {
-    mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
+    await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 
-    await new UserModel({
+    await new OperatorModel({
         username: "admin",
-        password: await bcrypt.hash("admin", parseInt(process.env.SALT_ROUNDS))
+        password: await bcrypt.hash("admin", parseInt(process.env.SALT_ROUNDS)),
+        email: "admin@admin.it",
+        name: "Admin",
+        surname: "Admin",
+        enabled: true,
+        permission: { admin: true },
     }).save().catch((err) => { console.log(err.message); });
 
-    mongoose.connection.close()
+    await mongoose.connection.close();
 };
 
 

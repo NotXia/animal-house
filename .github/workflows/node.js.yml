@@ -32,5 +32,4 @@ jobs:
         mongodb-db: AnimalHouse
 
     - run: npm ci
-    - run: npm run initdb
     - run: npm test
