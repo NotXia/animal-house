@@ -10,6 +10,10 @@ const productSchema = mongoose.Schema({
     description: { type: String },
     images_path: [{ type: String }],
 
+    target_species_id: [{
+        type: ObjectId, ref: "species"
+    }],
+
     price: { // In formato intero
         type: Number, 
         required: true, 
