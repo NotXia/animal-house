@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const productSchema = mongoose.Schema({
+    barcode: {
+        type: String,
+        required: true,
+        unique: true
+    },
     name: { type: String },
     description: { type: String },
     images_path: [{ type: String }],
