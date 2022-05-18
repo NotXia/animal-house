@@ -2,12 +2,13 @@ require('dotenv').config();
 const { matchedData } = require('express-validator');
 const OperatorModel = require("../models/auth/operator");
 const UserModel = require("../models/auth/user");
+const bcrypt = require("bcrypt");
 
 async function insertOperator(req, res) {
     try {
         const newOperator = new OperatorModel({ 
             username: req.body.username,
-            password: req.body.password,
+            password: await bcrypt.hash(req.body.password, parseInt(process.env.SALT_ROUNDS)),
             email: req.body.email,
             name: req.body.name,
             surname: req.body.surname,
@@ -27,7 +28,7 @@ async function insertCustomer(req, res) {
     try {
         const newCustomer = new UserModel({
             username: req.body.username,
-            password: req.body.password,
+            password: await bcrypt.hash(req.body.password, parseInt(process.env.SALT_ROUNDS)),
             email: req.body.email,
             name: req.body.name,
             surname: req.body.surname,
