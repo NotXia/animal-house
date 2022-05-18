@@ -49,6 +49,7 @@ const operatorScheme = mongoose.Schema({
 
     role_id: { 
         type: ObjectId, ref: "roles", 
+        // required: true,
     },
     permission: {
         type: permissionSchema,

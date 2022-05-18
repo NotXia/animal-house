@@ -12,8 +12,8 @@ const empty_function = () => {};
 // Per nascondere i console.log
 global.console = {
     log:        empty_function,
-    debug:      empty_function,
-    info:       empty_function,
+    // debug:      empty_function,
+    // info:       empty_function,
     // warn:       empty_function,
     // error:      empty_function
 };

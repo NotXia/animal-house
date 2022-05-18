@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { matchedData } = require('express-validator');
 const OperatorModel = require("../models/auth/operator");
 const UserModel = require("../models/auth/user");
 
@@ -11,11 +12,9 @@ async function insertOperator(req, res) {
             name: req.body.name,
             surname: req.body.surname,
             gender: req.body.gender,
-            enabled: req.body.enabled,
             role_id: req.body.role_id,
             permission: req.body.permission,
-            working_time: req.body.working_time,
-            absence_time: req.body.absence_time
+            working_time: req.body.working_time
         });
         await newCustomer.save();
     } catch (e) {
@@ -38,6 +37,7 @@ async function insertCustomer(req, res) {
         });
         await newCustomer.save();
     } catch (e) {
+        console.debug(e);
         res.sendStatus(500);
     }
     res.sendStatus(200);
@@ -45,7 +45,6 @@ async function insertCustomer(req, res) {
 
 function searchUser(is_operator) {
     return async function(req, res) {
-        // console.log(is_operator);
         const RoleModel = is_operator ? OperatorModel : UserModel;
 
         try {
@@ -77,7 +76,6 @@ function updateUser(is_operator) {
 
 function deleteUser(is_operator) {
     return async function(req, res) {
-        // console.log(is_operator);
         const RoleModel = is_operator ? OperatorModel : UserModel;
         
         try {
@@ -94,7 +92,7 @@ function deleteUser(is_operator) {
 module.exports = {
     insertOperator: insertOperator,
     insertCustomer: insertCustomer,
-    search: searchUser,
-    update: updateUser,
-    delete: deleteUser
+    searchUser: searchUser,
+    updateUser: updateUser,
+    deleteUser: deleteUser
 }

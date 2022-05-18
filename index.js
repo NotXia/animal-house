@@ -9,9 +9,11 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 const auth = require("./routes/auth");
+const user = require("./routes/user");
 
 app.use("/", express.static("public"));
 app.use("/auth", auth);
+app.use("/user", user);
 
 if (!process.env.TESTING) {
     // Crea la connessione al database prima di avviare il server
