@@ -17,10 +17,15 @@ const validateCreate = [
 
 
 const validateSearchItem = [
+    validator.query("page_size").exists().isInt({ min: 1 }),
+    validator.query("page_number").exists().isInt({ min: 0 }),
+    validator.query("category_id").optional().isMongoId(),
+    validator.query("name").optional().trim().escape(),
     _errorHandler
 ];
 
 const validateSearchItemByBarcode = [
+    validator.param("barcode").not().isEmpty().trim(),
     _errorHandler
 ];
 

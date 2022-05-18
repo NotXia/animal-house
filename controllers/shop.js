@@ -9,11 +9,40 @@ async function createItem(req, res) {
 }
 
 async function searchItem(req, res) {
+    let items = []; // Conterrà il risultato della ricerca
+    let query = {};
 
+    // Composizione della query
+    if (req.query.category_id) { query.category_id = req.query.category_id; }
+    if (req.query.name) { query.name = req.query.name; }
+
+    try {
+        const query_obj = ItemModel.find(query)
+                            .limit(req.query.page_size)
+                            .skip(req.query.page_number);
+        items = await query_obj.exec();
+    }
+    catch (err) {
+        return res.sendStatus(500);
+    }
+
+    if (items.length === 0) { return res.sendStatus(404); }
+    return res.status(200).send(items);
 }
 
 async function searchItemByBarcode(req, res) {
+    let item; // Conterrà il risultato della ricerca
 
+    try {
+        const product = await ProductModel.findOne({ barcode: req.params.barcode }).exec();
+        item = await ItemModel.find({ products_id: product._id }).exec();
+    }
+    catch(err) { 
+        return res.sendStatus(500); 
+    }
+    
+    if (!item) { res.sendStatus(404); }
+    return res.status(200).send(item);
 }
 
 async function updateItemByBarcode(req, res) {
