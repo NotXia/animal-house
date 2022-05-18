@@ -13,11 +13,12 @@ async function insertOperator(req, res) {
             name: req.body.name,
             surname: req.body.surname,
             gender: req.body.gender,
+            enabled: true,
             role_id: req.body.role_id,
             permission: req.body.permission,
             working_time: req.body.working_time
         });
-        await newCustomer.save();
+        await newOperator.save();
     } catch (e) {
         res.sendStatus(500);
     }
