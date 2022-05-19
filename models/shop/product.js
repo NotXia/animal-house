@@ -28,4 +28,7 @@ const productSchema = mongoose.Schema({
     }
 });
 
+productSchema.index({ price: 1, barcode: 1 });
+
+
 module.exports = mongoose.model("products", productSchema);

@@ -28,6 +28,8 @@ const itemSchema = mongoose.Schema({
     }
 });
 
+itemSchema.index({ relevance: 1, products_id: 1, category_id: 1 });
+
 itemSchema.pre("validate", function (next) {
     if (this.products_id.length <= 0) {
         next(new ValidationError());
