@@ -65,8 +65,25 @@ async function searchItemByBarcode(req, res) {
         return res.sendStatus(500); 
     }
     
-    if (!item) { res.sendStatus(404); }
+    if (!item) { return res.sendStatus(404); }
     return res.status(200).send(item);
+}
+
+async function searchProducts(req, res) {
+    let products = []; // Conterrà il risultato della ricerca
+
+    try {
+        const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec();
+        if (item) {
+            products = item.products_id;
+        }
+    }
+    catch (err) {
+        return res.sendStatus(500);
+    }
+
+    if (products.length === 0) { return res.sendStatus(404); }
+    return res.status(200).send(products);
 }
 
 async function updateItemByBarcode(req, res) {
@@ -100,6 +117,7 @@ module.exports = {
         create: createItem,
         search: searchItem,
         searchByBarcode: searchItemByBarcode,
+        searchProducts: searchProducts,
         update: updateItemByBarcode,
         delete: deleteItemByBarcode
     },

@@ -27,7 +27,7 @@ router.post("/items/",
  *
  * @apiSuccess (200) {Object[]} Vettore degli item che soddisfano i criteri di ricerca
  * @apiError   (400) {Object[]} Vettore dei campi errati
- * @apiError   (404) {Object[]} Nessun elemento trovato
+ * @apiError   (404)            Nessun elemento trovato
  * @apiError   (500)            Errore interno
  */
 router.get("/items/", shop_middleware.item.validateSearch, shop_controller.item.search);
@@ -41,7 +41,7 @@ router.get("/items/", shop_middleware.item.validateSearch, shop_controller.item.
  *
  * @apiSuccess (200) {Object}   Item trovato
  * @apiError   (400) {Object[]} Vettore dei campi errati
- * @apiError   (404) {Object}   Nessun item trovato
+ * @apiError   (404)            Nessun item trovato
  * @apiError   (500)            Errore interno
  */
 router.get("/items/:barcode", 
@@ -51,6 +51,20 @@ router.get("/items/:barcode",
     ], 
     shop_controller.item.searchByBarcode
 );
+
+/**
+ * @api {get} /items/:item_id/products Cerca i prodotti associati ad un item
+ * @apiName SearchItemByBarcode
+ * @apiGroup Item
+ *
+ * @apiParam {String} item_id ObjectId dell'item
+ *
+ * @apiSuccess (200) {Object}   Prodotti trovati
+ * @apiError   (400) {Object[]} Vettore dei campi errati
+ * @apiError   (404)            Nessun prodotto trovato
+ * @apiError   (500)            Errore interno
+ */
+router.get("/items/:item_id/products/", shop_middleware.item.validateSearchProducts, shop_controller.item.searchProducts);
 
 router.put("/items/:barcode", 
     [

@@ -112,6 +112,25 @@ describe("Test GET /shop/items/", function () {
     });
 });
 
+describe("Test GET /shop/items/:item_id/products", function () {
+    test("Richiesta corretta", async function () {
+        let res = await curr_session.get(`/shop/items/${items[0]._id}/products`).expect(200);
+        expect(res.body).toEqual(expect.any(Array));
+        expect(res.body.length).toEqual(1);
+        expect(res.body[0].name).toEqual("Prodotto1");
+
+        res = await curr_session.get(`/shop/items/${items[1]._id}/products`).expect(200);
+        expect(res.body).toEqual(expect.any(Array));
+        expect(res.body.length).toEqual(2);
+        expect(res.body[0].name).toEqual("Prodotto2");
+    });
+
+    test("Richiesta errata", async function () {
+        await curr_session.get(`/shop/items/aaaa/products`).expect(400);
+        await curr_session.get(`/shop/items/${products[0]._id}/products`).expect(404);
+    });
+});
+
 describe("Autenticazione", function () {
     test("Login con credenziali admin", async function () {
         const res = await curr_session.post('/auth/login_operator').send({ username: "admin", password: "admin" }).expect(200);

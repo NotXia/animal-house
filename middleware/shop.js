@@ -29,7 +29,12 @@ const validateSearchItem = [
 ];
 
 const validateSearchItemByBarcode = [
-    validator.param("barcode").not().isEmpty().trim(),
+    validator.param("barcode").exists().trim(),
+    _errorHandler
+];
+
+const validateSearchProducts = [
+    validator.param("item_id").exists().isMongoId(),
     _errorHandler
 ];
 
@@ -69,6 +74,7 @@ module.exports = {
         validateCreate: validateCreate,
         validateSearch: validateSearchItem,
         validateSearchByBarcode: validateSearchItemByBarcode,
+        validateSearchProducts: validateSearchProducts,
         validateUpdate: validateUpdateItemByBarcode,
         validateDelete: validateDeleteItemByBarcode
     },
