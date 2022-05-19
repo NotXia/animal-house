@@ -24,9 +24,9 @@ describe("Database - gestione shop", function () {
         tmp = await new SpeciesModel({ type: "Gatto", race: "Sacro di Birmania" }).save();
         species_id.push(tmp._id);
 
-        tmp = await new CategoryModel({ name: "Cibo", target: [] }).save();
+        tmp = await new CategoryModel({ name: "Cibo" }).save();
         categories_id.push(tmp._id);
-        tmp = await new CategoryModel({ name: "Abbigliamento", target: [randomOf(species_id)] }).save();
+        tmp = await new CategoryModel({ name: "Abbigliamento" }).save();
         categories_id.push(tmp._id);
 
         tmp = await new ProductModel({ name: "Prodotto1", price: 1000, quantity: 5, barcode: "12345" }).save();
