@@ -33,7 +33,12 @@ async function searchItem(req, res) {
             name: 1,
             description: 1,
             min_price: { $min: "$products.price" },
-            product_number: { $size: "$products" }
+            product_number: { $size: "$products" },
+            image_path: {
+                $first: {
+                    $getField: { field: "images_path", input: { $first: "$products" } }
+                }
+            }
         }},
         { $sort: sort_criteria },
         { $skip: parseInt(req.query.page_number) },

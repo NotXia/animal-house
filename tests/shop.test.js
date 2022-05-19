@@ -24,7 +24,7 @@ describe("Popolazione database", function () {
         categories_id.push(tmp._id);
         category = tmp;
 
-        tmp = await new ProductModel({ name: "Prodotto1", price: 2000, quantity: 5, barcode: "1" }).save();
+        tmp = await new ProductModel({ name: "Prodotto1", price: 2000, quantity: 5, barcode: "1", images_path: ["b", "a"] }).save();
         products_id.push(tmp._id);
         products.push(tmp);
         tmp = await new ProductModel({ name: "Prodotto2", price: 1000, barcode: "2" }).save();
@@ -58,6 +58,7 @@ describe("Test GET /shop/items/", function () {
 
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(3);
+        expect(res.body[0].image_path).toEqual("b");
         expect(res.body[1].min_price).toEqual(1000);
         expect(res.body[1].product_number).toEqual(2);
     });
