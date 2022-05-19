@@ -21,6 +21,10 @@ const validateSearchItem = [
     validator.query("page_number").exists().isInt({ min: 0 }),
     validator.query("category_id").optional().isMongoId(),
     validator.query("name").optional().trim().escape(),
+    validator.query("price_asc").optional().isBoolean(),
+    validator.query("price_desc").optional().isBoolean(),
+    validator.query("name_asc").optional().isBoolean(),
+    validator.query("name_desc").optional().isBoolean(),
     _errorHandler
 ];
 
