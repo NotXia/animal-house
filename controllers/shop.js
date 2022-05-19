@@ -32,9 +32,9 @@ async function searchItem(req, res) {
         { $project: {
             name: 1,
             description: 1,
-            min_price: { $min: "$products.price" },
+            min_price: { $min: "$products.price" }, // Il prezzo che rappresenta l'item è quello più piccolo tra i suoi prodotti
             product_number: { $size: "$products" },
-            image_path: {
+            image_path: { // L'immagine associata ad un item è la prima del primo prodotto
                 $first: {
                     $getField: { field: "images_path", input: { $first: "$products" } }
                 }
