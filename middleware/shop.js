@@ -1,19 +1,30 @@
-const validator = require('express-validator');
+const validator = require("express-validator");
+const file_upload = require("express-fileupload");
+const utils = require("./utils");
 
-
-function _errorHandler(req, res, next) {
-    const errors = validator.validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).send(errors.array());
-    }
-    else {
-        next();
-    }
-}
 
 const validateCreate = [
-    _errorHandler
+    validator.body("name").exists().trim().escape(),
+    validator.body("description").optional().trim().escape(),
+    validator.body("category_id").exists().isMongoId(),
+    validator.body("products").exists().notEmpty(),
+    validator.body("products.*.barcode").exists().trim().escape(),
+    validator.body("products.*.name").optional().trim().escape(),
+    validator.body("products.*.description").optional().trim().escape(),
+    validator.body("products.*.price").exists().isInt({ min: 0 }),
+    validator.body("products.*.quantity").optional().isInt({ min: 0 }),
+    validator.body("products.*.target_species_id").optional(),
+    validator.body("products.*.target_species_id.*").optional().isMongoId(),
+    utils.errorHandler,
 ];
+
+const validateCreateFileUpload = [
+    validator.param("item_id").exists().isMongoId(),
+    validator.param("product_index").exists().isInt({ min: 0 }),
+    file_upload(),
+    utils.verifyImage,
+    utils.errorHandler,
+]
 
 
 const validateSearchItem = [
@@ -25,53 +36,54 @@ const validateSearchItem = [
     validator.query("price_desc").optional().isBoolean(),
     validator.query("name_asc").optional().isBoolean(),
     validator.query("name_desc").optional().isBoolean(),
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateSearchItemByBarcode = [
     validator.param("barcode").exists().trim(),
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateSearchProducts = [
     validator.param("item_id").exists().isMongoId(),
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateUpdateItemByBarcode = [
-    _errorHandler
+    utils.errorHandler
 ];
 
 
 const validateDeleteItemByBarcode = [
-    _errorHandler
+    utils.errorHandler
 ];
 
 
 
 const validateCreateCategory = [
-    _errorHandler
+    utils.errorHandler
 ];
 
 
 const validateSearchCategory = [
-    _errorHandler
+    utils.errorHandler
 ];
 
 
 const validateUpdateCategory = [
-    _errorHandler
+    utils.errorHandler
 ];
 
 
 const validateDeleteCategory = [
-    _errorHandler
+    utils.errorHandler
 ];
 
 
 module.exports = {
     item: {
         validateCreate: validateCreate,
+        validateCreateFileUpload: validateCreateFileUpload,
         validateSearch: validateSearchItem,
         validateSearchByBarcode: validateSearchItemByBarcode,
         validateSearchProducts: validateSearchProducts,
