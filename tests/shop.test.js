@@ -158,9 +158,9 @@ describe("Test GET /shop/items/:barcode", function () {
     });
 });
 
-describe("Test inserimento", function () {
-    let item_id;
+let item_id;
 
+describe("Test inserimento", function () {
     test("Richiesta corretta a POST /items/", async function () {
         const res = await curr_session.post("/shop/items/")
                         .set({ Authorization: `Bearer ${user.access_token.value}` })
@@ -229,6 +229,18 @@ describe("Test inserimento", function () {
         await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
             .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
             .expect(400);
+    });
+});
+
+describe("Test cancellazione", function () {
+    test("Richiesta corretta a DELETE /items/:item_id", async function () {
+        const res = await curr_session.delete(`/shop/items/${item_id}`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .expect(200);
+
+        expect(await ItemModel.findById(item_id).exec()).toBeNull();
+        expect(await ProductModel.findOne({ barcode: "new12345" }).exec()).toBeNull();
+        expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();
     });
 });
 

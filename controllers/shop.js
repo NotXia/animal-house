@@ -6,8 +6,9 @@ const ItemModel = require("../models/shop/item");
 const ProductModel = require("../models/shop/product");
 
 const { nanoid } = require("nanoid");
-const path = require('path');
 const validator = require("express-validator");
+const path = require("path");
+const fs = require("fs");
 
 
 async function createItem(req, res) {
@@ -153,7 +154,38 @@ async function updateItemByBarcode(req, res) {
 }
 
 async function deleteItemByBarcode(req, res) {
+    const session = await mongoose.startSession();
 
+    try {
+        session.startTransaction();
+
+        // Estrazione dei prodotti associati all'item
+        const to_delete_item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
+        if (!to_delete_item) { return res.sendStatus(404); }
+
+        // Rimozione delle immagini associate ai prodotti
+        const products = await ProductModel.find({ _id: { $in: to_delete_item.products_id } }, { images_path: 1 }).exec();
+        for (const product of products) {
+            for (const image of product.images_path) {
+                fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, image));
+            }
+        }
+
+        // Rimozione dei prodotti e dell'item
+        await ProductModel.deleteMany({ _id: { $in: to_delete_item.products_id } });
+        await ItemModel.findByIdAndDelete(req.params.item_id);
+
+        await session.commitTransaction();
+        session.endSession();
+    }
+    catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        // TODO Gestire errore di chiavi duplicate
+        return res.sendStatus(500);
+    }
+
+    return res.sendStatus(200);
 }
 
 

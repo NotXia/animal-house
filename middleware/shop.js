@@ -55,6 +55,7 @@ const validateUpdateItemByBarcode = [
 
 
 const validateDeleteItemByBarcode = [
+    validator.param("item_id").exists().isMongoId(),
     utils.errorHandler
 ];
 
