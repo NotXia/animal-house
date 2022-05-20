@@ -1,12 +1,47 @@
 require('dotenv').config();
+
+const mongoose = require("mongoose");
 const CategoryModel = require("../models/shop/category");
 const ItemModel = require("../models/shop/item");
 const ProductModel = require("../models/shop/product");
+
 const { nanoid } = require("nanoid");
 const path = require('path');
+const validator = require("express-validator");
+
 
 async function createItem(req, res) {
+    let new_item_id;
+    const session = await mongoose.startSession();
+    
+    try {
+        session.startTransaction();
 
+        const to_insert_item = validator.matchedData(req);
+        const to_insert_products = to_insert_item.products;
+
+        // Inserimento dei singoli prodotti
+        const products = await ProductModel.insertMany(to_insert_products);
+        const products_id = products.map((product) => product._id);
+    
+        // Composizione dell'item da inserire
+        delete to_insert_item.products;
+        to_insert_item.products_id = products_id;
+    
+        const new_item = await new ItemModel(to_insert_item).save();
+        new_item_id = new_item.id;
+
+        await session.commitTransaction();
+        session.endSession();
+    }
+    catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        // TODO Gestire errore di chiavi duplicate
+        return res.sendStatus(500);
+    }
+
+    return res.status(200).send({ id: new_item_id });
 }
 
 async function createUploadImages(req, res) {
@@ -29,7 +64,6 @@ async function createUploadImages(req, res) {
         await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: filenames } } });
     }
     catch(err) {
-        console.log(err);
         return res.sendStatus(500);
     }
 
