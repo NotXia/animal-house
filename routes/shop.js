@@ -14,6 +14,13 @@ router.post("/items/",
     shop_controller.item.create
 );
 
+router.post("/items/:item_id/products/:product_index/images/", 
+    [
+        auth_middleware([["admin"], ["operator", "shop_write"]]),
+        shop_middleware.item.validateCreateFileUpload
+    ], 
+    shop_controller.item.createUploadImages
+);
 
 /**
  * @api {get} /items/ Cerca determinati item dello shop paginandoli secondo un dato criterio 

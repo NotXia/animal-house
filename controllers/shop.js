@@ -2,10 +2,38 @@ require('dotenv').config();
 const CategoryModel = require("../models/shop/category");
 const ItemModel = require("../models/shop/item");
 const ProductModel = require("../models/shop/product");
-
+const { nanoid } = require("nanoid");
+const path = require('path');
 
 async function createItem(req, res) {
 
+}
+
+async function createUploadImages(req, res) {
+    try {
+        // Ricerca dell'id del prodotto
+        const item = await ItemModel.findById(req.params.item_id, {products_id: 1}).exec();
+        if (!item) { return res.sendStatus(404); }
+        const product_id = item.products_id[parseInt(req.params.product_index)];
+        if (!product_id) { return res.sendStatus(404); }
+    
+        // Salvataggio dei file nel FS
+        let filenames = []
+        for (const [key, file] of Object.entries(req.files)) {
+            const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
+            filenames.push(filename);
+
+            await file.mv(`${process.env.SHOP_IMAGES_DIR_ABS_PATH}/${filename}`);
+        }
+
+        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: filenames } } });
+    }
+    catch(err) {
+        console.log(err);
+        return res.sendStatus(500);
+    }
+
+    return res.sendStatus(200);
 }
 
 async function searchItem(req, res) {
@@ -115,6 +143,7 @@ async function deleteCategory(req, res) {
 module.exports = {
     item: {
         create: createItem,
+        createUploadImages: createUploadImages,
         search: searchItem,
         searchByBarcode: searchItemByBarcode,
         searchProducts: searchProducts,
