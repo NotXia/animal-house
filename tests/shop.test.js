@@ -215,6 +215,21 @@ describe("Test inserimento", function () {
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[0]))).toBeTruthy();
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[1]))).toBeTruthy();
     });
+
+    test("Richieste errate a POST /items/:item_id/products/:product_index/images/", async function () {
+        const txt = path.resolve(path.join(__dirname, "/resources/txt.txt"));
+
+        // Formato sbagliato
+        await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
+            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .attach("file0", txt)
+            .expect(400);
+
+        // Nessun file
+        await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
+            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .expect(400);
+    });
 });
 
 describe("Pulizia", function () {
