@@ -1,6 +1,8 @@
 require("dotenv").config();
 const app = require("../index.js");
 const session = require('supertest-session');
+const path = require("path");
+const fs = require("fs");
 
 const CategoryModel = require("../models/shop/category");
 const ItemModel = require("../models/shop/item");
@@ -9,6 +11,7 @@ const ProductModel = require("../models/shop/product");
 let curr_session = session(app);
 let user = null;
 
+// Per tracciare gli oggetti da eliminare alla fine
 let categories_id = [];
 let products_id = [];
 let items_id = [];
@@ -16,6 +19,7 @@ let items_id = [];
 let category;
 let products = [];
 let items = [];
+
 describe("Popolazione database", function () {
     let tmp;
 
@@ -54,7 +58,7 @@ describe("Popolazione database", function () {
 
 describe("Test GET /shop/items/", function () {
     test("Richiesta corretta senza criteri", async function () {
-        const res = await curr_session.get('/shop/items/').query({ page_size: 5, page_number: 0 }).expect(200);
+        const res = await curr_session.get("/shop/items/").query({ page_size: 5, page_number: 0 }).expect(200);
 
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(3);
@@ -64,37 +68,37 @@ describe("Test GET /shop/items/", function () {
     });
 
     test("Verifica ordinamento", async function () {
-        let res = await curr_session.get('/shop/items/').query({ page_size: 5, page_number: 0, price_asc: true }).expect(200);
+        let res = await curr_session.get("/shop/items/").query({ page_size: 5, page_number: 0, price_asc: true }).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(3);
         expect(res.body[0].min_price).toEqual(1000);
         expect(res.body[2].min_price).toEqual(4000);
         expect(res.body[0].min_price).toBeLessThanOrEqual(res.body[1].min_price);
 
-        res = await curr_session.get('/shop/items/').query({ page_size: 5, page_number: 0, price_desc: true }).expect(200);
+        res = await curr_session.get("/shop/items/").query({ page_size: 5, page_number: 0, price_desc: true }).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(3);
         expect(res.body[0].min_price).toEqual(4000);
         expect(res.body[2].min_price).toEqual(1000);
         expect(res.body[0].min_price).toBeGreaterThanOrEqual(res.body[1].min_price); 
 
-        res = await curr_session.get('/shop/items/').query({ page_size: 5, page_number: 0, name_asc: true }).expect(200);
+        res = await curr_session.get("/shop/items/").query({ page_size: 5, page_number: 0, name_asc: true }).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(3);
         expect(res.body[0].name).toEqual("Item1");
     });
     
     test("Verifica paginazione", async function () {
-        let res = await curr_session.get('/shop/items/').query({ page_size: 1, page_number: 0 }).expect(200);
+        let res = await curr_session.get("/shop/items/").query({ page_size: 1, page_number: 0 }).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(1);
         
-        res = await curr_session.get('/shop/items/').query({ page_size: 2, page_number: 0 }).expect(200);
+        res = await curr_session.get("/shop/items/").query({ page_size: 2, page_number: 0 }).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(2);
 
         for (let i=0; i<3; i++) {
-            res = await curr_session.get('/shop/items/').query({ page_size: 1, page_number: i, name_asc: true }).expect(200);
+            res = await curr_session.get("/shop/items/").query({ page_size: 1, page_number: i, name_asc: true }).expect(200);
             expect(res.body).toEqual(expect.any(Array));
             expect(res.body.length).toEqual(1);
             expect(res.body[0].name).toEqual(`Item${i+1}`);
@@ -102,24 +106,24 @@ describe("Test GET /shop/items/", function () {
     });
     
     test("Richieste non corrette", async function () {
-        await curr_session.get('/shop/items/').query({ category_id: "Cibo", name: "Tonno in scatola", page_size: 5, page_number: 0 }).expect(400);
+        await curr_session.get("/shop/items/").query({ category_id: "Cibo", name: "Tonno in scatola", page_size: 5, page_number: 0 }).expect(400);
         
-        await curr_session.get('/shop/items/').query({ name: "Tonno in barattolo", page_number: 0 }).expect(400);
+        await curr_session.get("/shop/items/").query({ name: "Tonno in barattolo", page_number: 0 }).expect(400);
     });
 
     test("Richiesta vuota", async function () {
-        await curr_session.get('/shop/items/').query({ name: "Tritolo", page_size: 5, page_number: 0 }).expect(404);
+        await curr_session.get("/shop/items/").query({ name: "Tritolo", page_size: 5, page_number: 0 }).expect(404);
     });
 });
 
 describe("Test GET /shop/items/:item_id/products", function () {
     test("Richiesta corretta", async function () {
-        let res = await curr_session.get(`/shop/items/${items[0]._id}/products`).expect(200);
+        let res = await curr_session.get(`/shop/items/${items[0]._id}/products/`).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(1);
         expect(res.body[0].name).toEqual("Prodotto1");
 
-        res = await curr_session.get(`/shop/items/${items[1]._id}/products`).expect(200);
+        res = await curr_session.get(`/shop/items/${items[1]._id}/products/`).expect(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toEqual(2);
         expect(res.body[0].name).toEqual("Prodotto2");
@@ -127,13 +131,13 @@ describe("Test GET /shop/items/:item_id/products", function () {
 
     test("Richiesta errata", async function () {
         await curr_session.get(`/shop/items/aaaa/products`).expect(400);
-        await curr_session.get(`/shop/items/${products[0]._id}/products`).expect(404);
+        await curr_session.get(`/shop/items/${products[0]._id}/products/`).expect(404);
     });
 });
 
 describe("Autenticazione", function () {
     test("Login con credenziali admin", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "admin", password: "admin" }).expect(200);
+        const res = await curr_session.post("/auth/login_operator").send({ username: "admin", password: "admin" }).expect(200);
         expect(res.body.access_token).toBeDefined();
         user = res.body;
     });
@@ -141,20 +145,79 @@ describe("Autenticazione", function () {
 
 describe("Test GET /shop/items/:barcode", function () {
     test("Richiesta corretta", async function () {
-        const res = await curr_session.get('/shop/items/1').set({ Authorization: `Bearer ${user.access_token.value}` }).expect(200);
+        const res = await curr_session.get("/shop/items/1").set({ Authorization: `Bearer ${user.access_token.value}` }).expect(200);
         expect(res.body.name).toEqual("Item1");
     });
 
     test("Richiesta non autenticata", async function () {
-        await curr_session.get('/shop/items/1').expect(401);
+        await curr_session.get("/shop/items/1").expect(401);
     });
 
     test("Richiesta vuota", async function () {
-        await curr_session.get('/shop/items/aaaa').set({ Authorization: `Bearer ${user.access_token.value}` }).expect(404);
+        await curr_session.get("/shop/items/aaaa").set({ Authorization: `Bearer ${user.access_token.value}` }).expect(404);
     });
 });
 
-describe("Pulizia database", function () {
+describe("Test inserimento", function () {
+    let item_id;
+
+    test("Richiesta corretta a POST /items/", async function () {
+        const res = await curr_session.post("/shop/items/")
+                        .set({ Authorization: `Bearer ${user.access_token.value}` })
+                        .send({
+                            name: "NewItem1", description: "", category_id: category._id,
+                            products: [
+                                { barcode: "new12345", name: "NewProdotto1", price: 1000, quantity: 5 },
+                                { barcode: "new23456", name: "NewProdotto2", price: 2000 },
+                            ]
+                        }).expect(200);
+        expect(res.body.id).toBeDefined();
+        const item = await ItemModel.findOne({ name: "NewItem1" }, {_id: 1}).exec();
+        expect(res.body.id).toEqual(item._id.toString());
+
+        item_id = res.body.id;
+    });
+
+    test("Richieste errate a POST /items/", async function () {
+        await curr_session.post("/shop/items/")
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({
+                name: "NewItem2", description: "", category_id: category._id,
+                products: []
+            }).expect(400);
+
+        await curr_session.post("/shop/items/")
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({
+                name: "NewItem3", description: "", category_id: category._id,
+                products: [{ name: "NewProdotto3", price: 1000, quantity: 5 },]
+            }).expect(400);
+
+        await curr_session.post("/shop/items/")
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({
+                name: "NewItem4", description: "",
+                products: [{ barcode: "new54321", name: "NewProdotto4", price: 1000, quantity: 5 },]
+            }).expect(400);
+    });
+
+    test("Richiesta corretta a POST /items/:item_id/products/:product_index/images/", async function () {
+        const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
+        const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
+
+        await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
+            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .attach("file1", img2)
+            .expect(200);
+
+        const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
+        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[0]))).toBeTruthy();
+        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[1]))).toBeTruthy();
+    });
+});
+
+describe("Pulizia", function () {
     test("Pulizia database", async function () {
         for (const id of categories_id) { await CategoryModel.findByIdAndDelete(id); }
         for (const id of products_id) { await ProductModel.findByIdAndDelete(id); }
