@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { matchedData } = require('express-validator');
+// const { matchedData } = require('express-validator');
 const OperatorModel = require("../models/auth/operator");
 const UserModel = require("../models/auth/user");
 const bcrypt = require("bcrypt");

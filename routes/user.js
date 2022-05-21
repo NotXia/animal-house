@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const auth_middleware = require("../middleware/auth");
 const user_middleware = require("../middleware/user");
-
-
 const user_controller = require("../controllers/user");
 
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
