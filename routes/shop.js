@@ -24,7 +24,6 @@ router.post("/items/:item_id/products/:product_index/images/",
 
 /**
  * @api {get} /items/ Cerca determinati item dello shop paginandoli secondo un dato criterio 
- * @apiName SearchItem
  * @apiGroup Item
  *
  * @apiParam {Number}   page_size       Numero di item da estrarre
@@ -41,7 +40,6 @@ router.get("/items/", shop_middleware.item.validateSearch, shop_controller.item.
 
 /**
  * @api {get} /items/:barcode Cerca un item dello shop cercandolo per barcode di uno dei prodotto associati
- * @apiName SearchItemByBarcode
  * @apiGroup Item
  *
  * @apiParam {String} barcode Barcode da cercare
@@ -61,7 +59,6 @@ router.get("/items/:barcode",
 
 /**
  * @api {get} /items/:item_id/products Cerca i prodotti associati ad un item
- * @apiName SearchItemByBarcode
  * @apiGroup Item
  *
  * @apiParam {String} item_id ObjectId dell'item
@@ -73,12 +70,20 @@ router.get("/items/:barcode",
  */
 router.get("/items/:item_id/products/", shop_middleware.item.validateSearchProducts, shop_controller.item.searchProducts);
 
-router.put("/items/:barcode", 
+router.put("/items/:item_id", 
     [
         auth_middleware([ ["admin"], ["operator", "shop_write"] ]),
-        shop_middleware.item.validateUpdate
+        shop_middleware.item.validateUpdateItem
     ], 
-    shop_controller.item.update
+    shop_controller.item.updateItem
+);
+
+router.put("/items/:item_id/products/:product_index",
+    [
+        auth_middleware([["admin"], ["operator", "shop_write"]]),
+        shop_middleware.item.validateUpdateProduct
+    ],
+    shop_controller.item.updateProduct
 );
 
 router.delete("/items/:item_id", 

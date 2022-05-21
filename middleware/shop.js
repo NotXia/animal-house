@@ -49,10 +49,26 @@ const validateSearchProducts = [
     utils.errorHandler
 ];
 
-const validateUpdateItemByBarcode = [
+const validateUpdateItemById = [
+    validator.param("item_id").exists().isMongoId(),
+    validator.body("name").optional().trim().escape(),
+    validator.body("description").optional().trim().escape(),
+    validator.body("category_id").optional().isMongoId(),
     utils.errorHandler
 ];
 
+const validateUpdateProductByIndex = [
+    validator.param("item_id").exists().isMongoId(),
+    validator.param("product_index").exists().isInt({ min: 0 }),
+    validator.body("barcode").optional().trim().escape(),
+    validator.body("name").optional().trim().escape(),
+    validator.body("description").optional().trim().escape(),
+    validator.body("target_species_id").optional().isArray(),
+    validator.body("target_species_id.*").optional().isMongoId(),
+    validator.body("price").optional().isInt({ min: 0 }),
+    validator.body("quantity").optional().isInt({ min: 0 }),
+    utils.errorHandler
+];
 
 const validateDeleteItemById = [
     validator.param("item_id").exists().isMongoId(),
@@ -92,7 +108,8 @@ module.exports = {
         validateSearch: validateSearchItem,
         validateSearchByBarcode: validateSearchItemByBarcode,
         validateSearchProducts: validateSearchProducts,
-        validateUpdate: validateUpdateItemByBarcode,
+        validateUpdateItem: validateUpdateItemById,
+        validateUpdateProduct: validateUpdateProductByIndex,
         validateDeleteItem: validateDeleteItemById,
         validateDeleteProduct: validateDeleteProductByIndex
     },

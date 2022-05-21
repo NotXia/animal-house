@@ -240,6 +240,62 @@ describe("Test inserimento", function () {
     });
 });
 
+describe("Test modifica", function () {
+    test("Richieste corrette a PUT /items/:item_id", async function () {
+        const res = await curr_session.put(`/shop/items/${item_id}`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({ name: "NewItem1 modificato", description: "Nuova descrizione" }).expect(200);
+        expect(res.body.name).toEqual("NewItem1 modificato");
+        expect(res.body.description).toEqual("Nuova descrizione");
+        const item = await ItemModel.findById(item_id).exec();
+        expect(item.name).toEqual("NewItem1 modificato");
+        expect(item.description).toEqual("Nuova descrizione");
+        expect(item.category_id).toEqual(category._id);
+
+        // Richiesta vuota (perché mai dovresti voler modificare nulla :|)
+        await curr_session.put(`/shop/items/${item_id}`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({}).expect(200);
+    });
+
+    test("Richiesta scorretta a PUT /items/:item_id", async function () {
+        let wrong_id = "111111111111111111111111";
+        await curr_session.put(`/shop/items/${wrong_id}`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({ name: "NewItem1 modificato", description: "Nuova descrizione" }).expect(404);
+    });
+
+    test("Richieste corrette a PUT /items/:item_id/products/:product_index", async function () {
+        const res = await curr_session.put(`/shop/items/${item_id}/products/0`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(200);
+        expect(res.body.name).toEqual("NewProdotto1 modificato");
+        expect(res.body.description).toEqual("Nuova descrizione");
+        expect(res.body.price).toEqual(6000);
+        expect(res.body.quantity).toEqual(20);
+        const item = await ProductModel.findById(res.body._id).exec();
+        expect(item.name).toEqual("NewProdotto1 modificato");
+        expect(item.description).toEqual("Nuova descrizione");
+        expect(item.price).toEqual(6000);
+        expect(item.quantity).toEqual(20);
+
+        // Richiesta vuota (perché mai dovresti voler modificare nulla :|)
+        await curr_session.put(`/shop/items/${item_id}/products/0`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({}).expect(200);
+    });
+
+    test("Richieste errate a PUT /items/:item_id/products/:product_index", async function () {
+        await curr_session.put(`/shop/items/${item_id}/products/100000`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(404);
+
+        await curr_session.put(`/shop/items/${item_id}/products/100000`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: -1, quantity: 20 }).expect(400);
+    });
+});
+
 describe("Test cancellazione", function () {
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
         await curr_session.delete(`/shop/items/${item_id}/products/1`)

@@ -149,8 +149,27 @@ async function searchProducts(req, res) {
     return res.status(200).send(products);
 }
 
-async function updateItemByBarcode(req, res) {
+async function updateItemById(req, res) {
+    const updated_fields = validator.matchedData(req, { locations: ["body"] });
 
+    const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true }).catch(function (err) {
+        return res.sendStatus(500);
+    });
+    if (!updated_item) { return res.sendStatus(404); }
+
+    return res.status(200).send(updated_item);
+}
+
+async function updateProductByIndex(req, res) {
+    const updated_fields = validator.matchedData(req, { locations: ["body"] });
+
+    // Estrazione del prodotto a partire dall'item
+    const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
+    if (!item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
+
+    const updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
+
+    return res.status(200).send(updated_product);
 }
 
 async function deleteItemById(req, res) {
@@ -246,7 +265,8 @@ module.exports = {
         search: searchItem,
         searchByBarcode: searchItemByBarcode,
         searchProducts: searchProducts,
-        update: updateItemByBarcode,
+        updateItem: updateItemById,
+        updateProduct: updateProductByIndex,
         deleteItem: deleteItemById,
         deleteProduct: deleteProductByIndex
     },
