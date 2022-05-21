@@ -1,23 +1,14 @@
 require('dotenv').config();
-// const { matchedData } = require('express-validator');
+const { matchedData } = require('express-validator');
 const OperatorModel = require("../models/auth/operator");
 const UserModel = require("../models/auth/user");
 const bcrypt = require("bcrypt");
 
 async function insertOperator(req, res) {
+    let data = matchedData(req); // Estrae i dati validati
+    data.password = await bcrypt.hash(data.password, parseInt(process.env.SALT_ROUNDS));
     try {
-        const newOperator = new OperatorModel({ 
-            username: req.body.username,
-            password: await bcrypt.hash(req.body.password, parseInt(process.env.SALT_ROUNDS)),
-            email: req.body.email,
-            name: req.body.name,
-            surname: req.body.surname,
-            gender: req.body.gender,
-            enabled: true,
-            role_id: req.body.role_id,
-            permission: req.body.permission,
-            working_time: req.body.working_time
-        });
+        const newOperator = new OperatorModel(data);
         await newOperator.save();
     } catch (e) {
         res.sendStatus(500);
@@ -26,20 +17,12 @@ async function insertOperator(req, res) {
 }
 
 async function insertCustomer(req, res) {
+    let data = matchedData(req); // Estrae i dati validati
+    data.password = await bcrypt.hash(data.password, parseInt(process.env.SALT_ROUNDS));
     try {
-        const newCustomer = new UserModel({
-            username: req.body.username,
-            password: await bcrypt.hash(req.body.password, parseInt(process.env.SALT_ROUNDS)),
-            email: req.body.email,
-            name: req.body.name,
-            surname: req.body.surname,
-            gender: req.body.gender,
-            address: req.body.address,
-            phone: req.body.phone
-        });
+        const newCustomer = new UserModel(data);
         await newCustomer.save();
     } catch (e) {
-        console.debug(e);
         res.sendStatus(500);
     }
     res.sendStatus(200);
@@ -50,8 +33,8 @@ function searchUser(is_operator) {
         const RoleModel = is_operator ? OperatorModel : UserModel;
 
         try {
-            const user = await RoleModel.find({ username : req.params.username }).exec();
-            res.send(user);
+            const user = await RoleModel.findOne({ username : req.params.username }).exec();
+            res.status(200).send(user);
         }
         catch (e) {
             res.sendStatus(500);
@@ -62,12 +45,14 @@ function searchUser(is_operator) {
 function updateUser(is_operator) {
     return async function(req, res) {
         const RoleModel = is_operator ? OperatorModel : UserModel;
-
+        
         const filter = { username : req.params.username };
+        
+        let data = matchedData(req, { locations: ["body"] });
+        if (data.password) { data.password = await bcrypt.hash(data.password, parseInt(process.env.SALT_ROUNDS)); }
 
         try {
-            const user = await RoleModel.findOneAndUpdate(filter, req.body);
-            console.log(user);
+            const user = await RoleModel.findOneAndUpdate(filter, data);
         } catch (e) {
             res.sendStatus(500);
         }
@@ -82,7 +67,6 @@ function deleteUser(is_operator) {
         
         try {
             const user = await RoleModel.deleteOne({ username : req.params.username }).exec();
-            console.log(user);
         } catch (e) {
             res.sendStatus(500);
         }

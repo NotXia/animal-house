@@ -11,7 +11,7 @@ router.delete("/customers/:username", [ auth_middleware([ ["user"], ["admin"] ])
 
 router.post("/operators/", [ auth_middleware([ ["admin"] ]), user_middleware.validateInsertOperator ], user_controller.insertOperator);
 router.get("/operators/:username", [ auth_middleware([ ["operator"], ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(true));
-router.put("/operators/:username", [ auth_middleware([ ["admin"] ]), user_middleware.validateUpdateUser ], user_controller.updateUser(true));
+router.put("/operators/:username", [ auth_middleware([ ["operator"], ["admin"] ]), user_middleware.validateUpdateUser ], user_controller.updateUser(true));
 router.delete("/operators/:username", [ auth_middleware([ ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(true));
 
 module.exports = router;
