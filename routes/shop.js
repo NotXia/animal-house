@@ -84,9 +84,17 @@ router.put("/items/:barcode",
 router.delete("/items/:item_id", 
     [
         auth_middleware([ ["admin"], ["operator", "shop_write"] ]),
-        shop_middleware.item.validateDelete
+        shop_middleware.item.validateDeleteItem
     ], 
-    shop_controller.item.delete
+    shop_controller.item.deleteItem
+);
+
+router.delete("/items/:item_id/products/:product_index",
+    [
+        auth_middleware([["admin"], ["operator", "shop_write"]]),
+        shop_middleware.item.validateDeleteProduct
+    ],
+    shop_controller.item.deleteProduct
 );
 
 

@@ -153,7 +153,7 @@ async function updateItemByBarcode(req, res) {
 
 }
 
-async function deleteItemByBarcode(req, res) {
+async function deleteItemById(req, res) {
     const session = await mongoose.startSession();
 
     try {
@@ -167,13 +167,46 @@ async function deleteItemByBarcode(req, res) {
         const products = await ProductModel.find({ _id: { $in: to_delete_item.products_id } }, { images_path: 1 }).exec();
         for (const product of products) {
             for (const image of product.images_path) {
-                fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, image));
+                await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, image));
             }
         }
 
         // Rimozione dei prodotti e dell'item
         await ProductModel.deleteMany({ _id: { $in: to_delete_item.products_id } });
         await ItemModel.findByIdAndDelete(req.params.item_id);
+
+        await session.commitTransaction();
+        session.endSession();
+    }
+    catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        // TODO Gestire errore di chiavi duplicate
+        return res.sendStatus(500);
+    }
+
+    return res.sendStatus(200);
+}
+
+async function deleteProductByIndex(req, res) {
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        // Estrazione del prodotto
+        const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
+        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
+
+        // Rimozione delle immagini associate al prodotti
+        const to_delete_product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
+        for (const image of to_delete_product.images_path) {
+            await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, image));
+        }
+
+        // Rimozione dei prodotti e dell'item
+        await ProductModel.findByIdAndDelete(to_delete_product._id);
+        await ItemModel.findByIdAndUpdate(req.params.item_id, { $pull: { products_id: to_delete_product._id } });
 
         await session.commitTransaction();
         session.endSession();
@@ -214,7 +247,8 @@ module.exports = {
         searchByBarcode: searchItemByBarcode,
         searchProducts: searchProducts,
         update: updateItemByBarcode,
-        delete: deleteItemByBarcode
+        deleteItem: deleteItemById,
+        deleteProduct: deleteProductByIndex
     },
     category: {
         create: createCategory,

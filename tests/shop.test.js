@@ -159,6 +159,7 @@ describe("Test GET /shop/items/:barcode", function () {
 });
 
 let item_id;
+let to_delete_image;
 
 describe("Test inserimento", function () {
     test("Richiesta corretta a POST /items/", async function () {
@@ -211,9 +212,16 @@ describe("Test inserimento", function () {
             .attach("file1", img2)
             .expect(200);
 
+        await curr_session.post(`/shop/items/${item_id}/products/1/images/`)
+            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .attach("file0", img2)
+            .expect(200);
+
         const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[0]))).toBeTruthy();
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[1]))).toBeTruthy();
+        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[1].images_path[0]))).toBeTruthy();
+        to_delete_image = products[1].images_path[0];
     });
 
     test("Richieste errate a POST /items/:item_id/products/:product_index/images/", async function () {
@@ -233,8 +241,19 @@ describe("Test inserimento", function () {
 });
 
 describe("Test cancellazione", function () {
+    test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
+        await curr_session.delete(`/shop/items/${item_id}/products/1`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .expect(200);
+
+        const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
+        expect(products.length).toEqual(1);
+        expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image))).toBeTruthy();
+        expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();
+    });
+
     test("Richiesta corretta a DELETE /items/:item_id", async function () {
-        const res = await curr_session.delete(`/shop/items/${item_id}`)
+        await curr_session.delete(`/shop/items/${item_id}`)
             .set({ Authorization: `Bearer ${user.access_token.value}` })
             .expect(200);
 
