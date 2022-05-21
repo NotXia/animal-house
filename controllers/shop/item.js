@@ -9,7 +9,9 @@ const validator = require("express-validator");
 const path = require("path");
 const fs = require("fs");
 
-
+/* 
+    Gestisce la creazione di un nuovo item comprensivo di prodotti 
+*/
 async function createItem(req, res) {
     let new_item_id;
     const session = await mongoose.startSession();
@@ -27,7 +29,8 @@ async function createItem(req, res) {
         // Composizione dell'item da inserire
         delete to_insert_item.products;
         to_insert_item.products_id = products_id;
-    
+        
+        // Inserimento dell'item
         const new_item = await new ItemModel(to_insert_item).save();
         new_item_id = new_item.id;
 
@@ -44,6 +47,9 @@ async function createItem(req, res) {
     return res.status(200).send({ id: new_item_id });
 }
 
+/* 
+    Gestisce il caricamento e salvataggio di immagini associate ai prodotti 
+*/
 async function createUploadImages(req, res) {
     try {
         // Ricerca dell'id del prodotto
@@ -52,16 +58,17 @@ async function createUploadImages(req, res) {
         const product_id = item.products_id[parseInt(req.params.product_index)];
         if (!product_id) { return res.sendStatus(404); }
     
-        // Salvataggio dei file nel FS
-        let filenames = []
+        // Salvataggio dei file nel filesystem
+        let files_name = []
         for (const [key, file] of Object.entries(req.files)) {
             const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
-            filenames.push(filename);
+            files_name.push(filename);
 
             await file.mv(`${process.env.SHOP_IMAGES_DIR_ABS_PATH}/${filename}`);
         }
 
-        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: filenames } } });
+        // Salvataggio dei nomi dei file nel database
+        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } });
     }
     catch(err) {
         return res.sendStatus(500);
@@ -70,6 +77,9 @@ async function createUploadImages(req, res) {
     return res.sendStatus(200);
 }
 
+/*
+    Gestisce la ricerca di item secondo criteri vari
+*/
 async function searchItem(req, res) {
     let query_criteria = {};
     let sort_criteria = { "relevance": -1 }
@@ -78,6 +88,7 @@ async function searchItem(req, res) {
     if (req.query.category_id) { query_criteria.category_id = req.query.category_id; }
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
     
+    // Determina il criterio di ordinamento
     if (req.query.price_asc) { sort_criteria = { "min_price": 1 }; }
     if (req.query.price_desc) { sort_criteria = { "min_price": -1 }; }
     if (req.query.name_asc) { sort_criteria = { "name": 1 }; }
@@ -103,7 +114,7 @@ async function searchItem(req, res) {
             }
         }},
         { $sort: sort_criteria },
-        { $skip: parseInt(req.query.page_number) },
+        { $skip: parseInt(req.query.page_number) }, // Per paginazione
         { $limit: parseInt(req.query.page_size) }
     ]).catch (function (err) {
         return res.sendStatus(500);
@@ -113,6 +124,9 @@ async function searchItem(req, res) {
     return res.status(200).send(items);
 }
 
+/*
+    Gestisce la ricerca di item usando il barcode di uno dei prodotti associati
+*/
 async function searchItemByBarcode(req, res) {
     let item = undefined; // Conterrà il risultato della ricerca
 
@@ -131,6 +145,9 @@ async function searchItemByBarcode(req, res) {
     return res.status(200).send(item);
 }
 
+/*
+    Gestisce la ricerca di tutti i prodotti associati ad un item
+*/
 async function searchProducts(req, res) {
     let products = []; // Conterrà il risultato della ricerca
 
@@ -148,6 +165,9 @@ async function searchProducts(req, res) {
     return res.status(200).send(products);
 }
 
+/*
+    Aggiorna i dati generali (non dei singoli prodotti) di un item
+*/
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
 
@@ -159,6 +179,9 @@ async function updateItemById(req, res) {
     return res.status(200).send(updated_item);
 }
 
+/*
+    Aggiorna i dati di un prodotto ricercandolo a partire dal suo item
+*/
 async function updateProductByIndex(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
 
@@ -171,6 +194,9 @@ async function updateProductByIndex(req, res) {
     return res.status(200).send(updated_product);
 }
 
+/* 
+    Gestisce la cancellazione di un item
+*/
 async function deleteItemById(req, res) {
     const session = await mongoose.startSession();
 
@@ -206,6 +232,9 @@ async function deleteItemById(req, res) {
     return res.sendStatus(200);
 }
 
+/* 
+    Gestisce la cancellazione di un singolo prodotto associato ad un item
+*/
 async function deleteProductByIndex(req, res) {
     const session = await mongoose.startSession();
 
@@ -239,6 +268,9 @@ async function deleteProductByIndex(req, res) {
     return res.sendStatus(200);
 }
 
+/*
+    Gestisce la cancellazione di un'immagine di un prodotto, ricercando a partire dall'item associato
+*/
 async function deleteImageByIndex(req, res) {
     const session = await mongoose.startSession();
 
@@ -251,8 +283,10 @@ async function deleteImageByIndex(req, res) {
         const product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
         if (!product || !product.images_path[parseInt(req.params.image_index)]) { return res.sendStatus(404); }
 
+        // Determina l'immagine da cancellare
         const to_delete_image = product.images_path[parseInt(req.params.image_index)];
 
+        // Cancella l'immagine dal filesystem e database
         await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image));
         await ProductModel.findByIdAndUpdate(product._id, { $pull: { images_path: to_delete_image } });
 
