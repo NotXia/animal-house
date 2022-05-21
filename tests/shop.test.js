@@ -209,7 +209,8 @@ describe("Test inserimento", function () {
         await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
             .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
             .attach("file0", img1)
-            .attach("file1", img2)
+            .attach("file1", img1)
+            .attach("file2", img2)
             .expect(200);
 
         await curr_session.post(`/shop/items/${item_id}/products/1/images/`)
@@ -297,6 +298,19 @@ describe("Test modifica", function () {
 });
 
 describe("Test cancellazione", function () {
+    test("Richiesta corretta a DELETE /items/:item_id/products/:product_index/images/:image_index", async function () {
+        const product0_before = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
+
+        await curr_session.delete(`/shop/items/${item_id}/products/0/images/0`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .expect(200);
+
+        const product0_after = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
+        expect(product0_before.images_path.length).toEqual(3);
+        expect(product0_after.images_path.length).toEqual(2);
+        expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, product0_before.images_path[0]))).toBeTruthy();
+    });
+
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
         await curr_session.delete(`/shop/items/${item_id}/products/1`)
             .set({ Authorization: `Bearer ${user.access_token.value}` })

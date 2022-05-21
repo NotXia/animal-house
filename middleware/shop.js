@@ -81,6 +81,13 @@ const validateDeleteProductByIndex = [
     utils.errorHandler
 ];
 
+const validateDeleteImage = [
+    validator.param("item_id").exists().isMongoId(),
+    validator.param("product_index").exists().isInt({ min: 0 }),
+    validator.param("image_index").exists().isInt({ min: 0 }),
+    utils.errorHandler
+]
+
 const validateCreateCategory = [
     utils.errorHandler
 ];
@@ -111,7 +118,8 @@ module.exports = {
         validateUpdateItem: validateUpdateItemById,
         validateUpdateProduct: validateUpdateProductByIndex,
         validateDeleteItem: validateDeleteItemById,
-        validateDeleteProduct: validateDeleteProductByIndex
+        validateDeleteProduct: validateDeleteProductByIndex,
+        validateDeleteImage: validateDeleteImage
     },
     category: {
         validateCreate: validateCreateCategory,

@@ -165,7 +165,7 @@ async function updateProductByIndex(req, res) {
 
     // Estrazione del prodotto a partire dall'item
     const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
-    if (!item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
+    if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
 
     const updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
 
@@ -240,6 +240,36 @@ async function deleteProductByIndex(req, res) {
     return res.sendStatus(200);
 }
 
+async function deleteImageByIndex(req, res) {
+    const session = await mongoose.startSession();
+
+    try {
+        session.startTransaction();
+
+        // Estrazione del prodotto
+        const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
+        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
+        const product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
+        if (!product || !product.images_path[parseInt(req.params.image_index)]) { return res.sendStatus(404); }
+
+        const to_delete_image = product.images_path[parseInt(req.params.image_index)];
+
+        await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image));
+        await ProductModel.findByIdAndUpdate(product._id, { $pull: { images_path: to_delete_image } });
+
+        await session.commitTransaction();
+        session.endSession();
+    }
+    catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        // TODO Gestire errore di chiavi duplicate
+        return res.sendStatus(500);
+    }
+
+    return res.sendStatus(200);
+}
+
 
 async function createCategory(req, res) {
 
@@ -268,7 +298,8 @@ module.exports = {
         updateItem: updateItemById,
         updateProduct: updateProductByIndex,
         deleteItem: deleteItemById,
-        deleteProduct: deleteProductByIndex
+        deleteProduct: deleteProductByIndex,
+        deleteImage: deleteImageByIndex
     },
     category: {
         create: createCategory,

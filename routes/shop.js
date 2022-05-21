@@ -102,6 +102,14 @@ router.delete("/items/:item_id/products/:product_index",
     shop_controller.item.deleteProduct
 );
 
+router.delete("/items/:item_id/products/:product_index/images/:image_index",
+    [
+        auth_middleware([["admin"], ["operator", "shop_write"]]),
+        shop_middleware.item.validateDeleteImage
+    ],
+    shop_controller.item.deleteImage
+);
+
 
 router.post("/categories/", 
     [
