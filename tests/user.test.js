@@ -147,7 +147,7 @@ describe("Ricerca di un operatore", function () {
     });
 });
 
-describe("Modifica di un operatore - senza permesso admin (non autorizzato)", function () {
+describe("Modifica di un operatore", function () {
     let token;
     test("Login di un operatore", async function () {
         const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino23", password: "LuiginoVerona33!" }).expect(200);
@@ -160,7 +160,7 @@ describe("Modifica di un operatore - senza permesso admin (non autorizzato)", fu
         const res = await curr_session.put('/user/operators/Luigino23').send({ 
             password: "VeneziaVeneto18.",
             email: "newluigino01@gmail.com"
-        }).set({ Authorization: `Bearer ${token}` }).expect(403);
+        }).set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 });
 
