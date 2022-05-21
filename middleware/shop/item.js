@@ -1,6 +1,6 @@
 const validator = require("express-validator");
 const file_upload = require("express-fileupload");
-const utils = require("./utils");
+const utils = require("../utils");
 
 
 const validateCreate = [
@@ -88,43 +88,16 @@ const validateDeleteImage = [
     utils.errorHandler
 ]
 
-const validateCreateCategory = [
-    utils.errorHandler
-];
-
-
-const validateSearchCategory = [
-    utils.errorHandler
-];
-
-
-const validateUpdateCategory = [
-    utils.errorHandler
-];
-
-
-const validateDeleteCategory = [
-    utils.errorHandler
-];
-
 
 module.exports = {
-    item: {
-        validateCreate: validateCreate,
-        validateCreateFileUpload: validateCreateFileUpload,
-        validateSearch: validateSearchItem,
-        validateSearchByBarcode: validateSearchItemByBarcode,
-        validateSearchProducts: validateSearchProducts,
-        validateUpdateItem: validateUpdateItemById,
-        validateUpdateProduct: validateUpdateProductByIndex,
-        validateDeleteItem: validateDeleteItemById,
-        validateDeleteProduct: validateDeleteProductByIndex,
-        validateDeleteImage: validateDeleteImage
-    },
-    category: {
-        validateCreate: validateCreateCategory,
-        validateSearch: validateSearchCategory,
-        validateUpdate: validateUpdateCategory,
-        validateDelete: validateDeleteCategory
-    }
+    validateCreate: validateCreate,
+    validateCreateFileUpload: validateCreateFileUpload,
+    validateSearch: validateSearchItem,
+    validateSearchByBarcode: validateSearchItemByBarcode,
+    validateSearchProducts: validateSearchProducts,
+    validateUpdateItem: validateUpdateItemById,
+    validateUpdateProduct: validateUpdateProductByIndex,
+    validateDeleteItem: validateDeleteItemById,
+    validateDeleteProduct: validateDeleteProductByIndex,
+    validateDeleteImage: validateDeleteImage
 }

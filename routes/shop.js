@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const shop_controller = require("../controllers/shop");
-const shop_middleware = require("../middleware/shop");
+const shop_controller = {
+    item: require("../controllers/shop/item"),
+    category: require("../controllers/shop/category"),
+};
+const shop_middleware = {
+    item: require("../middleware/shop/item"),
+    category: require("../middleware/shop/category"),
+};
 const auth_middleware = require("../middleware/auth");
 
 

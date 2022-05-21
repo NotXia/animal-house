@@ -1,9 +1,8 @@
 require('dotenv').config();
 
 const mongoose = require("mongoose");
-const CategoryModel = require("../models/shop/category");
-const ItemModel = require("../models/shop/item");
-const ProductModel = require("../models/shop/product");
+const ItemModel = require("../../models/shop/item");
+const ProductModel = require("../../models/shop/product");
 
 const { nanoid } = require("nanoid");
 const validator = require("express-validator");
@@ -271,40 +270,15 @@ async function deleteImageByIndex(req, res) {
 }
 
 
-async function createCategory(req, res) {
-
-}
-
-async function searchCategory(req, res) {
-
-}
-
-async function updateCategory(req, res) {
-
-}
-
-async function deleteCategory(req, res) {
-
-}
-
-
 module.exports = {
-    item: {
-        create: createItem,
-        createUploadImages: createUploadImages,
-        search: searchItem,
-        searchByBarcode: searchItemByBarcode,
-        searchProducts: searchProducts,
-        updateItem: updateItemById,
-        updateProduct: updateProductByIndex,
-        deleteItem: deleteItemById,
-        deleteProduct: deleteProductByIndex,
-        deleteImage: deleteImageByIndex
-    },
-    category: {
-        create: createCategory,
-        search: searchCategory,
-        update: updateCategory,
-        delete: deleteCategory
-    }
+    create: createItem,
+    createUploadImages: createUploadImages,
+    search: searchItem,
+    searchByBarcode: searchItemByBarcode,
+    searchProducts: searchProducts,
+    updateItem: updateItemById,
+    updateProduct: updateProductByIndex,
+    deleteItem: deleteItemById,
+    deleteProduct: deleteProductByIndex,
+    deleteImage: deleteImageByIndex
 }
