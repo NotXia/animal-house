@@ -109,7 +109,7 @@ async function searchItemByBarcode(req, res) {
         // Cerca il prodotto associato al barcode e poi l'item che contiene il prodotto
         const product = await ProductModel.findOne({ barcode: req.params.barcode }).exec();
         if (product) {
-            item = await ItemModel.findOne({ products_id: product._id }).populate("products_id").exec();
+            item = await ItemModel.findOne({ products_id: product._id }).exec();
         }
     }
     catch(err) {
