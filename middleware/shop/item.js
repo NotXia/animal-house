@@ -18,15 +18,6 @@ const validateCreate = [
     utils.errorHandler,
 ];
 
-const validateCreateFileUpload = [
-    validator.param("item_id").exists().isMongoId(),
-    validator.param("product_index").exists().isInt({ min: 0 }),
-    file_upload(),
-    utils.verifyImage,
-    utils.errorHandler,
-]
-
-
 const validateSearchItem = [
     validator.query("page_size").exists().isInt({ min: 1 }),
     validator.query("page_number").exists().isInt({ min: 0 }),
@@ -80,6 +71,15 @@ const validateDeleteProductByIndex = [
     validator.param("product_index").exists().isInt({ min: 0 }),
     utils.errorHandler
 ];
+
+
+const validateCreateFileUpload = [
+    validator.param("item_id").exists().isMongoId(),
+    validator.param("product_index").exists().isInt({ min: 0 }),
+    file_upload(),
+    utils.verifyImage,
+    utils.errorHandler,
+]
 
 const validateDeleteImage = [
     validator.param("item_id").exists().isMongoId(),
