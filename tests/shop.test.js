@@ -171,10 +171,11 @@ describe("Test inserimento", function () {
                                 { barcode: "new12345", name: "NewProdotto1", price: 1000, quantity: 5 },
                                 { barcode: "new23456", name: "NewProdotto2", price: 2000 },
                             ]
-                        }).expect(200);
+                        }).expect(201);
         expect(res.body.id).toBeDefined();
         const item = await ItemModel.findOne({ name: "NewItem1" }, {_id: 1}).exec();
         expect(res.body.id).toEqual(item._id.toString());
+        expect(res.header.location).toEqual(`/shop/items/${item._id}`);
 
         item_id = res.body.id;
     });
@@ -200,6 +201,14 @@ describe("Test inserimento", function () {
                 name: "NewItem4", description: "",
                 products: [{ barcode: "new54321", name: "NewProdotto4", price: 1000, quantity: 5 },]
             }).expect(400);
+
+        const res = await curr_session.post("/shop/items/")
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .send({
+                name: "NewItem5", description: "", category_id: category._id,
+                products: [{ barcode: "new12345", name: "NewProdotto5", price: 1000, quantity: 5 },]
+            }).expect(409);
+        expect(res.body.field).toEqual("barcode");
     });
 
     test("Richiesta corretta a POST /items/:item_id/products/:product_index/images/", async function () {
@@ -320,6 +329,15 @@ describe("Test cancellazione", function () {
         expect(products.length).toEqual(1);
         expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image))).toBeTruthy();
         expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();
+    });
+
+    test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
+        const res = await curr_session.delete(`/shop/items/${item_id}/products/0`)
+            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .expect(303);
+
+        expect(res.header.location).toEqual(`/shop/items/${item_id}`);
+        expect(res.body.message).toBeDefined();
     });
 
     test("Richiesta corretta a DELETE /items/:item_id", async function () {

@@ -8,6 +8,7 @@ const { nanoid } = require("nanoid");
 const validator = require("express-validator");
 const path = require("path");
 const fs = require("fs");
+const global = require("../../global");
 
 /* 
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
@@ -15,10 +16,9 @@ const fs = require("fs");
 async function createItem(req, res) {
     let new_item_id;
     const session = await mongoose.startSession();
-    
-    try {
-        session.startTransaction();
 
+    session.startTransaction();
+    try {
         const to_insert_item = validator.matchedData(req);
         const to_insert_products = to_insert_item.products;
 
@@ -35,46 +35,21 @@ async function createItem(req, res) {
         new_item_id = new_item.id;
 
         await session.commitTransaction();
-        session.endSession();
+        await session.endSession();
     }
     catch (err) {
         await session.abortTransaction();
-        session.endSession();
-        // TODO Gestire errore di chiavi duplicate
-        return res.sendStatus(500);
-    }
+        await session.endSession();
 
-    return res.status(200).send({ id: new_item_id });
-}
-
-/* 
-    Gestisce il caricamento e salvataggio di immagini associate ai prodotti 
-*/
-async function createUploadImages(req, res) {
-    try {
-        // Ricerca dell'id del prodotto
-        const item = await ItemModel.findById(req.params.item_id, {products_id: 1}).exec();
-        if (!item) { return res.sendStatus(404); }
-        const product_id = item.products_id[parseInt(req.params.product_index)];
-        if (!product_id) { return res.sendStatus(404); }
-    
-        // Salvataggio dei file nel filesystem
-        let files_name = []
-        for (const [key, file] of Object.entries(req.files)) {
-            const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
-            files_name.push(filename);
-
-            await file.mv(`${process.env.SHOP_IMAGES_DIR_ABS_PATH}/${filename}`);
+        switch (err.code) {
+            case global.MONGO_DUPLICATED_KEY:
+                return res.status(409).send({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
+            default:
+                return res.sendStatus(500);
         }
-
-        // Salvataggio dei nomi dei file nel database
-        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } });
-    }
-    catch(err) {
-        return res.sendStatus(500);
     }
 
-    return res.sendStatus(200);
+    return res.status(201).location(`${req.baseUrl}/items/${new_item_id}`).send({ id: new_item_id });
 }
 
 /*
@@ -151,17 +126,12 @@ async function searchItemByBarcode(req, res) {
 async function searchProducts(req, res) {
     let products = []; // Conterrà il risultato della ricerca
 
-    try {
-        const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec();
-        if (item) {
-            products = item.products_id;
-        }
-    }
-    catch (err) {
+    const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec().catch(function (err) {
         return res.sendStatus(500);
-    }
+    });
+    if (!item) { return res.sendStatus(404); }
+    products = item.products_id;
 
-    if (products.length === 0) { return res.sendStatus(404); }
     return res.status(200).send(products);
 }
 
@@ -184,12 +154,18 @@ async function updateItemById(req, res) {
 */
 async function updateProductByIndex(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
+    let updated_product;
 
     // Estrazione del prodotto a partire dall'item
-    const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
-    if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
-
-    const updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
+    try {
+        const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
+        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
+    
+        updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
+    }
+    catch(err) {
+        return res.sendStatus(500);
+    }
 
     return res.status(200).send(updated_product);
 }
@@ -200,9 +176,8 @@ async function updateProductByIndex(req, res) {
 async function deleteItemById(req, res) {
     const session = await mongoose.startSession();
 
+    session.startTransaction();
     try {
-        session.startTransaction();
-
         // Estrazione dei prodotti associati all'item
         const to_delete_item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
         if (!to_delete_item) { return res.sendStatus(404); }
@@ -220,12 +195,12 @@ async function deleteItemById(req, res) {
         await ItemModel.findByIdAndDelete(req.params.item_id);
 
         await session.commitTransaction();
-        session.endSession();
+        await session.endSession();
     }
     catch (err) {
         await session.abortTransaction();
-        session.endSession();
-        // TODO Gestire errore di chiavi duplicate
+        await session.endSession();
+
         return res.sendStatus(500);
     }
 
@@ -244,6 +219,9 @@ async function deleteProductByIndex(req, res) {
         // Estrazione del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
         if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.sendStatus(404); }
+        if (item.products_id.length === 1) { 
+            return res.status(303).location(`${req.baseUrl}/items/${req.params.item_id}`).send({message: "Per rimuovere questo prodotto bisogna rimuovere l'item"}) 
+        }
 
         // Rimozione delle immagini associate al prodotti
         const to_delete_product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
@@ -256,12 +234,43 @@ async function deleteProductByIndex(req, res) {
         await ItemModel.findByIdAndUpdate(req.params.item_id, { $pull: { products_id: to_delete_product._id } });
 
         await session.commitTransaction();
-        session.endSession();
+        await session.endSession();
     }
     catch (err) {
         await session.abortTransaction();
-        session.endSession();
-        // TODO Gestire errore di chiavi duplicate
+        await session.endSession();
+
+        return res.sendStatus(500);
+    }
+
+    return res.sendStatus(200);
+}
+
+
+/* 
+    Gestisce il caricamento e salvataggio di immagini associate ai prodotti 
+*/
+async function createUploadImages(req, res) {
+    try {
+        // Ricerca dell'id del prodotto
+        const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
+        if (!item) { return res.sendStatus(404); }
+        const product_id = item.products_id[parseInt(req.params.product_index)];
+        if (!product_id) { return res.sendStatus(404); }
+
+        // Salvataggio dei file nel filesystem
+        let files_name = []
+        for (const [key, file] of Object.entries(req.files)) {
+            const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
+            files_name.push(filename);
+
+            await file.mv(`${process.env.SHOP_IMAGES_DIR_ABS_PATH}/${filename}`);
+        }
+
+        // Salvataggio dei nomi dei file nel database
+        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } });
+    }
+    catch (err) {
         return res.sendStatus(500);
     }
 
@@ -296,7 +305,7 @@ async function deleteImageByIndex(req, res) {
     catch (err) {
         await session.abortTransaction();
         session.endSession();
-        // TODO Gestire errore di chiavi duplicate
+        
         return res.sendStatus(500);
     }
 

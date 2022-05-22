@@ -2,10 +2,16 @@ const validator = require("express-validator");
 
 const errorHandler = [
     function (req, res, next) {
-        const errors = validator.validationResult(req);
+        const errors = validator.validationResult(req).formatWith(function ({ location, msg, param, value, nestedErrors }) {
+            return {
+                field: param,
+                location: location,
+                message: msg
+            }
+        });
     
         if (!errors.isEmpty()) {
-            return res.sendStatus(400);
+            return res.status(400).send(errors.array());
         }
         else {
             return next();
@@ -13,7 +19,7 @@ const errorHandler = [
     },
     function (err, req, res, next) {
         if (err) {
-            return res.sendStatus(400);
+            return res.status(400).send(err.message);
         }
         else {
             return next();
