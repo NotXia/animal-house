@@ -84,7 +84,7 @@ const validateSearchUser = [
     _errorHandler
 ];
 
-const validateUpdateUser = [
+const validateUpdateCustomer = [
     validator.param("username").exists().trim().escape(),
     validator.body("password").optional().isStrongPassword(),
     validator.body("email").optional().isEmail().normalizeEmail(),
@@ -95,6 +95,19 @@ const validateUpdateUser = [
     validator.body("address.street").optional().trim().escape(),
     validator.body("address.number").optional().trim().escape(),
     validator.body("address.postal_code").optional().isPostalCode("any"),
+    validator.body("phone").optional().isMobilePhone("any"),
+    validator.body("role_id").optional().isMongoId(),
+    validator.body("permission").optional(),
+    _errorHandler
+];
+
+const validateUpdateOperator = [
+    validator.param("username").exists().trim().escape(),
+    validator.body("password").optional().isStrongPassword(),
+    validator.body("email").optional().isEmail().normalizeEmail(),
+    validator.body("name").optional().trim().escape(),
+    validator.body("surname").optional().trim().escape(),
+    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
     validator.body("phone").optional().isMobilePhone("any"),
     validator.body("role_id").optional().isMongoId(),
     validator.body("permission").optional(),
@@ -112,6 +125,7 @@ module.exports = {
     validateInsertCustomer : validateInsertCustomer,
     validateInsertOperator : validateInsertOperator,
     validateSearchUser : validateSearchUser,
-    validateUpdateUser : validateUpdateUser,
+    validateUpdateCustomer : validateUpdateCustomer,
+    validateUpdateOperator : validateUpdateOperator,
     validateDeleteUser : validateDeleteUser
 }
