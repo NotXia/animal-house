@@ -3,6 +3,9 @@ const request = require("supertest");
 const app = require("../index.js");
 const ms = require("ms");
 const session = require('supertest-session');
+const { createTime } = require("../utilities");
+
+const HubModel = require("../models/services/hub");
 
 
 let curr_session = session(app);
@@ -86,14 +89,24 @@ describe("Cancellazione di un cliente - tramite permesso admin", function () {
 // # FINE TEST CLIENTI - INIZIO TEST OPERATORI #
 // #############################################
 
+
 describe("Registrazione e cancellazione operatore - senza permesso admin (non autorizzato)", function () {
     test("Registrazione di un operatore", async function () {
+        const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
             username: "Luigino23", 
             password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            working_time: {
+                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                saturday: [], sunday: []
+            }
         }).expect(401);
     });
 
@@ -116,12 +129,21 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     });
 
     test("Registrazione di un operatore", async function () {
+        const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
             username: "Luigino23", 
             password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            working_time: {
+                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                saturday: [], sunday: []
+            }
         }).set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 
