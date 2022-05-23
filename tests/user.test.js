@@ -3,10 +3,21 @@ const request = require("supertest");
 const app = require("../index.js");
 const ms = require("ms");
 const session = require('supertest-session');
+const { createTime } = require("../utilities");
+
+const HubModel = require("../models/services/hub");
+const RoleModel = require("../models/services/role");
 
 
 let curr_session = session(app);
 let user = null;
+let test_role;
+
+describe("Inizializzazione", function () {
+    test("Popolazione database", async function () {
+        test_role = await new RoleModel({ name: "Test" }).save();
+    });
+});
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione di un cliente", async function () {
@@ -86,14 +97,25 @@ describe("Cancellazione di un cliente - tramite permesso admin", function () {
 // # FINE TEST CLIENTI - INIZIO TEST OPERATORI #
 // #############################################
 
+
 describe("Registrazione e cancellazione operatore - senza permesso admin (non autorizzato)", function () {
     test("Registrazione di un operatore", async function () {
+        const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
             username: "Luigino23", 
             password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            role_id: test_role._id,
+            working_time: {
+                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                saturday: [], sunday: []
+            }
         }).expect(401);
     });
 
@@ -116,12 +138,22 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     });
 
     test("Registrazione di un operatore", async function () {
+        const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
             username: "Luigino23", 
             password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            role_id: test_role._id,
+            working_time: {
+                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                saturday: [], sunday: []
+            }
         }).set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 
@@ -192,5 +224,12 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
 
     test("Cancellazione di un operatore", async function () {
         const res = await curr_session.delete('/user/operators/Luigino23').set({ Authorization: `Bearer ${token}` }).expect(200);
+    });
+});
+
+
+describe("Uscita", function () {
+    test_role = test("Pulizia database", async function () {
+        await RoleModel.deleteOne({ name: "Test" });
     });
 });
