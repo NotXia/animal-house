@@ -1,9 +1,12 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const { createTime } = require("./utilities");
+
 const mongoose = require("mongoose");
 const OperatorModel = require("./models/auth/operator");
 const HubModel = require("./models/services/hub");
-const { createTime } = require("./utilities");
+const RoleModel = require("./models/services/role");
+const role = require("./models/services/role");
 
 
 async function init() {
@@ -25,6 +28,11 @@ async function init() {
         }
     }).save().catch((err) => { console.log(err.message); });
 
+    await new RoleModel({
+        name: "Admin"
+    }).save().catch((err) => { console.log(err.message); });
+    const admin_role = await RoleModel.findOne({ name: "Admin" }).exec();
+
     await new OperatorModel({
         username: "admin",
         password: await bcrypt.hash("admin", parseInt(process.env.SALT_ROUNDS)),
@@ -33,6 +41,7 @@ async function init() {
         surname: "Admin",
         enabled: true,
         permission: { admin: true },
+        role_id: admin_role._id,
         working_time: {
             monday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
             tuesday:    [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],

@@ -6,10 +6,18 @@ const session = require('supertest-session');
 const { createTime } = require("../utilities");
 
 const HubModel = require("../models/services/hub");
+const RoleModel = require("../models/services/role");
 
 
 let curr_session = session(app);
 let user = null;
+let test_role;
+
+describe("Inizializzazione", function () {
+    test("Popolazione database", async function () {
+        test_role = await new RoleModel({ name: "Test" }).save();
+    });
+});
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione di un cliente", async function () {
@@ -99,6 +107,7 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -136,6 +145,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -214,5 +224,12 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
 
     test("Cancellazione di un operatore", async function () {
         const res = await curr_session.delete('/user/operators/Luigino23').set({ Authorization: `Bearer ${token}` }).expect(200);
+    });
+});
+
+
+describe("Uscita", function () {
+    test_role = test("Pulizia database", async function () {
+        await RoleModel.deleteOne({ name: "Test" });
     });
 });

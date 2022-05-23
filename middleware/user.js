@@ -73,7 +73,7 @@ const validateInsertOperator = [
     validator.body("name").exists().trim().escape(),
     validator.body("surname").exists().trim().escape(),
     validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("role_id").optional().isMongoId(),
+    validator.body("role_id").exists().isMongoId(),
     validator.body("permission").optional(),
     validateWorkingTimeRequired,
     _errorHandler
