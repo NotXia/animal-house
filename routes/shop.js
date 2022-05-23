@@ -3,11 +3,9 @@ const router = express.Router();
 
 const shop_controller = {
     item: require("../controllers/shop/item"),
-    category: require("../controllers/shop/category"),
 };
 const shop_middleware = {
     item: require("../middleware/shop/item"),
-    category: require("../middleware/shop/category"),
 };
 const auth_middleware = require("../middleware/auth");
 
@@ -89,33 +87,6 @@ router.delete("/items/:item_id/products/:product_index/images/:image_index",
         shop_middleware.item.validateDeleteImage
     ],
     shop_controller.item.deleteImage
-);
-
-
-router.post("/categories/", 
-    [
-        auth_middleware([ ["admin"], ["operator", "shop_write"] ]),
-        shop_middleware.category.validateCreate
-    ], 
-    shop_controller.category.create
-);
-
-router.get("/categories/", shop_middleware.category.validateSearch, shop_controller.category.search);
-
-router.put("/categories/:name", 
-    [
-        auth_middleware([ ["admin"], ["operator", "shop_write"] ]),
-        shop_middleware.category.validateUpdate
-    ], 
-    shop_controller.category.update
-);
-
-router.delete("/categories/:name", 
-    [
-        auth_middleware([ ["admin"], ["operator", "shop_write"] ]),
-        shop_middleware.category.validateDelete
-    ], 
-    shop_controller.category.delete
 );
 
 

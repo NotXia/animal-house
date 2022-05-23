@@ -6,7 +6,6 @@ info:
 basePath: "/shop"
 tags:
 - name: "Item e prodotti"
-- name: "Categorie"
 
 paths:
   /shop/items/:
