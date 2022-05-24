@@ -1,0 +1,499 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sugli user"
+  version: "1.0.0"
+  title: "User"
+
+paths:
+  /customers/:
+    post:
+      tags:
+      - "Clienti"
+      summary: "Creazione di un nuovo cliente"
+      description: "Gestisce l'inserimento di un cliente"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del cliente"
+        required: true
+        schema:
+          $ref: "#/definitions/Customer"
+      responses:
+        200:
+          description: "Inserito con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non inserito"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+          
+  /customers/{username}:
+    get:
+      tags:
+      - "Clienti"
+      summary: "Ricerca di un cliente"
+      description: |
+        Gestisce la ricerca di un cliente tramite username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del cliente"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non trovato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+      
+    put:
+      tags:
+      - "Clienti"
+      summary: "Modifica di un cliente"
+      description: |
+        Gestisce la modifica di un cliente tramite criterio di ricerca con username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del cliente"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Modificato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non modificato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+    
+    delete:
+      tags:
+      - "Clienti"
+      summary: "Cancellazione di un cliente"
+      description: |
+        Gestisce la cancellazione di un cliente tramite criterio di ricerca con username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del cliente"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Cancellato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non cancellato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+
+### INIZIO OPERATORI ###
+
+  /operators/:
+    post:
+      tags:
+      - "Operatori"
+      summary: "Creazione di un nuovo operatore"
+      description: |
+        Gestisce l'inserimento di un operatore
+        Richiede permesso ["admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati dell'operatore"
+        required: true
+        schema:
+          $ref: "#/definitions/Operator"
+      responses:
+        200:
+          description: "Inserito con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non inserito"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+          
+  /operators/{username}:
+    get:
+      tags:
+      - "Operatori"
+      summary: "Ricerca di un operatore"
+      description: |
+        Gestisce la ricerca di un operatore tramite username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non trovato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+      
+    put:
+      tags:
+      - "Operatori"
+      summary: "Modifica di un operatore"
+      description: |
+        Gestisce la modifica di un operatore tramite criterio di ricerca con username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Modificato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non modificato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+    
+    delete:
+      tags:
+      - "Operatori"
+      summary: "Cancellazione di un operatore"
+      description: |
+        Gestisce la cancellazione di un operatore tramite criterio di ricerca con username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Cancellato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        500:
+          description: "Non cancellato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+
+
+definitions:
+
+  Customer:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      surname:
+        type: string
+      gender:
+        type: string
+      address:
+        $ref: "#/definitions/Address"
+      phone:
+        type: string
+      enabled:
+        type: boolean
+      creationDate:
+        type: string
+        format: date-time
+      permission:
+        $ref: "#/definitions/Permission_user"
+      animal_id:
+        $ref: "#/definitions/Animal"
+      cart:
+        $ref: "#/definitions/Product"
+    required:
+    - username
+    - password
+    - email
+    - name
+    - surname
+    - enabled
+    - creationDate
+
+  Operator:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      surname:
+        type: string
+      gender:
+        type: string
+      phone:
+        type: string
+      enabled:
+        type: boolean
+      creationDate:
+        type: string
+        format: date-time
+      role_id:
+        $ref: "#/definitions/Role"
+      permission:
+        $ref: "#/definitions/Permission_operator"
+      working_time:
+        $ref: "#/definitions/Day_slot"
+      absence_time:
+        $ref: "#/definitions/Day_slot"
+    required:
+    - username
+    - password
+    - email
+    - name
+    - surname
+    - enabled
+    - creationDate
+    - role_id
+    - working_time
+      
+  Address:
+    type: object
+    properties:
+      city:
+        type: string
+      street:
+        type: string
+      number:
+        type: string
+      postalcode:
+        type: string
+
+  Permission_user:
+    type: object
+    properties:
+      user:
+        type: boolean
+      vip:
+        type: boolean
+      write_post:
+        type: boolean
+      comment:
+        type: boolean
+  
+  Animal:
+    type: object
+    properties:
+      species_id:
+        $ref: "#/definitions/Species"
+      name:
+        type: string
+      weight:
+        type: number
+        format: int
+      height:
+        type: number
+        format: int
+      image_path:
+        type: string
+    required:
+    - species_id
+    - name
+
+  Species:
+    type: object
+    properties:
+      type:
+        type: string
+      race:
+        type: string
+    required:
+    - type
+
+  Product:
+    type: object
+    properties:
+      barcode:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      image_path:
+        type: string
+      target_species_id:
+        $ref: "#/definitions/Species"
+      price:
+        type: number
+        format: int
+      quantity:
+        type: number
+        format: int
+    required:
+    - barcode
+    - price
+    - quantity
+
+  Permission_operator:
+    type: object
+    properties:
+      operator:
+        type: boolean
+      admin:
+        type: boolean
+
+  Role:
+    type: object
+    properties:
+      name:
+        type: string
+      services_id:
+        $ref: "#/definitions/Service"
+    required:
+    - name
+    - services_id
+      
+  Service:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      duration:
+        type: number
+        format: int
+    required:
+    - name
+    - description
+    - duration
+
+  Time_slot:
+    type: object
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+        type: string
+        format: date-time
+    required:
+    - start
+    - end
+
+  Day_slot:
+    type: object
+    properties:
+      monday:
+        $ref: "#/definitions/Time_slot"
+      tuesday:
+        $ref: "#/definitions/Time_slot"
+      wednesday:
+        $ref: "#/definitions/Time_slot"
+      thursday:
+        $ref: "#/definitions/Time_slot"
+      friday:
+        $ref: "#/definitions/Time_slot"
+      saturday:
+        $ref: "#/definitions/Time_slot"
+      sunday:
+        $ref: "#/definitions/Time_slot"  
+
+        
+        
+  # ErrorMessage:
+  #   type: array
+  #   items:
+  #     type: object
+  #     properties:
+  #       field:
+  #         type: string
+  #         description: "Il campo errato"
+  #       message:
+  #         type: string
+  #         description: "Informazioni sull'errore"
+  
+  # ObjectId:
+  #   type: string
+  #   format: ObjectId
+  #   example: "61338f5b47bfc65136b5de30"
+    
+      
+      
