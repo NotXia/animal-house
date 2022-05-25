@@ -25,17 +25,17 @@ paths:
       responses:
         200:
           description: "Inserito con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
-          description: "Non inserito"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
+          description: "Internal server error"
           
   /customers/{username}:
     get:
@@ -58,19 +58,21 @@ paths:
       responses:
         200:
           description: "Trovato con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
+          schema:
+              $ref: "#/definitions/Customer"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         404:
           description: "Non trovato"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
+
 
       
     put:
@@ -100,12 +102,17 @@ paths:
           #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         404:
           description: "Non trovato"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
+
     
     delete:
       tags:
@@ -134,12 +141,17 @@ paths:
           #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         404:
           description: "Non trovato"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
+
 
 ########################
 ### INIZIO OPERATORI ###
@@ -174,10 +186,14 @@ paths:
           #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
           
   /operators/{username}:
     get:
@@ -200,19 +216,20 @@ paths:
       responses:
         200:
           description: "Trovato con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
+          schema:
+              $ref: "#/definitions/Operator"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         404:
           description: "Non trovato"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
       
     put:
       tags:
@@ -247,12 +264,16 @@ paths:
           #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         404:
           description: "Non trovato"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
     
     delete:
       tags:
@@ -281,12 +302,17 @@ paths:
           #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
         404:
           description: "Non trovato"
         500:
           description: "Internal server error"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
+
 
 
 definitions:
@@ -339,9 +365,9 @@ definitions:
       permission:
         $ref: "#/definitions/Permission_operator"
       working_time:
-        $ref: "#/definitions/Day_slot"
+        $ref: "#/definitions/Working_time"
       absence_time:
-        $ref: "#/definitions/Day_slot"
+        $ref: "#/definitions/Absence_time"
     required:
     - username
     - password
@@ -422,42 +448,122 @@ definitions:
     - start
     - end
 
-  Day_slot:
+  Absence_time:
     type: object
     properties:
       monday:
-        $ref: "#/definitions/Time_slot"
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
       tuesday:
-        $ref: "#/definitions/Time_slot"
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
       wednesday:
-        $ref: "#/definitions/Time_slot"
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
       thursday:
-        $ref: "#/definitions/Time_slot"
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
       friday:
-        $ref: "#/definitions/Time_slot"
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
       saturday:
-        $ref: "#/definitions/Time_slot"
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
       sunday:
-        $ref: "#/definitions/Time_slot"  
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"  
 
+  Working_time:
+    type: object
+    properties:
+      monday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      tuesday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      wednesday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      thursday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      friday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      saturday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      sunday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"  
         
         
-  # ErrorMessage:
-  #   type: array
-  #   items:
-  #     type: object
-  #     properties:
-  #       field:
-  #         type: string
-  #         description: "Il campo errato"
-  #       message:
-  #         type: string
-  #         description: "Informazioni sull'errore"
+  ErrorMessage:
+    type: array
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+          description: "Il campo errato"
+        message:
+          type: string
+          description: "Informazioni sull'errore"
   
-  # ObjectId:
-  #   type: string
-  #   format: ObjectId
-  #   example: "61338f5b47bfc65136b5de30"
+  ObjectId:
+    type: string
+    format: ObjectId
+    example: "61338f5b47bfc65136b5de30"
     
       
       
