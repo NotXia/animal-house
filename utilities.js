@@ -14,5 +14,8 @@ function createTime(time) {
 }
 
 module.exports = {
-    createTime: createTime
+    createTime: createTime,
+
+    // Variabili utili
+    MONGO_DUPLICATED_KEY: 11000
 }

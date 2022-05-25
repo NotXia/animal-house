@@ -8,7 +8,7 @@ const { nanoid } = require("nanoid");
 const validator = require("express-validator");
 const path = require("path");
 const fs = require("fs");
-const global = require("../../global");
+const utils = require("../../utilities");
 
 /* 
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
@@ -42,7 +42,7 @@ async function createItem(req, res) {
         await session.endSession();
 
         switch (err.code) {
-            case global.MONGO_DUPLICATED_KEY:
+            case utils.MONGO_DUPLICATED_KEY:
                 return res.status(409).send({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
             default:
                 return res.sendStatus(500);
