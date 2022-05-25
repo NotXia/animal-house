@@ -23,8 +23,8 @@ paths:
         schema:
           $ref: "#/definitions/Customer"
       responses:
-        200:
-          description: "Inserito con successo"
+        201:
+          description: "Creato con successo"
           schema:
             type: object
             properties:
@@ -92,6 +92,12 @@ paths:
         description: "Username del cliente"
         required: true
         type: string
+      - name: body
+        in: body
+        description: "Dati del cliente"
+        required: true
+        schema:
+          $ref: "#/definitions/Customer"
       responses:
         200:
           description: "Modificato con successo"
@@ -177,13 +183,13 @@ paths:
         schema:
           $ref: "#/definitions/Operator"
       responses:
-        200:
-          description: "Inserito con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
+        201:
+          description: "Creato con successo"
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
           schema:
@@ -253,7 +259,7 @@ paths:
         description: "Dati dell'operatore"
         required: true
         schema:
-          $ref: "#/definitions/Customer"
+          $ref: "#/definitions/Operator"
       responses:
         200:
           description: "Modificato con successo"
