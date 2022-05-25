@@ -34,6 +34,7 @@ function searchUser(is_operator) {
 
         try {
             const user = await RoleModel.findOne({ username : req.params.username }).exec();
+            if (!user) { res.sendStatus(404); }
             res.status(200).send(user);
         }
         catch (e) {
@@ -53,6 +54,7 @@ function updateUser(is_operator) {
 
         try {
             const user = await RoleModel.findOneAndUpdate(filter, data);
+            if (!user) { res.sendStatus(404); }
         } catch (e) {
             res.sendStatus(500);
         }
@@ -67,6 +69,7 @@ function deleteUser(is_operator) {
         
         try {
             const user = await RoleModel.deleteOne({ username : req.params.username }).exec();
+            if (user.deletedCount === 0) { res.sendStatus(404); }
         } catch (e) {
             res.sendStatus(500);
         }
