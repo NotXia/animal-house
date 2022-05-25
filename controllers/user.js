@@ -10,10 +10,10 @@ async function insertOperator(req, res) {
     try {
         const newOperator = new OperatorModel(data);
         await newOperator.save();
+        res.status(201).send({id: newOperator._id});
     } catch (e) {
         res.sendStatus(500);
     }
-    res.sendStatus(200);
 }
 
 async function insertCustomer(req, res) {
@@ -22,10 +22,10 @@ async function insertCustomer(req, res) {
     try {
         const newCustomer = new UserModel(data);
         await newCustomer.save();
+        res.status(201).send({id: newCustomer._id});
     } catch (e) {
         res.sendStatus(500);
     }
-    res.sendStatus(200);
 }
 
 function searchUser(is_operator) {

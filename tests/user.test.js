@@ -29,7 +29,7 @@ describe("Registrazione di un cliente", function () {
             surname: "Pirandello",
             city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100",
             phone: "3212345678"
-        }).expect(200);
+        }).expect(201);
     });
 });
 
@@ -154,7 +154,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
                 friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 saturday: [], sunday: []
             }
-        }).set({ Authorization: `Bearer ${token}` }).expect(200);
+        }).set({ Authorization: `Bearer ${token}` }).expect(201);
     });
 
     test("Login di un operatore", async function () {
