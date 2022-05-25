@@ -30,6 +30,8 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
         500:
           description: "Non inserito"
           # schema:
@@ -61,10 +63,15 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
-        500:
+        400:
+          description: "Input malformato"
+        404:
           description: "Non trovato"
+        500:
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
+
       
     put:
       tags:
@@ -91,8 +98,12 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+        404:
+          description: "Non trovato"
         500:
-          description: "Non modificato"
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
     
@@ -121,12 +132,18 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+        404:
+          description: "Non trovato"
         500:
-          description: "Non cancellato"
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
 
+########################
 ### INIZIO OPERATORI ###
+########################
 
   /operators/:
     post:
@@ -155,8 +172,10 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
         500:
-          description: "Non inserito"
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
           
@@ -167,7 +186,7 @@ paths:
       summary: "Ricerca di un operatore"
       description: |
         Gestisce la ricerca di un operatore tramite username
-        Richiede permessi ["user", "admin"]
+        Richiede permessi ["operator", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -175,7 +194,7 @@ paths:
       parameters:
       - name: username
         in: query
-        description: "Username del operatore"
+        description: "Username dell'operatore"
         required: true
         type: string
       responses:
@@ -186,8 +205,12 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
-        500:
+        400:
+          description: "Input malformato"
+        404:
           description: "Non trovato"
+        500:
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
       
@@ -197,7 +220,7 @@ paths:
       summary: "Modifica di un operatore"
       description: |
         Gestisce la modifica di un operatore tramite criterio di ricerca con username
-        Richiede permessi ["user", "admin"]
+        Richiede permesso ["operator", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -205,9 +228,15 @@ paths:
       parameters:
       - name: username
         in: query
-        description: "Username del operatore"
+        description: "Username dell'operatore"
         required: true
         type: string
+      - name: body
+        in: body
+        description: "Dati dell'operatore"
+        required: true
+        schema:
+          $ref: "#/definitions/Customer"
       responses:
         200:
           description: "Modificato con successo"
@@ -216,8 +245,12 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+        404:
+          description: "Non trovato"
         500:
-          description: "Non modificato"
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
     
@@ -227,7 +260,7 @@ paths:
       summary: "Cancellazione di un operatore"
       description: |
         Gestisce la cancellazione di un operatore tramite criterio di ricerca con username
-        Richiede permessi ["user", "admin"]
+        Richiede permessi ["admin"]
       consumes:
       - "application/json"
       produces:
@@ -235,7 +268,7 @@ paths:
       parameters:
       - name: username
         in: query
-        description: "Username del operatore"
+        description: "Username dell'operatore"
         required: true
         type: string
       responses:
@@ -246,8 +279,12 @@ paths:
           #   properties:
           #     id:
           #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+        404:
+          description: "Non trovato"
         500:
-          description: "Non cancellato"
+          description: "Internal server error"
           # schema:
           #   $ref: "#/definitions/ErrorMessage"
 
@@ -273,25 +310,12 @@ definitions:
         $ref: "#/definitions/Address"
       phone:
         type: string
-      enabled:
-        type: boolean
-      creationDate:
-        type: string
-        format: date-time
-      permission:
-        $ref: "#/definitions/Permission_user"
-      animal_id:
-        $ref: "#/definitions/Animal"
-      cart:
-        $ref: "#/definitions/Product"
     required:
     - username
     - password
     - email
     - name
     - surname
-    - enabled
-    - creationDate
 
   Operator:
     type: object
@@ -310,11 +334,6 @@ definitions:
         type: string
       phone:
         type: string
-      enabled:
-        type: boolean
-      creationDate:
-        type: string
-        format: date-time
       role_id:
         $ref: "#/definitions/Role"
       permission:
@@ -329,8 +348,6 @@ definitions:
     - email
     - name
     - surname
-    - enabled
-    - creationDate
     - role_id
     - working_time
       
@@ -357,59 +374,6 @@ definitions:
         type: boolean
       comment:
         type: boolean
-  
-  Animal:
-    type: object
-    properties:
-      species_id:
-        $ref: "#/definitions/Species"
-      name:
-        type: string
-      weight:
-        type: number
-        format: int
-      height:
-        type: number
-        format: int
-      image_path:
-        type: string
-    required:
-    - species_id
-    - name
-
-  Species:
-    type: object
-    properties:
-      type:
-        type: string
-      race:
-        type: string
-    required:
-    - type
-
-  Product:
-    type: object
-    properties:
-      barcode:
-        type: string
-      name:
-        type: string
-      description:
-        type: string
-      image_path:
-        type: string
-      target_species_id:
-        $ref: "#/definitions/Species"
-      price:
-        type: number
-        format: int
-      quantity:
-        type: number
-        format: int
-    required:
-    - barcode
-    - price
-    - quantity
 
   Permission_operator:
     type: object
