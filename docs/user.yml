@@ -1,0 +1,575 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sugli user"
+  version: "1.0.0"
+  title: "User"
+
+paths:
+  /customers/:
+    post:
+      tags:
+      - "Clienti"
+      summary: "Creazione di un nuovo cliente"
+      description: "Gestisce l'inserimento di un cliente"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del cliente"
+        required: true
+        schema:
+          $ref: "#/definitions/Customer"
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+          
+  /customers/{username}:
+    get:
+      tags:
+      - "Clienti"
+      summary: "Ricerca di un cliente"
+      description: |
+        Gestisce la ricerca di un cliente tramite username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del cliente"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+              $ref: "#/definitions/Customer"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+
+
+      
+    put:
+      tags:
+      - "Clienti"
+      summary: "Modifica di un cliente"
+      description: |
+        Gestisce la modifica di un cliente tramite criterio di ricerca con username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del cliente"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati del cliente"
+        required: true
+        schema:
+          $ref: "#/definitions/Customer"
+      responses:
+        200:
+          description: "Modificato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+
+    
+    delete:
+      tags:
+      - "Clienti"
+      summary: "Cancellazione di un cliente"
+      description: |
+        Gestisce la cancellazione di un cliente tramite criterio di ricerca con username
+        Richiede permessi ["user", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username del cliente"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Cancellato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+
+
+########################
+### INIZIO OPERATORI ###
+########################
+
+  /operators/:
+    post:
+      tags:
+      - "Operatori"
+      summary: "Creazione di un nuovo operatore"
+      description: |
+        Gestisce l'inserimento di un operatore
+        Richiede permesso ["admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati dell'operatore"
+        required: true
+        schema:
+          $ref: "#/definitions/Operator"
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        500:
+          description: "Internal server error"
+          
+  /operators/{username}:
+    get:
+      tags:
+      - "Operatori"
+      summary: "Ricerca di un operatore"
+      description: |
+        Gestisce la ricerca di un operatore tramite username
+        Richiede permessi ["operator", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+              $ref: "#/definitions/Operator"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+      
+    put:
+      tags:
+      - "Operatori"
+      summary: "Modifica di un operatore"
+      description: |
+        Gestisce la modifica di un operatore tramite criterio di ricerca con username
+        Richiede permesso ["operator", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati dell'operatore"
+        required: true
+        schema:
+          $ref: "#/definitions/Operator"
+      responses:
+        200:
+          description: "Modificato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+          # schema:
+          #   $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+    
+    delete:
+      tags:
+      - "Operatori"
+      summary: "Cancellazione di un operatore"
+      description: |
+        Gestisce la cancellazione di un operatore tramite criterio di ricerca con username
+        Richiede permessi ["admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Cancellato con successo"
+          # schema:
+          #   type: object
+          #   properties:
+          #     id:
+          #       $ref: "#/definitions/ObjectId"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+
+
+
+definitions:
+
+  Customer:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      surname:
+        type: string
+      gender:
+        type: string
+      address:
+        $ref: "#/definitions/Address"
+      phone:
+        type: string
+    required:
+    - username
+    - password
+    - email
+    - name
+    - surname
+
+  Operator:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      surname:
+        type: string
+      gender:
+        type: string
+      phone:
+        type: string
+      role_id:
+        $ref: "#/definitions/Role"
+      permission:
+        $ref: "#/definitions/Permission_operator"
+      working_time:
+        $ref: "#/definitions/Working_time"
+      absence_time:
+        $ref: "#/definitions/Absence_time"
+    required:
+    - username
+    - password
+    - email
+    - name
+    - surname
+    - role_id
+    - working_time
+      
+  Address:
+    type: object
+    properties:
+      city:
+        type: string
+      street:
+        type: string
+      number:
+        type: string
+      postalcode:
+        type: string
+
+  Permission_user:
+    type: object
+    properties:
+      user:
+        type: boolean
+      vip:
+        type: boolean
+      write_post:
+        type: boolean
+      comment:
+        type: boolean
+
+  Permission_operator:
+    type: object
+    properties:
+      operator:
+        type: boolean
+      admin:
+        type: boolean
+
+  Role:
+    type: object
+    properties:
+      name:
+        type: string
+      services_id:
+        $ref: "#/definitions/Service"
+    required:
+    - name
+    - services_id
+      
+  Service:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      duration:
+        type: number
+        format: int
+    required:
+    - name
+    - description
+    - duration
+
+  Time_slot:
+    type: object
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+        type: string
+        format: date-time
+    required:
+    - start
+    - end
+
+  Absence_time:
+    type: object
+    properties:
+      monday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
+      tuesday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
+      wednesday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
+      thursday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
+      friday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
+      saturday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"
+      sunday:
+        type: array
+        items:
+          $ref: "#/definitions/Time_slot"  
+
+  Working_time:
+    type: object
+    properties:
+      monday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      tuesday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      wednesday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      thursday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      friday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      saturday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"
+      sunday:
+        type: array
+        items: 
+          type: object
+          properties:
+            time:
+              $ref: "#/definitions/Time_slot"
+            hub_id:
+              $ref: "#/definitions/ObjectId"  
+        
+        
+  ErrorMessage:
+    type: array
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+          description: "Il campo errato"
+        message:
+          type: string
+          description: "Informazioni sull'errore"
+  
+  ObjectId:
+    type: string
+    format: ObjectId
+    example: "61338f5b47bfc65136b5de30"
+    
+      
+      

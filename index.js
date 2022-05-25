@@ -9,10 +9,12 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 
 const auth = require("./routes/auth");
+const user = require("./routes/user");
 const shop = require("./routes/shop");
 
 app.use("/", express.static("public"));
 app.use("/auth", auth);
+app.use("/user", user);
 app.use("/shop", shop);
 
 if (!process.env.TESTING) {
