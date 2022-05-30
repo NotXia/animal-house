@@ -1,0 +1,598 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sullo shop"
+  version: "1.0.0"
+  title: "Shop"
+basePath: "/shop"
+tags:
+- name: "Item e prodotti"
+
+paths:
+  /shop/items/:
+    post:
+      tags:
+      - "Item e prodotti"
+      summary: "Creazione di un nuovo item nello shop"
+      description: |
+        Gestisce l'inserimento di un nuovo item con prodotti inclusi nello shop.
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati dell'item"
+        required: true
+        schema:
+          $ref: "#/definitions/Item"
+      responses:
+        201:
+          description: "Inserito con successo"
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/definitions/ObjectId"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        409:
+          description: "Il barcode di uno dei prodotti è già esistente"
+        500:
+          description: "Errore lato server"
+
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca degli item secondo alcuni criteri"
+      description: |
+        Ricerca tra gli item quelli che soddisfano i criteri richiesti
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di item da restituire"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Offset per paginazione"
+        required: true
+        type: number
+        format: int
+      - name: category_id
+        in: query
+        description: "Categoria dell'item"
+        type: string
+        format: ObjectId
+      - name: name
+        in: query
+        description: "Stringa che l'item deve contenere nel nome"
+        type: string
+      - name: price_asc
+        in: query
+        description: "Ordina per prezzo crescente"
+        type: boolean
+      - name: price_desc
+        in: query
+        description: "Ordina per prezzo decrescente"
+        type: boolean
+      - name: name_asc
+        in: query
+        description: "Ordina per nome in ordine alfabetico"
+        type: boolean
+      - name: name_desc
+        in: query
+        description: "Ordina per nome in ordine alfabetico inverso"
+        type: boolean
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                min_price:
+                  type: number
+                product_number:
+                  type: number
+                image_path:
+                  type: string
+                  format: path
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}:
+    put:
+      tags:
+      - "Item e prodotti"
+      summary: "Modifica delle generalità di un item"
+      description: |
+        Gestisce la modifica dei dati generali di un item (non dei singoli prodotti).
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: body
+        in: body
+        description: "Dati dell'item"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            category_id:
+              $ref: "#/definitions/ObjectId"
+
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/ItemModel"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+     
+    delete:
+      tags:
+      - "Item e prodotti"
+      summary: "Cancellazione di un item"
+      description: |
+        Gestisce la cancellazione di un item e di tutti i suoi prodotti associati.
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      responses:
+        200:
+          description: "Cancellato con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{barcode}:
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca di un item per barcode di un prodotto"
+      description: |
+        Ricerca l'item associato ad un prodotto, cercando per barcode di un prodotto
+        Richiede permessi ["operator", "shop_read"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: barcode
+        in: path
+        description: "Barcode del prodotto"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/ItemModel"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}/products/:
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Estrazione di tutti i prodotti associati ad un item"
+      description: |
+        Ricerca tutti i prodotti associati ad un item dato il suo id
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        description: "ObjectId dell'item"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductModel"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}/products/{product_index}:
+    put:
+      tags:
+      - "Item e prodotti"
+      summary: "Modifica i dati di un prodotto"
+      description: |
+        Gestisce la modifica dei dati di un prodotto ricercato a partire dall'item di appartenenza.
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: product_index
+        in: path
+        type: number
+        required: true
+      - name: body
+        in: body
+        description: "Dati da modificare del prodotto"
+        required: true
+        schema:
+          type: object
+          properties:
+            barcode:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            target_species_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+            price:
+              type: number
+            quantity:
+              type: number
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/ProductModel"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+
+    delete:
+      tags:
+      - "Item e prodotti"
+      summary: "Cancellazione di un prodotto"
+      description: |
+        Gestisce la cancellazione di un prodotto ricercato a partire dall'item di appartenenza.
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: product_index
+        in: path
+        type: number
+        required: true
+      responses:
+        200:
+          description: "Cancellato con successo"
+        303:
+          description: |
+            Si sta tentando di cancellare un prodotto da un item che ne contiene uno solo.
+            Si suggerisce di cancellare l'intero item.
+          headers:
+            location:
+              type : string
+              description: "Endpoint a cui richiedere la cancellazione dell'item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        404:
+          description: "Nessun item trovato"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}/products/{product_index}/images/:
+    post:
+      tags:
+      - "Item e prodotti"
+      summary: "Caricamento di immagini associate ad un prodotto"
+      description: |
+        Gestisce il caricamento delle immagini associate ad un prodotto.
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - multipart/form-data
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: product_index
+        in: path
+        type: number
+        required: true
+      - name: files
+        in: formData
+        type: file
+      responses:
+        200:
+          description: "Immagini inserite con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        404:
+          description: "Nessun prodotto trovato"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}/products/{product_index}/images/{image_index}:
+    delete:
+      tags:
+      - "Item e prodotti"
+      summary: "Cancellazione di una immagine associata ad un prodotto"
+      description: |
+        Gestisce la cancellazione di una immagine associata ad un prodotto.
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: product_index
+        in: path
+        type: number
+        required: true
+      - name: image_index
+        in: path
+        type: number
+        required: true
+      responses:
+        200:
+          description: "Immagine cancellata con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi insufficienti"
+        404:
+          description: "Nessun prodotto trovato"
+        500:
+          description: "Errore lato server"
+
+
+
+definitions:
+
+  ErrorMessage:
+    type: array
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+          description: "Il campo errato"
+        message:
+          type: string
+          description: "Informazioni sull'errore"
+
+  ObjectId:
+    type: string
+    format: ObjectId
+    example: "61338f5b47bfc65136b5de30"
+
+  Item:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      category_id:
+        $ref: "#/definitions/ObjectId"
+      products:
+        type: array
+        items:
+          type: object
+          properties:
+            barcode:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            price:
+              type: number
+            quantity:
+              type: number
+            target_species_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+          required:
+          - barcode
+          - price
+          - quantity
+    required:
+    - name
+    - category_id
+    - products
+
+  ItemModel:
+    type: object
+    properties:
+      _id:
+        $ref: "#/definitions/ObjectId"
+      name:
+        type: string
+      description:
+        type: string
+      category_id:
+        $ref: "#/definitions/ObjectId"
+      products_id:
+        type: array
+        items:
+          $ref: "#/definitions/ObjectId"
+      relevance:
+        type: number
+
+  ItemModelPopulated:
+    type: object
+    properties:
+      _id:
+        $ref: "#/definitions/ObjectId"
+      name:
+        type: string
+      description:
+        type: string
+      category_id:
+        $ref: "#/definitions/ObjectId"
+      products_id:
+        type: array
+        items:
+          type: object
+          properties:
+            _id:
+              $ref: "#/definitions/ObjectId"
+            barcode:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            price:
+              type: number
+            quantity:
+              type: number
+            target_species_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+      relevance:
+        type: number
+
+  ProductModel:
+    type: object
+    properties:
+      _id:
+        $ref: "#/definitions/ObjectId"
+      barcode:
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      images_path:
+        type: array
+        items:
+          type: string
+      target_species_id:
+        type: array
+        items:
+          $ref: "#/definitions/ObjectId"
+      price:
+        type: number
+      quantity:
+        type: number

@@ -11,6 +11,8 @@ env:
   REFRESH_TOKEN_KEY: ${{secrets.REFRESH_TOKEN_KEY}}
   ACCESS_TOKEN_EXP: 10m
   REFRESH_TOKEN_EXP: 14d
+  IMAGES_NAME_LENGTH: 25
+
 
 jobs:  
   build:
