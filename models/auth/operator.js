@@ -35,6 +35,7 @@ const operatorScheme = mongoose.Schema({
     name: { type: String, required: true },
     surname: { type: String, required: true },
     gender: { type: String },
+    phone: { type: String },
 
     enabled: {
         type: Boolean,
@@ -49,6 +50,7 @@ const operatorScheme = mongoose.Schema({
 
     role_id: { 
         type: ObjectId, ref: "roles", 
+        required: true,
     },
     permission: {
         type: permissionSchema,

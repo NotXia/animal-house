@@ -5,7 +5,7 @@ const ProductModel = require("../../models/shop/product");
 const OrderModel = require("../../models/shop/order");
 const SpeciesModel = require("../../models/animals/species");
 
-const ValidationError = require("mongoose").Error.ValidationError
+const ValidationError = require("mongoose").Error.ValidationError;
 
 function randomOf(array) {
     return array[Math.floor(Math.random() * array.length)]
@@ -24,23 +24,23 @@ describe("Database - gestione shop", function () {
         tmp = await new SpeciesModel({ type: "Gatto", race: "Sacro di Birmania" }).save();
         species_id.push(tmp._id);
 
-        tmp = await new CategoryModel({ name: "Cibo", target: [] }).save();
+        tmp = await new CategoryModel({ name: "Cibo" }).save();
         categories_id.push(tmp._id);
-        tmp = await new CategoryModel({ name: "Abbigliamento", target: [randomOf(species_id)] }).save();
+        tmp = await new CategoryModel({ name: "Abbigliamento" }).save();
         categories_id.push(tmp._id);
 
-        tmp = await new ProductModel({ name: "Prodotto1", price: 1000, quantity: 5 }).save();
+        tmp = await new ProductModel({ name: "Prodotto1", price: 1000, quantity: 5, barcode: "12345" }).save();
         products_id.push(tmp._id);
-        tmp = await new ProductModel({ name: "Prodotto2", price: 1000 }).save();
+        tmp = await new ProductModel({ name: "Prodotto2", price: 1000, barcode: "23456" }).save();
         products_id.push(tmp._id);
 
         tmp = await new ItemModel({ name: "Item1", category_id: randomOf(categories_id), products_id: [randomOf(products_id)]}).save();
         items_id.push(tmp._id);
     });
 
-    test("Validazione", function () {
+    test("Validazione", async function () {
         expect(async function () {
-            await new ProductModel({ name: "ProdottoSbagliato1", price: -1, quantity: 5 }).save();
+            await new ProductModel({ name: "ProdottoSbagliato1", price: -1, quantity: 5, barcode: "1" }).save();
         }).rejects.toThrow(ValidationError);
 
         expect(async function () {
@@ -48,8 +48,13 @@ describe("Database - gestione shop", function () {
         }).rejects.toThrow(ValidationError);
 
         expect(async function () {
-            await new ProductModel({ name: "ProdottoSbagliato3", price: 1, quantity: -1 }).save();
+            await new ProductModel({ name: "ProdottoSbagliato3", price: 1, quantity: -1, barcode: "2" }).save();
         }).rejects.toThrow(ValidationError);
+
+        expect(async function () {
+            await new ProductModel({ name: "ProdottoSbagliato4", price: 1, quantity: 1, barcode: "12345" }).save();
+            await new ProductModel({ name: "ProdottoSbagliato4", price: 1, quantity: 1, barcode: "12345" }).save();
+        }).rejects.toThrow();
 
         expect(async function () {
             await new ItemModel({ name: "ItemSbagliato1", category_id: randomOf(categories_id), products_id: [] }).save();
