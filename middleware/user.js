@@ -1,15 +1,5 @@
 const validator = require('express-validator');
-
-
-function _errorHandler(req, res, next) {
-    const errors = validator.validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).send(errors.array());
-    }
-    else {
-        next();
-    }
-}
+const utils = require("./utils");
 
 const validateWorkingTimeRequired = function() {
     let out = [ validator.body("working_time").exists() ];
@@ -63,7 +53,7 @@ const validateInsertCustomer = [
     validator.body("address.number").optional().trim().escape(),
     validator.body("address.postal_code").optional().isPostalCode("any"),
     validator.body("phone").optional().isMobilePhone("any"),
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateInsertOperator = [
@@ -77,12 +67,12 @@ const validateInsertOperator = [
     validator.body("role_id").exists().isMongoId(),
     validator.body("permission").optional(),
     validateWorkingTimeRequired,
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateSearchUser = [
     validator.param("username").exists().trim().escape(),
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateUpdateCustomer = [
@@ -99,7 +89,7 @@ const validateUpdateCustomer = [
     validator.body("phone").optional().isMobilePhone("any"),
     validator.body("role_id").optional().isMongoId(),
     validator.body("permission").optional(),
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateUpdateOperator = [
@@ -114,12 +104,12 @@ const validateUpdateOperator = [
     validator.body("permission").optional(),
     validateWorkingTimeOptional,
     validateAbsenceTime,
-    _errorHandler
+    utils.errorHandler
 ];
 
 const validateDeleteUser = [
     validator.param("username").exists().trim().escape(),
-    _errorHandler
+    utils.errorHandler
 ];
 
 module.exports = {
