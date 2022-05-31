@@ -16,8 +16,25 @@ async function insertPost(req, res) {
     res.sendStatus(200);
 }
 
-async function searchPost(req, res) {
+async function searchPostByUser(req, res) {
+    try {
+        const posts = await PostModel.find({user_id : req.params.user_id}).exec()
+        if(posts.length === 0) { res.sendStatus(404); }
+        res.status(200).send(posts);
+    } catch (err) {
+        res.sendStatus(500);
+    }
 
+}
+
+async function searchPostById(req, res) {
+    try {
+        const post = await PostModel.findById(req.params.post_id, { _id: 1 } ).exec();
+        if(!post) { res.sendStatus(404); }
+        res.status(200).send(post);
+    } catch (err) {
+        res.sendStatus(500);
+    }
 }
 
 // function searchUser(is_operator) {
@@ -68,7 +85,8 @@ async function searchPost(req, res) {
 
 module.exports = {
     insertPost: insertPost,
-    searchPost: searchPost,
+    searchPostByUser: searchPostByUser,
+    searchPostById: searchPostById,
     // searchUser: searchUser,
     // updateUser: updateUser,
     // deleteUser: deleteUser

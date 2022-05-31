@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const auth_middleware = require("../middleware/auth");
-// const post_middleware = require("../middleware/post");
-// const post_controller = require("../controllers/post");
+const post_middleware = require("../middleware/post");
+const post_controller = require("../controllers/post");
 
 router.post("/posts/", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateInsertPost ], post_controller.insertPost);
 
-router.get("/posts/:user_id", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchPost ], post_controller.searchPost);
+router.get("/posts/:user_id", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchPostByUser ], post_controller.searchPostByUser);
+router.get("/posts/:post_id", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchPostById ], post_controller.searchPostById);
+
 // router.get("/customers/:username", [ auth_middleware([ ["user"], ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(false));
 // router.put("/customers/:username", [ auth_middleware([ ["user"], ["admin"] ]), user_middleware.validateUpdateUser ], user_controller.updateUser(false));
 // router.delete("/customers/:username", [ auth_middleware([ ["user"], ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(false));
