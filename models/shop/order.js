@@ -8,15 +8,13 @@ const orderSchema = mongoose.Schema({
         type: ObjectId, ref: "users",
         required: true
     },
-    products_id: [{
-        type: ObjectId, ref: "products",
+    products: [{
+        name: { type: String, required: true },
+        price: { type: Number, required: true, validate: (val) => { return val >= 0; } }
     }],
-    total: { 
-        type: Number, 
-        required: true,
-        validate: (val) => { return val >= 0; }
-    },
+
     address: { type: addressSchema, required: true },
+    
     creationDate: {
         type: Date,
         required: true,
