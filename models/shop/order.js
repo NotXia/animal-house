@@ -10,7 +10,8 @@ const orderSchema = mongoose.Schema({
     },
     products: [{
         name: { type: String, required: true },
-        price: { type: Number, required: true, validate: (val) => { return val >= 0; } }
+        price: { type: Number, required: true, validate: (val) => { return val >= 0; } },
+        item_id: { type: ObjectId, ref: "items" }
     }],
 
     address: { type: addressSchema, required: true },
