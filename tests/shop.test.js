@@ -6,19 +6,20 @@ const fs = require("fs");
 
 const CategoryModel = require("../models/shop/category");
 const ItemModel = require("../models/shop/item");
-const ProductModel = require("../models/shop/product");
 
 let curr_session = session(app);
 let user = null;
 
 // Per tracciare gli oggetti da eliminare alla fine
 let categories_id = [];
-let products_id = [];
 let items_id = [];
 
 let category;
 let products = [];
 let items = [];
+
+const WRONG_MONGO_ID = "111111111111111111111111";
+
 
 describe("Popolazione database", function () {
     let tmp;
@@ -28,28 +29,22 @@ describe("Popolazione database", function () {
         categories_id.push(tmp._id);
         category = tmp;
 
-        tmp = await new ProductModel({ name: "Prodotto1", price: 2000, quantity: 5, barcode: "1", images_path: ["b", "a"] }).save();
-        products_id.push(tmp._id);
-        products.push(tmp);
-        tmp = await new ProductModel({ name: "Prodotto2", price: 1000, barcode: "2" }).save();
-        products_id.push(tmp._id);
-        products.push(tmp);
-        tmp = await new ProductModel({ name: "Prodotto3", price: 5000, barcode: "3" }).save();
-        products_id.push(tmp._id);
-        products.push(tmp);
-        tmp = await new ProductModel({ name: "Prodotto4", price: 4000, barcode: "4" }).save();
-        products_id.push(tmp._id);
-        products.push(tmp);
+        products = [
+            { name: "Prodotto1", price: 2000, quantity: 5, barcode: "1", images_path: ["b", "a"] },
+            { name: "Prodotto2", price: 1000, barcode: "2" },
+            { name: "Prodotto3", price: 5000, barcode: "3" },
+            { name: "Prodotto4", price: 4000, barcode: "4" }
+        ]
 
-        tmp = await new ItemModel({ name: "Item1", category_id: category, products_id: [products[0]._id] }).save();
+        tmp = await new ItemModel({ name: "Item1", category_id: category, products: [products[0]] }).save();
         items_id.push(tmp._id);
         items.push(tmp);
 
-        tmp = await new ItemModel({ name: "Item2", category_id: category, products_id: [products[1]._id, products[2]._id] }).save();
+        tmp = await new ItemModel({ name: "Item2", category_id: category, products: [products[1], products[2]] }).save();
         items_id.push(tmp._id);
         items.push(tmp);
 
-        tmp = await new ItemModel({ name: "Item3", category_id: category, products_id: [products[3]._id] }).save();
+        tmp = await new ItemModel({ name: "Item3", category_id: category, products: [products[3]] }).save();
         items_id.push(tmp._id);
         items.push(tmp);
     });
@@ -131,7 +126,7 @@ describe("Test GET /shop/items/:item_id/products", function () {
 
     test("Richiesta errata", async function () {
         await curr_session.get(`/shop/items/aaaa/products`).expect(400);
-        await curr_session.get(`/shop/items/${products[0]._id}/products/`).expect(404);
+        await curr_session.get(`/shop/items/${WRONG_MONGO_ID}/products/`).expect(404);
     });
 });
 
@@ -166,7 +161,7 @@ describe("Test inserimento", function () {
         const res = await curr_session.post("/shop/items/")
                         .set({ Authorization: `Bearer ${user.access_token.value}` })
                         .send({
-                            name: "NewItem1", description: "", category_id: category._id,
+                            name: "NewItem1", description: "Uno", category_id: category._id,
                             products: [
                                 { barcode: "new12345", name: "NewProdotto1", price: 1000, quantity: 5 },
                                 { barcode: "new23456", name: "NewProdotto2", price: 2000 },
@@ -184,8 +179,7 @@ describe("Test inserimento", function () {
         await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${user.access_token.value}` })
             .send({
-                name: "NewItem2", description: "", category_id: category._id,
-                products: []
+                name: "NewItem2", description: "", category_id: category._id, products: []
             }).expect(400);
 
         await curr_session.post("/shop/items/")
@@ -269,30 +263,39 @@ describe("Test modifica", function () {
     });
 
     test("Richiesta scorretta a PUT /items/:item_id", async function () {
-        let wrong_id = "111111111111111111111111";
-        await curr_session.put(`/shop/items/${wrong_id}`)
+        await curr_session.put(`/shop/items/${WRONG_MONGO_ID}`)
             .set({ Authorization: `Bearer ${user.access_token.value}` })
             .send({ name: "NewItem1 modificato", description: "Nuova descrizione" }).expect(404);
     });
 
     test("Richieste corrette a PUT /items/:item_id/products/:product_index", async function () {
-        const res = await curr_session.put(`/shop/items/${item_id}/products/0`)
+        let res = await curr_session.put(`/shop/items/${item_id}/products/0`)
             .set({ Authorization: `Bearer ${user.access_token.value}` })
             .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(200);
         expect(res.body.name).toEqual("NewProdotto1 modificato");
         expect(res.body.description).toEqual("Nuova descrizione");
         expect(res.body.price).toEqual(6000);
         expect(res.body.quantity).toEqual(20);
-        const item = await ProductModel.findById(res.body._id).exec();
-        expect(item.name).toEqual("NewProdotto1 modificato");
-        expect(item.description).toEqual("Nuova descrizione");
-        expect(item.price).toEqual(6000);
-        expect(item.quantity).toEqual(20);
+        
+        const item = await ItemModel.findById(item_id, { products: 1 }).exec();
+        for (const product of item.products) {
+            if (product.barcode === res.body.barcode) {
+                expect(product.name).toEqual("NewProdotto1 modificato");
+                expect(product.description).toEqual("Nuova descrizione");
+                expect(product.price).toEqual(6000);
+                expect(product.quantity).toEqual(20);
+                break;
+            }
+        }
 
         // Richiesta vuota (perché mai dovresti voler modificare nulla :|)
-        await curr_session.put(`/shop/items/${item_id}/products/0`)
+        res = await curr_session.put(`/shop/items/${item_id}/products/0`)
             .set({ Authorization: `Bearer ${user.access_token.value}` })
             .send({}).expect(200);
+        expect(res.body.name).toEqual("NewProdotto1 modificato");
+        expect(res.body.description).toEqual("Nuova descrizione");
+        expect(res.body.price).toEqual(6000);
+        expect(res.body.quantity).toEqual(20);
     });
 
     test("Richieste errate a PUT /items/:item_id/products/:product_index", async function () {
@@ -328,7 +331,9 @@ describe("Test cancellazione", function () {
         const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
         expect(products.length).toEqual(1);
         expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image))).toBeTruthy();
-        expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();
+
+        const item = await ItemModel.findById(item_id, {products: 1}).exec();
+        for (const product of item.products) { expect(product.barcode).not.toEqual("new23456"); }
     });
 
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
@@ -346,15 +351,12 @@ describe("Test cancellazione", function () {
             .expect(200);
 
         expect(await ItemModel.findById(item_id).exec()).toBeNull();
-        expect(await ProductModel.findOne({ barcode: "new12345" }).exec()).toBeNull();
-        expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();
     });
 });
 
 describe("Pulizia", function () {
     test("Pulizia database", async function () {
         for (const id of categories_id) { await CategoryModel.findByIdAndDelete(id); }
-        for (const id of products_id) { await ProductModel.findByIdAndDelete(id); }
         for (const id of items_id) { await ItemModel.findByIdAndDelete(id); }
     });
 });
