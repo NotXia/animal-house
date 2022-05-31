@@ -24,7 +24,7 @@ const postSchema = mongoose.Schema({
             default: new Date()
         }
     }],
-
+    category: { type: String },
     tag_users_id: [{
         type: ObjectId, ref: "users"
     }],

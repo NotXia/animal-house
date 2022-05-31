@@ -6,6 +6,7 @@ async function insertPost(req, res) {
         const newPost = new PostModel({
             user_id: req.body.user_id,
             content: req.body.content,
+            category: req.body.category,
             tag_users_id: req.body.tag_users_id,
             tag_animals_id: req.body.tag_animals_id
         });
@@ -19,7 +20,7 @@ async function insertPost(req, res) {
 async function searchPostByUser(req, res) {
     try {
         const posts = await PostModel.find({user_id : req.params.user_id}).exec()
-        if(posts.length === 0) { res.sendStatus(404); }
+        if (posts.length === 0) { res.sendStatus(404); }
         res.status(200).send(posts);
     } catch (err) {
         res.sendStatus(500);
@@ -30,8 +31,22 @@ async function searchPostByUser(req, res) {
 async function searchPostById(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id, { _id: 1 } ).exec();
-        if(!post) { res.sendStatus(404); }
+        if (!post) { res.sendStatus(404); }
         res.status(200).send(post);
+    } catch (err) {
+        res.sendStatus(500);
+    }
+}
+
+async function searchPostByCategory(req, res) {
+    let query_criteria = {};
+    query_criteria.category = req.param.category;
+    if (req.query.user_id) { query_criteria.user_id = req.query.user_id; }
+
+    try {
+        const posts = await PostModel.find(query_criteria).sort({creationDate: "desc"}).exec();
+        if (posts.length === 0) { res.sendStatus(404); }
+        res.status(200).send(posts);
     } catch (err) {
         res.sendStatus(500);
     }
@@ -84,9 +99,10 @@ async function searchPostById(req, res) {
 // }
 
 module.exports = {
-    insertPost: insertPost,
-    searchPostByUser: searchPostByUser,
-    searchPostById: searchPostById,
+    insertPost : insertPost,
+    searchPostByUser : searchPostByUser,
+    searchPostById : searchPostById,
+    searchPostByCategory : searchPostByCategory,
     // searchUser: searchUser,
     // updateUser: updateUser,
     // deleteUser: deleteUser

@@ -4,8 +4,9 @@ const utils = require("./utils");
 const validateInsertPost = [
     validator.body("user_id").exists().isMongoId(),
     validator.body("content").exists(),
-    validator.body("tag_users_id").exists().isMongoId(),
-    validator.body("tag_animals_id").exists().isMongoId(),
+    validator.body("category").optional().trim().escape(),
+    validator.body("tag_users_id").optional().isMongoId(),
+    validator.body("tag_animals_id").optional().isMongoId(),
     utils.errorHandler
 ];
 
@@ -16,6 +17,12 @@ const validateSearchPostByUser = [
 
 const validateSearchPostById = [
     validator.param("post_id").exists().isMongoId(),
+    utils.errorHandler
+];
+
+const validatePostByCategory = [
+    validator.param("category").exists().trim().escape(),
+    validator.query("user_id").optional().isMongoId(),
     utils.errorHandler
 ];
 
@@ -59,5 +66,6 @@ const validateSearchPostById = [
 module.exports = {
     validateInsertPost : validateInsertPost,
     validateSearchPostByUser : validateSearchPostByUser,
-    validateSearchPostById : validateSearchPostById
+    validateSearchPostById : validateSearchPostById,
+    validatePostByCategory : validatePostByCategory
 }
