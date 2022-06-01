@@ -52,36 +52,16 @@ async function searchPostByCategory(req, res) {
     }
 }
 
-// function searchUser(is_operator) {
-//     return async function(req, res) {
-//         const RoleModel = is_operator ? OperatorModel : UserModel;
-
-//         try {
-//             const user = await RoleModel.find({ username : req.params.username }).exec();
-//             res.send(user);
-//         }
-//         catch (e) {
-//             res.sendStatus(500);
-//         }
-//     };
-// }
-
-// function updateUser(is_operator) {
-//     return async function(req, res) {
-//         const RoleModel = is_operator ? OperatorModel : UserModel;
-
-//         const filter = { username : req.params.username };
-
-//         try {
-//             const user = await RoleModel.findOneAndUpdate(filter, req.body);
-//             console.log(user);
-//         } catch (e) {
-//             res.sendStatus(500);
-//         }
-//         res.sendStatus(200);
-//     }
-// }
-
+async function updatePostById(req, res) {
+    const filter = { _id : req.params.post_id }
+    try {
+        const post = await PostModel.findOneAndUpdate(filter, req.body);
+        // console.log(post);
+    } catch (err) {
+        res.sendStatus(500);
+    }
+    res.sendStatus(200);
+}
 
 // function deleteUser(is_operator) {
 //     return async function(req, res) {
@@ -103,7 +83,7 @@ module.exports = {
     searchPostByUser : searchPostByUser,
     searchPostById : searchPostById,
     searchPostByCategory : searchPostByCategory,
-    // searchUser: searchUser,
+    updatePostById: updatePostById,
     // updateUser: updateUser,
     // deleteUser: deleteUser
 }

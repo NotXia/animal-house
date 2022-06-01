@@ -11,7 +11,7 @@ const validateInsertPost = [
 ];
 
 const validateSearchPostByUser = [
-    validator.param("user_id").exists().trim().escape(),
+    validator.param("user_id").exists().isMongoId(),
     utils.errorHandler
 ];
 
@@ -23,6 +23,15 @@ const validateSearchPostById = [
 const validatePostByCategory = [
     validator.param("category").exists().trim().escape(),
     validator.query("user_id").optional().isMongoId(),
+    utils.errorHandler
+];
+
+const validateUpdatePost = [
+    validator.param("user_id").exists().isMongoId(),
+    validator.body("content").optional(),
+    validator.body("category").optional().trim().escape(),
+    validator.body("tag_users_id").optional().isMongoId(),
+    validator.body("tag_animals_id").optional().isMongoId(),
     utils.errorHandler
 ];
 
@@ -67,5 +76,6 @@ module.exports = {
     validateInsertPost : validateInsertPost,
     validateSearchPostByUser : validateSearchPostByUser,
     validateSearchPostById : validateSearchPostById,
-    validatePostByCategory : validatePostByCategory
+    validatePostByCategory : validatePostByCategory,
+    validateUpdatePost : validateUpdatePost,
 }
