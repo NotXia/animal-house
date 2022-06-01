@@ -52,38 +52,32 @@ async function searchPostByCategory(req, res) {
     }
 }
 
-async function updatePostById(req, res) {
+async function updatePost(req, res) {
     const filter = { _id : req.params.post_id }
     try {
         const post = await PostModel.findOneAndUpdate(filter, req.body);
-        // console.log(post);
+        if (!post) { res.sendStatus(404); }
     } catch (err) {
         res.sendStatus(500);
     }
     res.sendStatus(200);
 }
 
-// function deleteUser(is_operator) {
-//     return async function(req, res) {
-//         const RoleModel = is_operator ? OperatorModel : UserModel;
-        
-//         try {
-//             const user = await RoleModel.deleteOne({ username : req.params.username }).exec();
-//             console.log(user);
-//         } catch (e) {
-//             res.sendStatus(500);
-//         }
-
-//         res.sendStatus(200);
-//     }
-// }
+async function deletePost(req, res) {
+    const filter = { _id : req.params.post_id }
+    try {
+        const post = await PostModel.findOneAndDelete(filter).exec();
+        if (!post) { res.sendStatus(404); }
+    } catch (err) {
+        res.sendStatus(500);
+    }
+}
 
 module.exports = {
     insertPost : insertPost,
     searchPostByUser : searchPostByUser,
     searchPostById : searchPostById,
     searchPostByCategory : searchPostByCategory,
-    updatePostById: updatePostById,
-    // updateUser: updateUser,
-    // deleteUser: deleteUser
+    updatePost: updatePost,
+    deletePost: deletePost
 }
