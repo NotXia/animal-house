@@ -66,7 +66,7 @@ async function updatePost(req, res) {
 async function deletePost(req, res) {
     const filter = { _id : req.params.post_id }
     try {
-        const post = await PostModel.findOneAndDelete(filter).exec();
+        const post = await PostModel.findOneAndDelete(filter);
         if (!post) { res.sendStatus(404); }
     } catch (err) {
         res.sendStatus(500);
