@@ -57,6 +57,19 @@ const validateSearchCommentByIndex = [
     utils.errorHandler
 ];
 
+const validateUpdateComment = [
+    validator.param("post_id").exists().isMongoId(),
+    validator.param("comment_index").exists().isInt({ min: 0 }),
+    validator.body("content").exists().trim().escape(),
+    utils.errorHandler
+];
+
+// const validateDeleteComment = [
+//     validator.param("post_id").exists().isMongoId(),
+//     validator.param("comment_index").exists().isInt({ min: 0 }),
+//     utils.errorHandler
+// ];
+
 module.exports = {
     validateInsertPost: validateInsertPost,
     validateSearchPostByUser: validateSearchPostByUser,
@@ -66,5 +79,7 @@ module.exports = {
     validateDeletePost: validateDeletePost,
     validateInsertComment: validateInsertComment,
     validateSearchCommentByPost: validateSearchCommentByPost,
-    validateSearchCommentByIndex: validateSearchCommentByIndex
+    validateSearchCommentByIndex: validateSearchCommentByIndex,
+    validateUpdateComment: validateUpdateComment,
+    validateDeleteComment: validateDeleteComment
 }
