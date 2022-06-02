@@ -17,7 +17,6 @@ const postSchema = mongoose.Schema({
         content: {
             type: String, required: true
         },
-
         creationDate: {
             type: Date,
             required: true,

@@ -79,11 +79,27 @@ async function deletePost(req, res) {
     }
 }
 
+// Inserimento di un commento dato un post
+async function insertComment(req, res) {
+    const comment = {
+        user_id : req.auth.id,
+        content : req.body.content
+    };
+    try {
+        const post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } })
+        if (!post) { res.sendStatus(404); }
+    } catch (err) {
+        res.sendStatus(500);
+    }
+    res.sendStatus(200);
+}
+
 module.exports = {
-    insertPost : insertPost,
-    searchPostByUser : searchPostByUser,
-    searchPostById : searchPostById,
-    searchPostByCategory : searchPostByCategory,
+    insertPost: insertPost,
+    searchPostByUser: searchPostByUser,
+    searchPostById: searchPostById,
+    searchPostByCategory: searchPostByCategory,
     updatePost: updatePost,
-    deletePost: deletePost
+    deletePost: deletePost,
+    insertComment: insertComment
 }
