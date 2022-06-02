@@ -64,11 +64,11 @@ const validateUpdateComment = [
     utils.errorHandler
 ];
 
-// const validateDeleteComment = [
-//     validator.param("post_id").exists().isMongoId(),
-//     validator.param("comment_index").exists().isInt({ min: 0 }),
-//     utils.errorHandler
-// ];
+const validateDeleteComment = [
+    validator.param("post_id").exists().isMongoId(),
+    validator.param("comment_index").exists().isInt({ min: 0 }),
+    utils.errorHandler
+];
 
 module.exports = {
     validateInsertPost: validateInsertPost,

@@ -1,6 +1,10 @@
 require('dotenv').config();
 const PostModel = require("../models/blog/post.js");
 
+/////////////////
+// INIZIO POST //
+/////////////////
+
 // Inserimento di un post
 async function insertPost(req, res) {
     try {
@@ -79,6 +83,10 @@ async function deletePost(req, res) {
     }
 }
 
+/////////////////////
+// INIZIO COMMENTI //
+/////////////////////
+
 // Inserimento di un commento dato un post
 async function insertComment(req, res) {
     const comment = {
@@ -134,16 +142,17 @@ async function updateComment(req, res) {
 }
 
 // Cancellazione di un commento dato un id di un post e la posizione del commento nell'array
-// async function deleteComment(req, res) {
-//     try {
-//         const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
-//         if (!post) { res.sendStatus(404); }
-//         let comment = post.comments[parseInt(req.params.comment_index)];
-//         comment = null;
-//     } catch (err) {
-//         res.sendStatus(500);
-//     }
-// }
+async function deleteComment(req, res) {
+    try {
+        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
+        if (!post) { res.sendStatus(404); }
+        let comment = post.comments[parseInt(req.params.comment_index)];
+        comment = null;
+    } catch (err) {
+        res.sendStatus(500);
+    }
+    res.sendStatus(200);
+}
 
 module.exports = {
     insertPost: insertPost,
