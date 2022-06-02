@@ -94,6 +94,28 @@ async function insertComment(req, res) {
     res.sendStatus(200);
 }
 
+// Ricerca dei commenti dato un id di un post
+async function searchCommentByPost(req, res) {
+    try {
+        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
+        if (!post) { res.sendStatus(404); }
+        res.status(200).send(post.comments);
+    } catch (err) {
+        res.sendStatus(500);
+    }
+}
+
+// Ricerca di un singolo commento dato un id di un post e la posizione del commento nell'array
+async function searchCommentByIndex(req, res) {
+    try {
+        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
+        if (!post) { res.sendStatus(404); }
+        res.status(200).send(post.comments[parseInt(req.params.comment_index)]);
+    } catch (err) {
+        res.sendStatus(500);
+    }
+}
+
 module.exports = {
     insertPost: insertPost,
     searchPostByUser: searchPostByUser,
@@ -101,5 +123,7 @@ module.exports = {
     searchPostByCategory: searchPostByCategory,
     updatePost: updatePost,
     deletePost: deletePost,
-    insertComment: insertComment
+    insertComment: insertComment,
+    searchCommentByPost: searchCommentByPost,
+    searchCommentByIndex: searchCommentByIndex
 }

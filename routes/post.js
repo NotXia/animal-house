@@ -20,9 +20,7 @@ router.delete("/customers/:post_id", [ auth_middleware([ ["user"], ["admin"] ]),
 
 router.post("/posts/:post_id/comments/", [ auth_middleware([ ["write_post"], ["user"], ["admin"] ]), post_middleware.validateInsertComment ], post_controller.insertComment);
 
-// router.post("/operators/", [ auth_middleware([ ["admin"] ]), user_middleware.validateInsertOperator ], user_controller.insertOperator);
-// router.get("/operators/:username", [ auth_middleware([ ["operator"], ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(true));
-// router.put("/operators/:username", [ auth_middleware([ ["admin"] ]), user_middleware.validateUpdateUser ], user_controller.updateUser(true));
-// router.delete("/operators/:username", [ auth_middleware([ ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(true));
+router.get("/posts/:post_id/comments/", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchCommentByPost ], post_controller.searchCommentByPost);
+router.get("/posts/:post_id/comments/:comment_index", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchCommentByIndex ], post_controller.searchCommentByIndex);
 
 module.exports = router;
