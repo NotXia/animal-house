@@ -12,7 +12,7 @@ router.get("/posts/category/:category", [ auth_middleware([ ["user"], ["admin"] 
 
 router.put("/posts/:post_id", [ auth_middleware([ ["write_post"], ["user"], ["admin"] ]), post_middleware.validateUpdatePost ], post_controller.updatePost);
 
-router.delete("/customers/:post_id", [ auth_middleware([ ["user"], ["admin"] ]), user_middleware.validateDeletePost ], user_controller.deletePost);
+router.delete("/customers/:post_id", [ auth_middleware([ ["user"], ["admin"] ]), user_middleware.validateDeletePost ], post_controller.deletePost);
 
 // router.post("/operators/", [ auth_middleware([ ["admin"] ]), user_middleware.validateInsertOperator ], user_controller.insertOperator);
 // router.get("/operators/:username", [ auth_middleware([ ["operator"], ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(true));
