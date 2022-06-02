@@ -1,6 +1,7 @@
 require('dotenv').config();
 const PostModel = require("../models/blog/post.js");
 
+// Inserimento di un post
 async function insertPost(req, res) {
     try {
         const newPost = new PostModel({
@@ -17,6 +18,7 @@ async function insertPost(req, res) {
     res.sendStatus(200);
 }
 
+// Ricerca di tutti i post pubblicati da un dato utente
 async function searchPostByUser(req, res) {
     try {
         const posts = await PostModel.find({user_id : req.params.user_id}).exec()
@@ -28,6 +30,7 @@ async function searchPostByUser(req, res) {
 
 }
 
+// Ricerca di un singolo post dato l'id
 async function searchPostById(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id, { _id: 1 } ).exec();
@@ -38,6 +41,7 @@ async function searchPostById(req, res) {
     }
 }
 
+// Ricerca di tutti i post data una categoria e un eventuale utente in ordine cronologico
 async function searchPostByCategory(req, res) {
     let query_criteria = {};
     query_criteria.category = req.param.category;
@@ -52,6 +56,7 @@ async function searchPostByCategory(req, res) {
     }
 }
 
+// Modifica di un post dato il suo id
 async function updatePost(req, res) {
     const filter = { _id : req.params.post_id }
     try {
@@ -63,6 +68,7 @@ async function updatePost(req, res) {
     res.sendStatus(200);
 }
 
+// Cancellazione di un post dato il suo id
 async function deletePost(req, res) {
     const filter = { _id : req.params.post_id }
     try {
