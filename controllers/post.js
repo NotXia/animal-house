@@ -130,12 +130,16 @@ async function updateComment(req, res) {
     } catch (err) {
         res.sendStatus(500);
     }
+    res.sendStatus(200);
 }
 
 // Cancellazione di un commento dato un id di un post e la posizione del commento nell'array
 // async function deleteComment(req, res) {
 //     try {
-        
+//         const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
+//         if (!post) { res.sendStatus(404); }
+//         let comment = post.comments[parseInt(req.params.comment_index)];
+//         comment = null;
 //     } catch (err) {
 //         res.sendStatus(500);
 //     }
