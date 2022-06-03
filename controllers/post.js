@@ -1,5 +1,6 @@
 require('dotenv').config();
 const PostModel = require("../models/blog/post.js");
+const mongoose = require("mongoose");
 
 /////////////////
 // INIZIO POST //
@@ -31,7 +32,6 @@ async function searchPostByUser(req, res) {
     } catch (err) {
         res.sendStatus(500);
     }
-
 }
 
 // Ricerca di un singolo post dato l'id
@@ -126,16 +126,24 @@ async function searchCommentByIndex(req, res) {
 
 // Modifica di un commento dato un id di un post e la posizione del commento nell'array
 async function updateComment(req, res) {
+    const session = await mongoose.startSession();
     const newComment = {
-        user_id : req.auth.id,
-        content : req.body.content
+        user_id: req.auth.id,
+        content: req.body.content,
+        updateDate: new Date()
     };
     try {
-        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
-        if (!post) { res.sendStatus(404); }
-        let comment = post.comments[parseInt(req.params.comment_index)];
-        comment = newComment;
+        session.startTransaction();
+        const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
+        if (!post || !post.comments[parseInt(req.params.comment_index)]) { res.sendStatus(404); }
+
+        await PostModel.findByIdAndUpdate(req.params.post_id, { [`comments.${req.params.comment_index}`]: newComment });
+        
+        await session.commitTransaction();
+        session.endSession();
     } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
         res.sendStatus(500);
     }
     res.sendStatus(200);
@@ -143,12 +151,22 @@ async function updateComment(req, res) {
 
 // Cancellazione di un commento dato un id di un post e la posizione del commento nell'array
 async function deleteComment(req, res) {
+    const session = await mongoose.startSession();
     try {
-        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
-        if (!post) { res.sendStatus(404); }
-        let comment = post.comments[parseInt(req.params.comment_index)];
-        comment = null;
+        session.startTransaction();
+
+        const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
+        if (!post || !post.comments[parseInt(req.params.comment_index)]) { res.sendStatus(404); }
+
+        // Rimozione del commento (workaround per eliminare un elemento per indice)
+        await PostModel.findByIdAndUpdate(req.params.post_id, { $unset: { [`comments.${req.params.comment_index}`]: 1 } });
+        await PostModel.findByIdAndUpdate(req.params.post_id, { $pull: { comments: null } });
+
+        await session.commitTransaction();
+        session.endSession();
     } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
         res.sendStatus(500);
     }
     res.sendStatus(200);
