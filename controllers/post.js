@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 async function insertPost(req, res) {
     try {
         const newPost = new PostModel({
-            user_id: req.body.user_id,
+            user_id: req.auth.id,
             content: req.body.content,
             category: req.body.category,
             tag_users_id: req.body.tag_users_id,
