@@ -16,12 +16,12 @@ router.put("/posts/:post_id", [ auth_middleware([ ["post_write"], ["admin"] ]), 
 
 router.delete("/posts/:post_id", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateDeletePost ], post_controller.deletePost);
 
-// Router per i commenti 
+// Router per i commenti
 
 router.post("/posts/:post_id/comments/", [ auth_middleware([ ["comment_write"], ["admin"] ]), post_middleware.validateInsertComment ], post_controller.insertComment);
 
-router.get("/posts/:post_id/comments/", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchCommentByPost ], post_controller.searchCommentByPost);
-router.get("/posts/:post_id/comments/:comment_index", [ auth_middleware([ ["user"], ["admin"] ]), post_middleware.validateSearchCommentByIndex ], post_controller.searchCommentByIndex);
+router.get("/posts/:post_id/comments/", [ auth_middleware([ ["comment_read"], ["admin"] ]), post_middleware.validateSearchCommentByPost ], post_controller.searchCommentByPost);
+router.get("/posts/:post_id/comments/:comment_index", [ auth_middleware([ ["comment_read"], ["admin"] ]), post_middleware.validateSearchCommentByIndex ], post_controller.searchCommentByIndex);
 
 router.put("/posts/:post_id/comments/:comment_index", [ auth_middleware([ ["comment_write"], ["admin"] ]), post_middleware.validateUpdateComment ], post_controller.updateComment);
 
