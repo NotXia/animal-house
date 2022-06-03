@@ -2,7 +2,7 @@ const validator = require('express-validator');
 const utils = require("./utils");
 
 const validateInsertPost = [
-    validator.body("user_id").exists().isMongoId(),
+    // validator.body("user_id").exists().isMongoId(), // Lo user_id lo prendo da auth.
     validator.body("content").exists().escape(),
     validator.body("category").optional().trim().escape(),
     validator.body("tag_users_id").optional().isMongoId(),
@@ -20,7 +20,7 @@ const validateSearchPostById = [
     utils.errorHandler
 ];
 
-const validatePostByCategory = [
+const validateSearchPostByCategory = [
     validator.param("category").exists().trim().escape(),
     validator.query("user_id").optional().isMongoId(),
     utils.errorHandler
@@ -74,7 +74,7 @@ module.exports = {
     validateInsertPost: validateInsertPost,
     validateSearchPostByUser: validateSearchPostByUser,
     validateSearchPostById: validateSearchPostById,
-    validatePostByCategory: validatePostByCategory,
+    validateSearchPostByCategory: validateSearchPostByCategory,
     validateUpdatePost: validateUpdatePost,
     validateDeletePost: validateDeletePost,
     validateInsertComment: validateInsertComment,
