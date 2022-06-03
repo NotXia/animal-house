@@ -99,7 +99,7 @@ async function insertComment(req, res) {
     } catch (err) {
         res.sendStatus(500);
     }
-    res.sendStatus(200);
+    res.sendStatus(201);
 }
 
 // Ricerca dei commenti dato un id di un post
