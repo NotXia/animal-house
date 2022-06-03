@@ -27,7 +27,7 @@ const validateSearchPostByCategory = [
 ];
 
 const validateUpdatePost = [
-    validator.param("user_id").exists().isMongoId(),
+    // validator.param("user_id").exists().isMongoId(), // Lo user_id lo prendo da auth.
     validator.body("content").optional().escape(),
     validator.body("category").optional().trim().escape(),
     validator.body("tag_users_id").optional().isMongoId(),
