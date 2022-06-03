@@ -10,11 +10,7 @@ router.post("/posts/", [ auth_middleware([ ["post_write"], ["admin"] ]), post_mi
 
 router.get("/posts/users/:user_id", [ auth_middleware([ ["post_read"], ["admin"] ]), post_middleware.validateSearchPostByUser ], post_controller.searchPostByUser);
 router.get("/posts/:post_id", [ auth_middleware([ ["post_read"], ["admin"] ]), post_middleware.validateSearchPostById ], post_controller.searchPostById);
-router.get(
-    "/posts/category/:category", 
-    [ auth_middleware([ ["post_read"], ["admin"] ]), post_middleware.validateSearchPostByCategory ], 
-    post_controller.searchPostByCategory
-);
+router.get("/posts/category/:category", [ auth_middleware([ ["post_read"], ["admin"] ]), post_middleware.validateSearchPostByCategory ], post_controller.searchPostByCategory);
 
 router.put("/posts/:post_id", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateUpdatePost ], post_controller.updatePost);
 
