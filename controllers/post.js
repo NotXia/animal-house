@@ -17,10 +17,10 @@ async function insertPost(req, res) {
             tag_animals_id: req.body.tag_animals_id
         });
         await newPost.save();
+        res.status(201).send(newPost);
     } catch (e) {
         res.sendStatus(500);
     }
-    res.sendStatus(200);
 }
 
 // Ricerca di tutti i post pubblicati da un dato utente
