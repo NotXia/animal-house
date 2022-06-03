@@ -11,7 +11,7 @@ const validateInsertPost = [
 ];
 
 const validateSearchPostByUser = [
-    validator.param("user_id").exists().isMongoId(),
+    validator.param("username").exists().trim().escape(),
     utils.errorHandler
 ];
 

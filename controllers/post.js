@@ -1,5 +1,7 @@
 require('dotenv').config();
 const PostModel = require("../models/blog/post.js");
+const OperatorModel = require("../models/auth/operator");
+const UserModel = require("../models/auth/user");
 const mongoose = require("mongoose");
 
 /////////////////
@@ -26,7 +28,13 @@ async function insertPost(req, res) {
 // Ricerca di tutti i post pubblicati da un dato utente
 async function searchPostByUser(req, res) {
     try {
-        const posts = await PostModel.find({user_id : req.params.user_id}).exec()
+        let user;
+        user = await UserModel.findOne({username : req.params.username}).exec();
+        if (!user) {
+            user = await OperatorModel.findOne({username : req.params.username}).exec();
+            if (!user) { return res.sendStatus(404); }
+        }
+        const posts = await PostModel.find({username : user.username}).exec()
         if (posts.length === 0) { return res.sendStatus(404); }
         return res.status(200).send(posts);
     } catch (err) {
