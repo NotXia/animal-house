@@ -1,5 +1,7 @@
 const validator = require('express-validator');
 const utils = require("./utils");
+const OperatorModel = require("../models/auth/operator");
+const UserModel = require("../models/auth/user");
 
 const validateWorkingTimeRequired = function() {
     let out = [ validator.body("working_time").exists() ];
@@ -41,8 +43,21 @@ const validateAbsenceTime = function () {
     return out;
 }();
 
+async function isUsernameAvailable(username) {
+    const operator = await OperatorModel.findOne({ username: username }, { _id: 1 });
+    if (operator) { return false; }
+
+    const user = await UserModel.findOne({ username: username }, { _id: 1 });
+    if (user) { return false; }
+
+    return true;
+}
+
 const validateInsertCustomer = [
-    validator.body("username").exists().trim().escape(),
+    validator.body("username").exists().trim().escape().custom(async function(username) { 
+        if (!await isUsernameAvailable(username)) { throw new Error("Username non disponibile"); }
+        return true;
+    }),
     validator.body("password").exists().isStrongPassword(),
     validator.body("email").exists().isEmail().normalizeEmail(),
     validator.body("name").exists().trim().escape(),
@@ -57,7 +72,10 @@ const validateInsertCustomer = [
 ];
 
 const validateInsertOperator = [
-    validator.body("username").exists().trim().escape(),
+    validator.body("username").exists().trim().escape().custom(async function (username) {
+        if (!await isUsernameAvailable(username)) { throw new Error("Username non disponibile"); }
+        return true;
+    }),
     validator.body("password").exists().isStrongPassword(),
     validator.body("email").exists().isEmail().normalizeEmail(),
     validator.body("name").exists().trim().escape(),
