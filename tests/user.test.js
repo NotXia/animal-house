@@ -43,6 +43,18 @@ describe("Registrazione di un cliente", function () {
             phone: "3212345678"
         }).expect(400);
     });
+
+    test("Registrazione errata di un cliente - email esistente", async function () {
+        await curr_session.post('/user/customers/').send({
+            username: "SicuramenteNonMarcolino23",
+            password: "SicuramenteNonMarcobelloNapoli32!",
+            email: "marconi17@gmail.com",
+            name: "SicuramenteNonLuigi",
+            surname: "SicuramenteNonPirandello",
+            city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100",
+            phone: "3212345678"
+        }).expect(400);
+    });
 });
 
 describe("Ricerca di un cliente - tramite permesso admin", function () {
@@ -169,13 +181,15 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
         }).set({ Authorization: `Bearer ${token}` }).expect(201);
     });
 
-    test("Registrazione errata di un operatore - username esistente come cliente", async function () {
+    test("Creazione di un cliente", async function () {
         await curr_session.post('/user/customers/').send({
             username: "Marcolino23", password: "MarcobelloNapoli32!", email: "marconi17@gmail.com",
             name: "Luigi", surname: "Pirandello",
             city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100", phone: "3212345678"
         }).expect(201);
+    }),
 
+    test("Registrazione errata di un operatore - username esistente come cliente", async function () {
         const hub = await HubModel.findOne({}).exec();
         await curr_session.post('/user/operators/').send({
             username: "Marcolino23",
@@ -193,7 +207,29 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
                 saturday: [], sunday: []
             }
         }).set({ Authorization: `Bearer ${token}` }).expect(400);
+    });
 
+    test("Registrazione errata di un operatore - email esistente come cliente", async function () {
+        const hub = await HubModel.findOne({}).exec();
+        await curr_session.post('/user/operators/').send({
+            username: "NonSonoMarcolino23",
+            password: "LuiginoVerona33!",
+            email: "marconi17@gmail.com",
+            name: "Gabriele",
+            surname: "D'Annunzio",
+            role_id: test_role._id,
+            working_time: {
+                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                saturday: [], sunday: []
+            }
+        }).set({ Authorization: `Bearer ${token}` }).expect(400);
+    }),
+
+    test("Cancellazione cliente", async function () {
         await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 
@@ -248,7 +284,7 @@ describe("Modifica di un operatore - tramite permesso admin", function () {
     test("Modifica di un operatore", async function () {
         const res = await curr_session.put('/user/operators/Luigino23').send({ 
             password: "VeneziaVeneto18.",
-            email: "newluigino01@gmail.com"
+            email: "newnewluigino01@gmail.com"
         }).set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 });

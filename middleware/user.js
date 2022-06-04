@@ -53,13 +53,26 @@ async function isUsernameAvailable(username) {
     return true;
 }
 
+async function isEmailAvailable(email) {
+    const operator = await OperatorModel.findOne({ email: email }, { _id: 1 });
+    if (operator) { return false; }
+
+    const user = await UserModel.findOne({ email: email }, { _id: 1 });
+    if (user) { return false; }
+
+    return true;
+}
+
 const validateInsertCustomer = [
     validator.body("username").exists().trim().escape().custom(async function(username) { 
         if (!await isUsernameAvailable(username)) { throw new Error("Username non disponibile"); }
         return true;
     }),
     validator.body("password").exists().isStrongPassword(),
-    validator.body("email").exists().isEmail().normalizeEmail(),
+    validator.body("email").exists().isEmail().normalizeEmail().custom(async function (email) {
+        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
+        return true;
+    }),
     validator.body("name").exists().trim().escape(),
     validator.body("surname").exists().trim().escape(),
     validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
@@ -77,7 +90,10 @@ const validateInsertOperator = [
         return true;
     }),
     validator.body("password").exists().isStrongPassword(),
-    validator.body("email").exists().isEmail().normalizeEmail(),
+    validator.body("email").exists().isEmail().normalizeEmail().custom(async function (email) {
+        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
+        return true;
+    }),
     validator.body("name").exists().trim().escape(),
     validator.body("surname").exists().trim().escape(),
     validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
@@ -96,7 +112,10 @@ const validateSearchUser = [
 const validateUpdateCustomer = [
     validator.param("username").exists().trim().escape(),
     validator.body("password").optional().isStrongPassword(),
-    validator.body("email").optional().isEmail().normalizeEmail(),
+    validator.body("email").optional().isEmail().normalizeEmail().custom(async function (email) {
+        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
+        return true;
+    }),
     validator.body("name").optional().trim().escape(),
     validator.body("surname").optional().trim().escape(),
     validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
@@ -113,7 +132,10 @@ const validateUpdateCustomer = [
 const validateUpdateOperator = [
     validator.param("username").exists().trim().escape(),
     validator.body("password").optional().isStrongPassword(),
-    validator.body("email").optional().isEmail().normalizeEmail(),
+    validator.body("email").optional().isEmail().normalizeEmail().custom(async function (email) {
+        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
+        return true;
+    }),
     validator.body("name").optional().trim().escape(),
     validator.body("surname").optional().trim().escape(),
     validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
