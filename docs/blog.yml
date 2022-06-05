@@ -47,9 +47,7 @@ paths:
           description: "Creato con successo"
           schema:
             type: object
-            properties:
-              id:
-                $ref: "#/definitions/ObjectId"
+            $ref: "#/definitions/Post"
         400:
           description: "Input malformato"
           schema:
@@ -68,7 +66,7 @@ paths:
       description: |
         Gestisce la ricerca dei post di un utente tramite il suo username.
         Un utente per ricercare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_read", "admin"]
+        Richiede permessi ["post_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -106,7 +104,7 @@ paths:
       description: |
         Gestisce la ricerca di un post tramite il suo id.
         Un utente per ricercare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_read", "admin"]
+        Richiede permessi ["post_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -142,7 +140,7 @@ paths:
       description: |
         Gestisce la modifica di un post tramite il suo id.
         Un utente per modificare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_modify", "admin"]
+        Richiede permessi ["post_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -193,7 +191,7 @@ paths:
       description: |
         Gestisce la cancellazione di un post tramite il suo id.
         Un utente per cancellare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_modify", "admin"]
+        Richiede permessi ["post_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -228,7 +226,7 @@ paths:
       description: |
         Gestisce la ricerca dei post tramite la categoria e l'utente.
         Un utente per ricercare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_read", "admin"]
+        Richiede permessi ["post_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -294,11 +292,6 @@ paths:
       responses:
         201:
           description: "Creato con successo"
-          schema:
-            type: object
-            properties:
-              id:
-                $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
           schema:
@@ -316,7 +309,7 @@ paths:
       description: |
         Gestisce la ricerca dei commenti di un post tramite il suo id.
         Un utente per ricercare dei commenti deve avere fatto l'accesso.
-        Richiede permessi ["comment_read", "admin"]
+        Richiede permessi ["comment_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -370,7 +363,7 @@ paths:
       description: |
         Gestisce la ricerca di un commento di un post tramite l'id del post e l'indice del commento nell'array.
         Un utente per ricercare dei commenti deve avere fatto l'accesso.
-        Richiede permessi ["comment_read", "admin"]
+        Richiede permessi ["comment_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -429,7 +422,7 @@ paths:
       description: |
         Gestisce la modifica di un commento di un post tramite l'id del post e l'indice del commento nell'array.
         Un utente per modificare un commento deve avere fatto l'accesso.
-        Richiede permessi ["comment_modify", "admin"]
+        Richiede permessi ["comment_write", "admin"]
       consumes:
       - "application/json"
       produces:
@@ -474,7 +467,7 @@ paths:
       description: |
         Gestisce la cancellazione di un commento di un post tramite l'id del post e l'indice del commento nell'array.
         Un utente per cancellare un commento deve avere fatto l'accesso.
-        Richiede permessi ["comment_modify", "admin"]
+        Richiede permessi ["comment_write", "admin"]
       consumes:
       - "application/json"
       produces:
