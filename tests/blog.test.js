@@ -38,7 +38,7 @@ describe("Registrazione operatori - tramite permesso admin", function () {
             name: "Gabriele",
             surname: "D'Annunzio",
             role_id: test_role._id,
-            permission: {post_write: true, post_read: true, post_modify: true, comment_write: true, comment_read: true, comment_modify: true},
+            permission: {post_write: true, comment_write: true},
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -61,7 +61,7 @@ describe("Registrazione operatori - tramite permesso admin", function () {
             name: "Giovanni",
             surname: "Pascoli",
             role_id: test_role._id,
-            permission: {post_write: true, post_read: true, post_modify: true, comment_write: true, comment_read: true, comment_modify: true},
+            permission: {post_write: true, comment_write: true},
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -171,7 +171,7 @@ describe("Registrazione operatore senza permesso di scrittura o modifica", funct
             name: "Giacomo",
             surname: "Leopardi",
             role_id: test_role._id,
-            permission: {post_write: false, post_read: true, post_modify: false, comment_write: false, comment_read: true, comment_modify: false},
+            permission: {post_write: false, comment_write: false},
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
