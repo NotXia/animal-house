@@ -19,7 +19,7 @@ async function insertPost(req, res) {
             tag_animals_id: req.body.tag_animals_id
         });
         await newPost.save();
-        return res.status(201).send(newPost);
+        return res.status(201).send({id: newPost._id});
     } catch (e) {
         return res.sendStatus(500);
     }
@@ -108,7 +108,7 @@ async function insertComment(req, res) {
     } catch (err) {
         return res.sendStatus(500);
     }
-    return res.sendStatus(201);
+    return res.status(201).send({id: comment._id});
 }
 
 // Ricerca dei commenti dato un id di un post
