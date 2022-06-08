@@ -19,7 +19,7 @@ async function insertPost(req, res) {
             tag_animals_id: req.body.tag_animals_id
         });
         await newPost.save();
-        return res.status(201).send(newPost);
+        return res.status(201).location(`${req.baseUrl}/posts/${newPost._id}`).send(newPost);
     } catch (e) {
         return res.sendStatus(500);
     }
@@ -34,7 +34,7 @@ async function searchPostByUser(req, res) {
             user = await OperatorModel.findOne({username : req.params.username}).exec();
             if (!user) { return res.sendStatus(404); }
         }
-        const posts = await PostModel.find({username : user.username}).exec()
+        const posts = await PostModel.find({username : user.username}).exec();
         if (posts.length === 0) { return res.sendStatus(404); }
         return res.status(200).send(posts);
     } catch (err) {
@@ -45,7 +45,7 @@ async function searchPostByUser(req, res) {
 // Ricerca di un singolo post dato l'id
 async function searchPostById(req, res) {
     try {
-        const post = await PostModel.findById(req.params.post_id, { _id: 1 } ).exec();
+        const post = await PostModel.findById(req.params.post_id).exec();
         if (!post) { return res.sendStatus(404); }
         return res.status(200).send(post);
     } catch (err) {
@@ -70,7 +70,7 @@ async function searchPostByCategory(req, res) {
 
 // Modifica di un post dato il suo id
 async function updatePost(req, res) {
-    const filter = { _id : req.params.post_id }
+    const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndUpdate(filter, req.body);
         if (!post) { return res.sendStatus(404); }
@@ -82,7 +82,7 @@ async function updatePost(req, res) {
 
 // Cancellazione di un post dato il suo id
 async function deletePost(req, res) {
-    const filter = { _id : req.params.post_id }
+    const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndDelete(filter);
         if (!post) { return res.sendStatus(404); }
@@ -103,7 +103,7 @@ async function insertComment(req, res) {
         content : req.body.content
     };
     try {
-        const post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } })
+        const post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } });
         if (!post) { return res.sendStatus(404); }
     } catch (err) {
         return res.sendStatus(500);
@@ -114,7 +114,7 @@ async function insertComment(req, res) {
 // Ricerca dei commenti dato un id di un post
 async function searchCommentByPost(req, res) {
     try {
-        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
+        const post = await PostModel.findById(req.params.post_id).exec();
         if (!post) { return res.sendStatus(404); }
         return res.status(200).send(post.comments);
     } catch (err) {
@@ -125,7 +125,7 @@ async function searchCommentByPost(req, res) {
 // Ricerca di un commento dato un id di un post e la posizione del commento nell'array
 async function searchCommentByIndex(req, res) {
     try {
-        const post = await PostModel.findById(req.params.post_id, {_id: 1}).exec();
+        const post = await PostModel.findById(req.params.post_id).exec();
         if (!post) { return res.sendStatus(404); }
         return res.status(200).send(post.comments[parseInt(req.params.comment_index)]);
     } catch (err) {
