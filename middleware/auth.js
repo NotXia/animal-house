@@ -1,7 +1,7 @@
 require('dotenv').config();
 const expressJwt = require("express-jwt");
 const OperatorModel = require("../models/auth/operator");
-const UserModel = require("../models/auth/user");
+const CustomerModel = require("../models/auth/customer");
 
 /**
  * Middleware per autenticare e autorizzare un utente
@@ -27,7 +27,7 @@ function auth_middleware(required_permissions=[]) {
             if (required_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
 
             // Estrazione permessi
-            const AuthModel = req.auth.is_operator ? OperatorModel : UserModel;
+            const AuthModel = req.auth.is_operator ? OperatorModel : CustomerModel;
             const user = await AuthModel.findById(req.auth.id, ["permission"]);
 
             // Verifica se uno dei gruppi di permessi è soddisfatto

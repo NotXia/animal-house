@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { matchedData } = require('express-validator');
 const OperatorModel = require("../models/auth/operator");
-const UserModel = require("../models/auth/user");
+const CustomerModel = require("../models/auth/customer");
 const bcrypt = require("bcrypt");
 
 async function insertOperator(req, res) {
@@ -20,7 +20,7 @@ async function insertCustomer(req, res) {
     let data = matchedData(req); // Estrae i dati validati
     data.password = await bcrypt.hash(data.password, parseInt(process.env.SALT_ROUNDS));
     try {
-        const newCustomer = new UserModel(data);
+        const newCustomer = new CustomerModel(data);
         await newCustomer.save();
         res.status(201).send({id: newCustomer._id});
     } catch (e) {
@@ -30,7 +30,7 @@ async function insertCustomer(req, res) {
 
 function searchUser(is_operator) {
     return async function(req, res) {
-        const RoleModel = is_operator ? OperatorModel : UserModel;
+        const RoleModel = is_operator ? OperatorModel : CustomerModel;
 
         try {
             const user = await RoleModel.findOne({ username : req.params.username }).exec();
@@ -45,7 +45,7 @@ function searchUser(is_operator) {
 
 function updateUser(is_operator) {
     return async function(req, res) {
-        const RoleModel = is_operator ? OperatorModel : UserModel;
+        const RoleModel = is_operator ? OperatorModel : CustomerModel;
         
         const filter = { username : req.params.username };
         
@@ -65,7 +65,7 @@ function updateUser(is_operator) {
 
 function deleteUser(is_operator) {
     return async function(req, res) {
-        const RoleModel = is_operator ? OperatorModel : UserModel;
+        const RoleModel = is_operator ? OperatorModel : CustomerModel;
         
         try {
             const user = await RoleModel.deleteOne({ username : req.params.username }).exec();

@@ -3,7 +3,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const addressSchema = require("../utils/address");
 const permissionSchema = require("../utils/permission.user");
 
-const userScheme = mongoose.Schema({
+const customerScheme = mongoose.Schema({
     username: { 
         type: String, 
         required: true, 
@@ -46,4 +46,4 @@ const userScheme = mongoose.Schema({
     cart: [{ type: ObjectId, ref: "products" }]
 });
 
-module.exports = mongoose.model("users", userScheme);
+module.exports = mongoose.model("customers", customerScheme);

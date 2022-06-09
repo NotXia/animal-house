@@ -1,7 +1,7 @@
 const validator = require('express-validator');
 const utils = require("./utils");
 const OperatorModel = require("../models/auth/operator");
-const UserModel = require("../models/auth/user");
+const CustomerModel = require("../models/auth/customer");
 
 const validateWorkingTimeRequired = function() {
     let out = [ validator.body("working_time").exists() ];
@@ -47,7 +47,7 @@ async function isUsernameAvailable(username) {
     const operator = await OperatorModel.findOne({ username: username }, { _id: 1 });
     if (operator) { return false; }
 
-    const user = await UserModel.findOne({ username: username }, { _id: 1 });
+    const user = await CustomerModel.findOne({ username: username }, { _id: 1 });
     if (user) { return false; }
 
     return true;
@@ -57,7 +57,7 @@ async function isEmailAvailable(email) {
     const operator = await OperatorModel.findOne({ email: email }, { _id: 1 });
     if (operator) { return false; }
 
-    const user = await UserModel.findOne({ email: email }, { _id: 1 });
+    const user = await CustomerModel.findOne({ email: email }, { _id: 1 });
     if (user) { return false; }
 
     return true;
