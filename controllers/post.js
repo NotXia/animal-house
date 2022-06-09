@@ -30,9 +30,12 @@ async function searchPosts(req, res) {
     let query = {};
     if (req.query.username) { query.username = req.query.username; }
     if (req.query.username) { query.category = req.query.category; }
+    
+    let sort_criteria = { creationDate: "desc" };
+    if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
 
     const posts = await PostModel.find(query)
-                        .sort({ creationDate: "desc" })
+                        .sort(sort_criteria)
                         .limit(req.query.page_size)
                         .skip(req.query.page_number)
                         .exec()

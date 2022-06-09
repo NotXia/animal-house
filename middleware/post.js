@@ -15,6 +15,7 @@ const validateSearchPosts = [
     validator.query("page_number").exists().isInt({ min: 0 }),
     validator.query("username").optional().trim().escape(),
     validator.query("category").optional().trim().escape(),
+    validator.query("oldest").optional().isBoolean(),
     utils.errorHandler
 ];
 
