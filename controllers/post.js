@@ -25,21 +25,20 @@ async function insertPost(req, res) {
     }
 }
 
-// Ricerca di tutti i post pubblicati da un dato utente
-async function searchPostByUser(req, res) {
-    try {
-        let user;
-        user = await UserModel.findOne({username : req.params.username}).exec();
-        if (!user) {
-            user = await OperatorModel.findOne({username : req.params.username}).exec();
-            if (!user) { return res.sendStatus(404); }
-        }
-        const posts = await PostModel.find({username : user.username}).exec();
-        if (posts.length === 0) { return res.sendStatus(404); }
-        return res.status(200).send(posts);
-    } catch (err) {
-        return res.sendStatus(500);
-    }
+// Ricerca di post secondo un criterio
+async function searchPosts(req, res) {
+    let query = {};
+    if (req.query.username) { query.username = req.query.username; }
+    if (req.query.username) { query.category = req.query.category; }
+
+    const posts = await PostModel.find(query)
+                        .sort({ creationDate: "desc" })
+                        .limit(req.query.page_size)
+                        .skip(req.query.page_number)
+                        .exec()
+                        .catch(function (err) { return res.sendStatus(500); });
+    if (posts.length === 0) { return res.sendStatus(404); }
+    return res.status(200).send(posts);
 }
 
 // Ricerca di un singolo post dato l'id
@@ -48,21 +47,6 @@ async function searchPostById(req, res) {
         const post = await PostModel.findById(req.params.post_id).exec();
         if (!post) { return res.sendStatus(404); }
         return res.status(200).send(post);
-    } catch (err) {
-        return res.sendStatus(500);
-    }
-}
-
-// Ricerca di tutti i post data una categoria e un eventuale utente in ordine cronologico
-async function searchPostByCategory(req, res) {
-    let query_criteria = {};
-    query_criteria.category = req.param.category;
-    if (req.query.user_id) { query_criteria.user_id = req.query.user_id; }
-
-    try {
-        const posts = await PostModel.find(query_criteria).sort({creationDate: "desc"}).exec();
-        if (posts.length === 0) { return res.sendStatus(404); }
-        return res.status(200).send(posts);
     } catch (err) {
         return res.sendStatus(500);
     }
@@ -183,9 +167,8 @@ async function deleteComment(req, res) {
 
 module.exports = {
     insertPost: insertPost,
-    searchPostByUser: searchPostByUser,
+    searchPosts: searchPosts,
     searchPostById: searchPostById,
-    searchPostByCategory: searchPostByCategory,
     updatePost: updatePost,
     deletePost: deletePost,
     insertComment: insertComment,

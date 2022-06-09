@@ -210,7 +210,11 @@ describe("Ricerca di un post di un dato utente", function () {
     });
     
     test("Ricerca di tutti i post di un dato utente", async function () {
-        const res = await curr_session.get('/blog/posts/users/Luigino23').set({ Authorization: `Bearer ${token}` }).expect(200);
+        const res = await curr_session.get('/blog/posts/')
+            .set({ Authorization: `Bearer ${token}` })
+            .query({ page_size: 1, page_number: 0, username: "Luigino23" })
+            .expect(200);
+        expect(res.body.length).toBeGreaterThan(0);
     });
 });
 

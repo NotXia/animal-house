@@ -8,9 +8,8 @@ const post_controller = require("../controllers/post");
 
 router.post("/posts/", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateInsertPost ], post_controller.insertPost);
 
-router.get("/posts/users/:username", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateSearchPostByUser ], post_controller.searchPostByUser);
+router.get("/posts/", post_middleware.validateSearchPosts, post_controller.searchPosts);
 router.get("/posts/:post_id", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateSearchPostById ], post_controller.searchPostById);
-router.get("/posts/category/:category", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateSearchPostByCategory ], post_controller.searchPostByCategory);
 
 router.put("/posts/:post_id", [ auth_middleware([ ["post_write"], ["admin"] ]), post_middleware.validateUpdatePost ], post_controller.updatePost);
 
