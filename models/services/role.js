@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const ServiceModel = require("./service");
 
 const roleScheme = mongoose.Schema({
     name: { 
@@ -8,7 +9,7 @@ const roleScheme = mongoose.Schema({
         unique: true 
     },
     services_id: [{ 
-        type: ObjectId, ref: "services",  
+        type: ObjectId, ref: ServiceModel.collection.collectionName,  
         require: true 
     }]
 });

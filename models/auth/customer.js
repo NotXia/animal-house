@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const addressSchema = require("../utils/address");
 const permissionSchema = require("../utils/permission.user");
+const AnimalModel = require("../animals/animal");
+const ProductModel = require("../shop/product");
 
 const customerScheme = mongoose.Schema({
     username: { 
@@ -41,9 +43,9 @@ const customerScheme = mongoose.Schema({
     },
 
     permission: { type: permissionSchema, default: {} }, // Eredita i campi default dello Schema
-    animals_id: [{ type: ObjectId, ref: "animals" }],
+    animals_id: [{ type: ObjectId, ref: AnimalModel.collection.collectionName }],
 
-    cart: [{ type: ObjectId, ref: "products" }]
+    cart: [{ type: ObjectId, ref: ProductModel.collection.collectionName }]
 });
 
 module.exports = mongoose.model("customers", customerScheme);
