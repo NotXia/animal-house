@@ -28,8 +28,19 @@ async function insertPost(req, res) {
 // Ricerca di post secondo un criterio
 async function searchPosts(req, res) {
     let query = {};
-    if (req.query.username) { query.username = req.query.username; }
-    if (req.query.username) { query.category = req.query.category; }
+    if (req.query.username) {
+        // Ricerca dell'utente corretto 
+        let user = await UserModel.findOne({ username: req.query.username }).exec();
+        if (user) { query.user_id = user._id; }
+        else {
+            user = await OperatorModel.findOne({ username: req.query.username }).exec();
+            if (user) { query.user_id = user._id; }
+            else {
+                return res.sendStatus(404);
+            }
+        }
+    }
+    if (req.query.category) { query.category = req.query.category; }
     
     let sort_criteria = { creationDate: "desc" };
     if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
