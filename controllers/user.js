@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 const utils = require("../utilities");
 
 async function insertOperator(req, res) {
-    let data = matchedData(req); // Estrae i dati validati
+    let data = res.locals; // Estrae i dati validati
     data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS));
 
     const session = await mongoose.startSession();
@@ -34,7 +34,7 @@ async function insertOperator(req, res) {
 }
 
 async function insertCustomer(req, res) {
-    let data = matchedData(req); // Estrae i dati validati
+    let data = res.locals; // Estrae i dati validati
     data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS));
 
     const session = await mongoose.startSession();
@@ -75,7 +75,7 @@ function searchUser(is_operator) {
 
 function updateUser(is_operator) {
     return async function(req, res) {
-        let data = matchedData(req, { locations: ["body"] });
+        let data = res.locals;
 
         const session = await mongoose.startSession();
         try {
@@ -84,7 +84,7 @@ function updateUser(is_operator) {
             let user;
 
             if (data.user) { // Aggiornamento dei dati generici dell'utente
-                data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS));
+                if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
                 user = await UserModel.findOneAndUpdate({ username: req.params.username }, data.user);
                 if (!user) { return res.sendStatus(404); }
             }
@@ -103,6 +103,8 @@ function updateUser(is_operator) {
         } catch (e) {
             await session.abortTransaction();
             session.endSession();
+
+            console.warn(e);
             return res.sendStatus(500);
         }
         return res.sendStatus(200);
