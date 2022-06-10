@@ -5,9 +5,9 @@ const AnimalModel = require("../animals/animal");
 const ProductModel = require("../shop/product");
 
 const customerScheme = mongoose.Schema({
-    address: [{ // [0] contiene l'indirizzo principale
-        type: addressSchema,
-    }],
+    address: {
+        type: addressSchema
+    },
 
     animals_id: [{ type: ObjectId, ref: AnimalModel.collection.collectionName }],
 
