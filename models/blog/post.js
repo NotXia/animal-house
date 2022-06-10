@@ -9,10 +9,25 @@ const postSchema = mongoose.Schema({
     content: {
         type: String, required: true
     },
-    comments_id: [{
-        type: ObjectId, ref: "comments"
+    comments: [{
+        user_id: {
+            type: ObjectId, ref: "users",
+            required: true
+        },
+        content: {
+            type: String, required: true
+        },
+        creationDate: {
+            type: Date,
+            required: true,
+            default: new Date()
+        },
+        updateDate: {
+            type: Date,
+            default: new Date()
+        }
     }],
-
+    category: { type: String },
     tag_users_id: [{
         type: ObjectId, ref: "users"
     }],
