@@ -31,21 +31,25 @@ describe("Registrazione operatori - tramite permesso admin", function () {
 
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
-        const res = await curr_session.post('/user/operators/').send({ 
-            username: "Luigino23", 
-            password: "LuiginoVerona33!",
-            email: "luigino44@gmail.com",
-            name: "Gabriele",
-            surname: "D'Annunzio",
-            role_id: test_role._id,
-            permission: {post_write: true, comment_write: true},
-            working_time: {
-                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                saturday: [], sunday: []
+        const res = await curr_session.post('/user/operators/').send({
+            user: {
+                username: "Luigino23", 
+                password: "LuiginoVerona33!",
+                email: "luigino44@gmail.com",
+                name: "Gabriele",
+                surname: "D'Annunzio",
+                permission: {post_write: true, comment_write: true},
+            },
+            operator: {
+                role_id: test_role._id,
+                working_time: {
+                    monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    saturday: [], sunday: []
+                }
             }
         }).set({ Authorization: `Bearer ${token}` }).expect(201);
         test_user = res.body;
@@ -55,20 +59,24 @@ describe("Registrazione operatori - tramite permesso admin", function () {
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
-            username: "Fabiello90", 
-            password: "FabioneAH.99",
-            email: "fabio@gmail.com",
-            name: "Giovanni",
-            surname: "Pascoli",
-            role_id: test_role._id,
-            permission: {post_write: true, comment_write: true},
-            working_time: {
-                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                saturday: [], sunday: []
+            user: {
+                username: "Fabiello90", 
+                password: "FabioneAH.99",
+                email: "fabio@gmail.com",
+                name: "Giovanni",
+                surname: "Pascoli",
+                permission: {post_write: true, comment_write: true},
+            },
+            operator: {
+                role_id: test_role._id,
+                working_time: {
+                    monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    saturday: [], sunday: []
+                }
             }
         }).set({ Authorization: `Bearer ${token}` }).expect(201);
     });
@@ -165,20 +173,24 @@ describe("Registrazione operatore senza permesso di scrittura o modifica", funct
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
-            username: "MarioSpasmo", 
-            password: "Spasmolio_grande13",
-            email: "mario.s13@gmail.com",
-            name: "Giacomo",
-            surname: "Leopardi",
-            role_id: test_role._id,
-            permission: {post_write: false, comment_write: false},
-            working_time: {
-                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                saturday: [], sunday: []
+            user: {
+                username: "MarioSpasmo", 
+                password: "Spasmolio_grande13",
+                email: "mario.s13@gmail.com",
+                name: "Giacomo",
+                surname: "Leopardi",
+                permission: {post_write: false, comment_write: false},
+            },
+            operator: {
+                role_id: test_role._id,
+                working_time: {
+                    monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
+                    saturday: [], sunday: []
+                }
             }
         }).set({ Authorization: `Bearer ${token}` }).expect(201);
     });

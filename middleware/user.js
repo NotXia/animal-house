@@ -1,105 +1,72 @@
 const validator = require('express-validator');
 const utils = require("./utils");
-const OperatorModel = require("../models/auth/operator");
-const CustomerModel = require("../models/auth/customer");
 
 const validateWorkingTimeRequired = function() {
-    let out = [ validator.body("working_time").exists() ];
+    let out = [ validator.body("operator.working_time").exists() ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( validator.body(`working_time.${week}`).exists() );
-        out.push( validator.body(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.hub_id`).optional().isMongoId() );
+        out.push( validator.body(`operator.working_time.${week}`).exists() );
+        out.push( validator.body(`operator.working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
+        out.push( validator.body(`operator.working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( validator.body(`operator.working_time.${week}.*.hub_id`).optional().isMongoId() );
     }
 
     return out;
 }();
 
 const validateWorkingTimeOptional = function () {
-    let out = [validator.body("working_time").optional()];
+    let out = [ validator.body("operator.working_time").optional() ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( validator.body(`working_time.${week}`).optional() );
-        out.push( validator.body(`working_time.${week}.*.time`).optional() );
-        out.push( validator.body(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.hub_id`).optional().isMongoId() );
+        out.push( validator.body(`operator.working_time.${week}`).optional() );
+        out.push( validator.body(`operator.working_time.${week}.*.time`).optional() );
+        out.push( validator.body(`operator.working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
+        out.push( validator.body(`operator.working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( validator.body(`operator.working_time.${week}.*.hub_id`).optional().isMongoId() );
     }
 
     return out;
 }();
 
 const validateAbsenceTime = function () {
-    let out = [validator.body("absence_time").optional()];
+    let out = [ validator.body("operator.absence_time").optional() ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( validator.body(`working_time.${week}`).optional() );
-        out.push( validator.body(`working_time.${week}.*.time`).optional() );
-        out.push( validator.body(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( validator.body(`operator.absence_time.${week}`).optional() );
+        out.push( validator.body(`operator.absence_time.${week}.*.time`).optional() );
+        out.push( validator.body(`operator.absence_time.${week}.*.time.start`).optional().isISO8601().toDate() );
+        out.push( validator.body(`operator.absence_time.${week}.*.time.end`).optional().isISO8601().toDate() );
     }
 
     return out;
 }();
 
-async function isUsernameAvailable(username) {
-    const operator = await OperatorModel.findOne({ username: username }, { _id: 1 });
-    if (operator) { return false; }
-
-    const user = await CustomerModel.findOne({ username: username }, { _id: 1 });
-    if (user) { return false; }
-
-    return true;
-}
-
-async function isEmailAvailable(email) {
-    const operator = await OperatorModel.findOne({ email: email }, { _id: 1 });
-    if (operator) { return false; }
-
-    const user = await CustomerModel.findOne({ email: email }, { _id: 1 });
-    if (user) { return false; }
-
-    return true;
-}
 
 const validateInsertCustomer = [
-    validator.body("username").exists().trim().escape().custom(async function(username) { 
-        if (!await isUsernameAvailable(username)) { throw new Error("Username non disponibile"); }
-        return true;
-    }),
-    validator.body("password").exists().isStrongPassword(),
-    validator.body("email").exists().isEmail().normalizeEmail().custom(async function (email) {
-        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
-        return true;
-    }),
-    validator.body("name").exists().trim().escape(),
-    validator.body("surname").exists().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("address.city").optional().trim().escape(),
-    validator.body("address.street").optional().trim().escape(),
-    validator.body("address.number").optional().trim().escape(),
-    validator.body("address.postal_code").optional().isPostalCode("any"),
-    validator.body("phone").optional().isMobilePhone("any"),
+    validator.body("user.username").exists().trim().escape(),
+    validator.body("user.password").exists().isStrongPassword(),
+    validator.body("user.email").exists().isEmail().normalizeEmail(),
+    validator.body("user.name").exists().trim().escape(),
+    validator.body("user.surname").exists().trim().escape(),
+    validator.body("user.gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
+    validator.body("user.phone").optional().isMobilePhone("any"),
+    validator.body("customer.address.city").optional().trim().escape(),
+    validator.body("customer.address.street").optional().trim().escape(),
+    validator.body("customer.address.number").optional().trim().escape(),
+    validator.body("customer.address.postal_code").optional().isPostalCode("any"),
     utils.errorHandler
 ];
 
 const validateInsertOperator = [
-    validator.body("username").exists().trim().escape().custom(async function (username) {
-        if (!await isUsernameAvailable(username)) { throw new Error("Username non disponibile"); }
-        return true;
-    }),
-    validator.body("password").exists().isStrongPassword(),
-    validator.body("email").exists().isEmail().normalizeEmail().custom(async function (email) {
-        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
-        return true;
-    }),
-    validator.body("name").exists().trim().escape(),
-    validator.body("surname").exists().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("role_id").exists().isMongoId(),
-    validator.body("permission").optional(),
+    validator.body("user.username").exists().trim().escape(),
+    validator.body("user.password").exists().isStrongPassword(),
+    validator.body("user.email").exists().isEmail().normalizeEmail(),
+    validator.body("user.name").exists().trim().escape(),
+    validator.body("user.surname").exists().trim().escape(),
+    validator.body("user.permission").exists(),
+    validator.body("user.gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
+    validator.body("user.phone").optional().isMobilePhone("any"),
+    validator.body("operator.role_id").exists().isMongoId(),
     validateWorkingTimeRequired,
     utils.errorHandler
 ];
@@ -111,37 +78,30 @@ const validateSearchUser = [
 
 const validateUpdateCustomer = [
     validator.param("username").exists().trim().escape(),
-    validator.body("password").optional().isStrongPassword(),
-    validator.body("email").optional().isEmail().normalizeEmail().custom(async function (email) {
-        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
-        return true;
-    }),
-    validator.body("name").optional().trim().escape(),
-    validator.body("surname").optional().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("address.city").optional().trim().escape(),
-    validator.body("address.street").optional().trim().escape(),
-    validator.body("address.number").optional().trim().escape(),
-    validator.body("address.postal_code").optional().isPostalCode("any"),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("role_id").optional().isMongoId(),
-    validator.body("permission").optional(),
+    validator.body("user.password").optional().isStrongPassword(),
+    validator.body("user.email").optional().isEmail().normalizeEmail(),
+    validator.body("user.name").optional().trim().escape(),
+    validator.body("user.surname").optional().trim().escape(),
+    validator.body("user.gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
+    validator.body("user.phone").optional().isMobilePhone("any"),
+    validator.body("user.permission").optional(),
+    validator.body("customer.address.city").optional().trim().escape(),
+    validator.body("customer.address.street").optional().trim().escape(),
+    validator.body("customer.address.number").optional().trim().escape(),
+    validator.body("customer.address.postal_code").optional().isPostalCode("any"),
     utils.errorHandler
 ];
 
 const validateUpdateOperator = [
     validator.param("username").exists().trim().escape(),
-    validator.body("password").optional().isStrongPassword(),
-    validator.body("email").optional().isEmail().normalizeEmail().custom(async function (email) {
-        if (!await isEmailAvailable(email)) { throw new Error("Email non disponibile"); }
-        return true;
-    }),
-    validator.body("name").optional().trim().escape(),
-    validator.body("surname").optional().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("role_id").optional().isMongoId(),
-    validator.body("permission").optional(),
+    validator.body("user.password").optional().isStrongPassword(),
+    validator.body("user.email").optional().isEmail().normalizeEmail(),
+    validator.body("user.name").optional().trim().escape(),
+    validator.body("user.surname").optional().trim().escape(),
+    validator.body("user.gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
+    validator.body("user.phone").optional().isMobilePhone("any"),
+    validator.body("user.permission").optional(),
+    validator.body("operator.role_id").optional().isMongoId(),
     validateWorkingTimeOptional,
     validateAbsenceTime,
     utils.errorHandler
