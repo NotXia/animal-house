@@ -1,7 +1,7 @@
 require('dotenv').config();
 const PostModel = require("../models/blog/post.js");
 const OperatorModel = require("../models/auth/operator");
-const UserModel = require("../models/auth/user");
+const CustomerModel = require("../models/auth/customer");
 const mongoose = require("mongoose");
 
 /////////////////
@@ -30,7 +30,7 @@ async function searchPosts(req, res) {
     let query = {};
     if (req.query.username) {
         // Ricerca dell'utente corretto 
-        let user = await UserModel.findOne({ username: req.query.username }).exec();
+        let user = await CustomerModel.findOne({ username: req.query.username }).exec();
         if (user) { query.user_id = user._id; }
         else {
             user = await OperatorModel.findOne({ username: req.query.username }).exec();
