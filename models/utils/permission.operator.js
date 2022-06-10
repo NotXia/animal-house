@@ -6,6 +6,9 @@ const permissionSchema = mongoose.Schema({
     
     shop_read: { type: Boolean, default: false },
     shop_write: { type: Boolean, default: false },
+
+    post_write: { type: Boolean, default: true },
+    comment_write: { type: Boolean, default: true },
 }, { _id: false });
 
 module.exports = permissionSchema;

@@ -1,0 +1,543 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sui post"
+  version: "1.0.0"
+  title: "Post"
+
+paths:
+  ###################
+  ### INIZIO POST ###
+  ###################
+  /posts/:
+    post:
+      tags:
+      - "Post"
+      summary: "Creazione di un nuovo post"
+      description: |
+        Gestisce l'inserimento di un post.
+        Un utente per pubblicare un post deve avere fatto l'accesso.
+        Richiede permessi ["post_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del post"
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+            category:
+              type: string
+            tag_users_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+            tag_animals_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+          required:
+          - content
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            type: object
+            $ref: "#/definitions/Post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+      - "Post"
+      summary: "Ricerca dei post secondo determinati criteri"
+      description: |
+        Gestisce la ricerca dei post dati alcuni criteri. Di default ordina in senso decrescente di data. 
+        Gestisce la paginazione.
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di post per pagina"
+        required: true
+        type: number
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+      - name: username
+        in: query
+        description: "Username dell'autore"
+        type: string
+      - name: category
+        in: query
+        description: "Categoria del post"
+        type: string
+      - name: oldest
+        in: query
+        description: "Visualizzare prima i post più vecchi"
+        type: boolean
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+  /posts/{post_id}:
+    get:
+      tags:
+      - "Post"
+      summary: "Ricerca di un post"
+      description: |
+        Gestisce la ricerca di un post tramite il suo id.
+        Un utente per ricercare un post deve avere fatto l'accesso.
+        Richiede permessi ["post_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: body
+        description: "Id del post"
+        required: true
+        schema:
+          $ref: "#/definitions/ObjectId"
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/Post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+      - "Post"
+      summary: "Modifica di un post"
+      description: |
+        Gestisce la modifica di un post tramite il suo id.
+        Un utente per modificare un post deve avere fatto l'accesso.
+        Richiede permessi ["post_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del post"
+        schema:
+          type: object
+          properties:
+            post_id:
+              type: object
+              $ref: "#/definitions/ObjectId"
+            content:
+              type: string
+            category:
+              type: string
+            tag_users_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+            tag_animals_id:
+              type: array
+              items:
+                $ref: "#/definitions/ObjectId"
+          required:
+          - post_id
+      responses:
+        200:
+          description: "Modificato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+      - "Post"
+      summary: "Cancellazione di un post"
+      description: |
+        Gestisce la cancellazione di un post tramite il suo id.
+        Un utente per cancellare un post deve avere fatto l'accesso.
+        Richiede permessi ["post_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: body
+        description: "Id del post"
+        required: true
+        schema:
+          $ref: "#/definitions/ObjectId"
+      responses:
+        200:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+  
+  #######################
+  ### INIZIO COMMENTO ###
+  #######################
+  /posts/{post_id}/comments/:
+    post:
+      tags:
+      - "Commento"
+      summary: "Creazione di un nuovo commento"
+      description: |
+        Gestisce l'inserimento di un commento sotto un post.
+        Un utente per pubblicare un commento deve avere fatto l'accesso.
+        Richiede permessi ["comment_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del post"
+        schema:
+          type: object
+          properties:
+            post_id:
+              type: object
+              $ref: "#/definitions/ObjectId"
+            content:
+              type: string
+          required:
+          - post_id
+          - content
+      responses:
+        201:
+          description: "Creato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+      - "Commento"
+      summary: "Ricerca dei commenti"
+      description: |
+        Gestisce la ricerca dei commenti di un post tramite il suo id.
+        Un utente per ricercare dei commenti deve avere fatto l'accesso.
+        Richiede permessi ["comment_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: body
+        description: "Id del post"
+        required: true
+        schema:
+          $ref: "#/definitions/ObjectId"
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                user_id:
+                  $ref: "#/definitions/ObjectId"
+                content:
+                  type: string
+                creationDate:
+                  type: string
+                  format: date-time
+                updateDate:
+                  type: string
+                  format: date-time
+              required:
+              - user_id
+              - content
+              - creationDate
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+  /posts/{post_id}/comments/{comment_index}:
+    get:
+      tags:
+      - "Commento"
+      summary: "Ricerca di un commento"
+      description: |
+        Gestisce la ricerca di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+        Un utente per ricercare dei commenti deve avere fatto l'accesso.
+        Richiede permessi ["comment_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del commento"
+        schema:
+          type: object
+          properties:
+            post_id:
+              $ref: "#/definitions/ObjectId"
+            comment_index:
+              type: number
+              format: int
+          required:
+          - post_id
+          - comment_index
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: object
+            properties:
+              user_id:
+                $ref: "#/definitions/ObjectId"
+              content:
+                type: string
+              creationDate:
+                type: string
+                format: date-time
+              updateDate:
+                type: string
+                format: date-time
+            required:
+            - user_id
+            - content
+            - creationDate
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+      - "Commento"
+      summary: "Modifica di un commento"
+      description: |
+        Gestisce la modifica di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+        Un utente per modificare un commento deve avere fatto l'accesso.
+        Richiede permessi ["comment_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del commento"
+        schema:
+          type: object
+          properties:
+            post_id:
+              type: object
+              $ref: "#/definitions/ObjectId"
+            comment_index:
+              type: number
+              format: int
+            content:
+              type: string
+          required:
+          - post_id
+          - comment_index
+      responses:
+        200:
+          description: "Modificato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+      - "Commento"
+      summary: "Cancellazione di un commento"
+      description: |
+        Gestisce la cancellazione di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+        Un utente per cancellare un commento deve avere fatto l'accesso.
+        Richiede permessi ["comment_write", "admin"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del commento"
+        schema:
+          type: object
+          properties:
+            post_id:
+              type: object
+              $ref: "#/definitions/ObjectId"
+            comment_index:
+              type: number
+              format: int
+          required:
+          - post_id
+          - comment_index
+      responses:
+        200:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        401:
+          description: "Non autenticato"
+        403:
+          description: "Permessi mancanti"
+        404:
+          description: "Non trovato"
+        500:
+          description: "Internal server error"
+
+definitions:
+  Post:
+    type: object
+    properties:
+      user_id:
+        $ref: "#/definitions/ObjectId" 
+      content:
+        type: string
+      comments:
+        type: array
+        items:
+          type: object
+          properties:
+            user_id:
+              $ref: "#/definitions/ObjectId"
+            content:
+              type: string
+            creationDate:
+              type: string
+              format: date-time
+            updateDate:
+              type: string
+              format: date-time
+          required:
+          - user_id
+          - content
+          - creationDate
+      category:
+        type: string
+      tag_users_id:
+        type: array
+        items:
+          $ref: "#/definitions/ObjectId"
+      tag_animals_id:
+        type: array
+        items:
+          $ref: "#/definitions/ObjectId"
+      creationDate:
+        type: string
+        format: date-time
+    required:
+    - user_id
+    - content
+    - creationDate
+
+  ErrorMessage:
+    type: array
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+          description: "Il campo errato"
+        message:
+          type: string
+          description: "Informazioni sull'errore"
+  
+  ObjectId:
+    type: string
+    format: ObjectId
+    example: "61338f5b47bfc65136b5de30"
