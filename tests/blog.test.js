@@ -16,7 +16,7 @@ let test_user;
 
 describe("Inizializzazione", function () {
     test("Popolazione database", async function () {
-        test_role = await new RoleModel({ name: "Test" }).save();
+        test_role = await new RoleModel({ name: "Testt" }).save();
     });
 });
 
@@ -201,30 +201,23 @@ describe("Login di un operatore e pubblicazione post senza permesso di scrittura
 });
 
 describe("Ricerca di un post di un dato utente", function () {
-    let token;
-    test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Fabiello90", password: "FabioneAH.99" }).expect(200);
-        expect(res.body.access_token).toBeDefined();
-        token = res.body.access_token.value;
-        user = res.body;
-    });
-    
     test("Ricerca di tutti i post di un dato utente", async function () {
-        const res = await curr_session.get('/blog/posts/users/Luigino23').set({ Authorization: `Bearer ${token}` }).expect(200);
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 5, page_number: 0, username: "Luigino23" })
+            .expect(200);
+        expect(res.body.length).toBeGreaterThan(0);
+    });
+
+    test("Ricerca di tutti i post di un dato utente inesistente", async function () {
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 5, page_number: 0, username: "FantasmaLuigino23" })
+            .expect(404);
     });
 });
 
 describe("Ricerca di un dato post", function () {
-    let token;
-    test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Fabiello90", password: "FabioneAH.99" }).expect(200);
-        expect(res.body.access_token).toBeDefined();
-        token = res.body.access_token.value;
-        user = res.body;
-    });
-    
     test("Ricerca post dato il suo id", async function () {
-        const res = await curr_session.get('/blog/posts/'+ blog_posts[0]._id).set({ Authorization: `Bearer ${token}` }).expect(200);
+        const res = await curr_session.get('/blog/posts/'+ blog_posts[0]._id).expect(200);
     });
 });
 
@@ -331,6 +324,6 @@ describe("Cancellazione di tutti i post e tutti gli operatori - tramite permesso
 
 describe("Uscita", function () {
     test_role = test("Pulizia database", async function () {
-        await RoleModel.deleteOne({ name: "Test" });
+        await RoleModel.deleteOne({ name: "Testt" });
     });
 });

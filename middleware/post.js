@@ -10,19 +10,17 @@ const validateInsertPost = [
     utils.errorHandler
 ];
 
-const validateSearchPostByUser = [
-    validator.param("username").exists().trim().escape(),
+const validateSearchPosts = [
+    validator.query("page_size").exists().isInt({ min: 1 }),
+    validator.query("page_number").exists().isInt({ min: 0 }),
+    validator.query("username").optional().trim().escape(),
+    validator.query("category").optional().trim().escape(),
+    validator.query("oldest").optional().isBoolean(),
     utils.errorHandler
 ];
 
 const validateSearchPostById = [
     validator.param("post_id").exists().isMongoId(),
-    utils.errorHandler
-];
-
-const validateSearchPostByCategory = [
-    validator.param("category").exists().trim().escape(),
-    validator.query("user_id").optional().isMongoId(),
     utils.errorHandler
 ];
 
@@ -72,9 +70,8 @@ const validateDeleteComment = [
 
 module.exports = {
     validateInsertPost: validateInsertPost,
-    validateSearchPostByUser: validateSearchPostByUser,
+    validateSearchPosts: validateSearchPosts,
     validateSearchPostById: validateSearchPostById,
-    validateSearchPostByCategory: validateSearchPostByCategory,
     validateUpdatePost: validateUpdatePost,
     validateDeletePost: validateDeletePost,
     validateInsertComment: validateInsertComment,

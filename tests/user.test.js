@@ -164,9 +164,9 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
         const res = await curr_session.post('/user/operators/').send({ 
-            username: "Luigino23", 
+            username: "Luigino234", 
             password: "LuiginoVerona33!",
-            email: "luigino44@gmail.com",
+            email: "luigino444@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
             role_id: test_role._id,
@@ -234,7 +234,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     });
 
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino23", password: "LuiginoVerona33!" }).expect(200);
+        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
         expect(res.body.access_token).toBeDefined();
         token = res.body.access_token.value;
         user = res.body;
@@ -244,28 +244,28 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
 describe("Ricerca di un operatore", function () {
     let token;
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino23", password: "LuiginoVerona33!" }).expect(200);
+        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
         expect(res.body.access_token).toBeDefined();
         token = res.body.access_token.value;
         user = res.body;
     });
 
     test("Ricerca di un operatore", async function () {
-        const res = await curr_session.get('/user/operators/Luigino23').set({ Authorization: `Bearer ${token}` }).expect(200);
+        const res = await curr_session.get('/user/operators/Luigino234').set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 });
 
 describe("Modifica di un operatore", function () {
     let token;
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino23", password: "LuiginoVerona33!" }).expect(200);
+        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
         expect(res.body.access_token).toBeDefined();
         token = res.body.access_token.value;
         user = res.body;
     });
 
     test("Modifica di un operatore", async function () {
-        const res = await curr_session.put('/user/operators/Luigino23').send({ 
+        const res = await curr_session.put('/user/operators/Luigino234').send({ 
             password: "VeneziaVeneto18.",
             email: "newluigino01@gmail.com"
         }).set({ Authorization: `Bearer ${token}` }).expect(200);
@@ -282,7 +282,7 @@ describe("Modifica di un operatore - tramite permesso admin", function () {
     });
 
     test("Modifica di un operatore", async function () {
-        const res = await curr_session.put('/user/operators/Luigino23').send({ 
+        const res = await curr_session.put('/user/operators/Luigino234').send({ 
             password: "VeneziaVeneto18.",
             email: "newnewluigino01@gmail.com"
         }).set({ Authorization: `Bearer ${token}` }).expect(200);
@@ -299,7 +299,7 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
     });
 
     test("Cancellazione di un operatore", async function () {
-        const res = await curr_session.delete('/user/operators/Luigino23').set({ Authorization: `Bearer ${token}` }).expect(200);
+        const res = await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 });
 

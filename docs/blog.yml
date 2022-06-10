@@ -58,25 +58,40 @@ paths:
           description: "Permessi mancanti"
         500:
           description: "Internal server error"
-  /posts/users/{username}:
     get:
       tags:
       - "Post"
-      summary: "Ricerca dei post di un utente"
+      summary: "Ricerca dei post secondo determinati criteri"
       description: |
-        Gestisce la ricerca dei post di un utente tramite il suo username.
-        Un utente per ricercare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_write", "admin"]
+        Gestisce la ricerca dei post dati alcuni criteri. Di default ordina in senso decrescente di data. 
+        Gestisce la paginazione.
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - name: username
-        in: path
-        description: "Username del cliente"
+      - name: page_size
+        in: query
+        description: "Numero di post per pagina"
         required: true
+        type: number
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+      - name: username
+        in: query
+        description: "Username dell'autore"
         type: string
+      - name: category
+        in: query
+        description: "Categoria del post"
+        type: string
+      - name: oldest
+        in: query
+        description: "Visualizzare prima i post più vecchi"
+        type: boolean
       responses:
         200:
           description: "Trovato con successo"
@@ -218,46 +233,7 @@ paths:
           description: "Non trovato"
         500:
           description: "Internal server error"
-  /posts/category/{category}:
-    get:
-      tags:
-      - "Post"
-      summary: "Ricerca dei post di una categoria"
-      description: |
-        Gestisce la ricerca dei post tramite la categoria e l'utente.
-        Un utente per ricercare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_write", "admin"]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - name: category
-        in: query
-        description: "Categoria del post"
-        required: true
-        type: string
-      - name: username
-        in: query
-        description: "Username del cliente"
-        type: string
-      responses:
-        200:
-          description: "Trovato con successo"
-          schema:
-            $ref: "#/definitions/Post"
-        400:
-          description: "Input malformato"
-          schema:
-            $ref: "#/definitions/ErrorMessage"
-        401:
-          description: "Non autenticato"
-        403:
-          description: "Permessi mancanti"
-        404:
-          description: "Non trovato"
-        500:
-          description: "Internal server error"
+  
   #######################
   ### INIZIO COMMENTO ###
   #######################
