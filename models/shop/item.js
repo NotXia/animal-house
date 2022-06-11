@@ -5,6 +5,8 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const ValidationError = mongoose.Error.ValidationError
+const CategoryModel = require("./category");
+const ProductModel = require("./product");
 
 const itemSchema = mongoose.Schema({
     name: {
@@ -16,11 +18,11 @@ const itemSchema = mongoose.Schema({
         default: ""
     },
     category_id: {
-        type: ObjectId, ref: "categories",
+        type: ObjectId, ref: CategoryModel.collection.collectionName,
         requied: true
     },
     products_id: [{ 
-        type: ObjectId, ref: "products",
+        type: ObjectId, ref: ProductModel.collection.collectionName,
     }],
     relevance: {
         type: Number, required: true,

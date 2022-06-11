@@ -2,14 +2,16 @@ const mongoose = require("mongoose");
 const addressSchema = require("../utils/address");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const ValidationError = mongoose.Error.ValidationError
+const ProductModel = require("./product");
+const CustomerModel = require("../auth/customer");
 
 const orderSchema = mongoose.Schema({
-    user_id: {
-        type: ObjectId, ref: "users",
+    customer_id: {
+        type: ObjectId, ref: CustomerModel.collection.collectionName,
         required: true
     },
     products_id: [{
-        type: ObjectId, ref: "products",
+        type: ObjectId, ref: ProductModel.collection.collectionName,
     }],
     total: { 
         type: Number, 

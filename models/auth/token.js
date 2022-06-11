@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const UserModel = require("./user");
 
 const tokenScheme = mongoose.Schema({
     user_id: { 
-        type: ObjectId, ref: "users",
+        type: ObjectId, ref: UserModel.collection.collectionName,
         required: true 
     },
     token_hash: { 

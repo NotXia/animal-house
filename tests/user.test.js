@@ -21,14 +21,16 @@ describe("Inizializzazione", function () {
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione di un cliente", async function () {
-        const res = await curr_session.post('/user/customers/').send({ 
+        const res = await curr_session.post('/user/customers/').send({
             username: "Marcolino23", 
             password: "MarcobelloNapoli32!",
             email: "marconi17@gmail.com",
             name: "Luigi",
             surname: "Pirandello",
-            city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100",
-            phone: "3212345678"
+            phone: "3212345678",
+            address:{
+                city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100",
+            }
         }).expect(201);
     });
 
@@ -39,9 +41,11 @@ describe("Registrazione di un cliente", function () {
             email: "SicuramenteNonmarconi17@gmail.com",
             name: "SicuramenteNonLuigi",
             surname: "SicuramenteNonPirandello",
-            city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100",
-            phone: "3212345678"
-        }).expect(400);
+            phone: "3212345678",
+            address: {
+                city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100",
+            }
+        }).expect(409);
     });
 
     test("Registrazione errata di un cliente - email esistente", async function () {
@@ -51,9 +55,11 @@ describe("Registrazione di un cliente", function () {
             email: "marconi17@gmail.com",
             name: "SicuramenteNonLuigi",
             surname: "SicuramenteNonPirandello",
-            city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100",
-            phone: "3212345678"
-        }).expect(400);
+            phone: "3212345678",
+            address: {
+                city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100",
+            }
+        }).expect(409);
     });
 });
 
@@ -82,7 +88,9 @@ describe("Modifica della password di un cliente - tramite permesso admin", funct
 
     test("Modifica di un cliente", async function () {
         const res = await curr_session.put('/user/customers/Marcolino23').send({ 
-            password: "MarcoBologna17!"
+            user: {
+                password: "MarcoBologna17!"
+            }
         }).set({ Authorization: `Bearer ${token}` }).expect(200);
     });
 });
@@ -125,7 +133,7 @@ describe("Cancellazione di un cliente - tramite permesso admin", function () {
 describe("Registrazione e cancellazione operatore - senza permesso admin (non autorizzato)", function () {
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
-        const res = await curr_session.post('/user/operators/').send({ 
+        const res = await curr_session.post('/user/operators/').send({
             username: "Luigino23", 
             password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
@@ -163,12 +171,13 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
 
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
-        const res = await curr_session.post('/user/operators/').send({ 
+        const res = await curr_session.post('/user/operators/').send({
             username: "Luigino234", 
             password: "LuiginoVerona33!",
             email: "luigino444@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            permission: { operator: true },
             role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -185,7 +194,9 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
         await curr_session.post('/user/customers/').send({
             username: "Marcolino23", password: "MarcobelloNapoli32!", email: "marconi17@gmail.com",
             name: "Luigi", surname: "Pirandello",
-            city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100", phone: "3212345678"
+            address: {
+                city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100", phone: "3212345678"
+            }
         }).expect(201);
     }),
 
@@ -197,6 +208,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            permission: { operator: true },
             role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -206,7 +218,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
                 friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 saturday: [], sunday: []
             }
-        }).set({ Authorization: `Bearer ${token}` }).expect(400);
+        }).set({ Authorization: `Bearer ${token}` }).expect(409);
     });
 
     test("Registrazione errata di un operatore - email esistente come cliente", async function () {
@@ -217,6 +229,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "marconi17@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
+            permission: { operator: true },
             role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -226,7 +239,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
                 friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 saturday: [], sunday: []
             }
-        }).set({ Authorization: `Bearer ${token}` }).expect(400);
+        }).set({ Authorization: `Bearer ${token}` }).expect(409);
     }),
 
     test("Cancellazione cliente", async function () {

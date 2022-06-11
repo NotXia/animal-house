@@ -22,6 +22,7 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Customer"
+
       responses:
         201:
           description: "Creato con successo"
@@ -97,7 +98,22 @@ paths:
         description: "Dati del cliente"
         required: true
         schema:
-          $ref: "#/definitions/Customer"
+          type: object
+          properties:
+            password:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            surname:
+              type: string
+            gender:
+              type: string
+            phone:
+              type: string
+            address:
+              $ref: "#/definitions/Address"
       responses:
         200:
           description: "Modificato con successo"
@@ -181,7 +197,28 @@ paths:
         description: "Dati dell'operatore"
         required: true
         schema:
-          $ref: "#/definitions/Operator"
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            surname:
+              type: string
+            gender:
+              type: string
+            phone:
+              type: string
+            permission:
+              $ref: "#/definitions/Permission_operator"
+            role_id:
+              $ref: "#/definitions/ObjectId"
+            working_time:
+              $ref: "#/definitions/Working_time"
       responses:
         201:
           description: "Creato con successo"
@@ -259,7 +296,28 @@ paths:
         description: "Dati dell'operatore"
         required: true
         schema:
-          $ref: "#/definitions/Operator"
+          type: object
+          properties:
+            password:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            surname:
+              type: string
+            gender:
+              type: string
+            phone:
+              type: string
+            permission:
+              $ref: "#/definitions/Permission_operator"
+            role_id:
+              $ref: "#/definitions/ObjectId"
+            working_time:
+              $ref: "#/definitions/Working_time"
+            absence_time:
+              $ref: "#/definitions/Absence_time"
       responses:
         200:
           description: "Modificato con successo"

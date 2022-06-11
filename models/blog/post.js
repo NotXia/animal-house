@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const UserModel = require("../auth/user");
+const AnimalModel = require("../animals/animal");
 
 const postSchema = mongoose.Schema({
     user_id: {
-        type: ObjectId, ref: "users",
+        type: ObjectId, ref: UserModel.collection.collectionName,
         required: true
     },
     content: {
@@ -11,7 +13,7 @@ const postSchema = mongoose.Schema({
     },
     comments: [{
         user_id: {
-            type: ObjectId, ref: "users",
+            type: ObjectId, ref: UserModel.collection.collectionName,
             required: true
         },
         content: {
@@ -29,10 +31,10 @@ const postSchema = mongoose.Schema({
     }],
     category: { type: String },
     tag_users_id: [{
-        type: ObjectId, ref: "users"
+        type: ObjectId, ref: UserModel.collection.collectionName
     }],
     tag_animals_id: [{
-        type: ObjectId, ref: "animals"
+        type: ObjectId, ref: AnimalModel.collection.collectionName
     }],
 
     creationDate: {

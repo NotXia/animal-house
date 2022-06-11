@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const SpeciesModel = require("../animals/species");
 
 const productSchema = mongoose.Schema({
     barcode: {
@@ -12,7 +13,7 @@ const productSchema = mongoose.Schema({
     images_path: [{ type: String }],
 
     target_species_id: [{
-        type: ObjectId, ref: "species"
+        type: ObjectId, ref: SpeciesModel.collection.collectionName
     }],
 
     price: { // In formato intero

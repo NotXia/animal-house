@@ -31,14 +31,14 @@ describe("Registrazione operatori - tramite permesso admin", function () {
 
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
-        const res = await curr_session.post('/user/operators/').send({ 
+        const res = await curr_session.post('/user/operators/').send({
             username: "Luigino23", 
             password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele",
             surname: "D'Annunzio",
-            role_id: test_role._id,
             permission: {post_write: true, comment_write: true},
+            role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -60,8 +60,8 @@ describe("Registrazione operatori - tramite permesso admin", function () {
             email: "fabio@gmail.com",
             name: "Giovanni",
             surname: "Pascoli",
-            role_id: test_role._id,
             permission: {post_write: true, comment_write: true},
+            role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -170,8 +170,8 @@ describe("Registrazione operatore senza permesso di scrittura o modifica", funct
             email: "mario.s13@gmail.com",
             name: "Giacomo",
             surname: "Leopardi",
-            role_id: test_role._id,
             permission: {post_write: false, comment_write: false},
+            role_id: test_role._id,
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
