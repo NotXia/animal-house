@@ -14,6 +14,7 @@
     "testRegex": "./tests/.*.test.js",
     "testPathIgnorePatterns": [ "./tests/utils/" ],
     "globalSetup": "./tests/utils/global_init.js",
+    "globalTeardown": "./tests/utils/global_end.js",
     "setupFilesAfterEnv": [ "./tests/utils/test_init.js" ]
   },
   "repository": {
