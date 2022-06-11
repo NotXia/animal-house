@@ -11,15 +11,10 @@
     "stopdb": "sudo systemctl stop mongod"
   },
   "jest": {
-    "testRegex": "./tests/.*.js",
-    "testPathIgnorePatterns": [
-      "./tests/test_init.js",
-      "./tests/global_init.js"
-    ],
-    "globalSetup": "./tests/global_init.js",
-    "setupFilesAfterEnv": [
-      "./tests/test_init.js"
-    ]
+    "testRegex": "./tests/.*.test.js",
+    "testPathIgnorePatterns": [ "./tests/utils/" ],
+    "globalSetup": "./tests/utils/global_init.js",
+    "setupFilesAfterEnv": [ "./tests/utils/test_init.js" ]
   },
   "repository": {
     "type": "git",
