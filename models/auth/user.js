@@ -52,7 +52,7 @@ const userScheme = mongoose.Schema({
 
     permission: { type: permissionSchema, default: {}, required: true },
     type_id: { type: ObjectId, required: true }
-}, {toJSON: { virtuals: true }, toObject: { virtuals: true } });
+}, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 userScheme.virtual("customer", {
     ref: CustomerModel.collection.collectionName,
