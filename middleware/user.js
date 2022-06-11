@@ -1,45 +1,74 @@
 const validator = require('express-validator');
 const utils = require("./utils");
 
-const validateWorkingTimeRequired = function() {
-    let out = [ validator.body("working_time").exists() ];
+/*
+    Validatori dei singoli campi
+*/
+
+function validateUsername(source) { return source("username").trim().escape(); }
+function validatePassword(source) { return source("password").isStrongPassword(); }
+function validateEmail(source) { return source("email").isEmail().normalizeEmail(); }
+function validateName(source) { return source("name").trim().escape(); }
+function validateSurname(source) { return source("surname").trim().escape(); }
+function validateGender(source) { return source("gender").trim().isIn(["M", "F", "Non-binary", "Altro"]); }
+function validatePhone(source) { return source("phone").isMobilePhone("any"); }
+function validatePermission(source) { return source("permission"); }
+
+function validateRole_id(source) { return source("role_id").isMongoId(); }
+function validateWorkingTimeExists(source) {
+    let out = [ source("working_time").exists() ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( validator.body(`working_time.${week}`).exists() );
-        out.push( validator.body(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.hub_id`).optional().isMongoId() );
+        out.push( source(`working_time.${week}`).exists() );
+        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
+        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId() );
     }
 
     return out;
-}();
-
-const validateWorkingTimeOptional = function () {
-    let out = [ validator.body("working_time").optional() ];
+};
+function validateWorkingTimeOptional(source) {
+    let out = [ source("working_time").optional() ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( validator.body(`working_time.${week}`).optional() );
-        out.push( validator.body(`working_time.${week}.*.time`).optional() );
-        out.push( validator.body(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
-        out.push( validator.body(`working_time.${week}.*.hub_id`).optional().isMongoId() );
+        out.push( source(`working_time.${week}`).optional() );
+        out.push( source(`working_time.${week}.*.time`).optional() );
+        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
+        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId() );
     }
 
     return out;
-}();
-
-const validateAbsenceTimeOptional = function () {
-    let out = [ validator.body("absence_time").optional() ];
+};
+function validateAbsenceTimeOptional(source) {
+    let out = [ source("absence_time").optional() ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( validator.body(`absence_time.${week}`).optional() );
-        out.push( validator.body(`absence_time.${week}.*.time`).optional() );
-        out.push( validator.body(`absence_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( validator.body(`absence_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( source(`absence_time.${week}`).optional() );
+        out.push( source(`absence_time.${week}.*.time`).optional() );
+        out.push( source(`absence_time.${week}.*.time.start`).optional().isISO8601().toDate() );
+        out.push( source(`absence_time.${week}.*.time.end`).optional().isISO8601().toDate() );
     }
 
     return out;
-}();
+};
+
+function validateAddressExists(source) {
+    return [
+        source("address.city").exists().trim().escape(),
+        source("address.street").exists().trim().escape(),
+        source("address.number").exists().trim().escape(),
+        source("address.postal_code").exists().isPostalCode("any"),
+    ];
+}
+function validateAddressOptional(source) {
+    return [
+        source("address.city").optional().trim().escape(),
+        source("address.street").optional().trim().escape(),
+        source("address.number").optional().trim().escape(),
+        source("address.postal_code").optional().isPostalCode("any"),
+    ];
+}
 
 /* Raggruppa in un unico Object tutti i campi relativi agli utenti */
 function groupUserData(source) {
@@ -75,18 +104,23 @@ function groupOperatorData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 
+
+function validateNewUserData(source) {
+    return [
+        validateUsername(source).exists(),
+        validatePassword(source).exists(),
+        validateEmail(source).exists(),
+        validateName(source).exists(),
+        validateSurname(source).exists(),
+        validateGender(source).optional(),
+        validatePhone(source).optional(),
+        validatePermission(source).optional(),
+    ];
+}
+
 const validateInsertCustomer = [
-    validator.body("username").exists().trim().escape(),
-    validator.body("password").exists().isStrongPassword(),
-    validator.body("email").exists().isEmail().normalizeEmail(),
-    validator.body("name").exists().trim().escape(),
-    validator.body("surname").exists().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("address.city").exists().trim().escape(),
-    validator.body("address.street").exists().trim().escape(),
-    validator.body("address.number").exists().trim().escape(),
-    validator.body("address.postal_code").exists().isPostalCode("any"),
+    validateNewUserData(validator.body),
+    validateAddressExists(validator.body),
     utils.errorHandler,
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
@@ -96,17 +130,11 @@ const validateInsertCustomer = [
 ];
 
 const validateInsertOperator = [
-    validator.body("username").exists().trim().escape(),
-    validator.body("password").exists().isStrongPassword(),
-    validator.body("email").exists().isEmail().normalizeEmail(),
-    validator.body("name").exists().trim().escape(),
-    validator.body("surname").exists().trim().escape(),
-    validator.body("permission").exists(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("role_id").exists().isMongoId(),
-    validateWorkingTimeRequired,
-    validateAbsenceTimeOptional,
+    validateNewUserData(validator.body),
+    validatePermission(validator.body).exists(),
+    validateRole_id(validator.body).exists(),
+    validateWorkingTimeExists(validator.body),
+    validateAbsenceTimeOptional(validator.body),
     utils.errorHandler,
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
@@ -116,24 +144,29 @@ const validateInsertOperator = [
     }
 ];
 
+
 const validateSearchUser = [
-    validator.param("username").exists().trim().escape(),
+    validateUsername(validator.param).exists(),
     utils.errorHandler
 ];
 
+
+function validateUpdateUserData(source) {
+    return [
+        validatePassword(source).optional(),
+        validateEmail(source).optional(),
+        validateName(source).optional(),
+        validateSurname(source).optional(),
+        validateGender(source).optional(),
+        validatePhone(source).optional(),
+        validatePermission(source).optional(),
+    ];
+}
+
 const validateUpdateCustomer = [
-    validator.param("username").exists().trim().escape(),
-    validator.body("password").optional().isStrongPassword(),
-    validator.body("email").optional().isEmail().normalizeEmail(),
-    validator.body("name").optional().trim().escape(),
-    validator.body("surname").optional().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("permission").optional(),
-    validator.body("address.city").optional().trim().escape(),
-    validator.body("address.street").optional().trim().escape(),
-    validator.body("address.number").optional().trim().escape(),
-    validator.body("address.postal_code").optional().isPostalCode("any"),
+    validateUsername(validator.param).exists(),
+    validateUpdateUserData(validator.body),
+    validateAddressOptional(validator.body),
     utils.errorHandler,
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
@@ -143,17 +176,11 @@ const validateUpdateCustomer = [
 ];
 
 const validateUpdateOperator = [
-    validator.param("username").exists().trim().escape(),
-    validator.body("password").optional().isStrongPassword(),
-    validator.body("email").optional().isEmail().normalizeEmail(),
-    validator.body("name").optional().trim().escape(),
-    validator.body("surname").optional().trim().escape(),
-    validator.body("gender").optional().trim().isIn(["M", "F", "Non-binary", "Altro"]),
-    validator.body("phone").optional().isMobilePhone("any"),
-    validator.body("permission").optional(),
-    validator.body("role_id").optional().isMongoId(),
-    validateWorkingTimeOptional,
-    validateAbsenceTimeOptional,
+    validateUsername(validator.param).exists(),
+    validateUpdateUserData(validator.body),
+    validateRole_id(validator.body).optional(),
+    validateWorkingTimeOptional(validator.body),
+    validateAbsenceTimeOptional(validator.body),
     utils.errorHandler,
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
@@ -162,10 +189,12 @@ const validateUpdateOperator = [
     }
 ];
 
+
 const validateDeleteUser = [
-    validator.param("username").exists().trim().escape(),
+    validateUsername(validator.param).exists(),
     utils.errorHandler
 ];
+
 
 module.exports = {
     validateInsertCustomer : validateInsertCustomer,
