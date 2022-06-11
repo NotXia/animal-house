@@ -1,5 +1,6 @@
 require("dotenv").config();
 const app = require("../index.js");
+const utils = require("./utils/utils");
 const session = require('supertest-session');
 const path = require("path");
 const fs = require("fs");
@@ -9,7 +10,6 @@ const ItemModel = require("../models/shop/item");
 const ProductModel = require("../models/shop/product");
 
 let curr_session = session(app);
-let user = null;
 
 // Per tracciare gli oggetti da eliminare alla fine
 let categories_id = [];
@@ -19,6 +19,13 @@ let items_id = [];
 let category;
 let products = [];
 let items = [];
+
+let admin_token;
+
+beforeAll(async function () {
+    admin_token = await utils.loginAsAdmin(curr_session);
+});
+
 
 describe("Popolazione database", function () {
     let tmp;
@@ -135,17 +142,9 @@ describe("Test GET /shop/items/:item_id/products", function () {
     });
 });
 
-describe("Autenticazione", function () {
-    test("Login con credenziali admin", async function () {
-        const res = await curr_session.post("/auth/login_operator").send({ username: "admin", password: "admin" }).expect(200);
-        expect(res.body.access_token).toBeDefined();
-        user = res.body;
-    });
-});
-
 describe("Test GET /shop/items/:barcode", function () {
     test("Richiesta corretta", async function () {
-        const res = await curr_session.get("/shop/items/1").set({ Authorization: `Bearer ${user.access_token.value}` }).expect(200);
+        const res = await curr_session.get("/shop/items/1").set({ Authorization: `Bearer ${admin_token}` }).expect(200);
         expect(res.body.name).toEqual("Item1");
     });
 
@@ -154,7 +153,7 @@ describe("Test GET /shop/items/:barcode", function () {
     });
 
     test("Richiesta vuota", async function () {
-        await curr_session.get("/shop/items/aaaa").set({ Authorization: `Bearer ${user.access_token.value}` }).expect(404);
+        await curr_session.get("/shop/items/aaaa").set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });
 
@@ -164,7 +163,7 @@ let to_delete_image;
 describe("Test inserimento", function () {
     test("Richiesta corretta a POST /items/", async function () {
         const res = await curr_session.post("/shop/items/")
-                        .set({ Authorization: `Bearer ${user.access_token.value}` })
+                        .set({ Authorization: `Bearer ${admin_token}` })
                         .send({
                             name: "NewItem1", description: "", category_id: category._id,
                             products: [
@@ -182,28 +181,28 @@ describe("Test inserimento", function () {
 
     test("Richieste errate a POST /items/", async function () {
         await curr_session.post("/shop/items/")
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "NewItem2", description: "", category_id: category._id,
                 products: []
             }).expect(400);
 
         await curr_session.post("/shop/items/")
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "NewItem3", description: "", category_id: category._id,
                 products: [{ name: "NewProdotto3", price: 1000, quantity: 5 },]
             }).expect(400);
 
         await curr_session.post("/shop/items/")
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "NewItem4", description: "",
                 products: [{ barcode: "new54321", name: "NewProdotto4", price: 1000, quantity: 5 },]
             }).expect(400);
 
         const res = await curr_session.post("/shop/items/")
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "NewItem5", description: "", category_id: category._id,
                 products: [{ barcode: "new12345", name: "NewProdotto5", price: 1000, quantity: 5 },]
@@ -216,14 +215,14 @@ describe("Test inserimento", function () {
         const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
 
         await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
-            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .attach("file0", img1)
             .attach("file1", img1)
             .attach("file2", img2)
             .expect(200);
 
         await curr_session.post(`/shop/items/${item_id}/products/1/images/`)
-            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .attach("file0", img2)
             .expect(200);
 
@@ -239,13 +238,13 @@ describe("Test inserimento", function () {
 
         // Formato sbagliato
         await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
-            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .attach("file0", txt)
             .expect(400);
 
         // Nessun file
         await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
-            .set({ Authorization: `Bearer ${user.access_token.value}`, "content-type": "application/octet-stream" })
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .expect(400);
     });
 });
@@ -253,7 +252,7 @@ describe("Test inserimento", function () {
 describe("Test modifica", function () {
     test("Richieste corrette a PUT /items/:item_id", async function () {
         const res = await curr_session.put(`/shop/items/${item_id}`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewItem1 modificato", description: "Nuova descrizione" }).expect(200);
         expect(res.body.name).toEqual("NewItem1 modificato");
         expect(res.body.description).toEqual("Nuova descrizione");
@@ -264,20 +263,20 @@ describe("Test modifica", function () {
 
         // Richiesta vuota (perché mai dovresti voler modificare nulla :|)
         await curr_session.put(`/shop/items/${item_id}`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({}).expect(200);
     });
 
     test("Richiesta scorretta a PUT /items/:item_id", async function () {
         let wrong_id = "111111111111111111111111";
         await curr_session.put(`/shop/items/${wrong_id}`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewItem1 modificato", description: "Nuova descrizione" }).expect(404);
     });
 
     test("Richieste corrette a PUT /items/:item_id/products/:product_index", async function () {
         const res = await curr_session.put(`/shop/items/${item_id}/products/0`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(200);
         expect(res.body.name).toEqual("NewProdotto1 modificato");
         expect(res.body.description).toEqual("Nuova descrizione");
@@ -291,17 +290,17 @@ describe("Test modifica", function () {
 
         // Richiesta vuota (perché mai dovresti voler modificare nulla :|)
         await curr_session.put(`/shop/items/${item_id}/products/0`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({}).expect(200);
     });
 
     test("Richieste errate a PUT /items/:item_id/products/:product_index", async function () {
         await curr_session.put(`/shop/items/${item_id}/products/100000`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(404);
 
         await curr_session.put(`/shop/items/${item_id}/products/100000`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: -1, quantity: 20 }).expect(400);
     });
 });
@@ -311,7 +310,7 @@ describe("Test cancellazione", function () {
         const product0_before = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
 
         await curr_session.delete(`/shop/items/${item_id}/products/0/images/0`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .expect(200);
 
         const product0_after = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
@@ -322,7 +321,7 @@ describe("Test cancellazione", function () {
 
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
         await curr_session.delete(`/shop/items/${item_id}/products/1`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .expect(200);
 
         const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
@@ -333,7 +332,7 @@ describe("Test cancellazione", function () {
 
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
         const res = await curr_session.delete(`/shop/items/${item_id}/products/0`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .expect(303);
 
         expect(res.header.location).toEqual(`/shop/items/${item_id}`);
@@ -342,7 +341,7 @@ describe("Test cancellazione", function () {
 
     test("Richiesta corretta a DELETE /items/:item_id", async function () {
         await curr_session.delete(`/shop/items/${item_id}`)
-            .set({ Authorization: `Bearer ${user.access_token.value}` })
+            .set({ Authorization: `Bearer ${admin_token}` })
             .expect(200);
 
         expect(await ItemModel.findById(item_id).exec()).toBeNull();
