@@ -1,7 +1,7 @@
 require("dotenv").config();
-const UserModel = require("../../models/auth/user");
-const OperatorModel = require("../../models/auth/operator");
-const RoleModel = require("../../models/services/role");
+const UserModel = require("../models/auth/user");
+const OperatorModel = require("../models/auth/operator");
+const RoleModel = require("../models/services/role");
 
 function randomOf(array) {
     return array[Math.floor(Math.random() * array.length)]

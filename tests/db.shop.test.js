@@ -1,9 +1,9 @@
 require("dotenv").config();
-const CategoryModel = require("../../models/shop/category");
-const ItemModel = require("../../models/shop/item");
-const ProductModel = require("../../models/shop/product");
-const OrderModel = require("../../models/shop/order");
-const SpeciesModel = require("../../models/animals/species");
+const CategoryModel = require("../models/shop/category");
+const ItemModel = require("../models/shop/item");
+const ProductModel = require("../models/shop/product");
+const OrderModel = require("../models/shop/order");
+const SpeciesModel = require("../models/animals/species");
 
 const ValidationError = require("mongoose").Error.ValidationError;
 

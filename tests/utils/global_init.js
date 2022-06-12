@@ -8,10 +8,10 @@ const fs = require("fs");
 require("dotenv").config();
 process.env.TESTING = true;
 process.env.MONGODB_DATABASE_NAME = process.env.MONGODB_DATABASE_NAME + "_test";
-process.env.TEMP_DIR = path.join(__dirname, "/tmp");
+process.env.TEMP_DIR = path.join(__dirname, "../tmp");
 process.env.SHOP_IMAGES_DIR_ABS_PATH = process.env.TEMP_DIR;
 
-const db_init = require("../db_init");
+const db_init = require("../../db_init");
 
 module.exports = async function () {
     // Per nascondere i console.log

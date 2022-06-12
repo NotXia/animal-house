@@ -1,7 +1,7 @@
 require("dotenv").config();
-const SpeciesModel = require("../../models/animals/species");
-const AnimalModel = require("../../models/animals/animal");
-const CustomerModel = require("../../models/auth/customer");
+const SpeciesModel = require("../models/animals/species");
+const AnimalModel = require("../models/animals/animal");
+const CustomerModel = require("../models/auth/customer");
 
 function randomOf(array) {
     return array[Math.floor(Math.random() * array.length)]
