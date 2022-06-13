@@ -2,6 +2,10 @@ require('dotenv').config();
 const expressJwt = require("express-jwt");
 const UserModel = require("../models/auth/user");
 
+function isSubset(subset, superset) {
+    return subset.every((val) => { return superset.includes(val); });
+}
+
 /**
  * Middleware per autenticare e autorizzare un utente
  * @param {[String[]]} required_permissions Vettore contenente "gruppi di permessi"
@@ -26,13 +30,12 @@ function auth_middleware(required_permissions=[]) {
             if (required_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
 
             // Estrazione permessi
-            const user = await UserModel.findById(req.auth.id, "permission");
+            const user = await UserModel.findById(req.auth.id, { permission: 1 });
+            const user_permissions = Object.keys(user.permission.toObject()).filter((key) => { return user.permission[key]; });
 
             // Verifica se uno dei gruppi di permessi è soddisfatto
-            for (let i=0; i<required_permissions.length; i++) {
-                // Dato un gruppo, si rimuovono i permessi che l'utente possiede, se il vettore ottenuto è vuoto, si hanno i permessi sufficienti
-                const permissions_array = required_permissions[i].filter((permission) => { return !user.permission[permission]; })
-                if (permissions_array.length === 0) { return next(); }
+            for (const permissions of required_permissions) {
+                if (isSubset(permissions, user_permissions)) { return next(); }
             }
             
             return res.sendStatus(403);
