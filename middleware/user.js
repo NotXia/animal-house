@@ -105,6 +105,18 @@ function groupOperatorData(source) {
 }
 
 
+function verifyUsernameOwnership(source) {
+    return function(req, res, next) {
+        if (req.auth.superuser || req.auth.username === req[source].username) {
+            return next();
+        }
+        else {
+            return res.sendStatus(403);
+        }
+    }
+}
+
+
 function validateNewUserData(source) {
     return [
         validateUsername(source).exists(),
@@ -168,6 +180,7 @@ const validateUpdateCustomer = [
     validateUpdateUserData(validator.body),
     validateAddressOptional(validator.body),
     utils.errorHandler,
+    verifyUsernameOwnership("params"),
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
         res.locals.customer = groupCustomerData(req.body);
@@ -182,6 +195,7 @@ const validateUpdateOperator = [
     validateWorkingTimeOptional(validator.body),
     validateAbsenceTimeOptional(validator.body),
     utils.errorHandler,
+    verifyUsernameOwnership("params"),
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
         res.locals.operator = groupOperatorData(req.body);
@@ -192,7 +206,8 @@ const validateUpdateOperator = [
 
 const validateDeleteUser = [
     validateUsername(validator.param).exists(),
-    utils.errorHandler
+    utils.errorHandler,
+    verifyUsernameOwnership("params")
 ];
 
 
