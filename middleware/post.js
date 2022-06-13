@@ -1,5 +1,6 @@
 const validator = require('express-validator');
 const utils = require("./utils");
+const { error } = require("../utilities");
 const PostModel = require("../models/blog/post");
 
 function verifyPostOwnership(source) {
@@ -9,9 +10,9 @@ function verifyPostOwnership(source) {
         const post_id = req[source].post_id;
         const post = await PostModel.findById(post_id, { user_id: 1 }).populate("user_id").exec();
         
-        if (!post) { return res.sendStatus(404); }
+        if (!post) { return next(error.NOT_FOUND()); }
         if (post.user_id.username === req.auth.username) { return next(); }
-        return res.sendStatus(403);
+        return next(error.FORBIDDEN("Non sei il proprietario"));
     }
 }
 
@@ -23,9 +24,9 @@ function verifyCommentOwnership(post_id_source, comment_index_source) {
         const comment_index = req[comment_index_source].comment_index;
         const post = await PostModel.findById(post_id, { comments: 1 }).populate("comments.user_id").exec();
 
-        if (!post || !post.comments[comment_index]) { return res.sendStatus(404); }
+        if (!post || !post.comments[comment_index]) { return next(error.NOT_FOUND()); }
         if (post.comments[comment_index].user_id.username === req.auth.username) { return next(); }
-        return res.sendStatus(403);
+        return next(error.FORBIDDEN("Non sei il proprietario"));
     }
 }
 
@@ -59,14 +60,14 @@ const validateUpdatePost = [
     validator.body("category").optional().trim().escape(),
     validator.body("tag_users_id").optional().isMongoId(),
     validator.body("tag_animals_id").optional().isMongoId(),
-    utils.errorHandler,
-    verifyPostOwnership("params")
+    verifyPostOwnership("params"),
+    utils.errorHandler
 ];
 
 const validateDeletePost = [
     validator.param("post_id").exists().isMongoId(),
+    verifyPostOwnership("params"),
     utils.errorHandler,
-    verifyPostOwnership("params")
 ];
 
 const validateInsertComment = [
@@ -90,15 +91,15 @@ const validateUpdateComment = [
     validator.param("post_id").exists().isMongoId(),
     validator.param("comment_index").exists().isInt({ min: 0 }),
     validator.body("content").exists().trim().escape(),
-    utils.errorHandler,
-    verifyCommentOwnership("params", "params")
+    verifyCommentOwnership("params", "params"),
+    utils.errorHandler
 ];
 
 const validateDeleteComment = [
     validator.param("post_id").exists().isMongoId(),
     validator.param("comment_index").exists().isInt({ min: 0 }),
-    utils.errorHandler,
-    verifyCommentOwnership("params", "params")
+    verifyCommentOwnership("params", "params"),
+    utils.errorHandler
 ];
 
 module.exports = {
