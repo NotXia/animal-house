@@ -1,4 +1,5 @@
 const validator = require("express-validator");
+const { error } = require("../utilities");
 
 const errorHandler = [
     function (req, res, next) {
@@ -11,23 +12,7 @@ const errorHandler = [
         });
     
         if (!errors.isEmpty()) {
-            return res.status(400).send(errors.array());
-        }
-        else {
-            return next();
-        }
-    },
-    function (err, req, res, next) {
-        if (err) {
-            switch (err.code) {
-                case 400:
-                case 401:
-                case 403:
-                case 404:
-                    return res.status(err.code).send({ message: err.message });
-                default:
-                    return res.status(400).send([{ message: err.message }]);
-            }
+            return next(error.BAD_REQUEST(errors.array()));
         }
         else {
             return next();

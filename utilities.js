@@ -14,17 +14,21 @@ function createTime(time) {
 }
 
 const error_generator = {
+    BAD_REQUEST: function (message="Richiesta malformata") {
+        let err = new Error(message); err.code = 400;
+        return err;
+    },
     UNAUTHORIZED: function (message="Non autorizzato") { // Non autenticato
         let err = new Error(message); err.code = 401;
-        return err
+        return err;
     },
     FORBIDDEN: function (message="Permessi mancanti") { // Autenticato ma senza permessi
         let err = new Error(message); err.code = 403;
-        return err
+        return err;
     },
     NOT_FOUND: function (message="Non trovato") {
         let err = new Error(message); err.code = 404;
-        return err
+        return err;
     }
 }
 
