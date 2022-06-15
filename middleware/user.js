@@ -1,5 +1,6 @@
 const validator = require('express-validator');
 const utils = require("./utils");
+const { error } = require("../utilities");
 
 /*
     Validatori dei singoli campi
@@ -105,6 +106,18 @@ function groupOperatorData(source) {
 }
 
 
+function verifyUsernameOwnership(source) {
+    return function(req, res, next) {
+        if (req.auth.superuser || req.auth.username === req[source].username) {
+            return next();
+        }
+        else {
+            return next(error.FORBIDDEN("Non sei il proprietario"));
+        }
+    }
+}
+
+
 function validateNewUserData(source) {
     return [
         validateUsername(source).exists(),
@@ -139,7 +152,6 @@ const validateInsertOperator = [
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
         res.locals.operator = groupOperatorData(req.body);
-
         next();
     }
 ];
@@ -167,6 +179,7 @@ const validateUpdateCustomer = [
     validateUsername(validator.param).exists(),
     validateUpdateUserData(validator.body),
     validateAddressOptional(validator.body),
+    verifyUsernameOwnership("params"),
     utils.errorHandler,
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
@@ -181,6 +194,7 @@ const validateUpdateOperator = [
     validateRole_id(validator.body).optional(),
     validateWorkingTimeOptional(validator.body),
     validateAbsenceTimeOptional(validator.body),
+    verifyUsernameOwnership("params"),
     utils.errorHandler,
     function (req, res, next) {
         res.locals.user = groupUserData(req.body);
@@ -192,6 +206,7 @@ const validateUpdateOperator = [
 
 const validateDeleteUser = [
     validateUsername(validator.param).exists(),
+    verifyUsernameOwnership("params"),
     utils.errorHandler
 ];
 

@@ -11,8 +11,8 @@ const bcrypt = require("bcrypt");
  * @param user_id   Id dell'utente
  * @returns I token creati nel formato { tipo { valore, scadenza } }
  */
-function createTokens(user_id, is_operator) {
-    const jwt_payload = { id: user_id, is_operator: is_operator };
+function createTokens(user_id, username, is_operator) {
+    const jwt_payload = { id: user_id, username: username, is_operator: is_operator };
     const access_token = jwt.sign(jwt_payload, process.env.ACCESS_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.ACCESS_TOKEN_EXP });
     const refresh_token = jwt.sign(jwt_payload, process.env.REFRESH_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.REFRESH_TOKEN_EXP });
 
@@ -72,7 +72,7 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
  */
 async function loginController(req, res) {
     const user = req.user; // I dati dell'utente elaborati da Passport
-    const tokens = createTokens(user.id, user.is_operator);
+    const tokens = createTokens(user.id, user.username, user.is_operator);
 
     // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
     tokens.refresh.id = await storeRefreshToken(user.id, tokens.refresh.value, tokens.refresh.expiration)
@@ -107,7 +107,7 @@ function refreshController(req, res) {
 
             // Rinnovo e salvataggio token
             await TokenModel.findByIdAndDelete(old_refresh_token_id);
-            tokens = createTokens(token.id, token.is_operator);
+            tokens = createTokens(token.id, token.username, token.is_operator);
             tokens.refresh.id = await storeRefreshToken(token.id, tokens.refresh.value, tokens.refresh.expiration);
         }
         catch (err) {

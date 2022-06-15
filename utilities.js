@@ -13,9 +13,28 @@ function createTime(time) {
     return new Date(`${base_date} ${time}`);
 }
 
+const error_generator = {
+    UNAUTHORIZED: function (message="Non autorizzato") { // Non autenticato
+        let err = new Error(message); err.code = 401;
+        return err
+    },
+    FORBIDDEN: function (message="Permessi mancanti") { // Autenticato ma senza permessi
+        let err = new Error(message); err.code = 403;
+        return err
+    },
+    NOT_FOUND: function (message="Non trovato") {
+        let err = new Error(message); err.code = 404;
+        return err
+    }
+}
+
+
 module.exports = {
     createTime: createTime,
 
+    error: error_generator,
+
     // Variabili utili
-    MONGO_DUPLICATED_KEY: 11000
+    MONGO_DUPLICATED_KEY: 11000,
+
 }

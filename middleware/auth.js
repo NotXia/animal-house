@@ -2,14 +2,19 @@ require('dotenv').config();
 const expressJwt = require("express-jwt");
 const UserModel = require("../models/auth/user");
 
+function isSubset(subset, superset) {
+    return subset.every((val) => { return superset.includes(val); });
+}
+
 /**
  * Middleware per autenticare e autorizzare un utente
  * @param {[String[]]} required_permissions Vettore contenente "gruppi di permessi"
- * @example auth_middleware([ ["admin"] ]) -> ammette solo utenti con permesso admin
- *          auth_middleware([ ["admin"], ["write_shop", "read_shop"] ]) -> ammette utenti con permessi (admin OR (write_shop AND read_shop))
+ * @param {[String[]]} superuser_permissions Vettore contenente "gruppi di permessi superuser". I superuser bypassano i controlli di ownership
+ * @example auth_middleware([], [ ["admin"] ]) -> ammette solo utenti con permesso admin. admin è superuser
+ *          auth_middleware([ ["write_shop", "read_shop"] ], [ ["admin"] ]) -> ammette utenti con permessi (admin OR (write_shop AND read_shop)). admin è superuser
  *          auth_middleware() -> ammette utenti autenticati, non richiede permessi particolari
  */
-function auth_middleware(required_permissions=[]) {
+function auth_middleware(required_permissions=[], superuser_permissions=[]) {
     return [ 
         /* Verifica la presenza e validità dell'access token */
         expressJwt.expressjwt({
@@ -23,16 +28,26 @@ function auth_middleware(required_permissions=[]) {
 
         /* Verifica i permessi */
         async function (req, res, next) {
-            if (required_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
+            if (required_permissions.length === 0 && superuser_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
 
             // Estrazione permessi
-            const user = await UserModel.findById(req.auth.id, "permission");
+            const user = await UserModel.findById(req.auth.id, { permission: 1 });
+            const user_permissions = Object.keys(user.permission.toObject()).filter((key) => { return user.permission[key]; });
+
+            // Verifica se uno dei gruppi di permessi da superuser è soddisfatto
+            for (const permissions of superuser_permissions) {
+                if (isSubset(permissions, user_permissions)) {
+                    req.auth.superuser = true;
+                    return next(); 
+                }
+            }
 
             // Verifica se uno dei gruppi di permessi è soddisfatto
-            for (let i=0; i<required_permissions.length; i++) {
-                // Dato un gruppo, si rimuovono i permessi che l'utente possiede, se il vettore ottenuto è vuoto, si hanno i permessi sufficienti
-                const permissions_array = required_permissions[i].filter((permission) => { return !user.permission[permission]; })
-                if (permissions_array.length === 0) { return next(); }
+            for (const permissions of required_permissions) {
+                if (isSubset(permissions, user_permissions)) { 
+                    req.auth.superuser = false;
+                    return next(); 
+                }
             }
             
             return res.sendStatus(403);
