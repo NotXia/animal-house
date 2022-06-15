@@ -3,6 +3,9 @@ const utils = require("./utils");
 const { error } = require("../utilities");
 const PostModel = require("../models/blog/post");
 
+/**
+ * Verifica i permessi per effettuare operazioni sull'oggetto
+ */
 function verifyPostOwnership(source) {
     return async function (req, res, next) {
         if (req.auth.superuser) { return next(); }
@@ -16,6 +19,9 @@ function verifyPostOwnership(source) {
     }
 }
 
+/**
+ * Verifica i permessi per effettuare operazioni sull'oggetto
+ */
 function verifyCommentOwnership(post_id_source, comment_index_source) {
     return async function (req, res, next) {
         if (req.auth.superuser) { return next(); }
@@ -36,7 +42,7 @@ const validateInsertPost = [
     validator.body("category").optional().trim().escape(),
     validator.body("tag_users_id").optional().isMongoId(),
     validator.body("tag_animals_id").optional().isMongoId(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateSearchPosts = [
@@ -45,12 +51,12 @@ const validateSearchPosts = [
     validator.query("username").optional().trim().escape(),
     validator.query("category").optional().trim().escape(),
     validator.query("oldest").optional().isBoolean(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateSearchPostById = [
     validator.param("post_id").exists().isMongoId(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateUpdatePost = [
@@ -60,46 +66,46 @@ const validateUpdatePost = [
     validator.body("category").optional().trim().escape(),
     validator.body("tag_users_id").optional().isMongoId(),
     validator.body("tag_animals_id").optional().isMongoId(),
-    verifyPostOwnership("params"),
-    utils.errorHandler
+    utils.validatorErrorHandler,
+    verifyPostOwnership("params")
 ];
 
 const validateDeletePost = [
     validator.param("post_id").exists().isMongoId(),
-    verifyPostOwnership("params"),
-    utils.errorHandler,
+    utils.validatorErrorHandler,
+    verifyPostOwnership("params")
 ];
 
 const validateInsertComment = [
     validator.param("post_id").exists().isMongoId(),
     validator.body("content").exists().trim().escape(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateSearchCommentByPost = [
     validator.param("post_id").exists().isMongoId(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateSearchCommentByIndex = [
     validator.param("post_id").exists().isMongoId(),
     validator.param("comment_index").exists().isInt({ min: 0 }),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateUpdateComment = [
     validator.param("post_id").exists().isMongoId(),
     validator.param("comment_index").exists().isInt({ min: 0 }),
     validator.body("content").exists().trim().escape(),
-    verifyCommentOwnership("params", "params"),
-    utils.errorHandler
+    utils.validatorErrorHandler,
+    verifyCommentOwnership("params", "params")
 ];
 
 const validateDeleteComment = [
     validator.param("post_id").exists().isMongoId(),
     validator.param("comment_index").exists().isInt({ min: 0 }),
-    verifyCommentOwnership("params", "params"),
-    utils.errorHandler
+    utils.validatorErrorHandler,
+    verifyCommentOwnership("params", "params")
 ];
 
 module.exports = {

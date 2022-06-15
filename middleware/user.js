@@ -72,7 +72,7 @@ function validateAddressOptional(source) {
 }
 
 /* Raggruppa in un unico Object tutti i campi relativi agli utenti */
-function groupUserData(source) {
+function _getUserData(source) {
     return Object.fromEntries(Object.entries(
         {
             username: source.username,
@@ -87,7 +87,7 @@ function groupUserData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 /* Raggruppa in un unico Object tutti i campi relativi ai clienti */
-function groupCustomerData(source) {
+function _getCustomerData(source) {
     return Object.fromEntries(Object.entries(
         {
             address: source.address
@@ -95,7 +95,7 @@ function groupCustomerData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 /* Raggruppa in un unico Object tutti i campi relativi agli operatori */
-function groupOperatorData(source) {
+function _getOperatorData(source) {
     return Object.fromEntries(Object.entries(
         {
             role_id: source.role_id,
@@ -105,8 +105,32 @@ function groupOperatorData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 
+/**
+ * Estrae i dati di un cliente e li raggruppa in res.locals
+ */
+function groupCustomerData(source) {
+    return function (req, res, next) {
+        res.locals.user = _getUserData(req[source]);
+        res.locals.customer = _getCustomerData(req[source]);
+        next();
+    }
+}
 
-function verifyUsernameOwnership(source) {
+/**
+ * Estrae i dati di un operatore e li raggruppa in res.locals
+ */
+function groupOperatorData(source) {
+    return function (req, res, next) {
+        res.locals.user = _getUserData(req[source]);
+        res.locals.operator = _getOperatorData(req[source]);
+        next();
+    }
+}
+
+/**
+ * Verifica i permessi per effettuare operazioni sull'oggetto
+ */
+function verifyUserOwnership(source) {
     return function(req, res, next) {
         if (req.auth.superuser || req.auth.username === req[source].username) {
             return next();
@@ -134,12 +158,8 @@ function validateNewUserData(source) {
 const validateInsertCustomer = [
     validateNewUserData(validator.body),
     validateAddressExists(validator.body),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.customer = groupCustomerData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    groupCustomerData("body")
 ];
 
 const validateInsertOperator = [
@@ -148,18 +168,14 @@ const validateInsertOperator = [
     validateRole_id(validator.body).exists(),
     validateWorkingTimeExists(validator.body),
     validateAbsenceTimeOptional(validator.body),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.operator = groupOperatorData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    groupOperatorData("body")
 ];
 
 
 const validateSearchUser = [
     validateUsername(validator.param).exists(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 
@@ -179,13 +195,9 @@ const validateUpdateCustomer = [
     validateUsername(validator.param).exists(),
     validateUpdateUserData(validator.body),
     validateAddressOptional(validator.body),
-    verifyUsernameOwnership("params"),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.customer = groupCustomerData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    verifyUserOwnership("params"),
+    groupCustomerData("body")
 ];
 
 const validateUpdateOperator = [
@@ -194,20 +206,16 @@ const validateUpdateOperator = [
     validateRole_id(validator.body).optional(),
     validateWorkingTimeOptional(validator.body),
     validateAbsenceTimeOptional(validator.body),
-    verifyUsernameOwnership("params"),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.operator = groupOperatorData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    verifyUserOwnership("params"),
+    groupOperatorData("body")
 ];
 
 
 const validateDeleteUser = [
     validateUsername(validator.param).exists(),
-    verifyUsernameOwnership("params"),
-    utils.errorHandler
+    utils.validatorErrorHandler,
+    verifyUserOwnership("params")
 ];
 
 

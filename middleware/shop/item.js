@@ -15,7 +15,7 @@ const validateCreate = [
     validator.body("products.*.quantity").optional().isInt({ min: 0 }),
     validator.body("products.*.target_species_id").optional(),
     validator.body("products.*.target_species_id.*").optional().isMongoId(),
-    utils.errorHandler,
+    utils.validatorErrorHandler,
 ];
 
 const validateSearchItem = [
@@ -27,17 +27,17 @@ const validateSearchItem = [
     validator.query("price_desc").optional().isBoolean(),
     validator.query("name_asc").optional().isBoolean(),
     validator.query("name_desc").optional().isBoolean(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateSearchItemByBarcode = [
     validator.param("barcode").exists().trim(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateSearchProducts = [
     validator.param("item_id").exists().isMongoId(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateUpdateItemById = [
@@ -45,7 +45,7 @@ const validateUpdateItemById = [
     validator.body("name").optional().trim().escape(),
     validator.body("description").optional().trim().escape(),
     validator.body("category_id").optional().isMongoId(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateUpdateProductByIndex = [
@@ -58,34 +58,34 @@ const validateUpdateProductByIndex = [
     validator.body("target_species_id.*").optional().isMongoId(),
     validator.body("price").optional().isInt({ min: 0 }),
     validator.body("quantity").optional().isInt({ min: 0 }),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateDeleteItemById = [
     validator.param("item_id").exists().isMongoId(),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 const validateDeleteProductByIndex = [
     validator.param("item_id").exists().isMongoId(),
     validator.param("product_index").exists().isInt({ min: 0 }),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ];
 
 
 const validateCreateFileUpload = [
     validator.param("item_id").exists().isMongoId(),
     validator.param("product_index").exists().isInt({ min: 0 }),
+    utils.validatorErrorHandler,
     file_upload(),
     utils.verifyImage,
-    utils.errorHandler,
 ]
 
 const validateDeleteImage = [
     validator.param("item_id").exists().isMongoId(),
     validator.param("product_index").exists().isInt({ min: 0 }),
     validator.param("image_index").exists().isInt({ min: 0 }),
-    utils.errorHandler
+    utils.validatorErrorHandler
 ]
 
 
