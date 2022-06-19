@@ -6,11 +6,10 @@ const validatorErrorHandler = [
         const errors = validator.validationResult(req).formatWith(function ({ location, msg, param, value, nestedErrors }) {
             return {
                 field: param,
-                location: location,
                 message: msg
             }
         });
-    
+
         if (!errors.isEmpty()) {
             return next(error.BAD_REQUEST(errors.array()));
         }
