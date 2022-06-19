@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const errorHandler = require("./error_handler");
+const { errorHandler } = require("./error_handler");
 
 const auth = require("./routes/auth");
 const user = require("./routes/user");

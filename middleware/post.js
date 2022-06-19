@@ -1,6 +1,6 @@
 const validator = require('express-validator');
 const utils = require("./utils");
-const { error } = require("../utilities");
+const error = require("../error_handler");
 const PostModel = require("../models/blog/post");
 
 function validateUsername(source)       { return source("username").trim().escape(); }
@@ -22,9 +22,9 @@ function verifyPostOwnership(source) {
         const post_id = req[source].post_id;
         const post = await PostModel.findById(post_id, { user_id: 1 }).populate("user_id").exec();
         
-        if (!post) { return next(error.NOT_FOUND()); }
+        if (!post) { return next(error.generate.NOT_FOUND()); }
         if (post.user_id.username === req.auth.username) { return next(); }
-        return next(error.FORBIDDEN("Non sei il proprietario"));
+        return next(error.generate.FORBIDDEN("Non sei il proprietario"));
     }
 }
 
@@ -39,9 +39,9 @@ function verifyCommentOwnership(post_id_source, comment_index_source) {
         const comment_index = req[comment_index_source].comment_index;
         const post = await PostModel.findById(post_id, { comments: 1 }).populate("comments.user_id").exec();
 
-        if (!post || !post.comments[comment_index]) { return next(error.NOT_FOUND()); }
+        if (!post || !post.comments[comment_index]) { return next(error.generate.NOT_FOUND()); }
         if (post.comments[comment_index].user_id.username === req.auth.username) { return next(); }
-        return next(error.FORBIDDEN("Non sei il proprietario"));
+        return next(error.generate.FORBIDDEN("Non sei il proprietario"));
     }
 }
 

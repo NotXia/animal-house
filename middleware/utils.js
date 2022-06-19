@@ -1,5 +1,5 @@
 const validator = require("express-validator");
-const { error } = require("../utilities");
+const error = require("../error_handler");
 
 const validatorErrorHandler = [
     function (req, res, next) {
@@ -11,7 +11,7 @@ const validatorErrorHandler = [
         });
 
         if (!errors.isEmpty()) {
-            return next(error.BAD_REQUEST(errors.array()));
+            return next(error.generate.BAD_REQUEST(errors.array()));
         }
         else {
             return next();
@@ -23,12 +23,12 @@ function verifyMimetype(valid_mimes, optional=false) {
     return function (req, res, next) {
         if (!req.files) {
             if (optional) { return next(); }
-            else { return next(error.BAD_REQUEST("Nessun file caricato")); }
+            else { return next(error.generate.BAD_REQUEST("Nessun file caricato")); }
         }
 
         for (const [_, file] of Object.entries(req.files)) {
             if (!valid_mimes.includes(file.mimetype)) {
-            return next(error.BAD_REQUEST("Formato del file non valido"));
+            return next(error.generate.BAD_REQUEST("Formato del file non valido"));
             }
         }
         return next();

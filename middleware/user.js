@@ -1,6 +1,6 @@
 const validator = require('express-validator');
 const utils = require("./utils");
-const { error } = require("../utilities");
+const error = require("../error_handler");
 
 /*
     Validatori dei singoli campi
@@ -136,7 +136,7 @@ function verifyUserOwnership(source) {
             return next();
         }
         else {
-            return next(error.FORBIDDEN("Non sei il proprietario"));
+            return next(error.generate.FORBIDDEN("Non sei il proprietario"));
         }
     }
 }
