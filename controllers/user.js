@@ -1,11 +1,11 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
-const { matchedData } = require('express-validator');
 const UserModel = require("../models/auth/user");
 const OperatorModel = require("../models/auth/operator");
 const CustomerModel = require("../models/auth/customer");
 const bcrypt = require("bcrypt");
 const utils = require("../utilities");
+const error = require("../error_handler");
 
 async function insertOperator(req, res) {
     let data = res.locals; // Estrae i dati validati
@@ -23,13 +23,13 @@ async function insertOperator(req, res) {
 
         await session.commitTransaction();
         session.endSession();
-        return res.status(201).send({});
+        return res.status(utils.http.CREATED).send({});
     } catch (e) {
         await session.abortTransaction();
         session.endSession();
 
-        if (e.code === utils.MONGO_DUPLICATED_KEY) { return res.sendStatus(409); }
-        return res.sendStatus(500);
+        if (e.code === utils.MONGO_DUPLICATED_KEY) { return res.status(utils.http.CONFLICT).send(error.formatMessage(utils.http.CONFLICT)); }
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -49,13 +49,13 @@ async function insertCustomer(req, res) {
 
         await session.commitTransaction();
         session.endSession();
-        return res.status(201).send({});
+        return res.status(utils.http.CREATED).send({});
     } catch (e) {
         await session.abortTransaction();
         session.endSession();
 
-        if (e.code === utils.MONGO_DUPLICATED_KEY) { return res.sendStatus(409); }
-        return res.sendStatus(500);
+        if (e.code === utils.MONGO_DUPLICATED_KEY) { return res.status(utils.http.CONFLICT).send(error.formatMessage(utils.http.CONFLICT)); }
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -63,12 +63,12 @@ function searchUser(is_operator) {
     return async function(req, res) {
         try {
             const user = await UserModel.findOne({ username: req.params.username }).populate(is_operator ? "operator" : "customer").exec();
-            if (!user) { res.sendStatus(404); }
+            if (!user) { res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
 
-            return res.status(200).send(user);
+            return res.status(utils.http.OK).send(user);
         }
         catch (e) {
-            return res.sendStatus(500);
+            return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
         }
     };
 }
@@ -86,16 +86,16 @@ function updateUser(is_operator) {
             if (data.user) { // Aggiornamento dei dati generici dell'utente
                 if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
                 user = await UserModel.findOneAndUpdate({ username: req.params.username }, data.user);
-                if (!user) { return res.sendStatus(404); }
+                if (!user) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
             }
             // Aggiornamento dei dati specifici
             if (is_operator && data.operator) {
                 const operator = await OperatorModel.findByIdAndUpdate(user.type_id, data.operator);
-                if (!operator) { return res.sendStatus(404); }
+                if (!operator) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
             } 
             else if (!is_operator && data.customer) {
                 const customer = await CustomerModel.findByIdAndUpdate(user.type_id, data.customer);
-                if (!customer) { return res.sendStatus(404); }
+                if (!customer) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
             }
 
             await session.commitTransaction();
@@ -105,9 +105,9 @@ function updateUser(is_operator) {
             session.endSession();
 
             console.warn(e);
-            return res.sendStatus(500);
+            return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
         }
-        return res.sendStatus(200);
+        return res.sendStatus(utils.http.OK);
     }
 }
 
@@ -123,16 +123,16 @@ function deleteUser(is_operator) {
             
             // Cancellazione utenza
             const deleted_user = await UserModel.findByIdAndDelete(user._id);
-            if (deleted_user.deletedCount === 0) { return res.sendStatus(404); }
+            if (deleted_user.deletedCount === 0) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
 
             // Cancellazione dati specifici
             if (is_operator) {
                 const deleted_operator = await OperatorModel.findByIdAndDelete(user.operator._id);
-                if (deleted_operator.deletedCount === 0) { return res.sendStatus(404); }
+                if (deleted_operator.deletedCount === 0) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
             }
             else {
                 const deleted_customer = await CustomerModel.findByIdAndDelete(user.customer._id);
-                if (deleted_customer.deletedCount === 0) { return res.sendStatus(404); }
+                if (deleted_customer.deletedCount === 0) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
             }
 
             await session.commitTransaction();
@@ -140,10 +140,10 @@ function deleteUser(is_operator) {
         } catch (e) {
             await session.abortTransaction();
             session.endSession();
-            return res.sendStatus(500);
+            return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
         }
 
-        return res.sendStatus(200);
+        return res.sendStatus(utils.http.OK);
     }
 }
 

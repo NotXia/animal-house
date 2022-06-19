@@ -6,6 +6,9 @@ const TokenModel = require("../models/auth/token");
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
 
+const utils = require("../utilities");
+const error = require("../error_handler");
+
 /**
  * Crea i token (access + refresh) associati ad un utente.
  * @param user_id   Id dell'utente
@@ -76,10 +79,10 @@ async function loginController(req, res) {
 
     // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
     tokens.refresh.id = await storeRefreshToken(user.id, tokens.refresh.value, tokens.refresh.expiration)
-        .catch((err) => { return res.sendStatus(500) });
+        .catch((err) => { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR) });
 
     setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
-    return res.status(200).json({ access_token: tokens.access });
+    return res.status(utils.http.OK).json({ access_token: tokens.access });
 }
 
 /**
@@ -89,20 +92,20 @@ function refreshController(req, res) {
     const old_refresh_token = req.cookies.refresh_token;
     const old_refresh_token_id = req.cookies.refresh_token_id;
 
-    if (!old_refresh_token || !old_refresh_token_id) { return res.sendStatus(401); }
+    if (!old_refresh_token || !old_refresh_token_id) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
     jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
-        if (err) { return res.sendStatus(401); }
+        if (err) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
         let tokens = null;
 
         try {
             // Verifica validità del token dal database
             const token_entry = await TokenModel.findById(old_refresh_token_id).exec();
-            if (!token_entry) { return res.sendStatus(401); }
+            if (!token_entry) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
             if (!await bcrypt.compare(old_refresh_token, token_entry.token_hash)) {
-                return res.sendStatus(401);
+                return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED));
             }
 
             // Rinnovo e salvataggio token
@@ -111,11 +114,11 @@ function refreshController(req, res) {
             tokens.refresh.id = await storeRefreshToken(token.id, tokens.refresh.value, tokens.refresh.expiration);
         }
         catch (err) {
-            return res.sendStatus(500);
+            return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
         }
 
         setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
-        return res.status(200).json({ access_token: tokens.access });
+        return res.status(utils.http.OK).json({ access_token: tokens.access });
     });
 }
 
@@ -127,15 +130,15 @@ function logoutController(req, res) {
     const refresh_token_id = req.cookies.refresh_token_id;
     
     setRefreshTokenCookie(res, 0, 0, 0); // Per invalidare il cookie
-    if (!refresh_token || !refresh_token_id) { return res.sendStatus(401); }
+    if (!refresh_token || !refresh_token_id) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
     jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
-        if (err) { return res.sendStatus(401); }
+        if (err) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
         // Cancella il token salvato
-        await TokenModel.findByIdAndDelete(refresh_token_id).catch((err) => { return res.sendStatus(500); });
+        await TokenModel.findByIdAndDelete(refresh_token_id).catch((err) => { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });
 
-        return res.sendStatus(200);
+        return res.sendStatus(utils.http.OK);
     });
 }
 
