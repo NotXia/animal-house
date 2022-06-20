@@ -92,20 +92,20 @@ function refreshController(req, res) {
     const old_refresh_token = req.cookies.refresh_token;
     const old_refresh_token_id = req.cookies.refresh_token_id;
 
-    if (!old_refresh_token || !old_refresh_token_id) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
+    if (!old_refresh_token || !old_refresh_token_id) { return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
     jwt.verify(old_refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
-        if (err) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
+        if (err) { return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
         let tokens = null;
 
         try {
             // Verifica validità del token dal database
             const token_entry = await TokenModel.findById(old_refresh_token_id).exec();
-            if (!token_entry) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
+            if (!token_entry) { return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
             if (!await bcrypt.compare(old_refresh_token, token_entry.token_hash)) {
-                return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED));
+                return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED));
             }
 
             // Rinnovo e salvataggio token
@@ -130,10 +130,10 @@ function logoutController(req, res) {
     const refresh_token_id = req.cookies.refresh_token_id;
     
     setRefreshTokenCookie(res, 0, 0, 0); // Per invalidare il cookie
-    if (!refresh_token || !refresh_token_id) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
+    if (!refresh_token || !refresh_token_id) { return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
     jwt.verify(refresh_token, process.env.REFRESH_TOKEN_KEY, async function (err, token) {
-        if (err) { return res.status(utils.http.UNAUTHORIZED).send(error.formatMessage(utils.http.UNAUTHORIZED)); }
+        if (err) { return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
         // Cancella il token salvato
         await TokenModel.findByIdAndDelete(refresh_token_id).catch((err) => { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });

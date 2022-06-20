@@ -44,13 +44,13 @@ async function createItem(req, res) {
 
         switch (err.code) {
             case utils.MONGO_DUPLICATED_KEY:
-                return res.status(utils.http.CONFLICT).send({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
+                return res.status(utils.http.CONFLICT).json({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
             default:
                 return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
         }
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item_id}`).send({ id: new_item_id });
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item_id}`).json({ id: new_item_id });
 }
 
 /*
@@ -96,8 +96,8 @@ async function searchItem(req, res) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     });
 
-    if (items.length === 0) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
-    return res.status(utils.http.OK).send(items);
+    if (items.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+    return res.status(utils.http.OK).json(items);
 }
 
 /*
@@ -117,8 +117,8 @@ async function searchItemByBarcode(req, res) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
     }
     
-    if (!item) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
-    return res.status(utils.http.OK).send(item);
+    if (!item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+    return res.status(utils.http.OK).json(item);
 }
 
 /*
@@ -130,10 +130,10 @@ async function searchProducts(req, res) {
     const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec().catch(function (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     });
-    if (!item) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+    if (!item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     products = item.products_id;
 
-    return res.status(utils.http.OK).send(products);
+    return res.status(utils.http.OK).json(products);
 }
 
 /*
@@ -145,9 +145,9 @@ async function updateItemById(req, res) {
     const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true }).catch(function (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     });
-    if (!updated_item) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+    if (!updated_item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
-    return res.status(utils.http.OK).send(updated_item);
+    return res.status(utils.http.OK).json(updated_item);
 }
 
 /*
@@ -160,7 +160,7 @@ async function updateProductByIndex(req, res) {
     // Estrazione del prodotto a partire dall'item
     try {
         const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
-        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     
         updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
     }
@@ -168,7 +168,7 @@ async function updateProductByIndex(req, res) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 
-    return res.status(utils.http.OK).send(updated_product);
+    return res.status(utils.http.OK).json(updated_product);
 }
 
 /* 
@@ -181,7 +181,7 @@ async function deleteItemById(req, res) {
     try {
         // Estrazione dei prodotti associati all'item
         const to_delete_item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
-        if (!to_delete_item) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!to_delete_item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         // Rimozione delle immagini associate ai prodotti
         const products = await ProductModel.find({ _id: { $in: to_delete_item.products_id } }, { images_path: 1 }).exec();
@@ -219,9 +219,9 @@ async function deleteProductByIndex(req, res) {
 
         // Estrazione del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
-        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         if (item.products_id.length === 1) { 
-            return res.status(utils.http.SEE_OTHER).location(`${req.baseUrl}/items/${req.params.item_id}`).send({message: "Per rimuovere questo prodotto bisogna rimuovere l'item"}) 
+            return res.status(utils.http.SEE_OTHER).location(`${req.baseUrl}/items/${req.params.item_id}`).json({message: "Per rimuovere questo prodotto bisogna rimuovere l'item"}) 
         }
 
         // Rimozione delle immagini associate al prodotti
@@ -255,9 +255,9 @@ async function createUploadImages(req, res) {
     try {
         // Ricerca dell'id del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
-        if (!item) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         const product_id = item.products_id[parseInt(req.params.product_index)];
-        if (!product_id) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!product_id) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         // Salvataggio dei file nel filesystem
         let files_name = []
@@ -289,9 +289,9 @@ async function deleteImageByIndex(req, res) {
 
         // Estrazione del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
-        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         const product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
-        if (!product || !product.images_path[parseInt(req.params.image_index)]) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!product || !product.images_path[parseInt(req.params.image_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         // Determina l'immagine da cancellare
         const to_delete_image = product.images_path[parseInt(req.params.image_index)];

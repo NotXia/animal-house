@@ -20,7 +20,7 @@ async function insertPost(req, res) {
             tag_animals_id: req.body.tag_animals_id
         });
         await newPost.save();
-        return res.status(utils.http.CREATED).location(`${req.baseUrl}/posts/${newPost._id}`).send(newPost);
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/posts/${newPost._id}`).json(newPost);
     } catch (e) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
@@ -31,7 +31,7 @@ async function searchPosts(req, res) {
     let query = {};
     if (req.query.username) {
         const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
-        if (!user) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         query.user_id = user._id;
     }
     if (req.query.category) { query.category = req.query.category; }
@@ -45,16 +45,16 @@ async function searchPosts(req, res) {
                         .skip(req.query.page_number)
                         .exec()
                         .catch(function (err) { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });
-    if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
-    return res.status(utils.http.OK).send(posts);
+    if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+    return res.status(utils.http.OK).json(posts);
 }
 
 // Ricerca di un singolo post dato l'id
 async function searchPostById(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
-        return res.status(utils.http.OK).send(post);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(post);
     } catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
@@ -65,7 +65,7 @@ async function updatePost(req, res) {
     const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndUpdate(filter, req.body);
-        if (!post) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
@@ -77,7 +77,7 @@ async function deletePost(req, res) {
     const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndDelete(filter);
-        if (!post) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         return res.sendStatus(utils.http.OK);
     } catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
@@ -96,7 +96,7 @@ async function insertComment(req, res) {
     };
     try {
         const post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } });
-        if (!post) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
@@ -107,8 +107,8 @@ async function insertComment(req, res) {
 async function searchCommentByPost(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
-        return res.status(utils.http.OK).send(post.comments);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(post.comments);
     } catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
@@ -118,8 +118,8 @@ async function searchCommentByPost(req, res) {
 async function searchCommentByIndex(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
-        return res.status(utils.http.OK).send(post.comments[parseInt(req.params.comment_index)]);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(post.comments[parseInt(req.params.comment_index)]);
     } catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
@@ -136,7 +136,7 @@ async function updateComment(req, res) {
     try {
         session.startTransaction();
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
-        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         await PostModel.findByIdAndUpdate(req.params.post_id, { [`comments.${req.params.comment_index}`]: newComment });
         
@@ -157,7 +157,7 @@ async function deleteComment(req, res) {
         session.startTransaction();
 
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
-        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).send(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         // Rimozione del commento (workaround per eliminare un elemento per indice)
         await PostModel.findByIdAndUpdate(req.params.post_id, { $unset: { [`comments.${req.params.comment_index}`]: 1 } });

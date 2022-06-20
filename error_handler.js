@@ -60,9 +60,9 @@ function errorHandler(err, req, res, next) {
             case http.FORBIDDEN:
             case http.NOT_FOUND:
             case http.CONFLICT:
-                return res.status(err.code).send(JSON.parse(err.message));
+                return res.status(err.code).json(JSON.parse(err.message));
             default:
-                return res.status(http.INTERNAL_SERVER_ERROR).send();
+                return res.status(http.INTERNAL_SERVER_ERROR).json({});
         }
     }
     else {
