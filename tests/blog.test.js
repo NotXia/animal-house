@@ -53,23 +53,26 @@ describe("Pubblicazione commento", function () {
     });
     
     test("Pubblicazione commento a post inesistente", async function () {
-        await curr_session.post('/blog/posts/111111111111111111111111/comments/').send({ 
+        const res = await curr_session.post('/blog/posts/111111111111111111111111/comments/').send({ 
             content: "Ciao, sto commentando un post inesistente! \n Un saluto."
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(404);
+        expect(res.body.message).toBeDefined();
     });
 });
 
 describe("Pubblicazione post errate", function () {
     test("Pubblicazione post senza accesso", async function () {
-        await curr_session.post('/blog/posts/').send({ 
+        const res = await curr_session.post('/blog/posts/').send({ 
             content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
         }).expect(401);
+        expect(res.body.message).toBeDefined();
     });
 
     test("Pubblicazione post senza permesso di scrittura", async function () {
-        await curr_session.post('/blog/posts/').send({ 
+        const res = await curr_session.post('/blog/posts/').send({ 
             content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
         }).set({ Authorization: `Bearer ${operator_no_permission.token}` }).expect(403);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -82,9 +85,10 @@ describe("Ricerca di un post di un dato utente", function () {
     });
 
     test("Ricerca di tutti i post di un dato utente inesistente", async function () {
-        await curr_session.get('/blog/posts/')
+        const res = await curr_session.get('/blog/posts/')
             .query({ page_size: 5, page_number: 0, username: "FantasmaLuigino23" })
             .expect(404);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -106,18 +110,20 @@ describe("Modifica di un dato post", function () {
     });
     
     test("Modifica post inesistente", async function () {
-        await curr_session.put('/blog/posts/111111111111111111111111').send({
+        const res = await curr_session.put('/blog/posts/111111111111111111111111').send({
             category: "scoperte"
         }).set({ Authorization: `Bearer ${operator1.token}` }).expect(404);
+        expect(res.body.message).toBeDefined();
     });
 
     test("Modifica post non proprio", async function () {
-        await curr_session.put('/blog/posts/' + blog_posts[0]._id).send({
+        const res = await curr_session.put('/blog/posts/' + blog_posts[0]._id).send({
             category: "ho cambiato categoria >:D"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(403);
 
         const post = await PostModel.findById(blog_posts[0]._id).exec();
         expect(post.category).toEqual("scoperte");
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -132,27 +138,30 @@ describe("Modifica di un dato commento", function () {
     });
     
     test("Modifica commento inesistente", async function () {
-        await curr_session.put('/blog/posts/'+ blog_posts[0]._id +'/comments/3').send({
+        const res = await curr_session.put('/blog/posts/'+ blog_posts[0]._id +'/comments/3').send({
             content: "Ciao Luigi, grazie per aver condiviso con noi questa bellissima e interessantissima scoperta! \n Un salutone."
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(404);
+        expect(res.body.message).toBeDefined();
     });
 
     test("Modifica commento non proprio", async function () {
-        await curr_session.put('/blog/posts/' + blog_posts[0]._id + '/comments/0').send({
+        const res = await curr_session.put('/blog/posts/' + blog_posts[0]._id + '/comments/0').send({
             content: "Ciao Mario, sei stato hackerato!!!! \n Un salutone."
         }).set({ Authorization: `Bearer ${operator1.token}` }).expect(403);
 
         const post = await PostModel.findById(blog_posts[0]._id).exec();
         expect(post.comments[0].content).toEqual("Ciao Luigi, grazie per aver condiviso con noi questa bellissima e interessantissima scoperta! \n Un salutone.");
+        expect(res.body.message).toBeDefined();
     });
 });
 
 describe("Cancellazione di un dato commento", function () {
     test("Cancellazione commento non proprio data la sua posizione", async function () {
-        await curr_session.delete('/blog/posts/' + blog_posts[0]._id + '/comments/0').set({ Authorization: `Bearer ${operator1.token}` }).expect(403);
+        const res = await curr_session.delete('/blog/posts/' + blog_posts[0]._id + '/comments/0').set({ Authorization: `Bearer ${operator1.token}` }).expect(403);
 
         const post = await PostModel.findById(blog_posts[0]._id).exec();
         expect(post.comments[0].content).toEqual("Ciao Luigi, grazie per aver condiviso con noi questa bellissima e interessantissima scoperta! \n Un salutone.");
+        expect(res.body.message).toBeDefined();
     });
 
     test("Cancellazione commento data la sua posizione", async function () {

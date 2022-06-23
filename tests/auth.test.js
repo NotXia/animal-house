@@ -34,6 +34,7 @@ describe("Autenticazione", function () {
     test("Logout", async function () {
         res = await curr_session.post('/auth/logout').expect(200);
         res = await curr_session.post('/auth/refresh').expect(401);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -41,10 +42,12 @@ describe("Autenticazione errata", function () {
     test("Login con credenziali errate", async function () {
         const res = await request(app).post('/auth/login_operator').send({ username: "username_sbagliato", password: "password_sbagliata" }).expect(401);
         expect(res.body.access_token).toBeUndefined();
+        expect(res.body.message).toBeDefined();
     });
 
     test("Rinnovo dei token senza refresh token", async function () {
         const res = await request(app).post('/auth/refresh').expect(401);
         expect(res.body.access_token).toBeUndefined();
+        expect(res.body.message).toBeDefined();
     });
 });

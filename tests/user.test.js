@@ -43,21 +43,23 @@ describe("Registrazione di un cliente", function () {
     });
 
     test("Registrazione errata - username esistente", async function () {
-        await curr_session.post('/user/customers/').send({
+        const res = await curr_session.post('/user/customers/').send({
             username: "Marcolino23", password: "SicuramenteNonMarcobelloNapoli32!", 
             email: "SicuramenteNonmarconi17@gmail.com", phone: "3212345678",
             name: "SicuramenteNonLuigi", surname: "SicuramenteNonPirandello",
             address: { city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100" }
         }).expect(409);
+        expect(res.body.message).toBeDefined();
     });
 
     test("Registrazione errata - email esistente", async function () {
-        await curr_session.post('/user/customers/').send({
+        const res = await curr_session.post('/user/customers/').send({
             username: "SicuramenteNonMarcolino23", password: "SicuramenteNonMarcobelloNapoli32!",
             email: "marconi17@gmail.com", phone: "3212345678",
             name: "SicuramenteNonLuigi", surname: "SicuramenteNonPirandello",
             address: { city: "Sicuramente Non Salò", street: "Sicuramente Non Viale del vittoriale", number: "23", postal_code: "40100" }
         }).expect(409);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -78,9 +80,11 @@ describe("Modifica della password di un cliente", function () {
     });
 
     test("Modifica password non soddisfacendo i requisiti minimi", async function () {
-        await curr_session.put('/user/customers/Marcolino23').send({ 
+        let res = await curr_session.put('/user/customers/Marcolino23').send({ 
             password: "12345"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+        expect(res.body[0].field).toEqual("password");
+        expect(res.body[0].message).toBeDefined();
     });
 });
 
@@ -100,7 +104,7 @@ describe("Cancellazione di un cliente", function () {
 describe("Registrazione e cancellazione operatore - senza permesso admin (non autorizzato)", function () {
     test("Registrazione di un operatore", async function () {
         const hub = await HubModel.findOne({}).exec();
-        await curr_session.post('/user/operators/').send({
+        const res = await curr_session.post('/user/operators/').send({
             username: "Luigino23", password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
@@ -116,14 +120,17 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
         }).expect(401);
 
         expect(await UserModel.findOne({ username: "Luigino23" }).exec()).toBeNull();
+        expect(res.body.message).toBeDefined();
     });
 
     test("Login di un operatore", async function () {
-        await curr_session.post('/auth/login_operator').send({ username: "Marcolino23", password: "MarcobelloNapoli32!" }).expect(401);
+        const res = await curr_session.post('/auth/login_operator').send({ username: "Marcolino23", password: "MarcobelloNapoli32!" }).expect(401);
+        expect(res.body.message).toEqual("Credenziali non valide");
     });
 
     test("Cancellazione di un operatore", async function () {
-        await curr_session.delete('/user/customers/Marcolino23').expect(401);
+        const res = await curr_session.delete('/user/customers/Marcolino23').expect(401);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -164,7 +171,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     }),
 
     test("Registrazione errata di un operatore - username esistente come cliente", async function () {
-        await curr_session.post('/user/operators/').send({
+        const res = await curr_session.post('/user/operators/').send({
             username: "Marcolino23", password: "LuiginoVerona33!",
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
@@ -174,10 +181,11 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
 
         const user = await UserModel.findOne({ username: "Marcolino23" }).populate("operator").exec();
         expect(user.operator).toBeNull();
+        expect(res.body.message).toBeDefined();
     });
 
     test("Registrazione errata di un operatore - email esistente come cliente", async function () {
-        await curr_session.post('/user/operators/').send({
+        const res = await curr_session.post('/user/operators/').send({
             username: "NonSonoMarcolino23", password: "LuiginoVerona33!",
             email: "marconi17@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
@@ -188,6 +196,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
         expect(await UserModel.findOne({ username: "NonSonoMarcolino23" }).exec()).toBeNull();
         const user = await UserModel.findOne({ email: "marconi17@gmail.com" }).populate("operator").exec();
         expect(user.operator).toBeNull();
+        expect(res.body.message).toBeDefined();
     }),
 
     test("Cancellazione cliente", async function () {
@@ -236,10 +245,11 @@ describe("Modifica di un operatore", function () {
     });
 
     test("Modifica di un utente diverso", async function () {
-        await curr_session.put('/user/operators/NonLuigino234').send({
+        const res = await curr_session.put('/user/operators/NonLuigino234').send({
             password: "VeneziaVeneto18.",
             email: "newluigino01@gmail.com"
         }).set({ Authorization: `Bearer ${token}` }).expect(403);
+        expect(res.body.message).toBeDefined();
     });
 
     test("Modifica di un operatore come admin", async function () {
