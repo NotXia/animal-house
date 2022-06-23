@@ -24,7 +24,7 @@ function defaultErrorMessage(code) {
  * Se il messaggio è un numero, si assume che sia un codice HTTP e lo si sostituisce con il corrispondente messaggio di default.
  * Se il messaggio è una stringa pura, viene inglobato in un object, altrimenti rimane inalterato.
  * @param {string} err_message 
- * @returns Messaggio formattato
+ * @returns Object contenente il messaggio formattato 
  */
 function formatErrorMessage(err_message) {
     if (typeof err_message === "number") { err_message = defaultErrorMessage(err_message); }
@@ -33,13 +33,13 @@ function formatErrorMessage(err_message) {
         err_message = { message: err_message };
     }
 
-    return JSON.stringify(err_message);
+    return err_message;
 }
 
 function errorGenerator(code) {
     return function(message="") {
         if (message.length === 0) { message = defaultErrorMessage(code); }
-        let err = new Error(formatErrorMessage(message)); 
+        let err = new Error(JSON.stringify(formatErrorMessage(message))); 
         err.code = code;
         return err;
     };
