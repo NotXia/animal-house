@@ -34,6 +34,10 @@ paths:
         400:
           description: "Input malformato"
           schema:
+            $ref: "#/definitions/ValidationErrorMessage"
+        409:
+          description: "Cliente esistente"
+          schema:
             $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
@@ -67,10 +71,16 @@ paths:
             $ref: "#/definitions/ErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
@@ -125,13 +135,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
@@ -164,13 +180,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"          
         500:
           description: "Internal server error"
 
@@ -230,11 +252,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:          
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:          
+            $ref: "#/definitions/ErrorMessage"
+        409:
+          description: "Operatore esistente"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
           
@@ -264,13 +294,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
       
@@ -328,14 +364,20 @@ paths:
           #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
-          # schema:
-          #   $ref: "#/definitions/ErrorMessage"
+          schema:
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     
@@ -367,13 +409,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
@@ -612,7 +660,7 @@ definitions:
               $ref: "#/definitions/ObjectId"  
         
         
-  ErrorMessage:
+  ValidationErrorMessage:
     type: array
     items:
       type: object
@@ -623,6 +671,13 @@ definitions:
         message:
           type: string
           description: "Informazioni sull'errore"
+
+  ErrorMessage:
+    type: object
+    properties:
+      message:
+        type: string
+        description: "Informazioni sull'errore"
   
   ObjectId:
     type: string

@@ -34,6 +34,8 @@ paths:
               $ref: "#/definitions/AccessTokenData"
         401:
           description: "Credenziali non valide"
+          schema:
+              $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -55,6 +57,8 @@ paths:
               $ref: "#/definitions/AccessTokenData"
         401:
           description: "Refresh token non valido"
+          schema:
+              $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -75,6 +79,8 @@ paths:
           description: "Refresh token invalidato"
         401:
           description: "Refresh token non valido"
+          schema:
+              $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
     
@@ -98,3 +104,10 @@ definitions:
       expiration:
         type: integer
         format: timestamp
+
+  ErrorMessage:
+    type: object
+    properties:
+      message:
+        type: string
+        description: "Informazioni sull'errore"
