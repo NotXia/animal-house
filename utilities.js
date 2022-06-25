@@ -13,26 +13,22 @@ function createTime(time) {
     return new Date(`${base_date} ${time}`);
 }
 
-const error_generator = {
-    UNAUTHORIZED: function (message="Non autorizzato") { // Non autenticato
-        let err = new Error(message); err.code = 401;
-        return err
-    },
-    FORBIDDEN: function (message="Permessi mancanti") { // Autenticato ma senza permessi
-        let err = new Error(message); err.code = 403;
-        return err
-    },
-    NOT_FOUND: function (message="Non trovato") {
-        let err = new Error(message); err.code = 404;
-        return err
-    }
+const http_code = {
+    OK: 200,
+    CREATED: 201,
+    SEE_OTHER: 303,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    CONFLICT: 409,
+    INTERNAL_SERVER_ERROR: 500
 }
-
 
 module.exports = {
     createTime: createTime,
 
-    error: error_generator,
+    http: http_code,
 
     // Variabili utili
     MONGO_DUPLICATED_KEY: 11000,

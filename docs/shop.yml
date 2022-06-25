@@ -38,13 +38,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         409:
           description: "Il barcode di uno dei prodotti è già esistente"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -118,9 +124,11 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -164,13 +172,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
      
@@ -197,13 +211,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -233,9 +253,11 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -267,9 +289,11 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidatorErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -324,13 +348,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -369,13 +399,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -410,13 +446,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Nessun prodotto trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -452,13 +494,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         404:
           description: "Nessun prodotto trovato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -466,7 +514,7 @@ paths:
 
 definitions:
 
-  ErrorMessage:
+  ValidationErrorMessage:
     type: array
     items:
       type: object
@@ -477,6 +525,13 @@ definitions:
         message:
           type: string
           description: "Informazioni sull'errore"
+
+  ErrorMessage:
+    type: object
+    properties:
+      message:
+        type: string
+        description: "Informazioni sull'errore"
 
   ObjectId:
     type: string

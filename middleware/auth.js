@@ -1,6 +1,7 @@
 require('dotenv').config();
 const expressJwt = require("express-jwt");
 const UserModel = require("../models/auth/user");
+const error = require("../error_handler");
 
 function isSubset(subset, superset) {
     return subset.every((val) => { return superset.includes(val); });
@@ -22,7 +23,7 @@ function auth_middleware(required_permissions=[], superuser_permissions=[]) {
             algorithms: [process.env.JWT_ALGORITHM]
         }),
         function (err, req, res, next) {
-            if (err.name === "UnauthorizedError") { return res.sendStatus(401) }
+            if (err.name === "UnauthorizedError") { return next(error.generate.UNAUTHORIZED("Token non valido")); }
             return next();
         },
 
@@ -50,7 +51,7 @@ function auth_middleware(required_permissions=[], superuser_permissions=[]) {
                 }
             }
             
-            return res.sendStatus(403);
+            return next(error.generate.FORBIDDEN("Permessi insufficienti"));
         }
     ];
 } 

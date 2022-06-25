@@ -1,29 +1,29 @@
 const validator = require('express-validator');
 const utils = require("./utils");
-const { error } = require("../utilities");
+const error = require("../error_handler");
 
 /*
     Validatori dei singoli campi
 */
 
-function validateUsername(source) { return source("username").trim().escape(); }
-function validatePassword(source) { return source("password").isStrongPassword(); }
-function validateEmail(source) { return source("email").isEmail().normalizeEmail(); }
-function validateName(source) { return source("name").trim().escape(); }
-function validateSurname(source) { return source("surname").trim().escape(); }
-function validateGender(source) { return source("gender").trim().isIn(["M", "F", "Non-binary", "Altro"]); }
-function validatePhone(source) { return source("phone").isMobilePhone("any"); }
+function validateUsername(source)   { return source("username").trim().escape(); }
+function validatePassword(source)   { return source("password").isStrongPassword().withMessage("La password non è sufficientemente sicura"); }
+function validateEmail(source)      { return source("email").isEmail().withMessage("Formato non valido").normalizeEmail(); }
+function validateName(source)       { return source("name").trim().escape(); }
+function validateSurname(source)    { return source("surname").trim().escape(); }
+function validateGender(source)     { return source("gender").trim().isIn(["M", "F", "Non-binary", "Altro"]).withMessage("Formato non valido"); }
+function validatePhone(source)      { return source("phone").isMobilePhone("any").withMessage("Formato non valido"); }
 function validatePermission(source) { return source("permission"); }
 
-function validateRole_id(source) { return source("role_id").isMongoId(); }
+function validateRole_id(source) { return source("role_id").isMongoId().withMessage("Formato non valido"); }
 function validateWorkingTimeExists(source) {
-    let out = [ source("working_time").exists() ];
+    let out = [ source("working_time").exists().withMessage("Valore mancante") ];
 
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( source(`working_time.${week}`).exists() );
-        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
-        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId() );
+        out.push( source(`working_time.${week}`).exists().withMessage("Valore mancante") );
+        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().withMessage("Formato non valido").toDate() );
+        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().withMessage("Formato non valido").toDate() );
+        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId().withMessage("Formato non valido") );
     }
 
     return out;
@@ -34,9 +34,9 @@ function validateWorkingTimeOptional(source) {
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
         out.push( source(`working_time.${week}`).optional() );
         out.push( source(`working_time.${week}.*.time`).optional() );
-        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().toDate() );
-        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId() );
+        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().withMessage("Formato non valido").toDate() );
+        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().withMessage("Formato non valido").toDate() );
+        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId().withMessage("Formato non valido") );
     }
 
     return out;
@@ -47,8 +47,8 @@ function validateAbsenceTimeOptional(source) {
     for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
         out.push( source(`absence_time.${week}`).optional() );
         out.push( source(`absence_time.${week}.*.time`).optional() );
-        out.push( source(`absence_time.${week}.*.time.start`).optional().isISO8601().toDate() );
-        out.push( source(`absence_time.${week}.*.time.end`).optional().isISO8601().toDate() );
+        out.push( source(`absence_time.${week}.*.time.start`).optional().isISO8601().withMessage("Formato non valido").toDate() );
+        out.push( source(`absence_time.${week}.*.time.end`).optional().isISO8601().withMessage("Formato non valido").toDate() );
     }
 
     return out;
@@ -56,10 +56,10 @@ function validateAbsenceTimeOptional(source) {
 
 function validateAddressExists(source) {
     return [
-        source("address.city").exists().trim().escape(),
-        source("address.street").exists().trim().escape(),
-        source("address.number").exists().trim().escape(),
-        source("address.postal_code").exists().isPostalCode("any"),
+        source("address.city").exists().withMessage("Valore mancante").trim().escape(),
+        source("address.street").exists().withMessage("Valore mancante").trim().escape(),
+        source("address.number").exists().withMessage("Valore mancante").trim().escape(),
+        source("address.postal_code").exists().isPostalCode("any").withMessage("Formato non valido"),
     ];
 }
 function validateAddressOptional(source) {
@@ -67,12 +67,12 @@ function validateAddressOptional(source) {
         source("address.city").optional().trim().escape(),
         source("address.street").optional().trim().escape(),
         source("address.number").optional().trim().escape(),
-        source("address.postal_code").optional().isPostalCode("any"),
+        source("address.postal_code").optional().isPostalCode("any").withMessage("Formato non valido"),
     ];
 }
 
 /* Raggruppa in un unico Object tutti i campi relativi agli utenti */
-function groupUserData(source) {
+function _getUserData(source) {
     return Object.fromEntries(Object.entries(
         {
             username: source.username,
@@ -87,7 +87,7 @@ function groupUserData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 /* Raggruppa in un unico Object tutti i campi relativi ai clienti */
-function groupCustomerData(source) {
+function _getCustomerData(source) {
     return Object.fromEntries(Object.entries(
         {
             address: source.address
@@ -95,7 +95,7 @@ function groupCustomerData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 /* Raggruppa in un unico Object tutti i campi relativi agli operatori */
-function groupOperatorData(source) {
+function _getOperatorData(source) {
     return Object.fromEntries(Object.entries(
         {
             role_id: source.role_id,
@@ -105,14 +105,38 @@ function groupOperatorData(source) {
     ).filter(([_, v]) => v != null)); 
 }
 
+/**
+ * Estrae i dati di un cliente e li raggruppa in res.locals
+ */
+function groupCustomerData(source) {
+    return function (req, res, next) {
+        res.locals.user = _getUserData(req[source]);
+        res.locals.customer = _getCustomerData(req[source]);
+        next();
+    }
+}
 
-function verifyUsernameOwnership(source) {
+/**
+ * Estrae i dati di un operatore e li raggruppa in res.locals
+ */
+function groupOperatorData(source) {
+    return function (req, res, next) {
+        res.locals.user = _getUserData(req[source]);
+        res.locals.operator = _getOperatorData(req[source]);
+        next();
+    }
+}
+
+/**
+ * Verifica i permessi per effettuare operazioni sull'oggetto
+ */
+function verifyUserOwnership(source) {
     return function(req, res, next) {
         if (req.auth.superuser || req.auth.username === req[source].username) {
             return next();
         }
         else {
-            return next(error.FORBIDDEN("Non sei il proprietario"));
+            return next(error.generate.FORBIDDEN("Non sei il proprietario"));
         }
     }
 }
@@ -120,10 +144,10 @@ function verifyUsernameOwnership(source) {
 
 function validateNewUserData(source) {
     return [
-        validateUsername(source).exists(),
-        validatePassword(source).exists(),
-        validateEmail(source).exists(),
-        validateName(source).exists(),
+        validateUsername(source).exists().withMessage("Valore mancante"),
+        validatePassword(source).exists().withMessage("Valore mancante"),
+        validateEmail(source).exists().withMessage("Valore mancante"),
+        validateName(source).exists().withMessage("Valore mancante"),
         validateSurname(source).exists(),
         validateGender(source).optional(),
         validatePhone(source).optional(),
@@ -134,32 +158,24 @@ function validateNewUserData(source) {
 const validateInsertCustomer = [
     validateNewUserData(validator.body),
     validateAddressExists(validator.body),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.customer = groupCustomerData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    groupCustomerData("body")
 ];
 
 const validateInsertOperator = [
     validateNewUserData(validator.body),
-    validatePermission(validator.body).exists(),
-    validateRole_id(validator.body).exists(),
+    validatePermission(validator.body).exists().withMessage("Valore mancante"),
+    validateRole_id(validator.body).exists().withMessage("Valore mancante"),
     validateWorkingTimeExists(validator.body),
     validateAbsenceTimeOptional(validator.body),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.operator = groupOperatorData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    groupOperatorData("body")
 ];
 
 
 const validateSearchUser = [
-    validateUsername(validator.param).exists(),
-    utils.errorHandler
+    validateUsername(validator.param).exists().withMessage("Valore mancante"),
+    utils.validatorErrorHandler
 ];
 
 
@@ -176,38 +192,30 @@ function validateUpdateUserData(source) {
 }
 
 const validateUpdateCustomer = [
-    validateUsername(validator.param).exists(),
+    validateUsername(validator.param).exists().withMessage("Valore mancante"),
     validateUpdateUserData(validator.body),
     validateAddressOptional(validator.body),
-    verifyUsernameOwnership("params"),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.customer = groupCustomerData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    verifyUserOwnership("params"),
+    groupCustomerData("body")
 ];
 
 const validateUpdateOperator = [
-    validateUsername(validator.param).exists(),
+    validateUsername(validator.param).exists().withMessage("Valore mancante"),
     validateUpdateUserData(validator.body),
     validateRole_id(validator.body).optional(),
     validateWorkingTimeOptional(validator.body),
     validateAbsenceTimeOptional(validator.body),
-    verifyUsernameOwnership("params"),
-    utils.errorHandler,
-    function (req, res, next) {
-        res.locals.user = groupUserData(req.body);
-        res.locals.operator = groupOperatorData(req.body);
-        next();
-    }
+    utils.validatorErrorHandler,
+    verifyUserOwnership("params"),
+    groupOperatorData("body")
 ];
 
 
 const validateDeleteUser = [
-    validateUsername(validator.param).exists(),
-    verifyUsernameOwnership("params"),
-    utils.errorHandler
+    validateUsername(validator.param).exists().withMessage("Valore mancante"),
+    utils.validatorErrorHandler,
+    verifyUserOwnership("params")
 ];
 
 

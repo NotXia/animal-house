@@ -3,6 +3,9 @@ const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 const UserModel = require("../models/auth/user");
 
+const utils = require("../utilities");
+const error = require("../error_handler");
+
 /* Strategia Passport per autenticazione username + password */
 passport.use("local_operator", new LocalStrategy(
     {
@@ -11,16 +14,17 @@ passport.use("local_operator", new LocalStrategy(
     },
     async function (in_username, in_password, done) {
         // Autenticazione dell'utente
-        const user_data = await UserModel.findOne({ username: in_username }).populate("operator").exec().catch((err) => {return done(err);});
-        if (!user_data) { return done(null, false); } // Non esiste l'utente
-        if (!user_data.operator) { return done(null, false); } // L'utente non è operatore
+        const user_data = await UserModel.findOne({ username: in_username }).populate("operator").exec().catch((err) => { return done(err); });
+        if (!user_data || !user_data.operator) { // Non esiste l'utente o non è operatore
+            return done(error.generate.UNAUTHORIZED("Credenziali non valide")); 
+        } 
 
         bcrypt.compare(in_password, user_data.password).then((hash_match) => {
             if (hash_match) { 
                 return done(null, { id: user_data._id, username: user_data.username, is_operator: true }); 
             }
             else { 
-                return done(null, false); 
+                return done(error.generate.UNAUTHORIZED("Credenziali non valide"));
             }
         });
     }

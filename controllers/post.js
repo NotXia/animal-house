@@ -2,6 +2,8 @@ require('dotenv').config();
 const PostModel = require("../models/blog/post");
 const UserModel = require("../models/auth/user");
 const mongoose = require("mongoose");
+const utils = require("../utilities");
+const error = require("../error_handler");
 
 /////////////////
 // INIZIO POST //
@@ -18,9 +20,9 @@ async function insertPost(req, res) {
             tag_animals_id: req.body.tag_animals_id
         });
         await newPost.save();
-        return res.status(201).location(`${req.baseUrl}/posts/${newPost._id}`).send(newPost);
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/posts/${newPost._id}`).json(newPost);
     } catch (e) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -29,7 +31,7 @@ async function searchPosts(req, res) {
     let query = {};
     if (req.query.username) {
         const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
-        if (!user) { return res.sendStatus(404); }
+        if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         query.user_id = user._id;
     }
     if (req.query.category) { query.category = req.query.category; }
@@ -42,19 +44,19 @@ async function searchPosts(req, res) {
                         .limit(req.query.page_size)
                         .skip(req.query.page_number)
                         .exec()
-                        .catch(function (err) { return res.sendStatus(500); });
-    if (posts.length === 0) { return res.sendStatus(404); }
-    return res.status(200).send(posts);
+                        .catch(function (err) { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });
+    if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+    return res.status(utils.http.OK).json(posts);
 }
 
 // Ricerca di un singolo post dato l'id
 async function searchPostById(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.sendStatus(404); }
-        return res.status(200).send(post);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(post);
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -63,11 +65,11 @@ async function updatePost(req, res) {
     const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndUpdate(filter, req.body);
-        if (!post) { return res.sendStatus(404); }
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
-    return res.sendStatus(200);
+    return res.sendStatus(utils.http.OK);
 }
 
 // Cancellazione di un post dato il suo id
@@ -75,10 +77,10 @@ async function deletePost(req, res) {
     const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndDelete(filter);
-        if (!post) { return res.sendStatus(404); }
-        return res.sendStatus(200);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.sendStatus(utils.http.OK);
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -94,21 +96,21 @@ async function insertComment(req, res) {
     };
     try {
         const post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } });
-        if (!post) { return res.sendStatus(404); }
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
-    return res.sendStatus(201);
+    return res.sendStatus(utils.http.CREATED);
 }
 
 // Ricerca dei commenti dato un id di un post
 async function searchCommentByPost(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.sendStatus(404); }
-        return res.status(200).send(post.comments);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(post.comments);
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -116,10 +118,10 @@ async function searchCommentByPost(req, res) {
 async function searchCommentByIndex(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.sendStatus(404); }
-        return res.status(200).send(post.comments[parseInt(req.params.comment_index)]);
+        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(post.comments[parseInt(req.params.comment_index)]);
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -134,7 +136,7 @@ async function updateComment(req, res) {
     try {
         session.startTransaction();
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
-        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.sendStatus(404); }
+        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         await PostModel.findByIdAndUpdate(req.params.post_id, { [`comments.${req.params.comment_index}`]: newComment });
         
@@ -143,9 +145,9 @@ async function updateComment(req, res) {
     } catch (err) {
         await session.abortTransaction();
         session.endSession();
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
-    return res.sendStatus(200);
+    return res.sendStatus(utils.http.OK);
 }
 
 // Cancellazione di un commento dato un id di un post e la posizione del commento nell'array
@@ -155,7 +157,7 @@ async function deleteComment(req, res) {
         session.startTransaction();
 
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
-        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.sendStatus(404); }
+        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         // Rimozione del commento (workaround per eliminare un elemento per indice)
         await PostModel.findByIdAndUpdate(req.params.post_id, { $unset: { [`comments.${req.params.comment_index}`]: 1 } });
@@ -166,9 +168,9 @@ async function deleteComment(req, res) {
     } catch (err) {
         await session.abortTransaction();
         session.endSession();
-        return res.sendStatus(500);
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
-    return res.sendStatus(200);
+    return res.sendStatus(utils.http.OK);
 }
 
 module.exports = {

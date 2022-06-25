@@ -114,12 +114,13 @@ describe("Test GET /shop/items/", function () {
     
     test("Richieste non corrette", async function () {
         await curr_session.get("/shop/items/").query({ category_id: "Cibo", name: "Tonno in scatola", page_size: 5, page_number: 0 }).expect(400);
-        
-        await curr_session.get("/shop/items/").query({ name: "Tonno in barattolo", page_number: 0 }).expect(400);
+        const res = await curr_session.get("/shop/items/").query({ name: "Tonno in barattolo", page_number: 0 }).expect(400);
+        expect(res.body[0].message).toBeDefined();
     });
 
     test("Richiesta vuota", async function () {
-        await curr_session.get("/shop/items/").query({ name: "Tritolo", page_size: 5, page_number: 0 }).expect(404);
+        const res = await curr_session.get("/shop/items/").query({ name: "Tritolo", page_size: 5, page_number: 0 }).expect(404);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -138,7 +139,8 @@ describe("Test GET /shop/items/:item_id/products", function () {
 
     test("Richiesta errata", async function () {
         await curr_session.get(`/shop/items/aaaa/products`).expect(400);
-        await curr_session.get(`/shop/items/${products[0]._id}/products/`).expect(404);
+        const res = await curr_session.get(`/shop/items/${products[0]._id}/products/`).expect(404);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -153,7 +155,8 @@ describe("Test GET /shop/items/:barcode", function () {
     });
 
     test("Richiesta vuota", async function () {
-        await curr_session.get("/shop/items/aaaa").set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        const res = await curr_session.get("/shop/items/aaaa").set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -194,20 +197,22 @@ describe("Test inserimento", function () {
                 products: [{ name: "NewProdotto3", price: 1000, quantity: 5 },]
             }).expect(400);
 
-        await curr_session.post("/shop/items/")
+        let res = await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "NewItem4", description: "",
                 products: [{ barcode: "new54321", name: "NewProdotto4", price: 1000, quantity: 5 },]
             }).expect(400);
+        expect(res.body[0].message).toBeDefined();
 
-        const res = await curr_session.post("/shop/items/")
+        res = await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "NewItem5", description: "", category_id: category._id,
                 products: [{ barcode: "new12345", name: "NewProdotto5", price: 1000, quantity: 5 },]
             }).expect(409);
         expect(res.body.field).toEqual("barcode");
+        expect(res.body.message).toBeDefined();
     });
 
     test("Richiesta corretta a POST /items/:item_id/products/:product_index/images/", async function () {
@@ -243,9 +248,10 @@ describe("Test inserimento", function () {
             .expect(400);
 
         // Nessun file
-        await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
+        const res = await curr_session.post(`/shop/items/${item_id}/products/0/images/`)
             .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .expect(400);
+        expect(res.body.message).toBeDefined();
     });
 });
 
@@ -299,9 +305,10 @@ describe("Test modifica", function () {
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(404);
 
-        await curr_session.put(`/shop/items/${item_id}/products/100000`)
+        const res = await curr_session.put(`/shop/items/${item_id}/products/100000`)
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({ name: "NewProdotto1 modificato", description: "Nuova descrizione", price: -1, quantity: 20 }).expect(400);
+        expect(res.body[0].message).toBeDefined();
     });
 });
 
@@ -336,6 +343,7 @@ describe("Test cancellazione", function () {
             .expect(303);
 
         expect(res.header.location).toEqual(`/shop/items/${item_id}`);
+        console.warn(res.body);
         expect(res.body.message).toBeDefined();
     });
 
