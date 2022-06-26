@@ -343,7 +343,6 @@ describe("Test cancellazione", function () {
             .expect(303);
 
         expect(res.header.location).toEqual(`/shop/items/${item_id}`);
-        console.warn(res.body);
         expect(res.body.message).toBeDefined();
     });
 
