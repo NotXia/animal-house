@@ -33,5 +33,5 @@ jobs:
         mongodb-version: 5.0
         mongodb-db: AnimalHouse
 
-    - run: npm ci
+    - run: npm install
     - run: npm test
