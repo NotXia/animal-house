@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const auth_middleware = require("../middleware/auth");
-const post_middleware = require("../middleware/post");
-const post_controller = require("../controllers/post");
+const post_middleware = require("../middleware/blog/post");
+const post_controller = require("../controllers/blog/post");
 
 // Router per i post
 

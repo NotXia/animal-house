@@ -1,10 +1,10 @@
 require('dotenv').config();
-const PostModel = require("../models/blog/post");
-const TopicModel = require("../models/blog/topic");
-const UserModel = require("../models/auth/user");
+const PostModel = require("../../models/blog/post");
+const TopicModel = require("../../models/blog/topic");
+const UserModel = require("../../models/auth/user");
 const mongoose = require("mongoose");
-const utils = require("../utilities");
-const error = require("../error_handler");
+const utils = require("../../utilities");
+const error = require("../../error_handler");
 
 /////////////////
 // INIZIO POST //

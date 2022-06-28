@@ -1,7 +1,7 @@
 const validator = require('express-validator');
-const utils = require("./utils");
-const error = require("../error_handler");
-const PostModel = require("../models/blog/post");
+const utils = require("../utils");
+const error = require("../../error_handler");
+const PostModel = require("../../models/blog/post");
 
 function validateUsername(source)       { return source("username").trim().escape(); }
 function validatePostId(source)         { return source("post_id").isMongoId().withMessage("Formato non valido"); }
