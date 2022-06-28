@@ -30,7 +30,7 @@ paths:
           properties:
             content:
               type: string
-            category:
+            topic:
               type: string
             tag_users_id:
               type: array
@@ -88,7 +88,7 @@ paths:
         in: query
         description: "Username dell'autore"
         type: string
-      - name: category
+      - name: topic
         in: query
         description: "Categoria del post"
         type: string
@@ -188,7 +188,7 @@ paths:
               $ref: "#/definitions/ObjectId"
             content:
               type: string
-            category:
+            topic:
               type: string
             tag_users_id:
               type: array
@@ -563,7 +563,7 @@ definitions:
           - user_id
           - content
           - creationDate
-      category:
+      topic:
         type: string
       tag_users_id:
         type: array
