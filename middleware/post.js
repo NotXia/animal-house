@@ -6,7 +6,7 @@ const PostModel = require("../models/blog/post");
 function validateUsername(source)       { return source("username").trim().escape(); }
 function validatePostId(source)         { return source("post_id").isMongoId().withMessage("Formato non valido"); }
 function validateContent(source)        { return source("content").escape(); }
-function validateCategory(source)       { return source("category").trim().escape(); }
+function validateTopic(source)          { return source("topic").trim().escape(); }
 function validateTagUsersId(source)     { return source("tag_users_id.*").isMongoId().withMessage("Formato non valido"); }
 function validateTagAnimalsId(source)   { return source("tag_animals_id.*").isMongoId().withMessage("Formato non valido"); }
 function validateCommentIndex(source)   { return source("comment_index").isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"); }
@@ -49,7 +49,7 @@ function verifyCommentOwnership(post_id_source, comment_index_source) {
 const validateInsertPost = [
     // validator.body("user_id").exists().isMongoId(), // Lo user_id lo prendo da auth.
     validateContent(validator.body).exists().withMessage("Valore mancante"),
-    validateCategory(validator.body).optional(),
+    validateTopic(validator.body).optional(),
     validateTagUsersId(validator.body).exists().withMessage("Valore mancante"),
     validateTagAnimalsId(validator.body).optional(),
     utils.validatorErrorHandler
@@ -60,7 +60,7 @@ const validateSearchPosts = [
     validator.query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     validator.query("oldest").optional().isBoolean().withMessage("Formato non valido"),
     validateUsername(validator.query).optional(),
-    validateCategory(validator.query).optional(),
+    validateTopic(validator.query).optional(),
     utils.validatorErrorHandler
 ];
 
@@ -73,7 +73,7 @@ const validateUpdatePost = [
     // validator.param("user_id").exists().isMongoId(), // Lo user_id lo prendo da auth.
     validatePostId(validator.param).exists().withMessage("Valore mancante"),
     validateContent(validator.body).optional(),
-    validateCategory(validator.body).optional(),
+    validateTopic(validator.body).optional(),
     validateTagUsersId(validator.body).optional(),
     validateTagAnimalsId(validator.body).optional(),
     utils.validatorErrorHandler,

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const PostModel = require("../models/blog/post");
+const TopicModel = require("../models/blog/topic");
 const UserModel = require("../models/auth/user");
 const mongoose = require("mongoose");
 const utils = require("../utilities");
@@ -9,13 +10,21 @@ const error = require("../error_handler");
 // INIZIO POST //
 /////////////////
 
+async function getTopicId(topic_name) {
+    const topic = await TopicModel.findOne({ name: topic_name }, { _id: 1 }).exec();
+    return topic._id || null;
+}
+
 // Inserimento di un post
 async function insertPost(req, res) {
     try {
+        const topic_id = await getTopicId(req.body.topic);
+        if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+
         const newPost = new PostModel({
             user_id: req.auth.id,
             content: req.body.content,
-            category: req.body.category,
+            topic_id: topic_id,
             tag_users_id: req.body.tag_users_id,
             tag_animals_id: req.body.tag_animals_id
         });
@@ -28,25 +37,33 @@ async function insertPost(req, res) {
 
 // Ricerca di post secondo un criterio
 async function searchPosts(req, res) {
-    let query = {};
-    if (req.query.username) {
-        const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
-        if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
-        query.user_id = user._id;
-    }
-    if (req.query.category) { query.category = req.query.category; }
+    try {
+        let query = {};
+        if (req.query.username) {
+            const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
+            if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage("Utente inesistente")); }
+            query.user_id = user._id;
+        }
+        if (req.query.topic) { 
+            const topic_id = await getTopicId(req.body.topic);
+            if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+            query.topic_id = topic_id; 
+        }
+        
+        let sort_criteria = { creationDate: "desc" };
+        if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
     
-    let sort_criteria = { creationDate: "desc" };
-    if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
-
-    const posts = await PostModel.find(query)
-                        .sort(sort_criteria)
-                        .limit(req.query.page_size)
-                        .skip(req.query.page_number)
-                        .exec()
-                        .catch(function (err) { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });
-    if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
-    return res.status(utils.http.OK).json(posts);
+        const posts = await PostModel.find(query)
+                            .sort(sort_criteria)
+                            .limit(req.query.page_size)
+                            .skip(req.query.page_number)
+                            .exec()
+        if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(posts);
+    }
+    catch(err) {
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+    }
 }
 
 // Ricerca di un singolo post dato l'id
@@ -64,6 +81,14 @@ async function searchPostById(req, res) {
 async function updatePost(req, res) {
     const filter = { _id : req.params.post_id };
     try {
+        if (req.body.topic) {
+            const topic_id = await getTopicId(req.body.topic);
+            if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+
+            req.body.topic_id = topic_id;
+            delete req.body.topic;
+        }
+
         const post = await PostModel.findOneAndUpdate(filter, req.body);
         if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
