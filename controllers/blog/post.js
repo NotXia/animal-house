@@ -3,8 +3,10 @@ const PostModel = require("../../models/blog/post");
 const TopicModel = require("../../models/blog/topic");
 const UserModel = require("../../models/auth/user");
 const mongoose = require("mongoose");
+
 const utils = require("../../utilities");
 const error = require("../../error_handler");
+const validator = require("express-validator");
 
 /////////////////
 // INIZIO POST //
@@ -79,19 +81,21 @@ async function searchPostById(req, res) {
 
 // Modifica di un post dato il suo id
 async function updatePost(req, res) {
-    const filter = { _id : req.params.post_id };
     try {
-        if (req.body.topic) {
-            const topic_id = await getTopicId(req.body.topic);
+        const updated_fields = validator.matchedData(req);
+
+        if (updated_fields.topic) {
+            const topic_id = await getTopicId(updated_fields.topic);
             if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
 
-            req.body.topic_id = topic_id;
-            delete req.body.topic;
+            updated_fields.topic_id = topic_id;
+            delete updated_fields.topic;
         }
 
-        const post = await PostModel.findOneAndUpdate(filter, req.body);
+        const post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields);
         if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
+        console.warn(err);
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
     return res.sendStatus(utils.http.OK);
