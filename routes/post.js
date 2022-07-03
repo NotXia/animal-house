@@ -33,10 +33,10 @@ router.delete("/posts/:post_id/comments/:comment_index", [ auth_middleware([ ["c
 
 /* Router per i topic */
 
-router.post("/topics/", [auth_middleware([["operator"]], [["admin"]]), topic_middleware.validateInsertTopic], );
-router.get("/topics/", );
-router.put("/topics/:topic", [auth_middleware([["operator"]], [["admin"]]), topic_middleware.validateUpdateTopic], );
-router.delete("/topics/:topic", [auth_middleware([["operator"]], [["admin"]]), topic_middleware.validateDeleteTopic], );
+router.post("/topics/", [auth_middleware([], [["admin"]]), topic_middleware.validateInsertTopic], topic_controller.insertTopic);
+router.get("/topics/", topic_controller.getTopics);
+router.put("/topics/:topic", [auth_middleware([], [["admin"]]), topic_middleware.validateUpdateTopic], topic_controller.updateTopic);
+router.delete("/topics/:topic", [auth_middleware([], [["admin"]]), topic_middleware.validateDeleteTopic], topic_controller.deleteTopic);
 
 
 module.exports = router;
