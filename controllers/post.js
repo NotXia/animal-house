@@ -4,6 +4,7 @@ const UserModel = require("../models/auth/user");
 const mongoose = require("mongoose");
 const utils = require("../utilities");
 const error = require("../error_handler");
+const validator = require("express-validator");
 
 /////////////////
 // INIZIO POST //
@@ -62,11 +63,12 @@ async function searchPostById(req, res) {
 
 // Modifica di un post dato il suo id
 async function updatePost(req, res) {
-    const filter = { _id : req.params.post_id };
     try {
-        const post = await PostModel.findOneAndUpdate(filter, req.body);
+        const updated_fields = validator.matchedData(req);
+        const post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields);
         if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
+        console.warn(err);
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
     return res.sendStatus(utils.http.OK);
