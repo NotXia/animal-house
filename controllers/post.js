@@ -68,7 +68,6 @@ async function updatePost(req, res) {
         const post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields);
         if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {
-        console.warn(err);
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
     return res.sendStatus(utils.http.OK);
