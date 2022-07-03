@@ -11,14 +11,14 @@ const validateInsertTopic = [
 ];
 
 const validateUpdateTopic = [
-    validator.param("topic").exists().trim().escape(),
+    validator.param("topic").exists().withMessage("Valore mancante").trim().escape(),
     validateName(validator.body).optional(),
     validateIcon(validator.body).optional(),
     utils.validatorErrorHandler
 ];
 
 const validateDeleteTopic = [
-    validator.param("topic").exists().trim().escape(),
+    validator.param("topic").exists().withMessage("Valore mancante").trim().escape(),
     utils.validatorErrorHandler
 ];
 
