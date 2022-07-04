@@ -9,6 +9,7 @@ const auth = require("./routes/auth");
 const user = require("./routes/user");
 const shop = require("./routes/shop");
 const blog = require("./routes/post");
+const hub = require("./routes/hub");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -19,6 +20,7 @@ app.use("/auth", auth);
 app.use("/user", user);
 app.use("/shop", shop);
 app.use("/blog", blog);
+app.use("/hub", hub);
 
 app.use(errorHandler);
 
