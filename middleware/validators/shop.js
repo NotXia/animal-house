@@ -1,9 +1,6 @@
 const validator = require("express-validator");
 const utils = require("./utils");
 
-module.exports.REQUIRED = true;
-module.exports.OPTIONAL = false;
-
 module.exports.validateItemName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().trim().escape(); }
 module.exports.validateItemDescription = (source, required=true, field_name="description") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
 module.exports.validateItemCategoryId = (source, required=true, field_name="category_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
@@ -22,12 +19,12 @@ module.exports.validateListOfProducts = function (source, required=true, field_n
     if (required) {
         return [
             validator[source](`${field_name}`).exists().isArray({ min: 1 }).withMessage("Nessun prodotto inserito"),
-            module.exports.validateProductBarcode(source, module.exports.REQUIRED, `${field_name}.*.barcode`),
-            module.exports.validateProductName(source, module.exports.OPTIONAL, `${field_name}.*.name`),
-            module.exports.validateProductDescription(source, module.exports.OPTIONAL, `${field_name}.*.description`),
-            module.exports.validateProductPrice(source, module.exports.REQUIRED, `${field_name}.*.price`),
-            module.exports.validateProductQuantity(source, module.exports.OPTIONAL, `${field_name}.*.quantity`),
-            module.exports.validateProductTargetSpeciesId(source, module.exports.OPTIONAL, `${field_name}.*.target_species_id.*`),
+            module.exports.validateProductBarcode(source, utils.REQUIRED, `${field_name}.*.barcode`),
+            module.exports.validateProductName(source, utils.OPTIONAL, `${field_name}.*.name`),
+            module.exports.validateProductDescription(source, utils.OPTIONAL, `${field_name}.*.description`),
+            module.exports.validateProductPrice(source, utils.REQUIRED, `${field_name}.*.price`),
+            module.exports.validateProductQuantity(source, utils.OPTIONAL, `${field_name}.*.quantity`),
+            module.exports.validateProductTargetSpeciesId(source, utils.OPTIONAL, `${field_name}.*.target_species_id.*`),
         ];
     }
     else {

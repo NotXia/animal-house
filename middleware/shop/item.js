@@ -1,15 +1,15 @@
-const v = require("express-validator");
-const { query, param } = require("express-validator");
+const { query } = require("express-validator");
 const validator = require("../validators/shop");
+const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const file_upload = require("express-fileupload");
 const utils = require("../utils");
 
 
 const validateCreate = [
-    validator.validateItemName("body", validator.REQUIRED),
-    validator.validateItemDescription("body", validator.OPTIONAL),
-    validator.validateItemCategoryId("body", validator.REQUIRED),
-    validator.validateListOfProducts("body", validator.REQUIRED),
+    validator.validateItemName("body", REQUIRED),
+    validator.validateItemDescription("body", OPTIONAL),
+    validator.validateItemCategoryId("body", REQUIRED),
+    validator.validateListOfProducts("body", REQUIRED),
     utils.validatorErrorHandler,
 ];
 
@@ -20,65 +20,65 @@ const validateSearchItem = [
     query("price_desc").optional().isBoolean().withMessage("Formato non valido"),
     query("name_asc").optional().isBoolean().withMessage("Formato non valido"),
     query("name_desc").optional().isBoolean().withMessage("Formato non valido"),
-    validator.validateItemCategoryId("query", validator.OPTIONAL),
-    validator.validateItemName("query", validator.OPTIONAL),
+    validator.validateItemCategoryId("query", OPTIONAL),
+    validator.validateItemName("query", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
 const validateSearchItemByBarcode = [
-    validator.validateProductBarcode("param", validator.REQUIRED),
+    validator.validateProductBarcode("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateSearchProducts = [
-    validator.validateItemId("param", validator.REQUIRED),
+    validator.validateItemId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateUpdateItemById = [
-    validator.validateItemId("param", validator.REQUIRED),
-    validator.validateItemName("body", validator.OPTIONAL),
-    validator.validateItemDescription("body", validator.OPTIONAL),
-    validator.validateItemCategoryId("body", validator.OPTIONAL),
+    validator.validateItemId("param", REQUIRED),
+    validator.validateItemName("body", OPTIONAL),
+    validator.validateItemDescription("body", OPTIONAL),
+    validator.validateItemCategoryId("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
 const validateUpdateProductByIndex = [
-    validator.validateItemId("param", validator.REQUIRED),
-    validator.validateProductIndex("param", validator.REQUIRED),
-    validator.validateProductBarcode("body", validator.OPTIONAL),
-    validator.validateItemName("body", validator.OPTIONAL),
-    validator.validateItemDescription("body", validator.OPTIONAL),
-    validator.validateProductTargetSpeciesId("body", validator.OPTIONAL),
-    validator.validateProductPrice("body", validator.OPTIONAL),
-    validator.validateProductQuantity("body", validator.OPTIONAL),
+    validator.validateItemId("param", REQUIRED),
+    validator.validateProductIndex("param", REQUIRED),
+    validator.validateProductBarcode("body", OPTIONAL),
+    validator.validateItemName("body", OPTIONAL),
+    validator.validateItemDescription("body", OPTIONAL),
+    validator.validateProductTargetSpeciesId("body", OPTIONAL),
+    validator.validateProductPrice("body", OPTIONAL),
+    validator.validateProductQuantity("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
 const validateDeleteItemById = [
-    validator.validateItemId("param", validator.REQUIRED),
+    validator.validateItemId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateDeleteProductByIndex = [
-    validator.validateItemId("param", validator.REQUIRED),
-    validator.validateProductIndex("param", validator.REQUIRED),
+    validator.validateItemId("param", REQUIRED),
+    validator.validateProductIndex("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 
 const validateCreateFileUpload = [
-    validator.validateItemId("param", validator.REQUIRED),
-    validator.validateProductIndex("param", validator.REQUIRED),
+    validator.validateItemId("param", REQUIRED),
+    validator.validateProductIndex("param", REQUIRED),
     utils.validatorErrorHandler,
     file_upload(),
     utils.verifyImage,
 ]
 
 const validateDeleteImage = [
-    validator.validateItemId("param", validator.REQUIRED),
-    validator.validateProductIndex("param", validator.REQUIRED),
-    validator.validateProductImageIndex("param", validator.REQUIRED),
+    validator.validateItemId("param", REQUIRED),
+    validator.validateProductIndex("param", REQUIRED),
+    validator.validateProductImageIndex("param", REQUIRED),
     utils.validatorErrorHandler
 ]
 

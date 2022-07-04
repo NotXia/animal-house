@@ -4,5 +4,7 @@ function handleRequired(validator_obj, required) {
 }
 
 module.exports = {
+    REQUIRED: true,
+    OPTIONAL: false,
     handleRequired: handleRequired
 }
