@@ -1,14 +1,15 @@
 const { query } = require("express-validator");
-const validator = require("./validators/post");
+const user_validator = require("./validators/user");
+const blog_validator = require("./validators/post");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
 const utils = require("./utils");
 
 const validateInsertPost = [
     // Lo user_id lo prendo da auth.
-    validator.validateContent("body", REQUIRED),
-    validator.validateCategory("body", OPTIONAL),
-    validator.validateTagUsersId("body", REQUIRED),
-    validator.validateTagAnimalsId("body", OPTIONAL),
+    blog_validator.validateContent("body", REQUIRED),
+    blog_validator.validateCategory("body", OPTIONAL),
+    blog_validator.validateTagUsersId("body", REQUIRED),
+    blog_validator.validateTagAnimalsId("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
@@ -16,63 +17,63 @@ const validateSearchPosts = [
     query("page_size").exists().isInt({ min: 1 }).withMessage("Il valore deve essere un intero che inizia da 1"),
     query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     query("oldest").optional().isBoolean().withMessage("Formato non valido"),
-    validator.validateUsername("query", OPTIONAL),
-    validator.validateCategory("query", OPTIONAL),
+    user_validator.validateUsername("query", OPTIONAL),
+    blog_validator.validateCategory("query", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
 const validateSearchPostById = [
-    validator.validatePostId("param", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateUpdatePost = [
     // Lo user_id lo prendo da auth.
-    validator.validatePostId("param", REQUIRED),
-    validator.validateContent("body", OPTIONAL),
-    validator.validateCategory("body", OPTIONAL),
-    validator.validateTagUsersId("body", OPTIONAL),
-    validator.validateTagAnimalsId("body", OPTIONAL),
+    blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateContent("body", OPTIONAL),
+    blog_validator.validateCategory("body", OPTIONAL),
+    blog_validator.validateTagUsersId("body", OPTIONAL),
+    blog_validator.validateTagAnimalsId("body", OPTIONAL),
     utils.validatorErrorHandler,
-    validator.verifyPostOwnership("params")
+    blog_validator.verifyPostOwnership("params")
 ];
 
 const validateDeletePost = [
-    validator.validatePostId("param", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
     utils.validatorErrorHandler,
-    validator.verifyPostOwnership("params")
+    blog_validator.verifyPostOwnership("params")
 ];
 
 const validateInsertComment = [
-    validator.validatePostId("param", REQUIRED),
-    validator.validateContent("body", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateContent("body", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateSearchCommentByPost = [
-    validator.validatePostId("param", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateSearchCommentByIndex = [
-    validator.validatePostId("param", REQUIRED),
-    validator.validateCommentIndex("param", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateCommentIndex("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateUpdateComment = [
-    validator.validatePostId("param", REQUIRED),
-    validator.validateCommentIndex("param", REQUIRED),
-    validator.validateContent("body", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateCommentIndex("param", REQUIRED),
+    blog_validator.validateContent("body", REQUIRED),
     utils.validatorErrorHandler,
-    validator.verifyCommentOwnership("params", "params")
+    blog_validator.verifyCommentOwnership("params", "params")
 ];
 
 const validateDeleteComment = [
-    validator.validatePostId("param", REQUIRED),
-    validator.validateCommentIndex("param", REQUIRED),
+    blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateCommentIndex("param", REQUIRED),
     utils.validatorErrorHandler,
-    validator.verifyCommentOwnership("params", "params")
+    blog_validator.verifyCommentOwnership("params", "params")
 ];
 
 module.exports = {
