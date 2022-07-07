@@ -536,7 +536,154 @@ paths:
         500:
           description: "Internal server error"
 
+  /posts/topics/:
+    get:
+      tags:
+      - "Topic"
+      summary: "Lista di tutti i topic"
+      description: |
+        Restituisce la lista di tutti i topic disponibili.
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Topic"
+        500:
+          description: "Internal server error"
+    post:
+      tags:
+      - "Topic"
+      summary: "Inserimento di topic"
+      description: |
+        Creazione di un nuovo topic.
+        Richiede permessi [ [], [["admin"] ]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del topic"
+        schema:
+          $ref: "#/definitions/Topic"
+      responses:
+        201:
+          description: "Creato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        409:
+          description: "Topic con lo stesso nome già esistente"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+  /posts/topics/{topic}:
+    put:
+      tags:
+      - "Topic"
+      summary: "Aggiornamento di topic"
+      description: |
+        Aggiornamento di un topic.
+        Richiede permessi [ [], [["admin"] ]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: topic
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        description: "Dati da aggiornare del topic"
+        schema:
+          $ref: "#/definitions/Topic"
+      responses:
+        200:
+          description: "Aggiornato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        404:
+          description: "Topic non esistente"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+      - "Topic"
+      summary: "Cancellazione di topic"
+      description: |
+        Cancellazione di un topic.
+        Richiede permessi [ [], [["admin"] ]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: topic
+        in: path
+        type: string
+        required: true
+      responses:
+        200:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        404:
+          description: "Topic non esistente"
+          schema:
+            $ref: "#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
 definitions:
+  Topic:
+    type: object
+    properties:
+      name:
+        type: string
+      icon:
+        type: string
+        format: byte
+
   Post:
     type: object
     properties:
