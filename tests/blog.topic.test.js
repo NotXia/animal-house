@@ -70,8 +70,54 @@ describe("Ricerca di topic", function () {
     });
 });
 
-describe("Pulizia", function () {
-    test("Cancellazione topic", async function () {
-        await TopicModel.collection.drop();
+describe("Modifica di topic", function () {
+    test("Modifica dell'icona", async function () {
+        let image = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        await curr_session.put('/blog/topics/Animali').send({
+            icon: image
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        const topic = await TopicModel.findOne({ name: "Animali" }).exec();
+        expect(topic.icon).toEqual(image);
+    });
+
+    test("Modifica del nome", async function () {
+        const topic_icon = (await TopicModel.findOne({ name: "Animali" }).exec()).icon;
+
+        await curr_session.put('/blog/topics/Animali').send({
+            name: "Animals"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        const old_topic = await TopicModel.findOne({ name: "Animali" }).exec();
+        expect(old_topic).toBeNull();
+        const new_topic = await TopicModel.findOne({ name: "Animals" }).exec();
+        expect(new_topic).toBeDefined();
+        expect(new_topic.icon).toEqual(topic_icon);
+    });
+
+    test("Modifica topic inesistente", async function () {
+        await curr_session.put('/blog/topics/NonEsisto').send({
+            name: "Animals"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });
+
+describe("Cancellazione di topic", function () {
+    test("Cancellazione corretta", async function () {
+        await curr_session.delete('/blog/topics/Animals').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        const topic = await TopicModel.findOne({ name: "Animals" }).exec();
+        expect(topic).toBeNull();
+    });
+
+    test("Cancellazione topic inesistente", async function () {
+        await curr_session.delete('/blog/topics/NeancheIoEsisto').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
+});
+
+describe("Pulizia", function () {
+    test("Cancellazione topic", async function () {
+        await curr_session.delete('/blog/topics/Shop').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/blog/topics/Alimenti').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    });
+}); 
