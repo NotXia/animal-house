@@ -1,32 +1,22 @@
-const validator = require('express-validator');
+const validator = require("../validators/post");
+const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const utils = require("../utils");
 
-function validateName(source, required=false, field_name="name") {
-    let validator = source(field_name);
-    if (required) { validator.exists().withMessage("Valore mancante"); } else { validator.optional(); }
-    return validator.trim().escape();
-}
-function validateIcon(source, required=false, field_name="icon") {
-    let validator = source(field_name);
-    if (required) { validator.exists().withMessage("Valore mancante"); } else { validator.optional(); }
-    return validator.isBase64().withMessage("Formato non valido");
-}
-
 const validateInsertTopic = [
-    validateName(validator.body, true),
-    validateIcon(validator.body, false),
+    validator.validateTopicName("body", REQUIRED, "name"),
+    validator.validateTopicIcon("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
 const validateUpdateTopic = [
-    validateName(validator.param, true, "topic"),
-    validateName(validator.body, false),
-    validateIcon(validator.body, false),
+    validator.validateTopicName("param", REQUIRED),
+    validator.validateTopicName("body", OPTIONAL, "name"),
+    validator.validateTopicIcon("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
 const validateDeleteTopic = [
-    validateName(validator.param, true, "topic"),
+    validator.validateTopicName("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
