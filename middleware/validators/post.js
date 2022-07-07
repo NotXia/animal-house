@@ -5,7 +5,7 @@ const PostModel = require("../../models/blog/post");
 
 module.exports.validatePostId =       (source, required=true, field_name="post_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateContent =      (source, required=true, field_name="content") => { return utils.handleRequired(validator[source](field_name), required).escape(); }
-module.exports.validateCategory =     (source, required=true, field_name="category") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateTopic =        (source, required=true, field_name="topic") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateTagUsersId =   (source, required=true, field_name="tag_users_id.*") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateTagAnimalsId = (source, required=true, field_name="tag_animals_id.*") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateCommentIndex = (source, required=true, field_name="comment_index") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"); }
