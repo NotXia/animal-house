@@ -9,7 +9,7 @@ module.exports.validateTagUsersId =   (source, required=true, field_name="tag_us
 module.exports.validateTagAnimalsId = (source, required=true, field_name="tag_animals_id.*") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateCommentIndex = (source, required=true, field_name="comment_index") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"); }
 
-module.exports.validateTopicName = (source, required=true, field_name="topic") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateTopicName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateTopicIcon = (source, required=true, field_name="icon") => { return utils.handleRequired(validator[source](field_name), required).isBase64().withMessage("Formato non valido"); }
 
 
