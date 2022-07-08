@@ -35,7 +35,7 @@ jobs:
           file="$(basename -- $f)"
           filename="${file%.*}"
 
-          docker run -v $(pwd):/opt swagger2markup/swagger2markup convert -i /opt/$f -f /opt/docs/pdf/$filename
+          docker run -v $(pwd):/opt swagger2markup/swagger2markup convert -i /opt/$f -f /opt/docs/pdf/$filename -c /opt/.github/doc_conf/config.properties
         done
 
     - name: Generating pdf
@@ -44,7 +44,7 @@ jobs:
         for f in ./docs/pdf/*.adoc; do
           echo "Processing $f"
 
-          asciidoctor-pdf $f
+          asciidoctor-pdf $f -a pdf-themesdir=./.github/doc_conf/theme -a pdf-theme=theme.yml -a pdf-fontsdir=./.github/doc_conf/theme/fonts
           rm $f
         done
 
