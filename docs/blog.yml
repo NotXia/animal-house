@@ -14,7 +14,7 @@ paths:
       - "Post"
       summary: "Creazione di un nuovo post"
       description: |
-        Gestisce l'inserimento di un post.
+        Gestisce l'inserimento  di un post.
         Un utente per pubblicare un post deve avere fatto l'accesso.
         Richiede permessi ["post_write", "admin"]
       consumes:
