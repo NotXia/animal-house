@@ -1,75 +1,7 @@
-const validator = require('express-validator');
+// const validator = require('express-validator');
 const utils = require("./utils");
-const error = require("../error_handler");
-
-/*
-    Validatori dei singoli campi
-*/
-
-function validateUsername(source)   { return source("username").trim().escape(); }
-function validatePassword(source)   { return source("password").isStrongPassword().withMessage("La password non è sufficientemente sicura"); }
-function validateEmail(source)      { return source("email").isEmail().withMessage("Formato non valido").normalizeEmail(); }
-function validateName(source)       { return source("name").trim().escape(); }
-function validateSurname(source)    { return source("surname").trim().escape(); }
-function validateGender(source)     { return source("gender").trim().isIn(["M", "F", "Non-binary", "Altro"]).withMessage("Formato non valido"); }
-function validatePhone(source)      { return source("phone").isMobilePhone("any").withMessage("Formato non valido"); }
-function validatePermission(source) { return source("permission"); }
-
-function validateRole_id(source) { return source("role_id").isMongoId().withMessage("Formato non valido"); }
-function validateWorkingTimeExists(source) {
-    let out = [ source("working_time").exists().withMessage("Valore mancante") ];
-
-    for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( source(`working_time.${week}`).exists().withMessage("Valore mancante") );
-        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().withMessage("Formato non valido").toDate() );
-        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().withMessage("Formato non valido").toDate() );
-        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId().withMessage("Formato non valido") );
-    }
-
-    return out;
-};
-function validateWorkingTimeOptional(source) {
-    let out = [ source("working_time").optional() ];
-
-    for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( source(`working_time.${week}`).optional() );
-        out.push( source(`working_time.${week}.*.time`).optional() );
-        out.push( source(`working_time.${week}.*.time.start`).optional().isISO8601().withMessage("Formato non valido").toDate() );
-        out.push( source(`working_time.${week}.*.time.end`).optional().isISO8601().withMessage("Formato non valido").toDate() );
-        out.push( source(`working_time.${week}.*.hub_id`).optional().isMongoId().withMessage("Formato non valido") );
-    }
-
-    return out;
-};
-function validateAbsenceTimeOptional(source) {
-    let out = [ source("absence_time").optional() ];
-
-    for (const week of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
-        out.push( source(`absence_time.${week}`).optional() );
-        out.push( source(`absence_time.${week}.*.time`).optional() );
-        out.push( source(`absence_time.${week}.*.time.start`).optional().isISO8601().withMessage("Formato non valido").toDate() );
-        out.push( source(`absence_time.${week}.*.time.end`).optional().isISO8601().withMessage("Formato non valido").toDate() );
-    }
-
-    return out;
-};
-
-function validateAddressExists(source) {
-    return [
-        source("address.city").exists().withMessage("Valore mancante").trim().escape(),
-        source("address.street").exists().withMessage("Valore mancante").trim().escape(),
-        source("address.number").exists().withMessage("Valore mancante").trim().escape(),
-        source("address.postal_code").exists().isPostalCode("any").withMessage("Formato non valido"),
-    ];
-}
-function validateAddressOptional(source) {
-    return [
-        source("address.city").optional().trim().escape(),
-        source("address.street").optional().trim().escape(),
-        source("address.number").optional().trim().escape(),
-        source("address.postal_code").optional().isPostalCode("any").withMessage("Formato non valido"),
-    ];
-}
+const validator = require("./validators/user");
+const { REQUIRED, OPTIONAL } = require("./validators/utils");
 
 /* Raggruppa in un unico Object tutti i campi relativi agli utenti */
 function _getUserData(source) {
@@ -127,95 +59,81 @@ function groupOperatorData(source) {
     }
 }
 
-/**
- * Verifica i permessi per effettuare operazioni sull'oggetto
- */
-function verifyUserOwnership(source) {
-    return function(req, res, next) {
-        if (req.auth.superuser || req.auth.username === req[source].username) {
-            return next();
-        }
-        else {
-            return next(error.generate.FORBIDDEN("Non sei il proprietario"));
-        }
-    }
-}
-
 
 function validateNewUserData(source) {
     return [
-        validateUsername(source).exists().withMessage("Valore mancante"),
-        validatePassword(source).exists().withMessage("Valore mancante"),
-        validateEmail(source).exists().withMessage("Valore mancante"),
-        validateName(source).exists().withMessage("Valore mancante"),
-        validateSurname(source).exists(),
-        validateGender(source).optional(),
-        validatePhone(source).optional(),
-        validatePermission(source).optional(),
+        validator.validateUsername(source, REQUIRED),
+        validator.validatePassword(source, REQUIRED),
+        validator.validateEmail(source, REQUIRED),
+        validator.validateName(source, REQUIRED),
+        validator.validateSurname(source, REQUIRED),
+        validator.validateGender(source, OPTIONAL),
+        validator.validatePhone(source, OPTIONAL),
+        validator.validatePermission(source, OPTIONAL),
     ];
 }
 
 const validateInsertCustomer = [
-    validateNewUserData(validator.body),
-    validateAddressExists(validator.body),
+    validateNewUserData("body"),
+    validator.validateAddress("body", REQUIRED),
     utils.validatorErrorHandler,
     groupCustomerData("body")
 ];
 
 const validateInsertOperator = [
-    validateNewUserData(validator.body),
-    validatePermission(validator.body).exists().withMessage("Valore mancante"),
-    validateRole_id(validator.body).exists().withMessage("Valore mancante"),
-    validateWorkingTimeExists(validator.body),
-    validateAbsenceTimeOptional(validator.body),
+    validateNewUserData("body"),
+    validator.validatePermission("body", REQUIRED),
+    validator.validateRole_id("body", REQUIRED),
+    validator.validateWorkingTime("body", REQUIRED),
+    validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
 
 
 const validateSearchUser = [
-    validateUsername(validator.param).exists().withMessage("Valore mancante"),
+    validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 
 function validateUpdateUserData(source) {
     return [
-        validatePassword(source).optional(),
-        validateEmail(source).optional(),
-        validateName(source).optional(),
-        validateSurname(source).optional(),
-        validateGender(source).optional(),
-        validatePhone(source).optional(),
-        validatePermission(source).optional(),
+        validator.validatePassword(source, OPTIONAL),
+        validator.validateEmail(source, OPTIONAL),
+        validator.validateName(source, OPTIONAL),
+        validator.validateSurname(source, OPTIONAL),
+        validator.validateGender(source, OPTIONAL),
+        validator.validatePhone(source, OPTIONAL),
+        validator.validatePermission(source, OPTIONAL),
     ];
 }
 
 const validateUpdateCustomer = [
-    validateUsername(validator.param).exists().withMessage("Valore mancante"),
-    validateUpdateUserData(validator.body),
-    validateAddressOptional(validator.body),
+    validator.validateUsername("param", REQUIRED),
+    validateUpdateUserData("body"),
+    validator.validateAddress("body", OPTIONAL),
     utils.validatorErrorHandler,
-    verifyUserOwnership("params"),
+    validator.verifyUserOwnership("params"),
     groupCustomerData("body")
 ];
 
 const validateUpdateOperator = [
-    validateUsername(validator.param).exists().withMessage("Valore mancante"),
-    validateUpdateUserData(validator.body),
-    validateRole_id(validator.body).optional(),
-    validateWorkingTimeOptional(validator.body),
-    validateAbsenceTimeOptional(validator.body),
+    validator.validateUsername("param", REQUIRED),
+    validateUpdateUserData("body"),
+    validator.validateRole_id("body", OPTIONAL),
+    validator.validateWorkingTime("body", OPTIONAL),
+    validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,
-    verifyUserOwnership("params"),
+    validator.verifyUserOwnership("params"),
     groupOperatorData("body")
 ];
 
 
 const validateDeleteUser = [
-    validateUsername(validator.param).exists().withMessage("Valore mancante"),
+    validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler,
-    verifyUserOwnership("params")
+    validator.verifyUserOwnership("params")
 ];
 
 
