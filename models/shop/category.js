@@ -11,4 +11,8 @@ const categorySchema = mongoose.Schema({
     }
 });
 
+categorySchema.statics.findByName = async function(category_name) {
+    return await this.findOne({ name: category_name }).exec();
+};
+
 module.exports = mongoose.model("categories", categorySchema);
