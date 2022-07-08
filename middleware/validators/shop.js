@@ -1,11 +1,13 @@
 const validator = require("express-validator");
 const utils = require("./utils");
 
+/* Item */
 module.exports.validateItemName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateItemDescription = (source, required=true, field_name="description") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
 module.exports.validateItemCategoryId = (source, required=true, field_name="category_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateItemId = (source, required=true, field_name="item_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 
+/* Prodotti */
 module.exports.validateProductName = module.exports.validateItemName;
 module.exports.validateProductDescription = module.exports.validateItemDescription;
 module.exports.validateProductBarcode = (source, required=true, field_name="barcode") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
@@ -31,3 +33,8 @@ module.exports.validateListOfProducts = function (source, required=true, field_n
         return validator[source](`${field_name}`).optional();
     }
 }
+
+/* Categorie */
+module.exports.validateCategoryName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateCategoryIcon = (source, required=true, field_name="icon") => { return utils.handleRequired(validator[source](field_name), required).isBase64().withMessage("Formato non valido"); }
+

@@ -77,11 +77,10 @@ paths:
         required: true
         type: number
         format: int
-      - name: category_id
+      - name: category
         in: query
         description: "Categoria dell'item"
         type: string
-        format: ObjectId
       - name: name
         in: query
         description: "Stringa che l'item deve contenere nel nome"
@@ -161,9 +160,8 @@ paths:
               type: string
             description:
               type: string
-            category_id:
-              $ref: "#/definitions/ObjectId"
-
+            category:
+              type: string
       responses:
         200:
           description: "Modificato con successo"
@@ -545,8 +543,8 @@ definitions:
         type: string
       description:
         type: string
-      category_id:
-        $ref: "#/definitions/ObjectId"
+      category:
+        type: string
       products:
         type: array
         items:
@@ -572,7 +570,7 @@ definitions:
           - quantity
     required:
     - name
-    - category_id
+    - category
     - products
 
   ItemModel:

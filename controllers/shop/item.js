@@ -3,6 +3,7 @@ require('dotenv').config();
 const mongoose = require("mongoose");
 const ItemModel = require("../../models/shop/item");
 const ProductModel = require("../../models/shop/product");
+const CategoryModel = require("../../models/shop/category");
 
 const { nanoid } = require("nanoid");
 const validator = require("express-validator");
@@ -10,6 +11,8 @@ const path = require("path");
 const fs = require("fs");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
+
+const MISSING_CATEGORY_MESSAGE = "Categoria non esistente";
 
 /* 
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
@@ -23,14 +26,18 @@ async function createItem(req, res) {
         const to_insert_item = validator.matchedData(req);
         const to_insert_products = to_insert_item.products;
 
+        // Estrazione id della categoria
+        const category = await CategoryModel.findByName(to_insert_item.category);
+        if (!category) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(MISSING_CATEGORY_MESSAGE)); }
+        delete to_insert_item.category;
+        to_insert_item.category_id = category._id;
+
         // Inserimento dei singoli prodotti
         const products = await ProductModel.insertMany(to_insert_products);
         const products_id = products.map((product) => product._id);
-    
-        // Composizione dell'item da inserire
         delete to_insert_item.products;
         to_insert_item.products_id = products_id;
-        
+
         // Inserimento dell'item
         const new_item = await new ItemModel(to_insert_item).save();
         new_item_id = new_item.id;
@@ -61,7 +68,11 @@ async function searchItem(req, res) {
     let sort_criteria = { "relevance": -1 }
 
     // Composizione della query
-    if (req.query.category_id) { query_criteria.category_id = req.query.category_id; }
+    if (req.query.category) {
+        const category = await CategoryModel.findByName(req.query.category);
+        if (!category) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(MISSING_CATEGORY_MESSAGE)); }
+        query_criteria.category_id = category._id; 
+    }
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
     
     // Determina il criterio di ordinamento
@@ -142,12 +153,22 @@ async function searchProducts(req, res) {
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
 
-    const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true }).catch(function (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
-    });
-    if (!updated_item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+    if (updated_fields.category) {
+        const category = await CategoryModel.findByName(updated_fields.category);
+        if (!category) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(MISSING_CATEGORY_MESSAGE)); }
+        delete updated_fields.category;
+        updated_fields.category_id = category._id;
+    }
 
-    return res.status(utils.http.OK).json(updated_item);
+    try {
+        const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
+        if (!updated_item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+
+        return res.status(utils.http.OK).json(updated_item);
+    }
+    catch (err) {
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+    }
 }
 
 /*
