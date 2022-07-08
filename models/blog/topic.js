@@ -11,4 +11,8 @@ const topicSchema = mongoose.Schema({
     }
 });
 
+topicSchema.statics.findByName = async function(topic_name) {
+    return await this.findOne({ name: topic_name }).exec();
+};
+
 module.exports = mongoose.model("topics", topicSchema);

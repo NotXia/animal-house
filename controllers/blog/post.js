@@ -12,15 +12,10 @@ const validator = require("express-validator");
 // INIZIO POST //
 /////////////////
 
-async function getTopicId(topic_name) {
-    const topic = await TopicModel.findOne({ name: topic_name }, { _id: 1 }).exec();
-    return topic._id || null;
-}
-
 // Inserimento di un post
 async function insertPost(req, res) {
     try {
-        const topic_id = await getTopicId(req.body.topic);
+        const topic_id = (await TopicModel.findByName(req.body.topic))._id;
         if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
 
         const newPost = new PostModel({
@@ -47,7 +42,7 @@ async function searchPosts(req, res) {
             query.user_id = user._id;
         }
         if (req.query.topic) { 
-            const topic_id = await getTopicId(req.body.topic);
+            const topic_id = (await TopicModel.findByName(req.body.topic))._id;
             if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
             query.topic_id = topic_id; 
         }
@@ -85,7 +80,7 @@ async function updatePost(req, res) {
         const updated_fields = validator.matchedData(req);
 
         if (updated_fields.topic) {
-            const topic_id = await getTopicId(updated_fields.topic);
+            const topic_id = (await TopicModel.findByName(updated_fields.topic))._id;
             if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
 
             updated_fields.topic_id = topic_id;
