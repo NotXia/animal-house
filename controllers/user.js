@@ -23,7 +23,7 @@ async function insertOperator(req, res) {
         return res.status(utils.http.CREATED).json({});
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
-            await OperatorModel.findByIdAndDelete(new_operator._id).exec(); // Cancella i dati inseriti
+            await OperatorModel.findByIdAndDelete(new_operator._id).exec().catch((err) => {}); // Cancella i dati inseriti
             return res.status(utils.http.CONFLICT).json(error.formatMessage(utils.http.CONFLICT));
         }
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
@@ -46,7 +46,7 @@ async function insertCustomer(req, res) {
         return res.status(utils.http.CREATED).json({});
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
-            await CustomerModel.findByIdAndDelete(new_customer._id).exec(); // Cancella i dati inseriti
+            await CustomerModel.findByIdAndDelete(new_customer._id).exec().catch((err) => {}); // Cancella i dati inseriti
             return res.status(utils.http.CONFLICT).json(error.formatMessage(utils.http.CONFLICT)); 
         }
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
