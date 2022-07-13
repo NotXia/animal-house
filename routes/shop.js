@@ -3,9 +3,11 @@ const router = express.Router();
 
 const shop_controller = {
     item: require("../controllers/shop/item"),
+    category: require("../controllers/shop/category"),
 };
 const shop_middleware = {
     item: require("../middleware/shop/item"),
+    category: require("../middleware/shop/category"),
 };
 const auth_middleware = require("../middleware/auth");
 
@@ -89,5 +91,10 @@ router.delete("/items/:item_id/products/:product_index/images/:image_index",
     shop_controller.item.deleteImage
 );
 
+
+router.post("/categories/", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateCreate ], shop_controller.category.create);
+router.get("/categories/", shop_controller.category.getAll);
+router.put("/categories/:category", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateUpdate ], shop_controller.category.update);
+router.delete("/categories/:category", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateDelete ], shop_controller.category.delete);
 
 module.exports = router;
