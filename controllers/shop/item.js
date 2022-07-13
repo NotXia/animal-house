@@ -152,7 +152,8 @@ async function searchProducts(req, res) {
 */
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
-
+    
+    // Estrazione id della categoria
     if (updated_fields.category) {
         const category = await CategoryModel.findByName(updated_fields.category);
         if (!category) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(MISSING_CATEGORY_MESSAGE)); }

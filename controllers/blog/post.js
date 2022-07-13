@@ -36,11 +36,14 @@ async function insertPost(req, res) {
 async function searchPosts(req, res) {
     try {
         let query = {};
+
+        // Estrae l'id dell'utente a partire dallo username
         if (req.query.username) {
             const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
             if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage("Utente inesistente")); }
             query.user_id = user._id;
         }
+        // Estrae l'id del topic a partire dal nome
         if (req.query.topic) { 
             const topic_id = (await TopicModel.findByName(req.body.topic))._id;
             if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
@@ -79,6 +82,7 @@ async function updatePost(req, res) {
     try {
         const updated_fields = validator.matchedData(req);
 
+        // Estrae l'id del topic
         if (updated_fields.topic) {
             const topic_id = (await TopicModel.findByName(updated_fields.topic))._id;
             if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
