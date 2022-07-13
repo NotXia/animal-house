@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-const mongoose = require("mongoose");
 const ItemModel = require("../../models/shop/item");
 const ProductModel = require("../../models/shop/product");
 const CategoryModel = require("../../models/shop/category");
@@ -19,9 +18,8 @@ const MISSING_CATEGORY_MESSAGE = "Categoria non esistente";
 */
 async function createItem(req, res) {
     let new_item_id;
-    const session = await mongoose.startSession();
+    let products_id
 
-    session.startTransaction();
     try {
         const to_insert_item = validator.matchedData(req);
         const to_insert_products = to_insert_item.products;
@@ -41,16 +39,11 @@ async function createItem(req, res) {
         // Inserimento dell'item
         const new_item = await new ItemModel(to_insert_item).save();
         new_item_id = new_item.id;
-
-        await session.commitTransaction();
-        await session.endSession();
     }
     catch (err) {
-        await session.abortTransaction();
-        await session.endSession();
-
         switch (err.code) {
             case utils.MONGO_DUPLICATED_KEY:
+                await ProductModel.deleteMany({ _id: products_id }).catch((err) => {}); // Rimuove tutti i prodotti dato che non verranno associati all'item
                 return res.status(utils.http.CONFLICT).json({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
             default:
                 return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
@@ -197,9 +190,6 @@ async function updateProductByIndex(req, res) {
     Gestisce la cancellazione di un item
 */
 async function deleteItemById(req, res) {
-    const session = await mongoose.startSession();
-
-    session.startTransaction();
     try {
         // Estrazione dei prodotti associati all'item
         const to_delete_item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
@@ -216,14 +206,8 @@ async function deleteItemById(req, res) {
         // Rimozione dei prodotti e dell'item
         await ProductModel.deleteMany({ _id: { $in: to_delete_item.products_id } });
         await ItemModel.findByIdAndDelete(req.params.item_id);
-
-        await session.commitTransaction();
-        await session.endSession();
     }
     catch (err) {
-        await session.abortTransaction();
-        await session.endSession();
-
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 
@@ -234,11 +218,7 @@ async function deleteItemById(req, res) {
     Gestisce la cancellazione di un singolo prodotto associato ad un item
 */
 async function deleteProductByIndex(req, res) {
-    const session = await mongoose.startSession();
-
     try {
-        session.startTransaction();
-
         // Estrazione del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
         if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
@@ -255,14 +235,8 @@ async function deleteProductByIndex(req, res) {
         // Rimozione dei prodotti e dell'item
         await ProductModel.findByIdAndDelete(to_delete_product._id);
         await ItemModel.findByIdAndUpdate(req.params.item_id, { $pull: { products_id: to_delete_product._id } });
-
-        await session.commitTransaction();
-        await session.endSession();
     }
     catch (err) {
-        await session.abortTransaction();
-        await session.endSession();
-
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 
@@ -304,11 +278,7 @@ async function createUploadImages(req, res) {
     Gestisce la cancellazione di un'immagine di un prodotto, ricercando a partire dall'item associato
 */
 async function deleteImageByIndex(req, res) {
-    const session = await mongoose.startSession();
-
     try {
-        session.startTransaction();
-
         // Estrazione del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
         if (!item || !item.products_id[parseInt(req.params.product_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
@@ -321,14 +291,8 @@ async function deleteImageByIndex(req, res) {
         // Cancella l'immagine dal filesystem e database
         await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image));
         await ProductModel.findByIdAndUpdate(product._id, { $pull: { images_path: to_delete_image } });
-
-        await session.commitTransaction();
-        session.endSession();
     }
     catch (err) {
-        await session.abortTransaction();
-        session.endSession();
-        
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 
