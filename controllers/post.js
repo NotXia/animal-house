@@ -128,49 +128,37 @@ async function searchCommentByIndex(req, res) {
 
 // Modifica di un commento dato un id di un post e la posizione del commento nell'array
 async function updateComment(req, res) {
-    const session = await mongoose.startSession();
     const newComment = {
         user_id: req.auth.id,
         content: req.body.content,
         updateDate: new Date()
     };
+
     try {
-        session.startTransaction();
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
         if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         await PostModel.findByIdAndUpdate(req.params.post_id, { [`comments.${req.params.comment_index}`]: newComment });
-        
-        await session.commitTransaction();
-        session.endSession();
     } catch (err) {
-        await session.abortTransaction();
-        session.endSession();
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
+
     return res.sendStatus(utils.http.OK);
 }
 
 // Cancellazione di un commento dato un id di un post e la posizione del commento nell'array
 async function deleteComment(req, res) {
-    const session = await mongoose.startSession();
     try {
-        session.startTransaction();
-
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
         if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
 
         // Rimozione del commento (workaround per eliminare un elemento per indice)
         await PostModel.findByIdAndUpdate(req.params.post_id, { $unset: { [`comments.${req.params.comment_index}`]: 1 } });
         await PostModel.findByIdAndUpdate(req.params.post_id, { $pull: { comments: null } });
-
-        await session.commitTransaction();
-        session.endSession();
     } catch (err) {
-        await session.abortTransaction();
-        session.endSession();
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
+    
     return res.sendStatus(utils.http.OK);
 }
 
