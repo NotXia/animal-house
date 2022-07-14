@@ -40,14 +40,18 @@ async function searchPosts(req, res) {
     let sort_criteria = { creationDate: "desc" };
     if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
 
-    const posts = await PostModel.find(query)
-                        .sort(sort_criteria)
-                        .limit(req.query.page_size)
-                        .skip(req.query.page_number)
-                        .exec()
-                        .catch(function (err) { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });
-    if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
-    return res.status(utils.http.OK).json(posts);
+    try {
+        const posts = await PostModel.find(query)
+                            .sort(sort_criteria)
+                            .limit(req.query.page_size)
+                            .skip(req.query.page_number)
+                            .exec();
+        if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        return res.status(utils.http.OK).json(posts);
+    }
+    catch (err) { 
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
+    }
 }
 
 // Ricerca di un singolo post dato l'id
