@@ -1,13 +1,13 @@
 const { query } = require("express-validator");
-const user_validator = require("./validators/user");
-const blog_validator = require("./validators/post");
-const { REQUIRED, OPTIONAL } = require("./validators/utils");
-const utils = require("./utils");
+const user_validator = require("../validators/user");
+const blog_validator = require("../validators/post");
+const { REQUIRED, OPTIONAL } = require("../validators/utils");
+const utils = require("../utils");
 
 const validateInsertPost = [
     // Lo user_id lo prendo da auth.
     blog_validator.validateContent("body", REQUIRED),
-    blog_validator.validateCategory("body", OPTIONAL),
+    blog_validator.validateTopicName("body", OPTIONAL, "topic"),
     blog_validator.validateTagUsersId("body", REQUIRED),
     blog_validator.validateTagAnimalsId("body", OPTIONAL),
     utils.validatorErrorHandler
@@ -18,7 +18,7 @@ const validateSearchPosts = [
     query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     query("oldest").optional().isBoolean().withMessage("Formato non valido"),
     user_validator.validateUsername("query", OPTIONAL),
-    blog_validator.validateCategory("query", OPTIONAL),
+    blog_validator.validateTopicName("query", OPTIONAL, "topic"),
     utils.validatorErrorHandler
 ];
 
@@ -31,7 +31,7 @@ const validateUpdatePost = [
     // Lo user_id lo prendo da auth.
     blog_validator.validatePostId("param", REQUIRED),
     blog_validator.validateContent("body", OPTIONAL),
-    blog_validator.validateCategory("body", OPTIONAL),
+    blog_validator.validateTopicName("body", OPTIONAL, "topic"),
     blog_validator.validateTagUsersId("body", OPTIONAL),
     blog_validator.validateTagAnimalsId("body", OPTIONAL),
     utils.validatorErrorHandler,

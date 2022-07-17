@@ -16,7 +16,7 @@ let categories_id = [];
 let products_id = [];
 let items_id = [];
 
-let category;
+let test_category;
 let products = [];
 let items = [];
 
@@ -33,7 +33,7 @@ describe("Popolazione database", function () {
     test("Popolazione database", async function () {
         tmp = await new CategoryModel({ name: "Cibo" }).save();
         categories_id.push(tmp._id);
-        category = tmp;
+        test_category = tmp;
 
         tmp = await new ProductModel({ name: "Prodotto1", price: 2000, quantity: 5, barcode: "1", images_path: ["b", "a"] }).save();
         products_id.push(tmp._id);
@@ -48,15 +48,15 @@ describe("Popolazione database", function () {
         products_id.push(tmp._id);
         products.push(tmp);
 
-        tmp = await new ItemModel({ name: "Item1", category_id: category, products_id: [products[0]._id] }).save();
+        tmp = await new ItemModel({ name: "Item1", category: test_category.name, products_id: [products[0]._id] }).save();
         items_id.push(tmp._id);
         items.push(tmp);
 
-        tmp = await new ItemModel({ name: "Item2", category_id: category, products_id: [products[1]._id, products[2]._id] }).save();
+        tmp = await new ItemModel({ name: "Item2", category: test_category.name, products_id: [products[1]._id, products[2]._id] }).save();
         items_id.push(tmp._id);
         items.push(tmp);
 
-        tmp = await new ItemModel({ name: "Item3", category_id: category, products_id: [products[3]._id] }).save();
+        tmp = await new ItemModel({ name: "Item3", category: test_category.name, products_id: [products[3]._id] }).save();
         items_id.push(tmp._id);
         items.push(tmp);
     });
@@ -113,7 +113,7 @@ describe("Test GET /shop/items/", function () {
     });
     
     test("Richieste non corrette", async function () {
-        await curr_session.get("/shop/items/").query({ category_id: "Cibo", name: "Tonno in scatola", page_size: 5, page_number: 0 }).expect(400);
+        await curr_session.get("/shop/items/").query({ category: "", name: "Tonno in scatola", page_size: 5, page_number: 0 }).expect(400);
         const res = await curr_session.get("/shop/items/").query({ name: "Tonno in barattolo", page_number: 0 }).expect(400);
         expect(res.body[0].message).toBeDefined();
     });
@@ -168,7 +168,7 @@ describe("Test inserimento", function () {
         const res = await curr_session.post("/shop/items/")
                         .set({ Authorization: `Bearer ${admin_token}` })
                         .send({
-                            name: "NewItem1", description: "", category_id: category._id,
+                            name: "NewItem1", description: "", category: test_category.name,
                             products: [
                                 { barcode: "new12345", name: "NewProdotto1", price: 1000, quantity: 5 },
                                 { barcode: "new23456", name: "NewProdotto2", price: 2000 },
@@ -186,14 +186,14 @@ describe("Test inserimento", function () {
         await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({
-                name: "NewItem2", description: "", category_id: category._id,
+                name: "NewItem2", description: "", category: test_category.name,
                 products: []
             }).expect(400);
 
         await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({
-                name: "NewItem3", description: "", category_id: category._id,
+                name: "NewItem3", description: "", category: test_category.name,
                 products: [{ name: "NewProdotto3", price: 1000, quantity: 5 },]
             }).expect(400);
 
@@ -208,7 +208,7 @@ describe("Test inserimento", function () {
         res = await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({
-                name: "NewItem5", description: "", category_id: category._id,
+                name: "NewItem5", description: "", category: test_category.name,
                 products: [{ barcode: "new12345", name: "NewProdotto5", price: 1000, quantity: 5 },]
             }).expect(409);
         expect(res.body.field).toEqual("barcode");
@@ -262,12 +262,15 @@ describe("Test modifica", function () {
             .send({ name: "NewItem1 modificato", description: "Nuova descrizione" }).expect(200);
         expect(res.body.name).toEqual("NewItem1 modificato");
         expect(res.body.description).toEqual("Nuova descrizione");
+
         const item = await ItemModel.findById(item_id).exec();
         expect(item.name).toEqual("NewItem1 modificato");
         expect(item.description).toEqual("Nuova descrizione");
-        expect(item.category_id).toEqual(category._id);
-
-        // Richiesta vuota (perché mai dovresti voler modificare nulla :|)
+        expect(item.category_id).toEqual(test_category._id);
+    });
+    
+    test("Richiesta vuota a PUT /items/:item_id", async function () {
+        // Perché mai dovresti voler modificare nulla :\
         await curr_session.put(`/shop/items/${item_id}`)
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({}).expect(200);

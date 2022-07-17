@@ -1,9 +1,11 @@
 require('dotenv').config();
-const PostModel = require("../models/blog/post");
-const UserModel = require("../models/auth/user");
+const PostModel = require("../../models/blog/post");
+const TopicModel = require("../../models/blog/topic");
+const UserModel = require("../../models/auth/user");
 const mongoose = require("mongoose");
-const utils = require("../utilities");
-const error = require("../error_handler");
+
+const utils = require("../../utilities");
+const error = require("../../error_handler");
 const validator = require("express-validator");
 
 /////////////////
@@ -13,10 +15,13 @@ const validator = require("express-validator");
 // Inserimento di un post
 async function insertPost(req, res) {
     try {
+        const topic_id = (await TopicModel.findByName(req.body.topic))._id;
+        if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+
         const newPost = new PostModel({
             user_id: req.auth.id,
             content: req.body.content,
-            category: req.body.category,
+            topic_id: topic_id,
             tag_users_id: req.body.tag_users_id,
             tag_animals_id: req.body.tag_animals_id
         });
@@ -29,18 +34,25 @@ async function insertPost(req, res) {
 
 // Ricerca di post secondo un criterio
 async function searchPosts(req, res) {
-    let query = {};
-    if (req.query.username) {
-        const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
-        if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
-        query.user_id = user._id;
-    }
-    if (req.query.category) { query.category = req.query.category; }
-    
-    let sort_criteria = { creationDate: "desc" };
-    if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
-
     try {
+        let query = {};
+
+        // Estrae l'id dell'utente a partire dallo username
+        if (req.query.username) {
+            const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
+            if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage("Utente inesistente")); }
+            query.user_id = user._id;
+        }
+        // Estrae l'id del topic a partire dal nome
+        if (req.query.topic) { 
+            const topic_id = (await TopicModel.findByName(req.body.topic))._id;
+            if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+            query.topic_id = topic_id; 
+        }
+        
+        let sort_criteria = { creationDate: "desc" };
+        if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
+    
         const posts = await PostModel.find(query)
                             .sort(sort_criteria)
                             .limit(req.query.page_size)
@@ -69,6 +81,16 @@ async function searchPostById(req, res) {
 async function updatePost(req, res) {
     try {
         const updated_fields = validator.matchedData(req);
+
+        // Estrae l'id del topic
+        if (updated_fields.topic) {
+            const topic_id = (await TopicModel.findByName(updated_fields.topic))._id;
+            if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+
+            updated_fields.topic_id = topic_id;
+            delete updated_fields.topic;
+        }
+
         const post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields);
         if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
     } catch (err) {

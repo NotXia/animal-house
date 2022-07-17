@@ -8,7 +8,7 @@ const utils = require("../utils");
 const validateCreate = [
     validator.validateItemName("body", REQUIRED),
     validator.validateItemDescription("body", OPTIONAL),
-    validator.validateItemCategoryId("body", REQUIRED),
+    validator.validateCategoryName("body", REQUIRED, "category"),
     validator.validateListOfProducts("body", REQUIRED),
     utils.validatorErrorHandler,
 ];
@@ -20,7 +20,7 @@ const validateSearchItem = [
     query("price_desc").optional().isBoolean().withMessage("Formato non valido"),
     query("name_asc").optional().isBoolean().withMessage("Formato non valido"),
     query("name_desc").optional().isBoolean().withMessage("Formato non valido"),
-    validator.validateItemCategoryId("query", OPTIONAL),
+    validator.validateCategoryName("query", OPTIONAL, "category"),
     validator.validateItemName("query", OPTIONAL),
     utils.validatorErrorHandler
 ];
@@ -39,7 +39,7 @@ const validateUpdateItemById = [
     validator.validateItemId("param", REQUIRED),
     validator.validateItemName("body", OPTIONAL),
     validator.validateItemDescription("body", OPTIONAL),
-    validator.validateItemCategoryId("body", OPTIONAL),
+    validator.validateCategoryName("body", OPTIONAL, "category"),
     utils.validatorErrorHandler
 ];
 

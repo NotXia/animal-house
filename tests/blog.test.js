@@ -4,7 +4,7 @@ const utils = require("./utils/utils");
 const session = require('supertest-session');
 
 const PostModel = require("../models/blog/post");
-const { notify } = require("../index.js");
+const TopicModel = require("../models/blog/topic");
 
 let curr_session = session(app);
 let blog_posts = [];
@@ -18,6 +18,9 @@ beforeAll(async function () {
     operator1 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
     operator2 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
     operator_no_permission = await utils.loginAsOperatorWithPermission(curr_session, { post_write: false, comment_write: false });
+
+    await new TopicModel({ name: "Scoperte" }).save();
+    await new TopicModel({ name: "Animali" }).save();
 });
 
 
@@ -32,7 +35,7 @@ describe("Pubblicazione post", function () {
         test(`Pubblicazione post ${i+1}`, async function () {
             const res = await curr_session.post('/blog/posts/').send({ 
                 content: text[i],
-                // category: "testing assoluto"
+                topic: "Animali"
             }).set({ Authorization: `Bearer ${operator1.token}` }).expect(201);
             blog_posts.push(res.body);
     
@@ -102,27 +105,27 @@ describe("Ricerca di un dato post", function () {
 describe("Modifica di un dato post", function () {
     test("Modifica post dato il suo id", async function () {
         await curr_session.put('/blog/posts/'+ blog_posts[0]._id).send({
-            category: "scoperte"
+            topic: "Scoperte"
         }).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
 
-        const post = await PostModel.findById(blog_posts[0]._id).exec();
-        expect(post.category).toEqual("scoperte");
+        const post = await PostModel.findById(blog_posts[0]._id).populate("topic_id").exec();
+        expect(post.topic_id.name).toEqual("Scoperte");
     });
     
     test("Modifica post inesistente", async function () {
         const res = await curr_session.put('/blog/posts/111111111111111111111111').send({
-            category: "scoperte"
+            topic: "Scoperte"
         }).set({ Authorization: `Bearer ${operator1.token}` }).expect(404);
         expect(res.body.message).toBeDefined();
     });
 
     test("Modifica post non proprio", async function () {
         const res = await curr_session.put('/blog/posts/' + blog_posts[0]._id).send({
-            category: "ho cambiato categoria >:D"
+            topic: "Animali"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(403);
 
-        const post = await PostModel.findById(blog_posts[0]._id).exec();
-        expect(post.category).toEqual("scoperte");
+        const post = await PostModel.findById(blog_posts[0]._id).populate("topic_id").exec();
+        expect(post.topic_id.name).toEqual("Scoperte");
         expect(res.body.message).toBeDefined();
     });
 });
@@ -184,6 +187,7 @@ describe("Cancellazione di tutti i post - tramite permesso admin", function () {
 
 describe("Uscita", function () {
     test_role = test("Pulizia database", async function () {
+        await TopicModel.deleteMany({});
         await utils.cleanup(curr_session);
     });
 });
