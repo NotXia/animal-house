@@ -107,7 +107,7 @@ async function searchItemByBarcode(req, res) {
             item = await ItemModel.findOne({ products_id: product._id }).exec();
         }
     }
-    catch(err) {
+    catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
     }
     
@@ -121,11 +121,14 @@ async function searchItemByBarcode(req, res) {
 async function searchProducts(req, res) {
     let products = []; // Conterrà il risultato della ricerca
 
-    const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec().catch(function (err) {
+    try {
+        const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec();
+        if (!item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        products = item.products_id;
+    }
+    catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
-    });
-    if (!item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
-    products = item.products_id;
+    }
 
     return res.status(utils.http.OK).json(products);
 }
@@ -136,12 +139,15 @@ async function searchProducts(req, res) {
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
 
-    const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true }).catch(function (err) {
+    try {
+        const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
+        if (!updated_item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+    
+        return res.status(utils.http.OK).json(updated_item);
+    }
+    catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
-    });
-    if (!updated_item) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
-
-    return res.status(utils.http.OK).json(updated_item);
+    }
 }
 
 /*
@@ -158,7 +164,7 @@ async function updateProductByIndex(req, res) {
     
         updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
     }
-    catch(err) {
+    catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 
