@@ -45,7 +45,7 @@ async function storeRefreshToken(user_id, token, expiration_time) {
         user_id: user_id,
         token_hash: refresh_token_hash,
         expiration: expiration_time
-    }).save().catch((err) => { throw err; });
+    }).save();
 
     return token_entry._id;
 }
@@ -78,8 +78,12 @@ async function loginController(req, res) {
     const tokens = createTokens(user.id, user.username, user.is_operator);
 
     // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
-    tokens.refresh.id = await storeRefreshToken(user.id, tokens.refresh.value, tokens.refresh.expiration)
-        .catch((err) => { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR) });
+    try {
+        tokens.refresh.id = await storeRefreshToken(user.id, tokens.refresh.value, tokens.refresh.expiration);
+    }
+    catch (err) {
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+    }
 
     setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
     return res.status(utils.http.OK).json({ access_token: tokens.access });
@@ -136,7 +140,12 @@ function logoutController(req, res) {
         if (err) { return res.status(utils.http.UNAUTHORIZED).json(error.formatMessage(utils.http.UNAUTHORIZED)); }
 
         // Cancella il token salvato
-        await TokenModel.findByIdAndDelete(refresh_token_id).catch((err) => { return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); });
+        try {
+            await TokenModel.findByIdAndDelete(refresh_token_id);
+        }
+        catch (err) { 
+            return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
+        }
 
         return res.sendStatus(utils.http.OK);
     });

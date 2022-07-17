@@ -57,12 +57,12 @@ async function searchPosts(req, res) {
                             .sort(sort_criteria)
                             .limit(req.query.page_size)
                             .skip(req.query.page_number)
-                            .exec()
+                            .exec();
         if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
         return res.status(utils.http.OK).json(posts);
     }
-    catch(err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+    catch (err) { 
+        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
     }
 }
 

@@ -14,10 +14,17 @@ passport.use("local_operator", new LocalStrategy(
     },
     async function (in_username, in_password, done) {
         // Autenticazione dell'utente
-        const user_data = await UserModel.findOne({ username: in_username }).populate("operator").exec().catch((err) => { return done(err); });
-        if (!user_data || !user_data.operator) { // Non esiste l'utente o non è operatore
-            return done(error.generate.UNAUTHORIZED("Credenziali non valide")); 
-        } 
+        let user_data;
+
+        try {
+            user_data = await UserModel.findOne({ username: in_username }).populate("operator").exec();
+            if (!user_data || !user_data.operator) { // Non esiste l'utente o non è operatore
+                return done(error.generate.UNAUTHORIZED("Credenziali non valide")); 
+            } 
+        }
+        catch (err) {
+            return done(err);
+        }
 
         bcrypt.compare(in_password, user_data.password).then((hash_match) => {
             if (hash_match) { 
