@@ -23,7 +23,5 @@ module.exports = async function () {
     if (fs.existsSync(process.env.TEMP_DIR)) {
         fs.rmSync(process.env.TEMP_DIR, { recursive: true, force: true });
     }
-    else {
-        fs.mkdirSync(process.env.TEMP_DIR);
-    }
+    fs.mkdirSync(process.env.TEMP_DIR);
 }
