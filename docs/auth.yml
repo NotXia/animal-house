@@ -35,7 +35,7 @@ paths:
         401:
           description: "Credenziali non valide"
           schema:
-              $ref: "#/definitions/ErrorMessage"
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -58,7 +58,7 @@ paths:
         401:
           description: "Refresh token non valido"
           schema:
-              $ref: "#/definitions/ErrorMessage"
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -80,7 +80,7 @@ paths:
         401:
           description: "Refresh token non valido"
           schema:
-              $ref: "#/definitions/ErrorMessage"
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
     
@@ -104,10 +104,3 @@ definitions:
       expiration:
         type: integer
         format: timestamp
-
-  ErrorMessage:
-    type: object
-    properties:
-      message:
-        type: string
-        description: "Informazioni sull'errore"
