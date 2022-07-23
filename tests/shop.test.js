@@ -266,7 +266,7 @@ describe("Test modifica", function () {
         const item = await ItemModel.findById(item_id).exec();
         expect(item.name).toEqual("NewItem1 modificato");
         expect(item.description).toEqual("Nuova descrizione");
-        expect(item.category_id).toEqual(test_category._id);
+        expect(item.category).toEqual(test_category.name);
     });
     
     test("Richiesta vuota a PUT /items/:item_id", async function () {

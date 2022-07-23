@@ -11,6 +11,13 @@ const fs = require("fs");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 
+async function checkCategoryExists(category_name) {
+    if (!await CategoryModel.findByName(category_name)) { 
+        throw error.generate.NOT_FOUND("Categoria inesistente"); 
+    }
+    return true;
+}
+
 /* 
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
 */
@@ -22,10 +29,7 @@ async function createItem(req, res) {
         const to_insert_item = validator.matchedData(req);
         const to_insert_products = to_insert_item.products;
 
-        // Estrazione id della categoria
-        const category = await CategoryModel.findByName(to_insert_item.category);
-        delete to_insert_item.category;
-        to_insert_item.category_id = category._id;
+        checkCategoryExists(to_insert_item.category);
 
         // Inserimento dei singoli prodotti
         const products = await ProductModel.insertMany(to_insert_products);
@@ -58,8 +62,8 @@ async function searchItem(req, res) {
 
     // Composizione della query
     if (req.query.category) {
-        const category = await CategoryModel.findByName(req.query.category);
-        query_criteria.category_id = category._id; 
+        checkCategoryExists(to_insert_item.category);
+        query_criteria.category = category; 
     }
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
     
@@ -149,9 +153,7 @@ async function updateItemById(req, res) {
     
     // Estrazione id della categoria
     if (updated_fields.category) {
-        const category = await CategoryModel.findByName(updated_fields.category);
-        delete updated_fields.category;
-        updated_fields.category_id = category._id;
+        checkCategoryExists(to_insert_item.category);
     }
 
     try {

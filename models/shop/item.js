@@ -5,7 +5,6 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const ValidationError = mongoose.Error.ValidationError
-const CategoryModel = require("./category");
 const ProductModel = require("./product");
 
 const itemSchema = mongoose.Schema({
@@ -17,8 +16,8 @@ const itemSchema = mongoose.Schema({
         type: String,
         default: ""
     },
-    category_id: {
-        type: ObjectId, ref: CategoryModel.collection.collectionName,
+    category: {
+        type: String,
         requied: true
     },
     products_id: [{ 
@@ -32,10 +31,11 @@ const itemSchema = mongoose.Schema({
 
 itemSchema.index({ relevance: 1, products_id: 1, category_id: 1 });
 
-itemSchema.pre("validate", function (next) {
+itemSchema.pre("validate", async function (next) {
     if (this.products_id.length <= 0) {
         next(new ValidationError());
-    } else {
+    }
+    else {
         next();
     }
 });
