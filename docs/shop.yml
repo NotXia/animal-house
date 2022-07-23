@@ -38,19 +38,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         409:
           description: "Il barcode di uno dei prodotti è già esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -123,11 +123,11 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -170,19 +170,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
      
@@ -209,19 +209,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -251,11 +251,11 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -291,7 +291,7 @@ paths:
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -346,19 +346,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -397,19 +397,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -444,19 +444,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun prodotto trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -492,19 +492,19 @@ paths:
         400:
           description: "Parametri malformati"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi insufficienti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun prodotto trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 
@@ -552,19 +552,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         409:
           description: "Categoria con lo stesso nome già esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
   /shop/categories/{category}:
@@ -595,19 +595,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Categoria non esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     delete:
@@ -632,19 +632,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Categoria non esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
@@ -658,25 +658,6 @@ definitions:
       icon:
         type: string
         format: byte
-
-  ValidationErrorMessage:
-    type: array
-    items:
-      type: object
-      properties:
-        field:
-          type: string
-          description: "Il campo errato"
-        message:
-          type: string
-          description: "Informazioni sull'errore"
-
-  ErrorMessage:
-    type: object
-    properties:
-      message:
-        type: string
-        description: "Informazioni sull'errore"
 
   ObjectId:
     type: string
