@@ -731,25 +731,6 @@ definitions:
     - content
     - creationDate
 
-  ValidationErrorMessage:
-    type: array
-    items:
-      type: object
-      properties:
-        field:
-          type: string
-          description: "Il campo errato"
-        message:
-          type: string
-          description: "Informazioni sull'errore"
-
-  ErrorMessage:
-    type: object
-    properties:
-      message:
-        type: string
-        description: "Informazioni sull'errore"
-  
   ObjectId:
     type: string
     format: ObjectId
