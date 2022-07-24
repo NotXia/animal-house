@@ -12,18 +12,12 @@ function randomOf(array) {
 }
 
 describe("Database - gestione shop", function () {
-    let species_id = [];
     let categories_id = [];
     let products_id = [];
     let items_id = [];
     let tmp = undefined;
 
     test("Popolazione database", async function () {
-        tmp = await new SpeciesModel({ type: "Cane", race: "Jack Russell terrier" }).save();
-        species_id.push(tmp._id);
-        tmp = await new SpeciesModel({ type: "Gatto", race: "Sacro di Birmania" }).save();
-        species_id.push(tmp._id);
-
         tmp = await new CategoryModel({ name: "Cibo" }).save();
         categories_id.push(tmp._id);
         tmp = await new CategoryModel({ name: "Abbigliamento" }).save();
@@ -62,7 +56,6 @@ describe("Database - gestione shop", function () {
     });
 
     test("Pulizia database", async function () {
-        for (const id of species_id) { await SpeciesModel.findByIdAndDelete(id); }
         for (const id of categories_id) { await CategoryModel.findByIdAndDelete(id); }
         for (const id of products_id) { await ProductModel.findByIdAndDelete(id); }
         for (const id of items_id) { await ItemModel.findByIdAndDelete(id); }
