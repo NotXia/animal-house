@@ -13,10 +13,7 @@ const topicSchema = mongoose.Schema({
 });
 
 topicSchema.statics.findByName = async function(topic_name) {
-    const topic = await this.findOne({ name: topic_name }).exec();
-    if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
-    
-    return topic;
+    return await this.findOne({ name: topic_name }).exec();
 };
 
 module.exports = mongoose.model("topics", topicSchema);

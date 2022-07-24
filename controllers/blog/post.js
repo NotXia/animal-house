@@ -14,12 +14,13 @@ const validator = require("express-validator");
 // Inserimento di un post
 async function insertPost(req, res) {
     try {
-        const topic_id = (await TopicModel.findByName(req.body.topic))._id;
+        const topic = await TopicModel.findByName(req.body.topic);
+        if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
 
         const newPost = new PostModel({
             user_id: req.auth.id,
             content: req.body.content,
-            topic_id: topic_id,
+            topic_id: topic._id,
             tag_users_id: req.body.tag_users_id,
             tag_animals_id: req.body.tag_animals_id
         });
@@ -43,8 +44,9 @@ async function searchPosts(req, res) {
         }
         // Estrae l'id del topic a partire dal nome
         if (req.query.topic) { 
-            const topic_id = (await TopicModel.findByName(req.body.topic))._id;
-            query.topic_id = topic_id; 
+            const topic = await TopicModel.findByName(req.body.topic);
+            if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
+            query.topic_id = topic._id; 
         }
         
         let sort_criteria = { creationDate: "desc" };
@@ -81,9 +83,9 @@ async function updatePost(req, res) {
 
         // Estrae l'id del topic
         if (updated_fields.topic) {
-            const topic_id = (await TopicModel.findByName(updated_fields.topic))._id;
-
-            updated_fields.topic_id = topic_id;
+            const topic = await TopicModel.findByName(updated_fields.topic);
+            if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
+            updated_fields.topic_id = topic._id;
             delete updated_fields.topic;
         }
 

@@ -24,6 +24,7 @@ async function createItem(req, res) {
 
         // Estrazione id della categoria
         const category = await CategoryModel.findByName(to_insert_item.category);
+        if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
         delete to_insert_item.category;
         to_insert_item.category_id = category._id;
 
@@ -59,6 +60,7 @@ async function searchItem(req, res) {
     // Composizione della query
     if (req.query.category) {
         const category = await CategoryModel.findByName(req.query.category);
+        if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
         query_criteria.category_id = category._id; 
     }
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
@@ -150,6 +152,7 @@ async function updateItemById(req, res) {
     // Estrazione id della categoria
     if (updated_fields.category) {
         const category = await CategoryModel.findByName(updated_fields.category);
+        if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
         delete updated_fields.category;
         updated_fields.category_id = category._id;
     }

@@ -13,10 +13,7 @@ const categorySchema = mongoose.Schema({
 });
 
 categorySchema.statics.findByName = async function(category_name) {
-    const category = await this.findOne({ name: category_name }).exec();
-    if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
-
-    return category;
+    return await this.findOne({ name: category_name }).exec();
 };
 
 module.exports = mongoose.model("categories", categorySchema);
