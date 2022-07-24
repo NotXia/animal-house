@@ -151,10 +151,6 @@ paths:
           description: "Parametri malformati"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        404:
-          description: "Nessun item trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
 

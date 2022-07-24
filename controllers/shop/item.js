@@ -104,7 +104,6 @@ async function searchItem(req, res) {
             { $limit: parseInt(req.query.page_size) },
         ]);
 
-        if (items.length === 0) { throw error.generate.NOT_FOUND("Nessun prodotto corrisponde ai criteri di ricerca"); }
         items = await Promise.all(items.map( async item => await (new ItemModel(item)).getData() )); // Conversione del risultato nel formato corretto
     }
     catch (err) {
