@@ -1,7 +1,5 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
-const ObjectId = mongoose.Schema.Types.ObjectId;
-const SpeciesModel = require("../animals/species");
 
 const productSchema = mongoose.Schema({
     barcode: {
@@ -10,11 +8,11 @@ const productSchema = mongoose.Schema({
         unique: true
     },
     name: { type: String },
-    description: { type: String },
+    description: { type: String, default: "" },
     images_path: [{ type: String }],
 
-    target_species_id: [{
-        type: ObjectId, ref: SpeciesModel.collection.collectionName
+    target_species: [{
+        type: String
     }],
 
     price: { // In formato intero
@@ -38,7 +36,7 @@ productSchema.methods.getData = function() {
         name: this.name,
         description: this.description,
         images_path: this.images_path.map(path => `${process.env.SHOP_IMAGES_BASE_URL}/${path}`),
-        target_species: this.target_species_id,
+        target_species: this.target_species,
         price: this.price,
         quantity: this.quantity
     };

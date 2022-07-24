@@ -48,7 +48,7 @@ async function createItem(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(new_item.getData());
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(await new_item.getData());
 }
 
 /*
@@ -68,7 +68,7 @@ async function searchItem(req, res) {
     
     // Determina il criterio di ordinamento
     if (req.query.price_asc) { sort_criteria = { "min_price": 1 }; }
-    if (req.query.price_desc) { sort_criteria = { "min_price": -1 }; }
+    if (req.query.price_desc) { sort_criteria = { "max_price": -1 }; }
     if (req.query.name_asc) { sort_criteria = { "name": 1 }; }
     if (req.query.name_desc) { sort_criteria = { "name": -1 }; }
 
@@ -76,31 +76,22 @@ async function searchItem(req, res) {
         items = await ItemModel.aggregate([
             { $match: query_criteria },
             { $lookup: {
-                from: ProductModel.collection.name,
-                localField: "products_id",
-                foreignField: "_id",
-                as: "products"
+                    from: ProductModel.collection.name,
+                    localField: "products_id",
+                    foreignField: "_id",
+                    as: "products"
             }},
-            { $project: {
-                _id: 0,
-                id: "$_id",
-                name: 1,
-                description: 1,
-                min_price: { $min: "$products.price" }, // Il prezzo che rappresenta l'item è quello più piccolo tra i suoi prodotti
-                max_price: { $max: "$products.price" }, // Il prezzo che rappresenta l'item è quello più piccolo tra i suoi prodotti
-                product_number: { $size: "$products" },
-                image_path: { // L'immagine associata ad un item è la prima del primo prodotto
-                    $first: {
-                        $getField: { field: "images_path", input: { $first: "$products" } }
-                    }
-                }
+            { $addFields: {
+                    min_price: { $min: "$products.price" },
+                    max_price: { $max: "$products.price" },
             }},
             { $sort: sort_criteria },
             { $skip: parseInt(req.query.page_number) }, // Per paginazione
-            { $limit: parseInt(req.query.page_size) }
+            { $limit: parseInt(req.query.page_size) },
         ]);
 
         if (items.length === 0) { throw error.generate.NOT_FOUND("Nessun prodotto corrisponde ai criteri di ricerca"); }
+        items = await Promise.all(items.map( async item => await (new ItemModel(item)).getData() )); // Conversione del risultato nel formato corretto
     }
     catch (err) {
         return error.response(err, res);
@@ -126,7 +117,7 @@ async function searchItemByBarcode(req, res) {
         return error.response(err, res);
     }
     
-    return res.status(utils.http.OK).json(item.getData());
+    return res.status(utils.http.OK).json(await item.getData());
 }
 
 /*
@@ -164,7 +155,7 @@ async function updateItemById(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(updated_item.getData());
+    return res.status(utils.http.OK).json(await updated_item.getData());
 }
 
 /*

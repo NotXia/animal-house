@@ -40,13 +40,16 @@ itemSchema.pre("validate", async function (next) {
     }
 });
 
-itemSchema.methods.getData = function() {
+itemSchema.methods.getData = async function() {
+    const data = await this.populate("products_id");
+
     return {
-        id: this._id,
-        name: this.name,
-        description: this.description,
-        category: this.category,
-        relevance: this.relevance
+        id: data._id,
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        relevance: data.relevance,
+        products: data.products_id.map(product => product.getData())
     };
 };
 
