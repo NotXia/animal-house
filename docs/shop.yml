@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "Endpoint per le operazioni sullo shop"
-  version: "1.0.0"
+  version: "1.1.0"
   title: "Shop"
 basePath: "/shop"
 tags:
@@ -26,15 +26,51 @@ paths:
         description: "Dati dell'item"
         required: true
         schema:
-          $ref: "#/definitions/Item"
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            category:
+              type: string
+            relevance:
+              type: number
+              default: 0
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  barcode: 
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  price:
+                    type: number
+                  quantity:
+                    type: number
+                    default: 0
+                  target_species:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - barcode
+                  - name
+                  - price
+                  - quantity
+          required:
+            - name
+            - category
+            - products
       responses:
         201:
           description: "Inserito con successo"
           schema:
-            type: object
-            properties:
-              id:
-                $ref: "#/definitions/ObjectId"
+              $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
@@ -60,8 +96,6 @@ paths:
       summary: "Ricerca degli item secondo alcuni criteri"
       description: |
         Ricerca tra gli item quelli che soddisfano i criteri richiesti
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -107,19 +141,7 @@ paths:
           schema:
             type: array
             items:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                min_price:
-                  type: number
-                product_number:
-                  type: number
-                image_path:
-                  type: string
-                  format: path
+              $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
@@ -152,7 +174,6 @@ paths:
       - name: body
         in: body
         description: "Dati dell'item"
-        required: true
         schema:
           type: object
           properties:
@@ -162,11 +183,13 @@ paths:
               type: string
             category:
               type: string
+            relevance:
+              type: number
       responses:
         200:
           description: "Modificato con successo"
           schema:
-            $ref: "#/definitions/ItemModel"
+            $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
@@ -193,8 +216,6 @@ paths:
       description: |
         Gestisce la cancellazione di un item e di tutti i suoi prodotti associati.
         Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -204,7 +225,7 @@ paths:
         format: ObjectId
         required: true
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Parametri malformati"
@@ -247,7 +268,7 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/ItemModel"
+            $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
@@ -283,7 +304,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/definitions/ProductModel"
+              $ref: "#/definitions/Product"
         400:
           description: "Parametri malformati"
           schema:
@@ -320,7 +341,6 @@ paths:
       - name: body
         in: body
         description: "Dati da modificare del prodotto"
-        required: true
         schema:
           type: object
           properties:
@@ -330,10 +350,10 @@ paths:
               type: string
             description:
               type: string
-            target_species_id:
+            target_species:
               type: array
               items:
-                $ref: "#/definitions/ObjectId"
+                type: string
             price:
               type: number
             quantity:
@@ -342,7 +362,7 @@ paths:
         200:
           description: "Modificato con successo"
           schema:
-            $ref: "#/definitions/ProductModel"
+            $ref: "#/definitions/Product"
         400:
           description: "Parametri malformati"
           schema:
@@ -369,8 +389,6 @@ paths:
       description: |
         Gestisce la cancellazione di un prodotto ricercato a partire dall'item di appartenenza.
         Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -384,7 +402,7 @@ paths:
         type: number
         required: true
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         303:
           description: |
@@ -441,6 +459,8 @@ paths:
       responses:
         200:
           description: "Immagini inserite con successo"
+          schema:
+            $ref: "#/definitions/Product"
         400:
           description: "Parametri malformati"
           schema:
@@ -468,8 +488,6 @@ paths:
       description: |
         Gestisce la cancellazione di una immagine associata ad un prodotto.
         Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -487,7 +505,7 @@ paths:
         type: number
         required: true
       responses:
-        200:
+        204:
           description: "Immagine cancellata con successo"
         400:
           description: "Parametri malformati"
@@ -549,6 +567,8 @@ paths:
       responses:
         201:
           description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Category"
         400:
           description: "Input malformato"
           schema:
@@ -592,6 +612,8 @@ paths:
       responses:
         200:
           description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Category"
         400:
           description: "Input malformato"
           schema:
@@ -627,7 +649,7 @@ paths:
         type: string
         required: true
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Input malformato"
@@ -650,6 +672,7 @@ paths:
 
 
 definitions:
+
   Category:
     type: object
     properties:
@@ -659,107 +682,28 @@ definitions:
         type: string
         format: byte
 
-  ObjectId:
-    type: string
-    format: ObjectId
-    example: "61338f5b47bfc65136b5de30"
-
   Item:
     type: object
     properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
       name:
         type: string
       description:
         type: string
       category:
         type: string
+      relevance:
+        type: number
       products:
         type: array
         items:
-          type: object
-          properties:
-            barcode:
-              type: string
-            name:
-              type: string
-            description:
-              type: string
-            price:
-              type: number
-            quantity:
-              type: number
-            target_species_id:
-              type: array
-              items:
-                $ref: "#/definitions/ObjectId"
-          required:
-          - barcode
-          - price
-          - quantity
-    required:
-    - name
-    - category
-    - products
+            $ref: "#/definitions/Product"
 
-  ItemModel:
+  Product:
     type: object
     properties:
-      _id:
-        $ref: "#/definitions/ObjectId"
-      name:
-        type: string
-      description:
-        type: string
-      category_id:
-        $ref: "#/definitions/ObjectId"
-      products_id:
-        type: array
-        items:
-          $ref: "#/definitions/ObjectId"
-      relevance:
-        type: number
-
-  ItemModelPopulated:
-    type: object
-    properties:
-      _id:
-        $ref: "#/definitions/ObjectId"
-      name:
-        type: string
-      description:
-        type: string
-      category_id:
-        $ref: "#/definitions/ObjectId"
-      products_id:
-        type: array
-        items:
-          type: object
-          properties:
-            _id:
-              $ref: "#/definitions/ObjectId"
-            barcode:
-              type: string
-            name:
-              type: string
-            description:
-              type: string
-            price:
-              type: number
-            quantity:
-              type: number
-            target_species_id:
-              type: array
-              items:
-                $ref: "#/definitions/ObjectId"
-      relevance:
-        type: number
-
-  ProductModel:
-    type: object
-    properties:
-      _id:
-        $ref: "#/definitions/ObjectId"
-      barcode:
+      barcode: 
         type: string
       name:
         type: string
@@ -769,10 +713,10 @@ definitions:
         type: array
         items:
           type: string
-      target_species_id:
+      target_species:
         type: array
         items:
-          $ref: "#/definitions/ObjectId"
+          type: string
       price:
         type: number
       quantity:
