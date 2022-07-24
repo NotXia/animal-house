@@ -14,7 +14,7 @@ const validateCreate = [
     utils.validatorErrorHandler,
 ];
 
-const validateSearchItem = [
+const validateSearchItems = [
     query("page_size").exists().isInt({ min: 1 }).withMessage("Il valore deve essere un intero che inizia da 1"),
     query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     query("price_asc").optional().isBoolean().withMessage("Formato non valido"),
@@ -31,7 +31,7 @@ const validateSearchItemByBarcode = [
     utils.validatorErrorHandler
 ];
 
-const validateSearchProducts = [
+const validateSearchSingleItem = [
     validator.validateItemId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
@@ -88,9 +88,9 @@ const validateDeleteImage = [
 module.exports = {
     validateCreate: validateCreate,
     validateCreateFileUpload: validateCreateFileUpload,
-    validateSearch: validateSearchItem,
+    validateSearch: validateSearchItems,
     validateSearchByBarcode: validateSearchItemByBarcode,
-    validateSearchProducts: validateSearchProducts,
+    validateSearchItem: validateSearchSingleItem,
     validateUpdateItem: validateUpdateItemById,
     validateUpdateProduct: validateUpdateProductByIndex,
     validateDeleteItem: validateDeleteItemById,

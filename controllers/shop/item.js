@@ -33,12 +33,12 @@ async function checkSpeciesExists(species_name) {
 async function createItem(req, res) {
     let new_item;
     let products_id;
+    const to_insert_item = validator.matchedData(req);
+    const to_insert_products = to_insert_item.products;
+    delete to_insert_item.products;
 
     try {
-        const to_insert_item = validator.matchedData(req);
-        const to_insert_products = to_insert_item.products;
-        delete to_insert_item.products;
-
+        // Verifica esistenza categoria e specie target
         checkCategoryExists(to_insert_item.category);
         for (const product of to_insert_products) {
             if (product.target_species) {
@@ -137,19 +137,19 @@ async function searchItemByBarcode(req, res) {
 /*
     Gestisce la ricerca di tutti i prodotti associati ad un item
 */
-async function searchProducts(req, res) {
-    let products = []; // Conterrà il risultato della ricerca
+async function searchSingleItem(req, res) {
+    let out_item;
 
     try {
-        const item = await ItemModel.findById(req.params.item_id).populate("products_id").exec();
-        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        products = item.products_id.map(product => product.getData());
+        out_item = await ItemModel.findById(req.params.item_id).exec();
+        if (!out_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
+        out_item = await out_item.getData();
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(products);
+    return res.status(utils.http.OK).json(out_item);
 }
 
 /*
@@ -325,7 +325,7 @@ module.exports = {
     createUploadImages: createUploadImages,
     search: searchItem,
     searchByBarcode: searchItemByBarcode,
-    searchProducts: searchProducts,
+    searchItem: searchSingleItem,
     updateItem: updateItemById,
     updateProduct: updateProductByIndex,
     deleteItem: deleteItemById,

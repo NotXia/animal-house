@@ -115,38 +115,38 @@ describe("Test GET /shop/items/", function () {
     });
 });
 
-describe("Test GET /shop/items/:item_id/products", function () {
+describe("Test GET /shop/items/:item_id", function () {
     test("Richiesta corretta", async function () {
-        let res = await curr_session.get(`/shop/items/${items[0]._id}/products/`).expect(200);
-        expect(res.body).toEqual(expect.any(Array));
-        expect(res.body.length).toEqual(1);
-        expect(res.body[0].name).toEqual("Prodotto1");
+        let res = await curr_session.get(`/shop/items/${items[0]._id}`).expect(200);
+        expect(res.body.products).toEqual(expect.any(Array));
+        expect(res.body.products.length).toEqual(1);
+        expect(res.body.products[0].name).toEqual("Prodotto1");
 
-        res = await curr_session.get(`/shop/items/${items[1]._id}/products/`).expect(200);
-        expect(res.body).toEqual(expect.any(Array));
-        expect(res.body.length).toEqual(2);
-        expect(res.body[0].name).toEqual("Prodotto2");
+        res = await curr_session.get(`/shop/items/${items[1]._id}`).expect(200);
+        expect(res.body.products).toEqual(expect.any(Array));
+        expect(res.body.products.length).toEqual(2);
+        expect(res.body.products[0].name).toEqual("Prodotto2");
     });
 
     test("Richiesta errata", async function () {
-        await curr_session.get(`/shop/items/aaaa/products`).expect(400);
-        const res = await curr_session.get(`/shop/items/${products[0]._id}/products/`).expect(404);
+        await curr_session.get(`/shop/items/aaaa`).expect(400);
+        const res = await curr_session.get(`/shop/items/${products[0]._id}`).expect(404);
         expect(res.body.message).toBeDefined();
     });
 });
 
-describe("Test GET /shop/items/:barcode", function () {
+describe("Test GET /shop/items/barcode/:barcode", function () {
     test("Richiesta corretta", async function () {
-        const res = await curr_session.get("/shop/items/1").set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        const res = await curr_session.get("/shop/items/barcode/1").set({ Authorization: `Bearer ${admin_token}` }).expect(200);
         expect(res.body.name).toEqual("Item1");
     });
 
     test("Richiesta non autenticata", async function () {
-        await curr_session.get("/shop/items/1").expect(401);
+        await curr_session.get("/shop/items/barcode/1").expect(401);
     });
 
     test("Richiesta vuota", async function () {
-        const res = await curr_session.get("/shop/items/aaaa").set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        const res = await curr_session.get("/shop/items/barcode/aaaa").set({ Authorization: `Bearer ${admin_token}` }).expect(404);
         expect(res.body.message).toBeDefined();
     });
 });
@@ -222,7 +222,7 @@ describe("Test inserimento", function () {
             .attach("file0", img2)
             .expect(200);
 
-        const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
+        const products = (await curr_session.get(`/shop/items/${item_id}`).expect(200)).body.products;
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[0].images_path[0])))).toBeTruthy();
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[0].images_path[1])))).toBeTruthy();
         expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[1].images_path[0])))).toBeTruthy();
@@ -308,13 +308,13 @@ describe("Test modifica", function () {
 
 describe("Test cancellazione", function () {
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index/images/:image_index", async function () {
-        const product0_before = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
+        const product0_before = (await curr_session.get(`/shop/items/${item_id}`).expect(200)).body.products[0];
 
         await curr_session.delete(`/shop/items/${item_id}/products/0/images/0`)
             .set({ Authorization: `Bearer ${admin_token}` })
             .expect(204);
 
-        const product0_after = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
+        const product0_after = (await curr_session.get(`/shop/items/${item_id}`).expect(200)).body.products[0];
         expect(product0_before.images_path.length).toEqual(3);
         expect(product0_after.images_path.length).toEqual(2);
         expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, product0_before.images_path[0]))).toBeTruthy();
@@ -325,7 +325,7 @@ describe("Test cancellazione", function () {
             .set({ Authorization: `Bearer ${admin_token}` })
             .expect(204);
 
-        const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
+        const products = (await curr_session.get(`/shop/items/${item_id}`).expect(200)).body.products;
         expect(products.length).toEqual(1);
         expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(to_delete_image)))).toBeTruthy();
         expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();

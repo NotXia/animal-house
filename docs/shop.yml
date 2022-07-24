@@ -14,7 +14,7 @@ paths:
       - "Item e prodotti"
       summary: "Creazione di un nuovo item nello shop"
       description: |
-        Gestisce l'inserimento di un nuovo item con prodotti inclusi nello shop.
+        Gestisce l'inserimento di un nuovo item e i prodotti inclusi.
         
         Richiede permessi ["operator", "shop_write"]
       consumes:
@@ -72,6 +72,10 @@ paths:
           description: "Inserito con successo"
           schema:
               $ref: "#/definitions/Item"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere all'item"
         400:
           description: "Parametri malformati"
           schema:
@@ -155,6 +159,38 @@ paths:
           description: "Errore lato server"
 
   /shop/items/{item_id}:
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca di item"
+      description: |
+        Ricerca di un item dato il suo id.
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        description: "Id dell'item"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Item ricercato"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ValidatorErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
     put:
       tags:
       - "Item e prodotti"
@@ -173,6 +209,7 @@ paths:
         type: string
         format: ObjectId
         required: true
+        description: "Id dell'item da modificare"
       - name: body
         in: body
         description: "Dati dell'item"
@@ -187,6 +224,7 @@ paths:
               type: string
             relevance:
               type: number
+              format: int
       responses:
         200:
           description: "Modificato con successo"
@@ -227,6 +265,7 @@ paths:
         type: string
         format: ObjectId
         required: true
+        description: "Id dell'item da cancellare"
       responses:
         204:
           description: "Cancellato con successo"
@@ -249,17 +288,15 @@ paths:
         500:
           description: "Errore lato server"
 
-  /shop/items/{barcode}:
+  /shop/items/barcode/{barcode}:
     get:
       tags:
       - "Item e prodotti"
       summary: "Ricerca di un item per barcode di un prodotto"
       description: |
-        Ricerca l'item associato ad un prodotto, cercando per barcode di un prodotto.
+        Ricerca l'item che contiene un determinato prodotto ricercato per barcode.
 
         Richiede permessi ["operator", "shop_read"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -277,42 +314,14 @@ paths:
           description: "Parametri malformati"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        404:
-          description: "Nessun item trovato"
+        401:
+          description: "Non autenticato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Errore lato server"
-
-  /shop/items/{item_id}/products/:
-    get:
-      tags:
-      - "Item e prodotti"
-      summary: "Estrazione di tutti i prodotti associati ad un item"
-      description: |
-        Ricerca tutti i prodotti associati ad un item dato il suo id
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - name: item_id
-        in: path
-        description: "ObjectId dell'item"
-        required: true
-        type: string
-        format: ObjectId
-      responses:
-        200:
-          description: "OK"
+        403:
+          description: "Permessi insufficienti"
           schema:
-            type: array
-            items:
-              $ref: "#/definitions/Product"
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "#/definitions/ValidatorErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
@@ -563,7 +572,7 @@ paths:
       description: |
         Creazione di una nuova categoria.
 
-        Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
+        Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
       consumes:
@@ -606,7 +615,7 @@ paths:
       description: |
         Aggiornamento di una categoria.
 
-        Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
+        Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
       consumes:
@@ -651,7 +660,8 @@ paths:
       summary: "Cancellazione di categorie"
       description: |
         Cancellazione di una categoria.
-        Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
+
+        Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
       consumes:

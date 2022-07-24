@@ -25,8 +25,7 @@ async function getCategories(req, res) {
     let categories;
 
     try {
-        categories = await CategoryModel.find({}, { _id: 0 }).exec();
-        if (categories.length === 0) { throw error.generate.NOT_FOUND("Non ci sono categorie"); }
+        categories = await CategoryModel.find({}).exec();
         categories = categories.map(category => category.getData());
     }
     catch (err) {
