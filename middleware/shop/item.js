@@ -9,6 +9,7 @@ const validateCreate = [
     validator.validateItemName("body", REQUIRED),
     validator.validateItemDescription("body", OPTIONAL),
     validator.validateCategoryName("body", REQUIRED, "category"),
+    validator.validateItemRelevance("body", OPTIONAL),
     validator.validateListOfProducts("body", REQUIRED),
     utils.validatorErrorHandler,
 ];
@@ -40,6 +41,7 @@ const validateUpdateItemById = [
     validator.validateItemName("body", OPTIONAL),
     validator.validateItemDescription("body", OPTIONAL),
     validator.validateCategoryName("body", OPTIONAL, "category"),
+    validator.validateItemRelevance("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
