@@ -7,16 +7,17 @@ const validator = require('express-validator');
 /* Creazione di una nuova categoria */
 async function insertCategory(req, res) {
     const category_data = validator.matchedData(req);
+    let new_category;
 
     try {
-        await new CategoryModel(category_data).save();
+        new_category = await new CategoryModel(category_data).save();
     }
     catch (err) {
         if (err.code == utils.MONGO_DUPLICATED_KEY) { err = error.generate.CONFLICT({ field: "name", message: "Esiste già una categoria con il nome inserito" }); }
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.CREATED);
+    return res.status(utils.http.CREATED).json(new_category.getData());
 }
 
 /* Lista di tutte le categorie */
@@ -26,6 +27,7 @@ async function getCategories(req, res) {
     try {
         categories = await CategoryModel.find({}, { _id: 0 }).exec();
         if (categories.length === 0) { throw error.generate.NOT_FOUND("Non ci sono categorie"); }
+        categories = categories.map(category => category.getData());
     }
     catch (err) {
         return error.response(err, res);
@@ -38,16 +40,17 @@ async function getCategories(req, res) {
 async function updateCategory(req, res) {
     const to_change_category = req.params.category;
     const updated_data = validator.matchedData(req, { locations: ["body"] });
+    let updated_category;
 
     try {
-        const updated_category = await CategoryModel.findOneAndUpdate({ name: to_change_category }, updated_data).exec();
+        updated_category = await CategoryModel.findOneAndUpdate({ name: to_change_category }, updated_data).exec();
         if (!updated_category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.status(utils.http.OK).json(updated_category.getData());
 }
 
 /* Cancellazione di una categoria */
@@ -62,7 +65,7 @@ async function deleteCategory(req, res) {
         return error.response(err, res);
     }
     
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 module.exports = {
