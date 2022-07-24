@@ -3,6 +3,7 @@ require('dotenv').config();
 const ItemModel = require("../../models/shop/item");
 const ProductModel = require("../../models/shop/product");
 const CategoryModel = require("../../models/shop/category");
+const SpeciesModel = require("../../models/animals/species");
 
 const { nanoid } = require("nanoid");
 const validator = require("express-validator");
@@ -10,10 +11,18 @@ const path = require("path");
 const fs = require("fs");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
+const product = require('../../models/shop/product');
 
 async function checkCategoryExists(category_name) {
     if (!await CategoryModel.findByName(category_name)) { 
         throw error.generate.NOT_FOUND("Categoria inesistente"); 
+    }
+    return true;
+}
+
+async function checkSpeciesExists(species_name) {
+    if (!await SpeciesModel.findByName(species_name)) { 
+        throw error.generate.NOT_FOUND("Specie inesistente"); 
     }
     return true;
 }
@@ -31,6 +40,11 @@ async function createItem(req, res) {
         delete to_insert_item.products;
 
         checkCategoryExists(to_insert_item.category);
+        for (const product of to_insert_products) {
+            if (product.target_species) {
+                for (const species of product.target_species) { checkSpeciesExists(species.name); }
+            }
+        }
 
         // Inserimento dei singoli prodotti
         const products = await ProductModel.insertMany(to_insert_products);
@@ -166,6 +180,10 @@ async function updateProductByIndex(req, res) {
     let updated_product;
 
     try {
+        if (updated_fields.target_species) {
+            for (const species of product.target_species) { checkSpeciesExists(species.name); }
+        }
+
         // Estrazione del prodotto a partire dall'item
         const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
