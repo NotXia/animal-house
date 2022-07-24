@@ -257,8 +257,6 @@ paths:
         Gestisce la cancellazione di un item e di tutti i suoi prodotti associati.
 
         Richiede permessi ["operator", "shop_write"]
-      produces:
-      - "application/json"
       parameters:
       - name: item_id
         in: path
@@ -351,6 +349,7 @@ paths:
       - name: product_index
         in: path
         type: number
+        format: int
         required: true
       - name: body
         in: body
@@ -427,6 +426,13 @@ paths:
             location:
               type : string
               description: "Endpoint a cui richiedere la cancellazione dell'item"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
         400:
           description: "Parametri malformati"
           schema:
@@ -472,6 +478,7 @@ paths:
       - name: files
         in: formData
         type: file
+        required: true
       responses:
         200:
           description: "Immagini inserite con successo"
@@ -506,8 +513,6 @@ paths:
 
 
         Richiede permessi ["operator", "shop_write"]
-      produces:
-      - "application/json"
       parameters:
       - name: item_id
         in: path
@@ -662,10 +667,6 @@ paths:
         Cancellazione di una categoria.
 
         Richiede permessi ["operator", "shop_write"]
-      produces:
-      - "application/json"
-      consumes:
-      - "application/json"
       parameters:
       - name: category
         description: "Categoria da cancellare"
