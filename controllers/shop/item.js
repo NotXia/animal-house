@@ -22,24 +22,23 @@ async function checkCategoryExists(category_name) {
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
 */
 async function createItem(req, res) {
-    let new_item_id;
-    let products_id
+    let new_item;
+    let products_id;
 
     try {
         const to_insert_item = validator.matchedData(req);
         const to_insert_products = to_insert_item.products;
+        delete to_insert_item.products;
 
         checkCategoryExists(to_insert_item.category);
 
         // Inserimento dei singoli prodotti
         const products = await ProductModel.insertMany(to_insert_products);
-        const products_id = products.map((product) => product._id);
-        delete to_insert_item.products;
+        products_id = products.map((product) => product._id);
         to_insert_item.products_id = products_id;
 
         // Inserimento dell'item
-        const new_item = await new ItemModel(to_insert_item).save();
-        new_item_id = new_item.id;
+        new_item = await new ItemModel(to_insert_item).save();
     }
     catch (err) {
         if (err.code == utils.MONGO_DUPLICATED_KEY) {
@@ -49,7 +48,7 @@ async function createItem(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item_id}`).json({ id: new_item_id });
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(new_item.getData());
 }
 
 /*
@@ -83,9 +82,12 @@ async function searchItem(req, res) {
                 as: "products"
             }},
             { $project: {
+                _id: 0,
+                id: "$_id",
                 name: 1,
                 description: 1,
                 min_price: { $min: "$products.price" }, // Il prezzo che rappresenta l'item è quello più piccolo tra i suoi prodotti
+                max_price: { $max: "$products.price" }, // Il prezzo che rappresenta l'item è quello più piccolo tra i suoi prodotti
                 product_number: { $size: "$products" },
                 image_path: { // L'immagine associata ad un item è la prima del primo prodotto
                     $first: {
@@ -124,7 +126,7 @@ async function searchItemByBarcode(req, res) {
         return error.response(err, res);
     }
     
-    return res.status(utils.http.OK).json(item);
+    return res.status(utils.http.OK).json(item.getData());
 }
 
 /*
@@ -134,9 +136,9 @@ async function searchProducts(req, res) {
     let products = []; // Conterrà il risultato della ricerca
 
     try {
-        const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec();
+        const item = await ItemModel.findById(req.params.item_id).populate("products_id").exec();
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        products = item.products_id;
+        products = item.products_id.map(product => product.getData());
     }
     catch (err) {
         return error.response(err, res);
@@ -150,21 +152,19 @@ async function searchProducts(req, res) {
 */
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
-    
-    // Estrazione id della categoria
-    if (updated_fields.category) {
-        checkCategoryExists(to_insert_item.category);
-    }
+    let updated_item = undefined;
+
+    if (updated_fields.category) { checkCategoryExists(to_insert_item.category); }
 
     try {
-        const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
+        updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
         if (!updated_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-    
-        return res.status(utils.http.OK).json(updated_item);
     }
     catch (err) {
         return error.response(err, res);
     }
+
+    return res.status(utils.http.OK).json(updated_item.getData());
 }
 
 /*
@@ -174,8 +174,8 @@ async function updateProductByIndex(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
     let updated_product;
 
-    // Estrazione del prodotto a partire dall'item
     try {
+        // Estrazione del prodotto a partire dall'item
         const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
         if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
@@ -186,7 +186,7 @@ async function updateProductByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(updated_product);
+    return res.status(utils.http.OK).json(updated_product.getData());
 }
 
 /* 
@@ -214,7 +214,7 @@ async function deleteItemById(req, res) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 /* 
@@ -244,7 +244,7 @@ async function deleteProductByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 
@@ -252,6 +252,8 @@ async function deleteProductByIndex(req, res) {
     Gestisce il caricamento e salvataggio di immagini associate ai prodotti 
 */
 async function createUploadImages(req, res) {
+    let updated_product = undefined;
+
     try {
         // Ricerca dell'id del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
@@ -270,13 +272,13 @@ async function createUploadImages(req, res) {
         }
 
         // Salvataggio dei nomi dei file nel database
-        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } });
+        updated_product = await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } }, { new: true });
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.status(utils.http.OK).json(updated_product.getData());
 }
 
 /*
@@ -305,7 +307,7 @@ async function deleteImageByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 

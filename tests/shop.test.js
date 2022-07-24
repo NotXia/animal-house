@@ -232,9 +232,9 @@ describe("Test inserimento", function () {
             .expect(200);
 
         const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
-        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[0]))).toBeTruthy();
-        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[0].images_path[1]))).toBeTruthy();
-        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, products[1].images_path[0]))).toBeTruthy();
+        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[0].images_path[0])))).toBeTruthy();
+        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[0].images_path[1])))).toBeTruthy();
+        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[1].images_path[0])))).toBeTruthy();
         to_delete_image = products[1].images_path[0];
     });
 
@@ -291,7 +291,7 @@ describe("Test modifica", function () {
         expect(res.body.description).toEqual("Nuova descrizione");
         expect(res.body.price).toEqual(6000);
         expect(res.body.quantity).toEqual(20);
-        const item = await ProductModel.findById(res.body._id).exec();
+        const item = await ProductModel.findOne({ barcode: res.body.barcode}).exec();
         expect(item.name).toEqual("NewProdotto1 modificato");
         expect(item.description).toEqual("Nuova descrizione");
         expect(item.price).toEqual(6000);
@@ -321,7 +321,7 @@ describe("Test cancellazione", function () {
 
         await curr_session.delete(`/shop/items/${item_id}/products/0/images/0`)
             .set({ Authorization: `Bearer ${admin_token}` })
-            .expect(200);
+            .expect(204);
 
         const product0_after = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body[0];
         expect(product0_before.images_path.length).toEqual(3);
@@ -332,11 +332,11 @@ describe("Test cancellazione", function () {
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
         await curr_session.delete(`/shop/items/${item_id}/products/1`)
             .set({ Authorization: `Bearer ${admin_token}` })
-            .expect(200);
+            .expect(204);
 
         const products = (await curr_session.get(`/shop/items/${item_id}/products/`).expect(200)).body;
         expect(products.length).toEqual(1);
-        expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image))).toBeTruthy();
+        expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(to_delete_image)))).toBeTruthy();
         expect(await ProductModel.findOne({ barcode: "new23456" }).exec()).toBeNull();
     });
 
@@ -352,7 +352,7 @@ describe("Test cancellazione", function () {
     test("Richiesta corretta a DELETE /items/:item_id", async function () {
         await curr_session.delete(`/shop/items/${item_id}`)
             .set({ Authorization: `Bearer ${admin_token}` })
-            .expect(200);
+            .expect(204);
 
         expect(await ItemModel.findById(item_id).exec()).toBeNull();
         expect(await ProductModel.findOne({ barcode: "new12345" }).exec()).toBeNull();

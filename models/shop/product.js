@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const SpeciesModel = require("../animals/species");
@@ -31,5 +32,16 @@ const productSchema = mongoose.Schema({
 
 productSchema.index({ price: 1, barcode: 1 });
 
+productSchema.methods.getData = function() {
+    return {
+        barcode: this.barcode,
+        name: this.name,
+        description: this.description,
+        images_path: this.images_path.map(path => `${process.env.SHOP_IMAGES_BASE_URL}/${path}`),
+        target_species: this.target_species_id,
+        price: this.price,
+        quantity: this.quantity
+    };
+};
 
 module.exports = mongoose.model("products", productSchema);

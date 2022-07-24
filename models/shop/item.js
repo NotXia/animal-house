@@ -40,4 +40,14 @@ itemSchema.pre("validate", async function (next) {
     }
 });
 
+itemSchema.methods.getData = function() {
+    return {
+        id: this._id,
+        name: this.name,
+        description: this.description,
+        category: this.category,
+        relevance: this.relevance
+    };
+};
+
 module.exports = mongoose.model("items", itemSchema);
