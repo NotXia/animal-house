@@ -15,6 +15,7 @@ paths:
       summary: "Creazione di un nuovo item nello shop"
       description: |
         Gestisce l'inserimento di un nuovo item con prodotti inclusi nello shop.
+        
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - "application/json"
@@ -160,6 +161,7 @@ paths:
       summary: "Modifica delle generalità di un item"
       description: |
         Gestisce la modifica dei dati generali di un item (non dei singoli prodotti).
+
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - "application/json"
@@ -215,6 +217,7 @@ paths:
       summary: "Cancellazione di un item"
       description: |
         Gestisce la cancellazione di un item e di tutti i suoi prodotti associati.
+
         Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
@@ -252,7 +255,8 @@ paths:
       - "Item e prodotti"
       summary: "Ricerca di un item per barcode di un prodotto"
       description: |
-        Ricerca l'item associato ad un prodotto, cercando per barcode di un prodotto
+        Ricerca l'item associato ad un prodotto, cercando per barcode di un prodotto.
+
         Richiede permessi ["operator", "shop_read"]
       consumes:
       - "application/json"
@@ -323,6 +327,7 @@ paths:
       summary: "Modifica i dati di un prodotto"
       description: |
         Gestisce la modifica dei dati di un prodotto ricercato a partire dall'item di appartenenza.
+
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - "application/json"
@@ -388,6 +393,7 @@ paths:
       summary: "Cancellazione di un prodotto"
       description: |
         Gestisce la cancellazione di un prodotto ricercato a partire dall'item di appartenenza.
+
         Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
@@ -438,6 +444,7 @@ paths:
       summary: "Caricamento di immagini associate ad un prodotto"
       description: |
         Gestisce il caricamento delle immagini associate ad un prodotto.
+
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - multipart/form-data
@@ -487,6 +494,8 @@ paths:
       summary: "Cancellazione di una immagine associata ad un prodotto"
       description: |
         Gestisce la cancellazione di una immagine associata ad un prodotto.
+
+
         Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
@@ -540,7 +549,7 @@ paths:
       - "application/json"
       responses:
         200:
-          description: "Ok"
+          description: "Lista di tutte le categorie disponibili"
           schema:
             type: array
             items:
@@ -553,6 +562,7 @@ paths:
       summary: "Inserimento di categorie"
       description: |
         Creazione di una nuova categoria.
+
         Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
       produces:
       - "application/json"
@@ -561,6 +571,7 @@ paths:
       parameters:
       - name: body
         in: body
+        required: true
         description: "Dati della categoria"
         schema:
           $ref: "#/definitions/Category"
@@ -594,6 +605,7 @@ paths:
       summary: "Aggiornamento di categorie"
       description: |
         Aggiornamento di una categoria.
+
         Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
       produces:
       - "application/json"
@@ -601,6 +613,7 @@ paths:
       - "application/json"
       parameters:
       - name: category
+        description: "Categoria da aggiornare"
         in: path
         type: string
         required: true
@@ -645,6 +658,7 @@ paths:
       - "application/json"
       parameters:
       - name: category
+        description: "Categoria da cancellare"
         in: path
         type: string
         required: true
@@ -681,6 +695,9 @@ definitions:
       icon:
         type: string
         format: byte
+    required:
+      - name
+      - icon
 
   Item:
     type: object
@@ -699,6 +716,13 @@ definitions:
         type: array
         items:
             $ref: "#/definitions/Product"
+    required:
+      - id
+      - name
+      - description
+      - category
+      - relevance
+      - products
 
   Product:
     type: object
@@ -721,3 +745,11 @@ definitions:
         type: number
       quantity:
         type: number
+  required:
+      - barcode
+      - name
+      - description
+      - images_path
+      - target_species
+      - price
+      - quantity
