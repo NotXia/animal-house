@@ -49,7 +49,7 @@ const validateUpdateProductByIndex = [
     validator.validateProductBarcode("body", OPTIONAL),
     validator.validateItemName("body", OPTIONAL),
     validator.validateItemDescription("body", OPTIONAL),
-    validator.validateProductTargetSpeciesId("body", OPTIONAL),
+    validator.validateProductTargetSpecies("body", OPTIONAL),
     validator.validateProductPrice("body", OPTIONAL),
     validator.validateProductQuantity("body", OPTIONAL),
     utils.validatorErrorHandler
