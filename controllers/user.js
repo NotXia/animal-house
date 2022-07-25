@@ -1,5 +1,4 @@
 require('dotenv').config();
-const mongoose = require("mongoose");
 const UserModel = require("../models/auth/user");
 const OperatorModel = require("../models/auth/operator");
 const CustomerModel = require("../models/auth/customer");
@@ -18,6 +17,7 @@ async function insertOperator(req, res) {
         
         data.user.permission.operator = true;
         data.user.type_id = new_operator._id;
+        data.user.type_name = "operator";
         new_user = await new UserModel(data.user).save();
 
         return res.status(utils.http.CREATED).json({});
@@ -42,6 +42,7 @@ async function insertCustomer(req, res) {
 
         data.user.permission = { customer: true };
         data.user.type_id = new_customer._id;
+        data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
         return res.status(utils.http.CREATED).json({});
@@ -117,7 +118,7 @@ function deleteUser(is_operator) {
                 await CustomerModel.findByIdAndDelete(user.customer._id);
             }
         } catch (e) {
-            return error.response(err, res);
+            return error.response(e, res);
         }
 
         return res.sendStatus(utils.http.OK);
