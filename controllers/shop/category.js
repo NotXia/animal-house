@@ -1,5 +1,4 @@
 require('dotenv').config();
-const mongoose = require("mongoose");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const CategoryModel = require("../../models/shop/category");
@@ -13,9 +12,10 @@ async function insertCategory(req, res) {
         await new CategoryModel(category_data).save();
     }
     catch (err) {
-        if (err.code === utils.MONGO_DUPLICATED_KEY) { return res.status(utils.http.CONFLICT).json(error.formatMessage(utils.http.CONFLICT)); }
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        if (err.code == utils.MONGO_DUPLICATED_KEY) { err = error.generate.CONFLICT({ field: "name", message: "Esiste già una categoria con il nome inserito" }); }
+        return error.response(err, res);
     }
+
     return res.sendStatus(utils.http.CREATED);
 }
 
@@ -25,11 +25,12 @@ async function getCategories(req, res) {
 
     try {
         categories = await CategoryModel.find({}, { _id: 0 }).exec();
-        if (categories.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (categories.length === 0) { throw error.generate.NOT_FOUND("Non ci sono categorie"); }
     }
     catch (err) {
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        return error.response(err, res);
     }
+
     return res.status(utils.http.OK).json(categories);
 }
 
@@ -40,11 +41,12 @@ async function updateCategory(req, res) {
 
     try {
         const updated_category = await CategoryModel.findOneAndUpdate({ name: to_change_category }, updated_data).exec();
-        if (!updated_category) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!updated_category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
     }
     catch (err) {
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        return error.response(err, res);
     }
+
     return res.sendStatus(utils.http.OK);
 }
 
@@ -54,11 +56,12 @@ async function deleteCategory(req, res) {
 
     try {
         const deleted_category = await CategoryModel.findOneAndDelete({ name: to_delete_category }).exec();
-        if (!deleted_category) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!deleted_category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
     }
     catch (err) {
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        return error.response(err, res);
     }
+    
     return res.sendStatus(utils.http.OK);
 }
 

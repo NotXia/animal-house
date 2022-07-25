@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const error = require("../../error_handler");
 
 const categorySchema = mongoose.Schema({
     name: {

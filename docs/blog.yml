@@ -51,15 +51,15 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     get:
@@ -106,19 +106,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
   /posts/{post_id}:
@@ -149,19 +149,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     put:
@@ -206,19 +206,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     delete:
@@ -246,19 +246,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
   
@@ -299,15 +299,15 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     get:
@@ -354,19 +354,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
   /posts/{post_id}/comments/{comment_index}:
@@ -420,19 +420,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     put:
@@ -471,19 +471,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     delete:
@@ -520,19 +520,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
@@ -580,19 +580,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         409:
           description: "Topic con lo stesso nome già esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
   /posts/topics/{topic}:
@@ -623,19 +623,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Topic non esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     delete:
@@ -660,19 +660,19 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Topic non esistente"
           schema:
-            $ref: "#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
@@ -731,25 +731,6 @@ definitions:
     - content
     - creationDate
 
-  ValidationErrorMessage:
-    type: array
-    items:
-      type: object
-      properties:
-        field:
-          type: string
-          description: "Il campo errato"
-        message:
-          type: string
-          description: "Informazioni sull'errore"
-
-  ErrorMessage:
-    type: object
-    properties:
-      message:
-        type: string
-        description: "Informazioni sull'errore"
-  
   ObjectId:
     type: string
     format: ObjectId

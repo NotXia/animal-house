@@ -1,5 +1,4 @@
 require('dotenv').config();
-const mongoose = require("mongoose");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const TopicModel = require("../../models/blog/topic");
@@ -13,9 +12,10 @@ async function insertTopic(req, res) {
         await new TopicModel(topic_data).save();
     }
     catch (err) {
-        if (err.code === utils.MONGO_DUPLICATED_KEY) { return res.status(utils.http.CONFLICT).json(error.formatMessage(utils.http.CONFLICT)); }
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        if (err.code === utils.MONGO_DUPLICATED_KEY) { err = error.generate.CONFLICT({ field: "name", message: "Esiste già un topic con il nome inserito" }); }
+        return error.response(err, res);
     }
+
     return res.sendStatus(utils.http.CREATED);
 }
 
@@ -25,11 +25,12 @@ async function getTopics(req, res) {
 
     try {
         topics = await TopicModel.find({}, { _id: 0 }).exec();
-        if (topics.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (topics.length === 0) { throw error.generate.NOT_FOUND("Non ci sono topic"); }
     }
     catch (err) {
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        return error.response(err, res);
     }
+
     return res.status(utils.http.OK).json(topics);
 }
 
@@ -40,11 +41,12 @@ async function updateTopic(req, res) {
 
     try {
         const updated_topic = await TopicModel.findOneAndUpdate({ name: to_change_topic }, updated_data).exec();
-        if (!updated_topic) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!updated_topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
     }
     catch (err) {
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        return error.response(err, res);
     }
+
     return res.sendStatus(utils.http.OK);
 }
 
@@ -54,11 +56,12 @@ async function deleteTopic(req, res) {
 
     try {
         const deleted_topic = await TopicModel.findOneAndDelete({ name: to_delete_topic }).exec();
-        if (!deleted_topic) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!deleted_topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
     }
     catch (err) {
-        return res.status(utils.http.INTERNAL_SERVER_ERROR).json(error.formatMessage(utils.http.INTERNAL_SERVER_ERROR));
+        return error.response(err, res);
     }
+
     return res.sendStatus(utils.http.OK);
 }
 

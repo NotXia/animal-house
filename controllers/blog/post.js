@@ -2,7 +2,6 @@ require('dotenv').config();
 const PostModel = require("../../models/blog/post");
 const TopicModel = require("../../models/blog/topic");
 const UserModel = require("../../models/auth/user");
-const mongoose = require("mongoose");
 
 const utils = require("../../utilities");
 const error = require("../../error_handler");
@@ -15,20 +14,20 @@ const validator = require("express-validator");
 // Inserimento di un post
 async function insertPost(req, res) {
     try {
-        const topic_id = (await TopicModel.findByName(req.body.topic))._id;
-        if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
+        const topic = await TopicModel.findByName(req.body.topic);
+        if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
 
         const newPost = new PostModel({
             user_id: req.auth.id,
             content: req.body.content,
-            topic_id: topic_id,
+            topic_id: topic._id,
             tag_users_id: req.body.tag_users_id,
             tag_animals_id: req.body.tag_animals_id
         });
         await newPost.save();
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/posts/${newPost._id}`).json(newPost);
     } catch (e) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
 }
 
@@ -40,14 +39,14 @@ async function searchPosts(req, res) {
         // Estrae l'id dell'utente a partire dallo username
         if (req.query.username) {
             const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
-            if (!user) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage("Utente inesistente")); }
+            if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
             query.user_id = user._id;
         }
         // Estrae l'id del topic a partire dal nome
         if (req.query.topic) { 
-            const topic_id = (await TopicModel.findByName(req.body.topic))._id;
-            if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
-            query.topic_id = topic_id; 
+            const topic = await TopicModel.findByName(req.body.topic);
+            if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
+            query.topic_id = topic._id; 
         }
         
         let sort_criteria = { creationDate: "desc" };
@@ -58,11 +57,11 @@ async function searchPosts(req, res) {
                             .limit(req.query.page_size)
                             .skip(req.query.page_number)
                             .exec();
-        if (posts.length === 0) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (posts.length === 0) { throw error.generate.NOT_FOUND("Nessun post soddisfa i criteri di ricerca"); }
         return res.status(utils.http.OK).json(posts);
     }
     catch (err) { 
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
+        return error.response(err, res);
     }
 }
 
@@ -70,10 +69,10 @@ async function searchPosts(req, res) {
 async function searchPostById(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
         return res.status(utils.http.OK).json(post);
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
 }
 
@@ -84,17 +83,16 @@ async function updatePost(req, res) {
 
         // Estrae l'id del topic
         if (updated_fields.topic) {
-            const topic_id = (await TopicModel.findByName(updated_fields.topic))._id;
-            if (!topic_id) { return res.satus(utils.http.NOT_FOUND).json(error.formatMessage("Argomento non valido")); }
-
-            updated_fields.topic_id = topic_id;
+            const topic = await TopicModel.findByName(updated_fields.topic);
+            if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
+            updated_fields.topic_id = topic._id;
             delete updated_fields.topic;
         }
 
         const post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields);
-        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
     return res.sendStatus(utils.http.OK);
 }
@@ -104,10 +102,10 @@ async function deletePost(req, res) {
     const filter = { _id : req.params.post_id };
     try {
         const post = await PostModel.findOneAndDelete(filter);
-        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
         return res.sendStatus(utils.http.OK);
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
 }
 
@@ -123,9 +121,9 @@ async function insertComment(req, res) {
     };
     try {
         const post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } });
-        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
     return res.sendStatus(utils.http.CREATED);
 }
@@ -134,10 +132,10 @@ async function insertComment(req, res) {
 async function searchCommentByPost(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
         return res.status(utils.http.OK).json(post.comments);
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
 }
 
@@ -145,10 +143,10 @@ async function searchCommentByPost(req, res) {
 async function searchCommentByIndex(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
-        if (!post) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
         return res.status(utils.http.OK).json(post.comments[parseInt(req.params.comment_index)]);
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
 }
 
@@ -162,11 +160,12 @@ async function updateComment(req, res) {
 
     try {
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
-        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
+        if (!post.comments[parseInt(req.params.comment_index)]) { throw error.generate.NOT_FOUND("Commento inesistente"); }
 
         await PostModel.findByIdAndUpdate(req.params.post_id, { [`comments.${req.params.comment_index}`]: newComment });
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
 
     return res.sendStatus(utils.http.OK);
@@ -176,13 +175,14 @@ async function updateComment(req, res) {
 async function deleteComment(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
-        if (!post || !post.comments[parseInt(req.params.comment_index)]) { return res.status(utils.http.NOT_FOUND).json(error.formatMessage(utils.http.NOT_FOUND)); }
+        if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
+        if (!post.comments[parseInt(req.params.comment_index)]) { throw error.generate.NOT_FOUND("Commento inesistente"); }
 
         // Rimozione del commento (workaround per eliminare un elemento per indice)
         await PostModel.findByIdAndUpdate(req.params.post_id, { $unset: { [`comments.${req.params.comment_index}`]: 1 } });
         await PostModel.findByIdAndUpdate(req.params.post_id, { $pull: { comments: null } });
     } catch (err) {
-        return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
+        return error.response(err, res);
     }
     
     return res.sendStatus(utils.http.OK);
