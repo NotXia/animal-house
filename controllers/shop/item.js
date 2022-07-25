@@ -39,10 +39,10 @@ async function createItem(req, res) {
 
     try {
         // Verifica esistenza categoria e specie target
-        checkCategoryExists(to_insert_item.category);
+        await checkCategoryExists(to_insert_item.category);
         for (const product of to_insert_products) {
             if (product.target_species) {
-                for (const species of product.target_species) { checkSpeciesExists(species.name); }
+                for (const species of product.target_species) { await checkSpeciesExists(species.name); }
             }
         }
 
@@ -74,10 +74,7 @@ async function searchItem(req, res) {
     let sort_criteria = { "relevance": -1 };
 
     // Composizione della query
-    if (req.query.category) {
-        checkCategoryExists(to_insert_item.category);
-        query_criteria.category = category; 
-    }
+    if (req.query.category) { query_criteria.category = category; } // Non c'è bisogno di controllare l'esistenza
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
     
     // Determina il criterio di ordinamento
@@ -158,7 +155,7 @@ async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
     let updated_item = undefined;
 
-    if (updated_fields.category) { checkCategoryExists(to_insert_item.category); }
+    if (updated_fields.category) { await checkCategoryExists(to_insert_item.category); }
 
     try {
         updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
@@ -180,7 +177,7 @@ async function updateProductByIndex(req, res) {
 
     try {
         if (updated_fields.target_species) {
-            for (const species of product.target_species) { checkSpeciesExists(species.name); }
+            for (const species of product.target_species) { await checkSpeciesExists(species.name); }
         }
 
         // Estrazione del prodotto a partire dall'item
