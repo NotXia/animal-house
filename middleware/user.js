@@ -83,7 +83,7 @@ const validateInsertCustomer = [
 const validateInsertOperator = [
     validateNewUserData("body"),
     validator.validatePermission("body", REQUIRED),
-    validator.validateRole_id("body", REQUIRED),
+    validator.validateRole("body", OPTIONAL),
     validator.validateWorkingTime("body", REQUIRED),
     validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,
@@ -121,7 +121,7 @@ const validateUpdateCustomer = [
 const validateUpdateOperator = [
     validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
-    validator.validateRole_id("body", OPTIONAL),
+    validator.validateRole("body", OPTIONAL),
     validator.validateWorkingTime("body", OPTIONAL),
     validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,

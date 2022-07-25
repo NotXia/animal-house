@@ -6,7 +6,6 @@ const { createTime } = require("../utilities");
 const bcrypt = require("bcrypt");
 
 const HubModel = require("../models/services/hub");
-const RoleModel = require("../models/services/role");
 const UserModel = require("../models/auth/user");
 
 
@@ -18,12 +17,6 @@ beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 });
 
-
-describe("Inizializzazione", function () {
-    test("Popolazione database", async function () {
-        test_role = await new RoleModel({ name: "Test" }).save();
-    });
-});
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione corretta", async function () {
@@ -108,7 +101,7 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
             username: "Luigino23", password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            role_id: test_role._id,
+            role: "Pissicologo",
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -141,7 +134,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Luigino234", password: "LuiginoVerona33!",
             email: "luigino444@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role_id: test_role._id,
+            permission: { operator: true }, role: "Quoco",
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -156,7 +149,6 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
         expect(user).toBeDefined();
         expect(await bcrypt.compare("LuiginoVerona33!", user.password)).toBeTruthy();
         expect(user.operator).toBeDefined();
-        expect(user.operator.role_id).toBeDefined();
         expect(user.operator.working_time).toBeDefined();
         expect(user.operator.working_time.monday.length).toBeGreaterThanOrEqual(1);
 
@@ -175,7 +167,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Marcolino23", password: "LuiginoVerona33!",
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role_id: test_role._id,
+            permission: { operator: true },
             working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
@@ -189,7 +181,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "NonSonoMarcolino23", password: "LuiginoVerona33!",
             email: "marconi17@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role_id: test_role._id,
+            permission: { operator: true },
             working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
@@ -264,12 +256,5 @@ describe("Modifica di un operatore", function () {
 describe("Cancellazione di un operatore - tramite permesso admin", function () {
     test("Cancellazione di un operatore", async function () {
         await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
-    });
-});
-
-
-describe("Uscita", function () {
-    test_role = test("Pulizia database", async function () {
-        await RoleModel.deleteOne({ name: "Test" });
     });
 });

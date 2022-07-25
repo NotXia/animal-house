@@ -13,7 +13,7 @@ module.exports.validateGender =     (source, required=true, field_name="gender")
 module.exports.validatePhone =      (source, required=true, field_name="phone") => { return utils.handleRequired(validator[source](field_name), required).isMobilePhone("any").withMessage("Formato non valido"); }
 module.exports.validatePermission = (source, required=true, field_name="permission") => { return utils.handleRequired(validator[source](field_name), required); }
 
-module.exports.validateRole_id = (source, required=true, field_name="role_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
+module.exports.validateRole = (source, required=true, field_name="role") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateWorkingTime = function (source, required=true, field_name="working_time") {
     if (required) {
         let out = [ utils.handleRequired(validator[source](field_name), required) ];
