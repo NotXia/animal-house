@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const { errorHandler } = require("./error_handler");
+const { middlewareErrorHandler } = require("./error_handler");
 
 const auth = require("./routes/auth");
 const user = require("./routes/user");
@@ -22,7 +22,7 @@ app.use("/shop", shop);
 app.use("/blog", blog);
 app.use("/hub", hub);
 
-app.use(errorHandler);
+app.use(middlewareErrorHandler);
 
 if (!process.env.TESTING) {
     // Crea la connessione al database prima di avviare il server
