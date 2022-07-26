@@ -74,7 +74,7 @@ function validateNewUserData(source) {
 
 const validateInsertCustomer = [
     validateNewUserData("body"),
-    validator.validateAddress("body", REQUIRED),
+    validator.validateAddress("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupCustomerData("body")
 ];
@@ -130,6 +130,7 @@ const validateUpdateOperator = [
     validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
     validator.validateRole("body", OPTIONAL),
+    validator.validateListOfServices("body", OPTIONAL),
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
     function (req, _, next) {
