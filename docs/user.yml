@@ -21,22 +21,42 @@ paths:
         description: "Dati del cliente"
         required: true
         schema:
-          $ref: "#/definitions/Customer"
-
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+            surname:
+              type: string
+            gender:
+              type: string
+              enum: ["m", "f", "altro"]
+            phone:
+              type: string
+            address:
+              $ref: "#definitions/Address"
+          required: [ username, password, email, name, surname ]
       responses:
         201:
           description: "Creato con successo"
           schema:
-            type: object
-            properties:
-              id:
-                $ref: "#/definitions/ObjectId"
+            $ref: "#/definitions/CustomerUserAll"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati dell'utente"
         400:
           description: "Input malformato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         409:
-          description: "Cliente esistente"
+          description: "Cliente con stesso username/email esistente"
           schema:
             $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
@@ -48,10 +68,9 @@ paths:
       - "Clienti"
       summary: "Ricerca di un cliente"
       description: |
-        Gestisce la ricerca di un cliente tramite username
-        Richiede permessi ["user", "admin"]
-      consumes:
-      - "application/json"
+        Gestisce la ricerca di tutti i dati di un cliente tramite username
+
+        Richiede permessi [ ["user"], ["admin"] ]
       produces:
       - "application/json"
       parameters:
@@ -64,11 +83,11 @@ paths:
         200:
           description: "Trovato con successo"
           schema:
-              $ref: "#/definitions/Customer"
+              $ref: "#/definitions/CustomerUserAll"
         400:
           description: "Input malformato"
           schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
@@ -83,8 +102,6 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
-
-
       
     put:
       tags:
@@ -92,7 +109,8 @@ paths:
       summary: "Modifica di un cliente"
       description: |
         Gestisce la modifica di un cliente tramite criterio di ricerca con username
-        Richiede permessi ["user", "admin"]
+        
+        Richiede permessi [ ["user"], ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -124,14 +142,17 @@ paths:
               type: string
             address:
               $ref: "#/definitions/Address"
+            permission:
+              description: Permessi dell'utente (modificabile solo dagli amministratori)
+              type: object
+              properties:
+                permesso:
+                  type: boolean
       responses:
         200:
           description: "Modificato con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
+          schema:
+            $ref: "#/definitions/CustomerUserAll"
         400:
           description: "Input malformato"
           schema:
@@ -151,16 +172,14 @@ paths:
         500:
           description: "Internal server error"
 
-    
     delete:
       tags:
       - "Clienti"
       summary: "Cancellazione di un cliente"
       description: |
         Gestisce la cancellazione di un cliente tramite criterio di ricerca con username
-        Richiede permessi ["user", "admin"]
-      consumes:
-      - "application/json"
+        
+        Richiede permessi [ ["user"], ["admin"] ]
       produces:
       - "application/json"
       parameters:
@@ -170,13 +189,8 @@ paths:
         required: true
         type: string
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
           schema:
@@ -208,7 +222,8 @@ paths:
       summary: "Creazione di un nuovo operatore"
       description: |
         Gestisce l'inserimento di un operatore
-        Richiede permesso ["admin"]
+
+        Richiede permesso [ ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -227,28 +242,37 @@ paths:
               type: string
             email:
               type: string
+              format: email
             name:
               type: string
             surname:
               type: string
             gender:
               type: string
+              enum: ["m", "f", "altro"]
             phone:
               type: string
             permission:
-              $ref: "#/definitions/Permission_operator"
-            role_id:
-              $ref: "#/definitions/ObjectId"
-            working_time:
-              $ref: "#/definitions/Working_time"
+              type: object
+              properties:
+                permesso:
+                  type: boolean
+            role:
+              type: string
+            services:
+              type: array
+              items:
+                type: string
+          required: [ username, password, email, name, surname ]
       responses:
         201:
           description: "Creato con successo"
           schema:
-            type: object
-            properties:
-              id:
-                $ref: "#/definitions/ObjectId"
+            $ref: "#/definitions/OperatorUserAll"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati dell'utente"
         400:
           description: "Input malformato"
           schema:
@@ -275,9 +299,8 @@ paths:
       summary: "Ricerca di un operatore"
       description: |
         Gestisce la ricerca di un operatore tramite username
-        Richiede permessi ["operator", "admin"]
-      consumes:
-      - "application/json"
+
+        Richiede permessi [ ["operator"], ["admin"] ]
       produces:
       - "application/json"
       parameters:
@@ -290,7 +313,7 @@ paths:
         200:
           description: "Trovato con successo"
           schema:
-              $ref: "#/definitions/Operator"
+              $ref: "#/definitions/OperatorUserAll"
         400:
           description: "Input malformato"
           schema:
@@ -316,7 +339,8 @@ paths:
       summary: "Modifica di un operatore"
       description: |
         Gestisce la modifica di un operatore tramite criterio di ricerca con username
-        Richiede permesso ["operator", "admin"]
+        
+        Richiede permesso [ ["operator"], ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -346,22 +370,23 @@ paths:
               type: string
             phone:
               type: string
+            role:
+              type: string
+            services:
+              type: array
+              items:
+                type: string
             permission:
-              $ref: "#/definitions/Permission_operator"
-            role_id:
-              $ref: "#/definitions/ObjectId"
-            working_time:
-              $ref: "#/definitions/Working_time"
-            absence_time:
-              $ref: "#/definitions/Absence_time"
+              description: Permessi dell'utente (modificabile solo dagli amministratori)
+              type: object
+              properties:
+                permesso:
+                  type: boolean
       responses:
         200:
           description: "Modificato con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
+          schema:
+            $ref: "#/definitions/OperatorUserAll"
         400:
           description: "Input malformato"
           schema:
@@ -387,9 +412,8 @@ paths:
       summary: "Cancellazione di un operatore"
       description: |
         Gestisce la cancellazione di un operatore tramite criterio di ricerca con username
-        Richiede permessi ["admin"]
-      consumes:
-      - "application/json"
+        
+        Richiede permessi [ ["admin"] ]
       produces:
       - "application/json"
       parameters:
@@ -399,13 +423,8 @@ paths:
         required: true
         type: string
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
-          # schema:
-          #   type: object
-          #   properties:
-          #     id:
-          #       $ref: "#/definitions/ObjectId"
         400:
           description: "Input malformato"
           schema:
@@ -429,12 +448,10 @@ paths:
 
 definitions:
 
-  Customer:
+  CustomerUserAll:
     type: object
     properties:
       username:
-        type: string
-      password:
         type: string
       email:
         type: string
@@ -444,23 +461,33 @@ definitions:
         type: string
       gender:
         type: string
+      phone:
+        type: string
+      permission:
+        type: array
+        items:
+          type: string
+      enabled:
+        type: boolean
       address:
         $ref: "#/definitions/Address"
-      phone:
-        type: string
-    required:
-    - username
-    - password
-    - email
-    - name
-    - surname
+    required: [ username, email, name, surname, permission, enabled ]
 
-  Operator:
+  CustomerUserProfile:
     type: object
     properties:
       username:
         type: string
-      password:
+      name:
+        type: string
+      surname:
+        type: string
+    required: [ username, name, surname ]
+
+  OperatorUserAll:
+    type: object
+    properties:
+      username:
         type: string
       email:
         type: string
@@ -472,23 +499,41 @@ definitions:
         type: string
       phone:
         type: string
-      role_id:
-        $ref: "#/definitions/Role"
       permission:
-        $ref: "#/definitions/Permission_operator"
-      working_time:
-        $ref: "#/definitions/Working_time"
-      absence_time:
-        $ref: "#/definitions/Absence_time"
-    required:
-    - username
-    - password
-    - email
-    - name
-    - surname
-    - role_id
-    - working_time
-      
+        type: array
+        items:
+          type: string
+      enabled:
+        type: boolean
+      role:
+        type: string
+      services:
+        type: array
+        items:
+          type: string
+    required: [ username, email, phone, name, surname, permission, enabled, role, services ]
+
+  OperatorUserProfile:
+    type: object
+    properties:
+      username:
+        type: string
+      name:
+        type: string
+      surname:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+      services:
+        type: array
+        items:
+          type: string
+    required: [ username, name, surname, role, services, email, phone, address ]
+  
   Address:
     type: object
     properties:
@@ -500,169 +545,3 @@ definitions:
         type: string
       postalcode:
         type: string
-
-  Permission_user:
-    type: object
-    properties:
-      user:
-        type: boolean
-      vip:
-        type: boolean
-      write_post:
-        type: boolean
-      comment:
-        type: boolean
-
-  Permission_operator:
-    type: object
-    properties:
-      operator:
-        type: boolean
-      admin:
-        type: boolean
-
-  Role:
-    type: object
-    properties:
-      name:
-        type: string
-      services_id:
-        $ref: "#/definitions/Service"
-    required:
-    - name
-    - services_id
-      
-  Service:
-    type: object
-    properties:
-      name:
-        type: string
-      description:
-        type: string
-      duration:
-        type: number
-        format: int
-    required:
-    - name
-    - description
-    - duration
-
-  Time_slot:
-    type: object
-    properties:
-      start:
-        type: string
-        format: date-time
-      end:
-        type: string
-        format: date-time
-    required:
-    - start
-    - end
-
-  Absence_time:
-    type: object
-    properties:
-      monday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"
-      tuesday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"
-      wednesday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"
-      thursday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"
-      friday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"
-      saturday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"
-      sunday:
-        type: array
-        items:
-          $ref: "#/definitions/Time_slot"  
-
-  Working_time:
-    type: object
-    properties:
-      monday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"
-      tuesday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"
-      wednesday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"
-      thursday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"
-      friday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"
-      saturday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"
-      sunday:
-        type: array
-        items: 
-          type: object
-          properties:
-            time:
-              $ref: "#/definitions/Time_slot"
-            hub_id:
-              $ref: "#/definitions/ObjectId"  
-  
-  ObjectId:
-    type: string
-    format: ObjectId
-    example: "61338f5b47bfc65136b5de30"
-    
-      
-      
