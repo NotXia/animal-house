@@ -50,6 +50,6 @@ jobs:
 
     - name: Commit changes
       run: |
-        git add ./docs
+        git add ./docs/pdf --force
         git commit -m "Amici ho scritto la documentazione 🧯"
         git push
