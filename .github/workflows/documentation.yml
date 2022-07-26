@@ -3,7 +3,7 @@ name: 🍝 Generazione documentazione
 on:
   push:
     paths:
-      - docs/**
+      - docs/**.yml
   repository_dispatch:
 
 jobs:  
