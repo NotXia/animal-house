@@ -83,7 +83,7 @@ const validateInsertOperator = [
     validateNewUserData("body"),
     validator.validatePermission("body", OPTIONAL),
     validator.validateRole("body", OPTIONAL),
-    validator.validateListOfService("body", OPTIONAL),
+    validator.validateListOfServices("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
