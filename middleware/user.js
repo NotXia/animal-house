@@ -2,6 +2,7 @@
 const utils = require("./utils");
 const validator = require("./validators/user");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
+const error = require("../error_handler");
 
 /* Raggruppa in un unico Object tutti i campi relativi agli utenti */
 function _getUserData(source) {
@@ -120,7 +121,7 @@ const validateUpdateCustomer = [
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
     function (req, _, next) {
-        if (!req.auth.superuser) { delete req.body.permission; } // Solo uno superuser può modificare i permessi
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
         next();
     },
     groupCustomerData("body")
@@ -134,7 +135,7 @@ const validateUpdateOperator = [
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
     function (req, _, next) {
-        if (!req.auth.superuser) { delete req.body.permission; } // Solo uno superuser può modificare i permessi
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
         next();
     },
     groupOperatorData("body")

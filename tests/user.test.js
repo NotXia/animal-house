@@ -273,6 +273,12 @@ describe("Modifica di un operatore", function () {
             role: "CEO"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
     });
+
+    test("Modifica permessi senza permesso admin", async function () {
+        await curr_session.put('/user/operators/Luigino234').set({ Authorization: `Bearer ${token}` }).send({ 
+            permission: { admin: true }
+        }).expect(403);
+    });
 });
 
 
