@@ -16,7 +16,7 @@ const workingSlot = mongoose.Schema({
 }, { _id: false });
 
 const operatorScheme = mongoose.Schema({
-    role_id: { type: String, default: "" },
+    role: { type: String, default: "" },
 
     services_id: [{ 
         type: String,  

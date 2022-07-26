@@ -42,7 +42,7 @@ const userScheme = mongoose.Schema({
     enabled: {
         type: Boolean,
         required: true,
-        default: false
+        default: true
     },
     creationDate: {
         type: Date,
@@ -76,13 +76,13 @@ userScheme.methods.isOperator = function() {
 userScheme.methods.getAllData = async function() {
     let data = await this.populate(this.type_name);
     let out = {
-        username: data.name,
+        username: data.username,
         email: data.email,
         name: data.name,
         surname: data.surname,
         gender: data.gender,
         phone: data.phone,
-        permission: data.permission,
+        permission: Object.keys(data.permission.toObject()).filter((v) => data.permission[v] === true),
         enabled: data.enabled,
         creationDate: data.creationDate
     };
@@ -90,8 +90,6 @@ userScheme.methods.getAllData = async function() {
     if (this.isOperator()) {
         out.role = data.operator.role;
         out.services = data.operator.services_id;
-        out.working_time = data.operator.working_time;
-        out.absence_time = data.operator.absence_time;
     }
     else {
         out.address = data.customer.address;
@@ -114,8 +112,6 @@ userScheme.methods.getPublicData = async function() {
         out.phone = data.phone,
         out.role = data.operator.role;
         out.services = data.operator.services_id;
-        out.working_time = data.operator.working_time;
-        out.absence_time = data.operator.absence_time;
     }
 
     return out;
