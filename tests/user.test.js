@@ -56,8 +56,21 @@ describe("Registrazione di un cliente", function () {
 });
 
 describe("Ricerca di un cliente", function () {
-    test("Ricerca come admin", async function () {
-        await curr_session.get('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    test("Ricerca completa come admin", async function () {
+        const res = await curr_session.get('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        expect(res.body.username).toEqual("Marcolino23");
+        expect(res.body.email).toEqual("marconi17@gmail.com");
+        expect(res.body.address.city).toEqual("Salò");
+    });
+
+    test("Ricerca completa senza admin", async function () {
+        await curr_session.get('/user/customers/Marcolino23').expect(401);
+    });
+
+    test("Ricerca profilo senza admin", async function () {
+        const res = await curr_session.get('/user/profiles/Marcolino23').expect(200);
+        expect(res.body.username).toEqual("Marcolino23");
+        expect(res.body.email).not.toBeDefined();
     });
 });
 
@@ -150,7 +163,6 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
         expect(user.operator).toBeDefined();
         expect(user.operator.working_time).toBeDefined();
         expect(user.operator.working_time.monday.length).toBeGreaterThanOrEqual(1);
-
     });
 
     test("Creazione di un cliente", async function () {
@@ -213,6 +225,17 @@ describe("Ricerca di un operatore", function () {
 
         expect(res.body.username).toEqual("Luigino234");
         expect(res.body.email).toEqual("luigino444@gmail.com");
+    });
+
+    test("Ricerca di un operatore senza login", async function () {
+        await curr_session.get('/user/operators/Luigino234').expect(401);
+    });
+
+    test("Ricerca profilo di un operatore senza login", async function () {
+        const res = await curr_session.get('/user/profiles/Luigino234').expect(200);
+        expect(res.body.username).toEqual("Luigino234");
+        expect(res.body.password).not.toBeDefined();
+        expect(res.body.role).toEqual("Quoco");
     });
 });
 
