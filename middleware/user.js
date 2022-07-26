@@ -30,7 +30,7 @@ function _getCustomerData(source) {
 function _getOperatorData(source) {
     return Object.fromEntries(Object.entries(
         {
-            role_id: source.role_id,
+            role: source.role,
             working_time: source.working_time,
             absence_time: source.absence_time
         }
@@ -69,7 +69,6 @@ function validateNewUserData(source) {
         validator.validateSurname(source, REQUIRED),
         validator.validateGender(source, OPTIONAL),
         validator.validatePhone(source, OPTIONAL),
-        validator.validatePermission(source, OPTIONAL),
     ];
 }
 
@@ -82,10 +81,9 @@ const validateInsertCustomer = [
 
 const validateInsertOperator = [
     validateNewUserData("body"),
-    validator.validatePermission("body", REQUIRED),
+    validator.validatePermission("body", OPTIONAL),
     validator.validateRole("body", OPTIONAL),
     validator.validateWorkingTime("body", REQUIRED),
-    validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
