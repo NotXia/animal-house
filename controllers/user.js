@@ -20,7 +20,7 @@ async function insertOperator(req, res) {
         data.user.type_name = "operator";
         new_user = await new UserModel(data.user).save();
 
-        return res.status(utils.http.CREATED).json(await new_user.getAllData());
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
             await OperatorModel.findByIdAndDelete(new_operator._id).exec().catch((err) => {}); // Cancella i dati inseriti
@@ -44,7 +44,7 @@ async function insertCustomer(req, res) {
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
-        return res.status(utils.http.CREATED).json(await new_user.getAllData());
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/operators/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
             await CustomerModel.findByIdAndDelete(new_customer._id).exec().catch((err) => {}); // Cancella i dati inseriti
