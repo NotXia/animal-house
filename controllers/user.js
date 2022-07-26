@@ -54,15 +54,19 @@ async function insertCustomer(req, res) {
     }
 }
 
-async function searchUser(req, res) {
-    try {
-        const user = await UserModel.findOne({ username: req.params.username }).exec();
-        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
-
-        return res.status(utils.http.OK).json(await user.getAllData());
-    }
-    catch (e) {
-        return error.response(e, res);
+function searchUser(all=false) {
+    return async function (req, res) {
+        try {
+            const user = await UserModel.findOne({ username: req.params.username }).exec();
+            if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+            
+            if (all) { return res.status(utils.http.OK).json(await user.getAllData()); }
+            else { return res.status(utils.http.OK).json(await user.getProfileData()); }
+            
+        }
+        catch (e) {
+            return error.response(e, res);
+        }
     }
 }
 

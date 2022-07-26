@@ -91,6 +91,12 @@ const validateInsertOperator = [
 
 const validateSearchUser = [
     validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+    validator.verifyUserOwnership("params"),
+];
+
+const validateSearchUserProfile = [
+    validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
@@ -113,6 +119,10 @@ const validateUpdateCustomer = [
     validator.validateAddress("body", OPTIONAL),
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
+    function (req, _, next) {
+        if (!req.auth.superuser) { delete req.body.permission; } // Solo uno superuser può modificare i permessi
+        next();
+    },
     groupCustomerData("body")
 ];
 
@@ -124,6 +134,10 @@ const validateUpdateOperator = [
     validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
+    function (req, _, next) {
+        if (!req.auth.superuser) { delete req.body.permission; } // Solo uno superuser può modificare i permessi
+        next();
+    },
     groupOperatorData("body")
 ];
 
@@ -141,5 +155,6 @@ module.exports = {
     validateSearchUser : validateSearchUser,
     validateUpdateCustomer : validateUpdateCustomer,
     validateUpdateOperator : validateUpdateOperator,
-    validateDeleteUser : validateDeleteUser
+    validateDeleteUser : validateDeleteUser,
+    validateSearchUserProfile : validateSearchUserProfile
 }
