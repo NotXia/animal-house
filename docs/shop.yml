@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "Endpoint per le operazioni sullo shop"
-  version: "1.0.0"
+  version: "1.1.0"
   title: "Shop"
 basePath: "/shop"
 tags:
@@ -14,7 +14,8 @@ paths:
       - "Item e prodotti"
       summary: "Creazione di un nuovo item nello shop"
       description: |
-        Gestisce l'inserimento di un nuovo item con prodotti inclusi nello shop.
+        Gestisce l'inserimento di un nuovo item e i prodotti inclusi.
+        
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - "application/json"
@@ -26,15 +27,55 @@ paths:
         description: "Dati dell'item"
         required: true
         schema:
-          $ref: "#/definitions/Item"
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            category:
+              type: string
+            relevance:
+              type: number
+              default: 0
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  barcode: 
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  price:
+                    type: number
+                  quantity:
+                    type: number
+                    default: 0
+                  target_species:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - barcode
+                  - name
+                  - price
+                  - quantity
+          required:
+            - name
+            - category
+            - products
       responses:
         201:
           description: "Inserito con successo"
           schema:
-            type: object
-            properties:
-              id:
-                $ref: "#/definitions/ObjectId"
+              $ref: "#/definitions/Item"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere all'item"
         400:
           description: "Parametri malformati"
           schema:
@@ -60,8 +101,6 @@ paths:
       summary: "Ricerca degli item secondo alcuni criteri"
       description: |
         Ricerca tra gli item quelli che soddisfano i criteri richiesti
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -107,37 +146,54 @@ paths:
           schema:
             type: array
             items:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                min_price:
-                  type: number
-                product_number:
-                  type: number
-                image_path:
-                  type: string
-                  format: path
+              $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}:
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca di item"
+      description: |
+        Ricerca di un item dato il suo id.
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        description: "Id dell'item"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Item ricercato"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ValidatorErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Errore lato server"
-
-  /shop/items/{item_id}:
     put:
       tags:
       - "Item e prodotti"
       summary: "Modifica delle generalità di un item"
       description: |
         Gestisce la modifica dei dati generali di un item (non dei singoli prodotti).
+
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - "application/json"
@@ -149,10 +205,10 @@ paths:
         type: string
         format: ObjectId
         required: true
+        description: "Id dell'item da modificare"
       - name: body
         in: body
         description: "Dati dell'item"
-        required: true
         schema:
           type: object
           properties:
@@ -162,11 +218,14 @@ paths:
               type: string
             category:
               type: string
+            relevance:
+              type: number
+              format: int
       responses:
         200:
           description: "Modificato con successo"
           schema:
-            $ref: "#/definitions/ItemModel"
+            $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
@@ -192,19 +251,17 @@ paths:
       summary: "Cancellazione di un item"
       description: |
         Gestisce la cancellazione di un item e di tutti i suoi prodotti associati.
+
         Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
       parameters:
       - name: item_id
         in: path
         type: string
         format: ObjectId
         required: true
+        description: "Id dell'item da cancellare"
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Parametri malformati"
@@ -225,16 +282,15 @@ paths:
         500:
           description: "Errore lato server"
 
-  /shop/items/{barcode}:
+  /shop/items/barcode/{barcode}:
     get:
       tags:
       - "Item e prodotti"
       summary: "Ricerca di un item per barcode di un prodotto"
       description: |
-        Ricerca l'item associato ad un prodotto, cercando per barcode di un prodotto
+        Ricerca l'item che contiene un determinato prodotto ricercato per barcode.
+
         Richiede permessi ["operator", "shop_read"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -247,47 +303,19 @@ paths:
         200:
           description: "OK"
           schema:
-            $ref: "#/definitions/ItemModel"
+            $ref: "#/definitions/Item"
         400:
           description: "Parametri malformati"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        404:
-          description: "Nessun item trovato"
+        401:
+          description: "Non autenticato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Errore lato server"
-
-  /shop/items/{item_id}/products/:
-    get:
-      tags:
-      - "Item e prodotti"
-      summary: "Estrazione di tutti i prodotti associati ad un item"
-      description: |
-        Ricerca tutti i prodotti associati ad un item dato il suo id
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - name: item_id
-        in: path
-        description: "ObjectId dell'item"
-        required: true
-        type: string
-        format: ObjectId
-      responses:
-        200:
-          description: "OK"
+        403:
+          description: "Permessi insufficienti"
           schema:
-            type: array
-            items:
-              $ref: "#/definitions/ProductModel"
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "#/definitions/ValidatorErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Nessun item trovato"
           schema:
@@ -302,6 +330,7 @@ paths:
       summary: "Modifica i dati di un prodotto"
       description: |
         Gestisce la modifica dei dati di un prodotto ricercato a partire dall'item di appartenenza.
+
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - "application/json"
@@ -316,11 +345,11 @@ paths:
       - name: product_index
         in: path
         type: number
+        format: int
         required: true
       - name: body
         in: body
         description: "Dati da modificare del prodotto"
-        required: true
         schema:
           type: object
           properties:
@@ -330,10 +359,10 @@ paths:
               type: string
             description:
               type: string
-            target_species_id:
+            target_species:
               type: array
               items:
-                $ref: "#/definitions/ObjectId"
+                type: string
             price:
               type: number
             quantity:
@@ -342,7 +371,7 @@ paths:
         200:
           description: "Modificato con successo"
           schema:
-            $ref: "#/definitions/ProductModel"
+            $ref: "#/definitions/Product"
         400:
           description: "Parametri malformati"
           schema:
@@ -368,9 +397,8 @@ paths:
       summary: "Cancellazione di un prodotto"
       description: |
         Gestisce la cancellazione di un prodotto ricercato a partire dall'item di appartenenza.
+
         Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
@@ -384,7 +412,7 @@ paths:
         type: number
         required: true
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         303:
           description: |
@@ -394,6 +422,13 @@ paths:
             location:
               type : string
               description: "Endpoint a cui richiedere la cancellazione dell'item"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
         400:
           description: "Parametri malformati"
           schema:
@@ -420,6 +455,7 @@ paths:
       summary: "Caricamento di immagini associate ad un prodotto"
       description: |
         Gestisce il caricamento delle immagini associate ad un prodotto.
+
         Richiede permessi ["operator", "shop_write"]
       consumes:
       - multipart/form-data
@@ -438,9 +474,12 @@ paths:
       - name: files
         in: formData
         type: file
+        required: true
       responses:
         200:
           description: "Immagini inserite con successo"
+          schema:
+            $ref: "#/definitions/Product"
         400:
           description: "Parametri malformati"
           schema:
@@ -467,11 +506,9 @@ paths:
       summary: "Cancellazione di una immagine associata ad un prodotto"
       description: |
         Gestisce la cancellazione di una immagine associata ad un prodotto.
+
+
         Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
       parameters:
       - name: item_id
         in: path
@@ -487,7 +524,7 @@ paths:
         type: number
         required: true
       responses:
-        200:
+        204:
           description: "Immagine cancellata con successo"
         400:
           description: "Parametri malformati"
@@ -522,7 +559,7 @@ paths:
       - "application/json"
       responses:
         200:
-          description: "Ok"
+          description: "Lista di tutte le categorie disponibili"
           schema:
             type: array
             items:
@@ -535,7 +572,8 @@ paths:
       summary: "Inserimento di categorie"
       description: |
         Creazione di una nuova categoria.
-        Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
+
+        Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
       consumes:
@@ -543,12 +581,15 @@ paths:
       parameters:
       - name: body
         in: body
+        required: true
         description: "Dati della categoria"
         schema:
           $ref: "#/definitions/Category"
       responses:
         201:
           description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Category"
         400:
           description: "Input malformato"
           schema:
@@ -574,13 +615,15 @@ paths:
       summary: "Aggiornamento di categorie"
       description: |
         Aggiornamento di una categoria.
-        Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
+
+        Richiede permessi ["operator", "shop_write"]
       produces:
       - "application/json"
       consumes:
       - "application/json"
       parameters:
       - name: category
+        description: "Categoria da aggiornare"
         in: path
         type: string
         required: true
@@ -592,6 +635,8 @@ paths:
       responses:
         200:
           description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Category"
         400:
           description: "Input malformato"
           schema:
@@ -616,18 +661,16 @@ paths:
       summary: "Cancellazione di categorie"
       description: |
         Cancellazione di una categoria.
-        Richiede permessi [ ["operator", "shop_write"], ["admin"] ]
-      produces:
-      - "application/json"
-      consumes:
-      - "application/json"
+
+        Richiede permessi ["operator", "shop_write"]
       parameters:
       - name: category
+        description: "Categoria da cancellare"
         in: path
         type: string
         required: true
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Input malformato"
@@ -650,6 +693,7 @@ paths:
 
 
 definitions:
+
   Category:
     type: object
     properties:
@@ -658,108 +702,39 @@ definitions:
       icon:
         type: string
         format: byte
-
-  ObjectId:
-    type: string
-    format: ObjectId
-    example: "61338f5b47bfc65136b5de30"
+    required:
+      - name
+      - icon
 
   Item:
     type: object
     properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
       name:
         type: string
       description:
         type: string
       category:
         type: string
+      relevance:
+        type: number
       products:
         type: array
         items:
-          type: object
-          properties:
-            barcode:
-              type: string
-            name:
-              type: string
-            description:
-              type: string
-            price:
-              type: number
-            quantity:
-              type: number
-            target_species_id:
-              type: array
-              items:
-                $ref: "#/definitions/ObjectId"
-          required:
-          - barcode
-          - price
-          - quantity
+            $ref: "#/definitions/Product"
     required:
-    - name
-    - category
-    - products
+      - id
+      - name
+      - description
+      - category
+      - relevance
+      - products
 
-  ItemModel:
+  Product:
     type: object
     properties:
-      _id:
-        $ref: "#/definitions/ObjectId"
-      name:
-        type: string
-      description:
-        type: string
-      category_id:
-        $ref: "#/definitions/ObjectId"
-      products_id:
-        type: array
-        items:
-          $ref: "#/definitions/ObjectId"
-      relevance:
-        type: number
-
-  ItemModelPopulated:
-    type: object
-    properties:
-      _id:
-        $ref: "#/definitions/ObjectId"
-      name:
-        type: string
-      description:
-        type: string
-      category_id:
-        $ref: "#/definitions/ObjectId"
-      products_id:
-        type: array
-        items:
-          type: object
-          properties:
-            _id:
-              $ref: "#/definitions/ObjectId"
-            barcode:
-              type: string
-            name:
-              type: string
-            description:
-              type: string
-            price:
-              type: number
-            quantity:
-              type: number
-            target_species_id:
-              type: array
-              items:
-                $ref: "#/definitions/ObjectId"
-      relevance:
-        type: number
-
-  ProductModel:
-    type: object
-    properties:
-      _id:
-        $ref: "#/definitions/ObjectId"
-      barcode:
+      barcode: 
         type: string
       name:
         type: string
@@ -769,11 +744,19 @@ definitions:
         type: array
         items:
           type: string
-      target_species_id:
+      target_species:
         type: array
         items:
-          $ref: "#/definitions/ObjectId"
+          type: string
       price:
         type: number
       quantity:
         type: number
+  required:
+      - barcode
+      - name
+      - description
+      - images_path
+      - target_species
+      - price
+      - quantity

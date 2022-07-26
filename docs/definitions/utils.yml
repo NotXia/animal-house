@@ -25,3 +25,9 @@ definitions:
     type: array
     items:
       $ref: "#/definitions/FieldErrorMessage"
+
+
+  ObjectId:
+    type: string
+    format: ObjectId
+    example: "61338f5b47bfc65136b5de30"

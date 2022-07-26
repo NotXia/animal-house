@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 
 const speciesSchema = mongoose.Schema({
-    type: {
+    name: {
         type: String,
         required: true
-    },
-    race: { type: String }
+    }
 });
+
+speciesSchema.statics.findByName = async function(topic_name) {
+    return await this.findOne({ name: topic_name }).exec();
+};
 
 module.exports = mongoose.model("species", speciesSchema);

@@ -9,11 +9,12 @@ const validateCreate = [
     validator.validateItemName("body", REQUIRED),
     validator.validateItemDescription("body", OPTIONAL),
     validator.validateCategoryName("body", REQUIRED, "category"),
+    validator.validateItemRelevance("body", OPTIONAL),
     validator.validateListOfProducts("body", REQUIRED),
     utils.validatorErrorHandler,
 ];
 
-const validateSearchItem = [
+const validateSearchItems = [
     query("page_size").exists().isInt({ min: 1 }).withMessage("Il valore deve essere un intero che inizia da 1"),
     query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     query("price_asc").optional().isBoolean().withMessage("Formato non valido"),
@@ -30,7 +31,7 @@ const validateSearchItemByBarcode = [
     utils.validatorErrorHandler
 ];
 
-const validateSearchProducts = [
+const validateSearchSingleItem = [
     validator.validateItemId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
@@ -40,6 +41,7 @@ const validateUpdateItemById = [
     validator.validateItemName("body", OPTIONAL),
     validator.validateItemDescription("body", OPTIONAL),
     validator.validateCategoryName("body", OPTIONAL, "category"),
+    validator.validateItemRelevance("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
@@ -49,7 +51,7 @@ const validateUpdateProductByIndex = [
     validator.validateProductBarcode("body", OPTIONAL),
     validator.validateItemName("body", OPTIONAL),
     validator.validateItemDescription("body", OPTIONAL),
-    validator.validateProductTargetSpeciesId("body", OPTIONAL),
+    validator.validateProductTargetSpecies("body", OPTIONAL),
     validator.validateProductPrice("body", OPTIONAL),
     validator.validateProductQuantity("body", OPTIONAL),
     utils.validatorErrorHandler
@@ -86,9 +88,9 @@ const validateDeleteImage = [
 module.exports = {
     validateCreate: validateCreate,
     validateCreateFileUpload: validateCreateFileUpload,
-    validateSearch: validateSearchItem,
+    validateSearch: validateSearchItems,
     validateSearchByBarcode: validateSearchItemByBarcode,
-    validateSearchProducts: validateSearchProducts,
+    validateSearchItem: validateSearchSingleItem,
     validateUpdateItem: validateUpdateItemById,
     validateUpdateProduct: validateUpdateProductByIndex,
     validateDeleteItem: validateDeleteItemById,

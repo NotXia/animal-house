@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
-const ObjectId = mongoose.Schema.Types.ObjectId;
-const SpeciesModel = require("./species");
 
 const animalScheme = mongoose.Schema ({
-    species_id: { 
-        type: ObjectId, ref: SpeciesModel.collection.collectionName,
+    species: { 
+        type: String,
         required: true
     },
     name: { 

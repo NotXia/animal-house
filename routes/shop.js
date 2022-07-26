@@ -25,7 +25,7 @@ router.post("/items/",
 router.get("/items/", shop_middleware.item.validateSearch, shop_controller.item.search);
 
 /* Cerca un item dello shop cercandolo per barcode di uno dei prodotto associati */
-router.get("/items/:barcode", 
+router.get("/items/barcode/:barcode", 
     [
         auth_middleware([ ["operator", "shop_read"] ], [ ["admin"] ]),
         shop_middleware.item.validateSearchByBarcode
@@ -33,8 +33,8 @@ router.get("/items/:barcode",
     shop_controller.item.searchByBarcode
 );
 
-/* Cerca i prodotti associati ad un item */
-router.get("/items/:item_id/products/", shop_middleware.item.validateSearchProducts, shop_controller.item.searchProducts);
+/* Cerca di un singolo item */
+router.get("/items/:item_id", shop_middleware.item.validateSearchItem, shop_controller.item.searchItem);
 
 /* Modifica le generalità di un item */
 router.put("/items/:item_id", 

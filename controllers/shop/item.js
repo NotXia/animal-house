@@ -3,6 +3,7 @@ require('dotenv').config();
 const ItemModel = require("../../models/shop/item");
 const ProductModel = require("../../models/shop/product");
 const CategoryModel = require("../../models/shop/category");
+const SpeciesModel = require("../../models/animals/species");
 
 const { nanoid } = require("nanoid");
 const validator = require("express-validator");
@@ -10,33 +11,48 @@ const path = require("path");
 const fs = require("fs");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
+const product = require('../../models/shop/product');
+
+async function checkCategoryExists(category_name) {
+    if (!await CategoryModel.findByName(category_name)) { 
+        throw error.generate.NOT_FOUND("Categoria inesistente"); 
+    }
+    return true;
+}
+
+async function checkSpeciesExists(species_name) {
+    if (!await SpeciesModel.findByName(species_name)) { 
+        throw error.generate.NOT_FOUND("Specie inesistente"); 
+    }
+    return true;
+}
 
 /* 
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
 */
 async function createItem(req, res) {
-    let new_item_id;
-    let products_id
+    let new_item;
+    let products_id;
+    const to_insert_item = validator.matchedData(req);
+    const to_insert_products = to_insert_item.products;
+    delete to_insert_item.products;
 
     try {
-        const to_insert_item = validator.matchedData(req);
-        const to_insert_products = to_insert_item.products;
-
-        // Estrazione id della categoria
-        const category = await CategoryModel.findByName(to_insert_item.category);
-        if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
-        delete to_insert_item.category;
-        to_insert_item.category_id = category._id;
+        // Verifica esistenza categoria e specie target
+        await checkCategoryExists(to_insert_item.category);
+        for (const product of to_insert_products) {
+            if (product.target_species) {
+                for (const species of product.target_species) { await checkSpeciesExists(species.name); }
+            }
+        }
 
         // Inserimento dei singoli prodotti
         const products = await ProductModel.insertMany(to_insert_products);
-        const products_id = products.map((product) => product._id);
-        delete to_insert_item.products;
+        products_id = products.map((product) => product._id);
         to_insert_item.products_id = products_id;
 
         // Inserimento dell'item
-        const new_item = await new ItemModel(to_insert_item).save();
-        new_item_id = new_item.id;
+        new_item = await new ItemModel(to_insert_item).save();
     }
     catch (err) {
         if (err.code == utils.MONGO_DUPLICATED_KEY) {
@@ -46,7 +62,7 @@ async function createItem(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item_id}`).json({ id: new_item_id });
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(await new_item.getData());
 }
 
 /*
@@ -58,16 +74,12 @@ async function searchItem(req, res) {
     let sort_criteria = { "relevance": -1 };
 
     // Composizione della query
-    if (req.query.category) {
-        const category = await CategoryModel.findByName(req.query.category);
-        if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
-        query_criteria.category_id = category._id; 
-    }
+    if (req.query.category) { query_criteria.category = category; } // Non c'è bisogno di controllare l'esistenza
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
     
     // Determina il criterio di ordinamento
     if (req.query.price_asc) { sort_criteria = { "min_price": 1 }; }
-    if (req.query.price_desc) { sort_criteria = { "min_price": -1 }; }
+    if (req.query.price_desc) { sort_criteria = { "max_price": -1 }; }
     if (req.query.name_asc) { sort_criteria = { "name": 1 }; }
     if (req.query.name_desc) { sort_criteria = { "name": -1 }; }
 
@@ -75,28 +87,21 @@ async function searchItem(req, res) {
         items = await ItemModel.aggregate([
             { $match: query_criteria },
             { $lookup: {
-                from: ProductModel.collection.name,
-                localField: "products_id",
-                foreignField: "_id",
-                as: "products"
+                    from: ProductModel.collection.name,
+                    localField: "products_id",
+                    foreignField: "_id",
+                    as: "products"
             }},
-            { $project: {
-                name: 1,
-                description: 1,
-                min_price: { $min: "$products.price" }, // Il prezzo che rappresenta l'item è quello più piccolo tra i suoi prodotti
-                product_number: { $size: "$products" },
-                image_path: { // L'immagine associata ad un item è la prima del primo prodotto
-                    $first: {
-                        $getField: { field: "images_path", input: { $first: "$products" } }
-                    }
-                }
+            { $addFields: {
+                    min_price: { $min: "$products.price" },
+                    max_price: { $max: "$products.price" },
             }},
             { $sort: sort_criteria },
             { $skip: parseInt(req.query.page_number) }, // Per paginazione
-            { $limit: parseInt(req.query.page_size) }
+            { $limit: parseInt(req.query.page_size) },
         ]);
 
-        if (items.length === 0) { throw error.generate.NOT_FOUND("Nessun prodotto corrisponde ai criteri di ricerca"); }
+        items = await Promise.all(items.map( async item => await (new ItemModel(item)).getData() )); // Conversione del risultato nel formato corretto
     }
     catch (err) {
         return error.response(err, res);
@@ -122,25 +127,25 @@ async function searchItemByBarcode(req, res) {
         return error.response(err, res);
     }
     
-    return res.status(utils.http.OK).json(item);
+    return res.status(utils.http.OK).json(await item.getData());
 }
 
 /*
     Gestisce la ricerca di tutti i prodotti associati ad un item
 */
-async function searchProducts(req, res) {
-    let products = []; // Conterrà il risultato della ricerca
+async function searchSingleItem(req, res) {
+    let out_item;
 
     try {
-        const item = await ItemModel.findById(req.params.item_id).populate("products_id", "-__v").exec();
-        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        products = item.products_id;
+        out_item = await ItemModel.findById(req.params.item_id).exec();
+        if (!out_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
+        out_item = await out_item.getData();
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(products);
+    return res.status(utils.http.OK).json(out_item);
 }
 
 /*
@@ -148,24 +153,19 @@ async function searchProducts(req, res) {
 */
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
-    
-    // Estrazione id della categoria
-    if (updated_fields.category) {
-        const category = await CategoryModel.findByName(updated_fields.category);
-        if (!category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
-        delete updated_fields.category;
-        updated_fields.category_id = category._id;
-    }
+    let updated_item = undefined;
+
+    if (updated_fields.category) { await checkCategoryExists(to_insert_item.category); }
 
     try {
-        const updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
+        updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
         if (!updated_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-    
-        return res.status(utils.http.OK).json(updated_item);
     }
     catch (err) {
         return error.response(err, res);
     }
+
+    return res.status(utils.http.OK).json(await updated_item.getData());
 }
 
 /*
@@ -175,8 +175,12 @@ async function updateProductByIndex(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
     let updated_product;
 
-    // Estrazione del prodotto a partire dall'item
     try {
+        if (updated_fields.target_species) {
+            for (const species of product.target_species) { await checkSpeciesExists(species.name); }
+        }
+
+        // Estrazione del prodotto a partire dall'item
         const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
         if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
@@ -187,7 +191,7 @@ async function updateProductByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(updated_product);
+    return res.status(utils.http.OK).json(updated_product.getData());
 }
 
 /* 
@@ -215,7 +219,7 @@ async function deleteItemById(req, res) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 /* 
@@ -245,7 +249,7 @@ async function deleteProductByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 
@@ -253,6 +257,8 @@ async function deleteProductByIndex(req, res) {
     Gestisce il caricamento e salvataggio di immagini associate ai prodotti 
 */
 async function createUploadImages(req, res) {
+    let updated_product = undefined;
+
     try {
         // Ricerca dell'id del prodotto
         const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
@@ -271,13 +277,13 @@ async function createUploadImages(req, res) {
         }
 
         // Salvataggio dei nomi dei file nel database
-        await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } });
+        updated_product = await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } }, { new: true });
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.status(utils.http.OK).json(updated_product.getData());
 }
 
 /*
@@ -306,7 +312,7 @@ async function deleteImageByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.sendStatus(utils.http.OK);
+    return res.sendStatus(utils.http.NO_CONTENT);
 }
 
 
@@ -315,7 +321,7 @@ module.exports = {
     createUploadImages: createUploadImages,
     search: searchItem,
     searchByBarcode: searchItemByBarcode,
-    searchProducts: searchProducts,
+    searchItem: searchSingleItem,
     updateItem: updateItemById,
     updateProduct: updateProductByIndex,
     deleteItem: deleteItemById,
