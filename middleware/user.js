@@ -83,7 +83,7 @@ const validateInsertOperator = [
     validateNewUserData("body"),
     validator.validatePermission("body", OPTIONAL),
     validator.validateRole("body", OPTIONAL),
-    validator.validateWorkingTime("body", REQUIRED),
+    validator.validateListOfService("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
@@ -130,8 +130,6 @@ const validateUpdateOperator = [
     validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
     validator.validateRole("body", OPTIONAL),
-    validator.validateWorkingTime("body", OPTIONAL),
-    validator.validateAbsenceTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
     function (req, _, next) {

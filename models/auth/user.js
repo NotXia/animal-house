@@ -84,12 +84,11 @@ userScheme.methods.getAllData = async function() {
         phone: data.phone,
         permission: Object.keys(data.permission.toObject()).filter((v) => data.permission[v] === true),
         enabled: data.enabled,
-        creationDate: data.creationDate
     };
 
     if (this.isOperator()) {
         out.role = data.operator.role;
-        out.services = data.operator.services_id;
+        out.services = data.operator.services;
     }
     else {
         out.address = data.customer.address;
