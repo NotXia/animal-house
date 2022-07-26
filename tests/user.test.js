@@ -10,7 +10,6 @@ const UserModel = require("../models/auth/user");
 
 
 let curr_session = session(app);
-let test_role;
 let admin_token;
 
 beforeAll(async function () {
@@ -83,7 +82,7 @@ describe("Modifica della password di un cliente", function () {
 
 describe("Cancellazione di un cliente", function () {
     test("Cancellazione come admin", async function () {
-        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
         
         expect(await UserModel.findOne({ username: "Marcolino23" }).exec()).toBeNull();
     });
@@ -192,7 +191,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     }),
 
     test("Cancellazione cliente", async function () {
-        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 
     test("Login di un operatore", async function () {
@@ -247,7 +246,8 @@ describe("Modifica di un operatore", function () {
     test("Modifica di un operatore come admin", async function () {
         await curr_session.put('/user/operators/Luigino234').send({ 
             password: "VeneziaVeneto18.",
-            email: "newnewluigino01@gmail.com"
+            email: "newnewluigino01@gmail.com",
+            role: "CEO"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
     });
 });
@@ -255,6 +255,6 @@ describe("Modifica di un operatore", function () {
 
 describe("Cancellazione di un operatore - tramite permesso admin", function () {
     test("Cancellazione di un operatore", async function () {
-        await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 });
