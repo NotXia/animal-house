@@ -444,6 +444,49 @@ paths:
         500:
           description: "Internal server error"
 
+  /profiles/{username}:
+    get:
+      tags:
+      - "Profilo pubblico"
+      summary: "Ricerca del profilo pubblico di un utente"
+      description: |
+        Gestisce la ricerca dei dati pubblici di un utente
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username dell'utente"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: object
+            properties:
+              ifCustomer:
+                $ref: "#/definitions/CustomerUserProfile"
+              ifOperator:
+                $ref: "#/definitions/OperatorUserProfile"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
 
 
 definitions:
