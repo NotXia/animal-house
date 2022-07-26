@@ -61,7 +61,7 @@ function searchUser(all=false) {
             if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
             
             if (all) { return res.status(utils.http.OK).json(await user.getAllData()); }
-            else { return res.status(utils.http.OK).json(await user.getProfileData()); }
+            else { return res.status(utils.http.OK).json(await user.getPublicData()); }
             
         }
         catch (e) {

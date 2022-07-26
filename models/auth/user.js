@@ -101,7 +101,7 @@ userScheme.methods.getAllData = async function() {
 userScheme.methods.getPublicData = async function() {
     let data = await this.populate(this.type_name);
     let out = {
-        username: data.name,
+        username: data.username,
         name: data.name,
         surname: data.surname,
     };
