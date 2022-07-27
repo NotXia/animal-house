@@ -129,7 +129,7 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
     });
 
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Marcolino23", password: "MarcobelloNapoli32!" }).expect(401);
+        const res = await curr_session.post('/auth/login').send({ username: "Marcolino23", password: "MarcobelloNapoli32!" }).expect(401);
         expect(res.body.message).toEqual("Credenziali non valide");
     });
 
@@ -207,7 +207,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     });
 
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
+        const res = await curr_session.post('/auth/login').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
         expect(res.body.access_token).toBeDefined();
     });
 });
@@ -215,7 +215,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
 describe("Ricerca di un operatore", function () {
     let token;
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
+        const res = await curr_session.post('/auth/login').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
         expect(res.body.access_token).toBeDefined();
         token = res.body.access_token.value;
     });
@@ -242,7 +242,7 @@ describe("Ricerca di un operatore", function () {
 describe("Modifica di un operatore", function () {
     let token;
     test("Login di un operatore", async function () {
-        const res = await curr_session.post('/auth/login_operator').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
+        const res = await curr_session.post('/auth/login').send({ username: "Luigino234", password: "LuiginoVerona33!" }).expect(200);
         expect(res.body.access_token).toBeDefined();
         token = res.body.access_token.value;
     });

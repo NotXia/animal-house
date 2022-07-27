@@ -18,7 +18,7 @@ function getSurname()   { return `${surnames[randomInt(0, surnames.length - 1)]}
 
 
 module.exports.loginAsAdmin = async function (session) {
-    const res = await session.post('/auth/login_operator').send({ username: "admin", password: "admin" });
+    const res = await session.post('/auth/login').send({ username: "admin", password: "admin" });
     return res.body.access_token.value;
 }
 
@@ -36,7 +36,7 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
     }).set({ Authorization: `Bearer ${admin_token}`});
     to_del_operators.push(username);
 
-    const res_login = await session.post('/auth/login_operator').send({ username: username, password: "PasswordMoltoComplessa1!" });
+    const res_login = await session.post('/auth/login').send({ username: username, password: "PasswordMoltoComplessa1!" });
 
     return {
         username: username,
