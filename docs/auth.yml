@@ -14,8 +14,11 @@ paths:
     post:
       tags:
       - "Login"
-      summary: "Autentica l'utente ed emette i token"
-      description: ""
+      summary: "Autenticazione dell'utente"
+      description: |
+        Autentica le credenziali dell'utente ed emette un access token. 
+        
+        Imposta nei cookie del cliente un refresh token
       consumes:
       - "application/json"
       produces:
@@ -26,7 +29,14 @@ paths:
         description: "Credenziali dell'utente"
         required: true
         schema:
-          $ref: "#/definitions/UserData"
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+              format: password
+          required: [ username, password ]
       responses:
         200:
           description: "Autenticazione effettuata"
@@ -34,6 +44,10 @@ paths:
               $ref: "#/definitions/AccessTokenData"
         401:
           description: "Credenziali non valide"
+          schema:
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Utenza non abilitata"
           schema:
               $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
@@ -44,14 +58,12 @@ paths:
     post:
       tags:
       - "Refresh"
-      summary: "Rinnova i token"
+      summary: "Rinnovo dei token"
       description: "Estrae il refresh token dai cookie."
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       responses:
-        200:
+        204:
           description: "Token rinnovati"
           schema:
               $ref: "#/definitions/AccessTokenData"
@@ -66,12 +78,11 @@ paths:
     post:
       tags:
       - "Logout"
-      summary: "Disconnette l'utente."
+      summary: "Disconnessione dell'utente"
       description: |
-        Estrae il refresh token dai cookie. 
+        Estrae il refresh token dai cookie.
+
         In ogni caso, il token viene rimosso dai cookie dell'utente.
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       responses:
@@ -87,15 +98,6 @@ paths:
 
 definitions:
 
-  UserData:
-    type: object
-    properties:
-      username:
-        type: string
-      password:
-        type: string
-        format: password
-
   AccessTokenData:
     type: object
     properties:
@@ -104,3 +106,4 @@ definitions:
       expiration:
         type: integer
         format: timestamp
+    required: [ value, expiration ]
