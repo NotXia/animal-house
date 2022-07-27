@@ -75,7 +75,7 @@ function validateNewUserData(source) {
 
 const validateInsertCustomer = [
     validateNewUserData("body"),
-    validator.validateAddress("body", OPTIONAL),
+    validator.validateAddress("body", REQUIRED),
     utils.validatorErrorHandler,
     groupCustomerData("body")
 ];
