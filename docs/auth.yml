@@ -18,7 +18,7 @@ paths:
       description: |
         Autentica le credenziali dell'utente ed emette un access token. 
         
-        Imposta nei cookie del cliente un refresh token
+        Imposta nei cookie del client un refresh token.
       consumes:
       - "application/json"
       produces:
@@ -63,7 +63,7 @@ paths:
       produces:
       - "application/json"
       responses:
-        204:
+        200:
           description: "Token rinnovati"
           schema:
               $ref: "#/definitions/AccessTokenData"
@@ -86,7 +86,7 @@ paths:
       produces:
       - "application/json"
       responses:
-        200:
+        204:
           description: "Refresh token invalidato"
         401:
           description: "Refresh token non valido"
