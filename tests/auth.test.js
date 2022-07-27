@@ -33,7 +33,7 @@ describe("Autenticazione", function () {
     }
 
     test("Logout", async function () {
-        res = await curr_session.post('/auth/logout').expect(200);
+        res = await curr_session.post('/auth/logout').expect(204);
         res = await curr_session.post('/auth/refresh').expect(401);
         expect(res.body.message).toBeDefined();
     });
