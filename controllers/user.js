@@ -15,6 +15,7 @@ async function insertOperator(req, res) {
     try {
         new_operator = await new OperatorModel(data.operator).save();
         
+        data.user.enabled = true;
         data.user.permission.operator = true;
         data.user.type_id = new_operator._id;
         data.user.type_name = "operator";

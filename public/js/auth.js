@@ -86,7 +86,7 @@ async function login(username, password, operator=false) {
 
     await $.ajax({
         type: "POST",
-        url: operator ? "/auth/login_operator" : "/auth/login",
+        url: "/auth/login",
         data: { username: username, password: password }
     }).done(function (data, textStatus, jqXHR) {
         _setAccessToken(data.access_token.value, data.access_token.expiration);
