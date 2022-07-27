@@ -1,6 +1,9 @@
 name: 🌮 Unit test
 
-on: [push]
+on: 
+  push:
+    paths-ignore:
+      - docs/**
 
 env:
   MONGODB_URL: mongodb://localhost:27017
