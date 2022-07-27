@@ -42,7 +42,7 @@ const userScheme = mongoose.Schema({
     enabled: {
         type: Boolean,
         required: true,
-        default: true
+        default: false
     },
     creationDate: {
         type: Date,
