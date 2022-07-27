@@ -6,7 +6,7 @@ on:
       - dev
     paths:
       - docs/**.yml
-      - .github/workflows/documentationdocumentation.yml
+      - .github/workflows/documentation.yml
   repository_dispatch:
 
 jobs:  
