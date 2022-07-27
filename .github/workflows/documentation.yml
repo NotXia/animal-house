@@ -1,4 +1,4 @@
-name: 🍝 Generazione documentazione
+name: 🍝 Generazione documentazione in locale
 
 on:
   push:
