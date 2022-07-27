@@ -3,7 +3,6 @@ const timeSlotSchema = require("../utils/timeSlotSchema");
 const getAgendaSchema = require("../utils/agenda");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const HubModel = require("../services/hub");
-const RoleModel = require("../services/role");
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -17,10 +16,11 @@ const workingSlot = mongoose.Schema({
 }, { _id: false });
 
 const operatorScheme = mongoose.Schema({
-    role_id: { 
-        type: ObjectId, ref: RoleModel.collection.collectionName, 
-        required: true,
-    },
+    role: { type: String, default: "" },
+
+    services: [{ 
+        type: String,  
+    }],
 
     working_time: {
         type: getAgendaSchema(workingSlot),

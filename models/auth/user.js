@@ -51,7 +51,8 @@ const userScheme = mongoose.Schema({
     },
 
     permission: { type: permissionSchema, default: {}, required: true },
-    type_id: { type: ObjectId, required: true }
+    type_id: { type: ObjectId, required: true },
+    type_name: { type: String, required: true, enum: ['customer', 'operator'] }
 }, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 userScheme.virtual("customer", {
@@ -67,5 +68,52 @@ userScheme.virtual("operator", {
     foreignField: '_id',
     justOne: true
 });
+
+userScheme.methods.isOperator = function() {
+    return this.type_name === "operator";
+};
+
+userScheme.methods.getAllData = async function() {
+    let data = await this.populate(this.type_name);
+    let out = {
+        username: data.username,
+        email: data.email,
+        name: data.name,
+        surname: data.surname,
+        gender: data.gender,
+        phone: data.phone,
+        permission: Object.keys(data.permission.toObject()).filter((v) => data.permission[v] === true),
+        enabled: data.enabled,
+    };
+
+    if (this.isOperator()) {
+        out.role = data.operator.role;
+        out.services = data.operator.services;
+    }
+    else {
+        out.address = data.customer.address;
+    }
+
+    return out;
+};
+
+// Dati visibili al pubblico
+userScheme.methods.getPublicData = async function() {
+    let data = await this.populate(this.type_name);
+    let out = {
+        username: data.username,
+        name: data.name,
+        surname: data.surname,
+    };
+
+    if (this.isOperator()) {
+        out.email = data.email,
+        out.phone = data.phone,
+        out.role = data.operator.role;
+        out.services = data.operator.services_id;
+    }
+
+    return out;
+};
 
 module.exports = mongoose.model("users", userScheme);

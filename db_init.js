@@ -6,8 +6,6 @@ const mongoose = require("mongoose");
 const UserModel = require("./models/auth/user");
 const OperatorModel = require("./models/auth/operator");
 const HubModel = require("./models/services/hub");
-const RoleModel = require("./models/services/role");
-const role = require("./models/services/role");
 
 
 async function init() {
@@ -31,10 +29,8 @@ async function init() {
 
     
     if (!(await UserModel.findOne({ username: "admin" }).exec())) {
-        const admin_role = await new RoleModel({ name: "Admin" }).save().catch((err) => { console.log(err.message); });
-
         const admin_user = await new OperatorModel({
-            role_id: admin_role._id,
+            role: "Admin",
             working_time: {
                 monday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
                 tuesday:    [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
@@ -53,7 +49,8 @@ async function init() {
             surname: "Admin",
             enabled: true,
             permission: { admin: true },
-            type_id: admin_user._id
+            type_id: admin_user._id,
+            type_name: "operator"
         }).save().catch((err) => { console.log(err.message); });
     }
 

@@ -1,6 +1,7 @@
 const validator = require("express-validator");
 const utils = require("./utils");
 const error = require("../../error_handler");
+const service_validator = require("./service");
 
 const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
@@ -13,7 +14,13 @@ module.exports.validateGender =     (source, required=true, field_name="gender")
 module.exports.validatePhone =      (source, required=true, field_name="phone") => { return utils.handleRequired(validator[source](field_name), required).isMobilePhone("any").withMessage("Formato non valido"); }
 module.exports.validatePermission = (source, required=true, field_name="permission") => { return utils.handleRequired(validator[source](field_name), required); }
 
-module.exports.validateRole_id = (source, required=true, field_name="role_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
+module.exports.validateRole = (source, required=true, field_name="role") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateListOfServices = function (source, required=true, field_name="services") {
+    return [
+        utils.handleRequired(validator[source](field_name), required),
+        service_validator.validateServiceName(source, utils.OPTIONAL, `${field_name}.*`)
+    ];
+}
 module.exports.validateWorkingTime = function (source, required=true, field_name="working_time") {
     if (required) {
         let out = [ utils.handleRequired(validator[source](field_name), required) ];
@@ -30,7 +37,6 @@ module.exports.validateWorkingTime = function (source, required=true, field_name
     else {
         return utils.handleRequired(validator[source](field_name), utils.OPTIONAL);
     }
-
 };
 
 module.exports.validateAbsenceTime = function (source, required=true, field_name="absence_time") {
@@ -55,10 +61,10 @@ module.exports.validateAddress = function (source, required=true, field_name="ad
     if (required) {
         return [
             utils.handleRequired(validator[source](field_name), utils.REQUIRED),
-            validator[source](`${field_name}.city`).optional().trim().escape(),
-            validator[source](`${field_name}.street`).optional().trim().escape(),
-            validator[source](`${field_name}.number`).optional().trim().escape(),
-            validator[source](`${field_name}.postal_code`).optional().isPostalCode("any").withMessage("Formato non valido"),
+            validator[source](`${field_name}.city`).exists().trim().escape(),
+            validator[source](`${field_name}.street`).exists().trim().escape(),
+            validator[source](`${field_name}.number`).exists().trim().escape(),
+            validator[source](`${field_name}.postal_code`).exists().isPostalCode("any").withMessage("Formato non valido"),
         ];
     }
     else {

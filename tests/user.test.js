@@ -6,24 +6,16 @@ const { createTime } = require("../utilities");
 const bcrypt = require("bcrypt");
 
 const HubModel = require("../models/services/hub");
-const RoleModel = require("../models/services/role");
 const UserModel = require("../models/auth/user");
 
 
 let curr_session = session(app);
-let test_role;
 let admin_token;
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 });
 
-
-describe("Inizializzazione", function () {
-    test("Popolazione database", async function () {
-        test_role = await new RoleModel({ name: "Test" }).save();
-    });
-});
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione corretta", async function () {
@@ -64,8 +56,21 @@ describe("Registrazione di un cliente", function () {
 });
 
 describe("Ricerca di un cliente", function () {
-    test("Ricerca come admin", async function () {
-        await curr_session.get('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    test("Ricerca completa come admin", async function () {
+        const res = await curr_session.get('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        expect(res.body.username).toEqual("Marcolino23");
+        expect(res.body.email).toEqual("marconi17@gmail.com");
+        expect(res.body.address.city).toEqual("Salò");
+    });
+
+    test("Ricerca completa senza admin", async function () {
+        await curr_session.get('/user/customers/Marcolino23').expect(401);
+    });
+
+    test("Ricerca profilo senza admin", async function () {
+        const res = await curr_session.get('/user/profiles/Marcolino23').expect(200);
+        expect(res.body.username).toEqual("Marcolino23");
+        expect(res.body.email).not.toBeDefined();
     });
 });
 
@@ -90,7 +95,7 @@ describe("Modifica della password di un cliente", function () {
 
 describe("Cancellazione di un cliente", function () {
     test("Cancellazione come admin", async function () {
-        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
         
         expect(await UserModel.findOne({ username: "Marcolino23" }).exec()).toBeNull();
     });
@@ -108,7 +113,7 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
             username: "Luigino23", password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            role_id: test_role._id,
+            role: "Pissicologo",
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -141,7 +146,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Luigino234", password: "LuiginoVerona33!",
             email: "luigino444@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role_id: test_role._id,
+            permission: { operator: true }, role: "Quoco",
             working_time: {
                 monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
                 tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
@@ -156,10 +161,8 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
         expect(user).toBeDefined();
         expect(await bcrypt.compare("LuiginoVerona33!", user.password)).toBeTruthy();
         expect(user.operator).toBeDefined();
-        expect(user.operator.role_id).toBeDefined();
         expect(user.operator.working_time).toBeDefined();
         expect(user.operator.working_time.monday.length).toBeGreaterThanOrEqual(1);
-
     });
 
     test("Creazione di un cliente", async function () {
@@ -175,7 +178,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Marcolino23", password: "LuiginoVerona33!",
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role_id: test_role._id,
+            permission: { operator: true },
             working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
@@ -189,7 +192,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "NonSonoMarcolino23", password: "LuiginoVerona33!",
             email: "marconi17@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role_id: test_role._id,
+            permission: { operator: true },
             working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
@@ -200,7 +203,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
     }),
 
     test("Cancellazione cliente", async function () {
-        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/user/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 
     test("Login di un operatore", async function () {
@@ -222,6 +225,17 @@ describe("Ricerca di un operatore", function () {
 
         expect(res.body.username).toEqual("Luigino234");
         expect(res.body.email).toEqual("luigino444@gmail.com");
+    });
+
+    test("Ricerca di un operatore senza login", async function () {
+        await curr_session.get('/user/operators/Luigino234').expect(401);
+    });
+
+    test("Ricerca profilo di un operatore senza login", async function () {
+        const res = await curr_session.get('/user/profiles/Luigino234').expect(200);
+        expect(res.body.username).toEqual("Luigino234");
+        expect(res.body.password).not.toBeDefined();
+        expect(res.body.role).toEqual("Quoco");
     });
 });
 
@@ -255,21 +269,21 @@ describe("Modifica di un operatore", function () {
     test("Modifica di un operatore come admin", async function () {
         await curr_session.put('/user/operators/Luigino234').send({ 
             password: "VeneziaVeneto18.",
-            email: "newnewluigino01@gmail.com"
+            email: "newnewluigino01@gmail.com",
+            role: "CEO"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    });
+
+    test("Modifica permessi senza permesso admin", async function () {
+        await curr_session.put('/user/operators/Luigino234').set({ Authorization: `Bearer ${token}` }).send({ 
+            permission: { admin: true }
+        }).expect(403);
     });
 });
 
 
 describe("Cancellazione di un operatore - tramite permesso admin", function () {
     test("Cancellazione di un operatore", async function () {
-        await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
-    });
-});
-
-
-describe("Uscita", function () {
-    test_role = test("Pulizia database", async function () {
-        await RoleModel.deleteOne({ name: "Test" });
+        await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 });

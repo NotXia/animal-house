@@ -2,6 +2,7 @@
 const utils = require("./utils");
 const validator = require("./validators/user");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
+const error = require("../error_handler");
 
 /* Raggruppa in un unico Object tutti i campi relativi agli utenti */
 function _getUserData(source) {
@@ -30,7 +31,7 @@ function _getCustomerData(source) {
 function _getOperatorData(source) {
     return Object.fromEntries(Object.entries(
         {
-            role_id: source.role_id,
+            role: source.role,
             working_time: source.working_time,
             absence_time: source.absence_time
         }
@@ -69,7 +70,6 @@ function validateNewUserData(source) {
         validator.validateSurname(source, REQUIRED),
         validator.validateGender(source, OPTIONAL),
         validator.validatePhone(source, OPTIONAL),
-        validator.validatePermission(source, OPTIONAL),
     ];
 }
 
@@ -82,16 +82,21 @@ const validateInsertCustomer = [
 
 const validateInsertOperator = [
     validateNewUserData("body"),
-    validator.validatePermission("body", REQUIRED),
-    validator.validateRole_id("body", REQUIRED),
-    validator.validateWorkingTime("body", REQUIRED),
-    validator.validateAbsenceTime("body", OPTIONAL),
+    validator.validatePermission("body", OPTIONAL),
+    validator.validateRole("body", OPTIONAL),
+    validator.validateListOfServices("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
 
 
 const validateSearchUser = [
+    validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+    validator.verifyUserOwnership("params"),
+];
+
+const validateSearchUserProfile = [
     validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler
 ];
@@ -115,17 +120,24 @@ const validateUpdateCustomer = [
     validator.validateAddress("body", OPTIONAL),
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
+    function (req, _, next) {
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
+        next();
+    },
     groupCustomerData("body")
 ];
 
 const validateUpdateOperator = [
     validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
-    validator.validateRole_id("body", OPTIONAL),
-    validator.validateWorkingTime("body", OPTIONAL),
-    validator.validateAbsenceTime("body", OPTIONAL),
+    validator.validateRole("body", OPTIONAL),
+    validator.validateListOfServices("body", OPTIONAL),
     utils.validatorErrorHandler,
     validator.verifyUserOwnership("params"),
+    function (req, _, next) {
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
+        next();
+    },
     groupOperatorData("body")
 ];
 
@@ -143,5 +155,6 @@ module.exports = {
     validateSearchUser : validateSearchUser,
     validateUpdateCustomer : validateUpdateCustomer,
     validateUpdateOperator : validateUpdateOperator,
-    validateDeleteUser : validateDeleteUser
+    validateDeleteUser : validateDeleteUser,
+    validateSearchUserProfile : validateSearchUserProfile
 }
