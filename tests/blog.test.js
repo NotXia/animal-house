@@ -45,7 +45,7 @@ describe("Pubblicazione post", function () {
 });
 
 describe("Pubblicazione commento", function () {
-    test("Pubblicazione commento", async function () {
+    test("Pubblicazione commento corretto", async function () {
         await curr_session.post('/blog/posts/'+ blog_posts[0].id +'/comments/').send({ 
             content: "Ciao Luigi, grazie per aver condiviso questa bellissima scoperta! \n Un saluto."
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
@@ -60,6 +60,16 @@ describe("Pubblicazione commento", function () {
             content: "Ciao, sto commentando un post inesistente! \n Un saluto."
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(404);
         expect(res.body.message).toBeDefined();
+    });
+
+    test("Pubblicazione altri commenti", async function () {
+        await curr_session.post('/blog/posts/'+ blog_posts[0].id +'/comments/').send({ 
+            content: "Bel post!!!11!!!11"
+        }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
+
+        await curr_session.post('/blog/posts/'+ blog_posts[0].id +'/comments/').send({ 
+            content: "Iscritto ricambi?"
+        }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
     });
 });
 
@@ -98,6 +108,52 @@ describe("Ricerca di un dato post", function () {
     test("Ricerca post dato il suo id", async function () {
         const res = await curr_session.get('/blog/posts/'+ blog_posts[0].id).expect(200);
         expect(res.body.id).toEqual(blog_posts[0].id);
+    });
+});
+
+describe("Ricerca dei commenti di un dato post", function () {
+    test("Ricerca corretta commenti - Tutto in una pagina", async function () {
+        const res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/`)
+            .query({ page_size: 5, page_number: 0 }).expect(200);
+        expect(res.body.length).toEqual(3);
+        expect(res.body[0].index).toEqual(0);
+        expect(res.body[1].index).toEqual(1);
+        expect(res.body[2].index).toEqual(2);
+    });
+
+    test("Ricerca corretta commenti - Paginazione (1)", async function () {
+        let res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/`)
+            .query({ page_size: 1, page_number: 0 }).expect(200);
+        expect(res.body[0].index).toEqual(0);
+
+        res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/`)
+            .query({ page_size: 1, page_number: 1 }).expect(200);
+        expect(res.body[0].index).toEqual(1);
+    });
+
+    test("Ricerca corretta commenti - Paginazione (2)", async function () {
+        res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/`)
+            .query({ page_size: 2, page_number: 0 }).expect(200);
+        expect(res.body.length).toEqual(2);
+        expect(res.body[0].index).toEqual(0);
+        expect(res.body[1].index).toEqual(1);
+
+        res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/`)
+            .query({ page_size: 2, page_number: 1 }).expect(200);
+        expect(res.body.length).toEqual(1);
+        expect(res.body[0].index).toEqual(2);
+    });
+
+    test("Ricerca errata commenti - Parametri mancanti", async function () {
+        await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/`).query({}).expect(400);
+    });
+
+    test("Ricerca corretta singolo commento", async function () {
+        let res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/0`).expect(200);
+        expect(res.body.index).toEqual(0);
+
+        res = await curr_session.get(`/blog/posts/${blog_posts[0].id}/comments/1`).expect(200);
+        expect(res.body.index).toEqual(1);
     });
 });
 
