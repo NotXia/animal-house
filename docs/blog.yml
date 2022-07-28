@@ -536,9 +536,10 @@ paths:
         500:
           description: "Internal server error"
 
-  #
-  # Inizio topic
-  #
+
+#
+# Inizio topic
+#
   /posts/topics/:
     get:
       tags:
@@ -563,6 +564,7 @@ paths:
       summary: "Inserimento di topic"
       description: |
         Creazione di un nuovo topic.
+
         Richiede permessi [ [], [["admin"] ]
       produces:
       - "application/json"
@@ -571,12 +573,15 @@ paths:
       parameters:
       - name: body
         in: body
+        required: true
         description: "Dati del topic"
         schema:
           $ref: "#/definitions/Topic"
       responses:
         201:
           description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Topic"
         400:
           description: "Input malformato"
           schema:
@@ -602,6 +607,7 @@ paths:
       summary: "Aggiornamento di topic"
       description: |
         Aggiornamento di un topic.
+
         Richiede permessi [ [], [["admin"] ]
       produces:
       - "application/json"
@@ -612,14 +618,23 @@ paths:
         in: path
         type: string
         required: true
+        description: "Nome del topic da aggiornare"
       - name: body
         in: body
         description: "Dati da aggiornare del topic"
         schema:
-          $ref: "#/definitions/Topic"
+          type: object
+          properties:
+            name:
+              type: string
+            icon:
+              type: string
+              format: base64
       responses:
         200:
           description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Topic"
         400:
           description: "Input malformato"
           schema:
@@ -644,9 +659,8 @@ paths:
       summary: "Cancellazione di topic"
       description: |
         Cancellazione di un topic.
+
         Richiede permessi [ [], [["admin"] ]
-      produces:
-      - "application/json"
       consumes:
       - "application/json"
       parameters:
@@ -654,8 +668,9 @@ paths:
         in: path
         type: string
         required: true
+        description: "Nome del topic da cancellare"
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Input malformato"
@@ -685,7 +700,8 @@ definitions:
         type: string
       icon:
         type: string
-        format: byte
+        format: base64
+    required: [ name ]
 
   Post:
     type: object
