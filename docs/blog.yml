@@ -78,8 +78,9 @@ paths:
       - "Post"
       summary: "Ricerca dei post secondo determinati criteri"
       description: |
-        Gestisce la ricerca dei post dati alcuni criteri. Di default ordina in senso decrescente di data. 
-        Gestisce la paginazione.
+        Gestisce la ricerca dei post dati alcuni criteri. Gestisce la paginazione.
+        
+        Di default ordina in senso decrescente di data. 
       produces:
       - "application/json"
       parameters:
@@ -95,10 +96,12 @@ paths:
         required: true
         type: number
         format: int
-      - name: username
+      - name: authors
         in: query
-        description: "Username dell'autore"
-        type: string
+        description: "Username degli autori"
+        type: array
+        items:
+          type: string
       - name: topic
         in: query
         description: "Topic del post"
@@ -305,6 +308,7 @@ paths:
         format: ObjectId
       - name: body
         in: body
+        required: true
         description: "Dati del commento"
         schema:
           type: object
@@ -468,6 +472,7 @@ paths:
         format: int
       - name: body
         in: body
+        required: true
         description: "Dati del commento"
         schema:
           type: object
@@ -628,6 +633,7 @@ paths:
         description: "Nome del topic da aggiornare"
       - name: body
         in: body
+        required: true
         description: "Dati da aggiornare del topic"
         schema:
           type: object
