@@ -147,8 +147,8 @@ paths:
         in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       responses:
         200:
           description: "Trovato con successo"
@@ -192,8 +192,8 @@ paths:
         in: path
         description: "Id del post da modificare"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       - name: body
         in: body
         required: true
@@ -217,7 +217,7 @@ paths:
         200:
           description: "Modificato con successo"
           schema:
-            type: "#/definitions/Post"
+            $ref: "#/definitions/Post"
         400:
           description: "Input malformato"
           schema:
@@ -254,8 +254,8 @@ paths:
         in: path
         description: "Id del post da cancellare"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       responses:
         204:
           description: "Cancellato con successo"
@@ -301,8 +301,8 @@ paths:
         in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       - name: body
         in: body
         description: "Dati del commento"
@@ -353,8 +353,8 @@ paths:
         in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       - name: page_size
         in: query
         description: "Numero di commenti per pagina"
@@ -407,8 +407,8 @@ paths:
         in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       - name: comment_index
         in: path
         description: "Indice del commento all'interno del post"
@@ -458,8 +458,8 @@ paths:
         in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       - name: comment_index
         in: path
         description: "Indice del commento all'interno del post"
@@ -513,8 +513,8 @@ paths:
         in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "definitions/utils.yml#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       - name: comment_index
         in: path
         description: "Indice del commento all'interno del post"
@@ -753,8 +753,3 @@ definitions:
         type: string
         format: date-time
     required: [ index, author, content, creationDate, updateDate ]
-
-  ObjectId:
-    type: string
-    format: ObjectId
-    example: "61338f5b47bfc65136b5de30"
