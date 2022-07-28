@@ -1,7 +1,6 @@
 require('dotenv').config();
 const PostModel = require("../../models/blog/post");
 const TopicModel = require("../../models/blog/topic");
-const UserModel = require("../../models/auth/user");
 
 const utils = require("../../utilities");
 const error = require("../../error_handler");
@@ -17,14 +16,10 @@ async function insertPost(req, res) {
         const topic = await TopicModel.findByName(req.body.topic);
         if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
 
-        const newPost = new PostModel({
-            user_id: req.auth.id,
-            content: req.body.content,
-            topic_id: topic._id,
-            tag_users_id: req.body.tag_users_id,
-            tag_animals_id: req.body.tag_animals_id
-        });
-        await newPost.save();
+        let new_post_fields = validator.matchedData(req);
+        new_post_fields. author = req.auth.username; // L'autore si ricava dai dati provenienti dall'autenticazione
+        const newPost = await new PostModel(new_post_fields).save();
+
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/posts/${newPost._id}`).json(newPost);
     } catch (e) {
         return error.response(err, res);
@@ -36,19 +31,11 @@ async function searchPosts(req, res) {
     try {
         let query = {};
 
-        // Estrae l'id dell'utente a partire dallo username
-        if (req.query.username) {
-            const user = await UserModel.findOne({ username: req.query.username }, { _id: 1 }).exec();
-            if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
-            query.user_id = user._id;
-        }
-        // Estrae l'id del topic a partire dal nome
-        if (req.query.topic) { 
-            const topic = await TopicModel.findByName(req.body.topic);
-            if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
-            query.topic_id = topic._id; 
-        }
+        // Composizione query di ricerca
+        if (req.query.author) { query.author = req.query.author; }
+        if (req.query.topic) { query.topic = req.query.topic; }
         
+        // Composizione criterio di
         let sort_criteria = { creationDate: "desc" };
         if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
     
@@ -57,7 +44,7 @@ async function searchPosts(req, res) {
                             .limit(req.query.page_size)
                             .skip(req.query.page_number)
                             .exec();
-        if (posts.length === 0) { throw error.generate.NOT_FOUND("Nessun post soddisfa i criteri di ricerca"); }
+                            
         return res.status(utils.http.OK).json(posts);
     }
     catch (err) { 
@@ -79,14 +66,12 @@ async function searchPostById(req, res) {
 // Modifica di un post dato il suo id
 async function updatePost(req, res) {
     try {
-        const updated_fields = validator.matchedData(req);
+        const updated_fields = validator.matchedData(req, ["body"]);
 
-        // Estrae l'id del topic
+        // Verifica esistenza del topic
         if (updated_fields.topic) {
             const topic = await TopicModel.findByName(updated_fields.topic);
             if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
-            updated_fields.topic_id = topic._id;
-            delete updated_fields.topic;
         }
 
         const post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields);
@@ -116,7 +101,7 @@ async function deletePost(req, res) {
 // Inserimento di un commento dato un post
 async function insertComment(req, res) {
     const comment = {
-        user_id : req.auth.id,
+        author : req.auth.username, // Autore del commento estratto dai dati di autenticazione
         content : req.body.content
     };
     try {
@@ -144,6 +129,7 @@ async function searchCommentByIndex(req, res) {
     try {
         const post = await PostModel.findById(req.params.post_id).exec();
         if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
+        if (!post.comments[parseInt(req.params.comment_index)]) { throw error.generate.NOT_FOUND("Commento inesistente"); }
         return res.status(utils.http.OK).json(post.comments[parseInt(req.params.comment_index)]);
     } catch (err) {
         return error.response(err, res);
@@ -153,7 +139,7 @@ async function searchCommentByIndex(req, res) {
 // Modifica di un commento dato un id di un post e la posizione del commento nell'array
 async function updateComment(req, res) {
     const newComment = {
-        user_id: req.auth.id,
+        author: req.auth.username,
         content: req.body.content,
         updateDate: new Date()
     };
