@@ -23,7 +23,7 @@ router.delete("/posts/:post_id", [ auth_middleware([ ["post_write"] ], [ ["admin
 
 router.post("/posts/:post_id/comments/", [ auth_middleware([ ["comment_write"] ], [ ["admin"] ]), post_middleware.validateInsertComment ], post_controller.insertComment);
 
-router.get("/posts/:post_id/comments/", post_middleware.validateSearchCommentByPost, post_controller.searchCommentsByPost);
+router.get("/posts/:post_id/comments/", post_middleware.validateSearchCommentsByPost, post_controller.searchCommentsByPost);
 router.get("/posts/:post_id/comments/:comment_index", post_middleware.validateSearchCommentByIndex, post_controller.searchCommentByIndex);
 
 router.put("/posts/:post_id/comments/:comment_index", [ auth_middleware([ ["comment_write"] ], [ ["admin"] ]), post_middleware.validateUpdateComment ], post_controller.updateComment);

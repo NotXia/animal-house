@@ -122,12 +122,14 @@ async function insertComment(req, res) {
 // Ricerca dei commenti dato un id di un post
 async function searchCommentsByPost(req, res) {
     try {
-        const post = await PostModel.findById(req.params.post_id).exec();
+        const to_skip = parseInt(req.query.page_size) * parseInt(req.query.page_number);
+        const post = await PostModel.findById(req.params.post_id, { comments: {"$slice": [to_skip, parseInt(req.query.page_size)]} }).exec();
         if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
 
-        let comments = post.comments.map((_, index) => post.getCommentByIndexData(index));
+        let comments = post.comments.map((_, index) => post.getCommentByIndexData(index, to_skip+index));
         return res.status(utils.http.OK).json(comments);
     } catch (err) {
+        console.warn(err);
         return error.response(err, res);
     }
 }

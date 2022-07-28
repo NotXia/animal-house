@@ -50,8 +50,10 @@ const validateInsertComment = [
     utils.validatorErrorHandler
 ];
 
-const validateSearchCommentByPost = [
+const validateSearchCommentsByPost = [
     blog_validator.validatePostId("param", REQUIRED),
+    query("page_size").exists().isInt({ min: 1 }).withMessage("Il valore deve essere un intero che inizia da 1"),
+    query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     utils.validatorErrorHandler
 ];
 
@@ -83,7 +85,7 @@ module.exports = {
     validateUpdatePost: validateUpdatePost,
     validateDeletePost: validateDeletePost,
     validateInsertComment: validateInsertComment,
-    validateSearchCommentByPost: validateSearchCommentByPost,
+    validateSearchCommentsByPost: validateSearchCommentsByPost,
     validateSearchCommentByIndex: validateSearchCommentByIndex,
     validateUpdateComment: validateUpdateComment,
     validateDeleteComment: validateDeleteComment
