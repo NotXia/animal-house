@@ -1,4 +1,4 @@
-const validator = require("../validators/post");
+const validator = require("../validators/blog");
 const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const utils = require("../utils");
 
