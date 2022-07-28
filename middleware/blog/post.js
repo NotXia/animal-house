@@ -8,7 +8,7 @@ const validateInsertPost = [
     // L'autore lo prendo da auth.
     blog_validator.validateContent("body", REQUIRED),
     blog_validator.validateTopicName("body", REQUIRED, "topic"),
-    blog_validator.validateTagUsers("body", REQUIRED),
+    blog_validator.validateTagUsers("body", OPTIONAL),
     blog_validator.validateTagAnimalsId("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
