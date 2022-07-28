@@ -39,7 +39,7 @@ describe("Pubblicazione post", function () {
             }).set({ Authorization: `Bearer ${operator1.token}` }).expect(201);
             blog_posts.push(res.body);
     
-            const post = await PostModel.findById(res.body._id).populate("user_id").exec();
+            const post = await PostModel.findById(res.body._id).exec();
         });
     }
 });
@@ -50,8 +50,8 @@ describe("Pubblicazione commento", function () {
             content: "Ciao Luigi, grazie per aver condiviso questa bellissima scoperta! \n Un saluto."
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
 
-        const post = await PostModel.findById(blog_posts[0]._id).populate("comments.user_id").exec();
-        expect(post.comments[0].user_id.username).toEqual(operator2.username);
+        const post = await PostModel.findById(blog_posts[0]._id).exec();
+        expect(post.comments[0].author).toEqual(operator2.username);
         expect(post.comments[0].content).toEqual("Ciao Luigi, grazie per aver condiviso questa bellissima scoperta! \n Un saluto.");
     });
     
@@ -82,16 +82,15 @@ describe("Pubblicazione post errate", function () {
 describe("Ricerca di un post di un dato utente", function () {
     test("Ricerca di tutti i post di un dato utente", async function () {
         const res = await curr_session.get('/blog/posts/')
-            .query({ page_size: 5, page_number: 0, username: operator1.username })
+            .query({ page_size: 5, page_number: 0, author: operator1.username })
             .expect(200);
         expect(res.body.length).toBeGreaterThan(0);
     });
 
     test("Ricerca di tutti i post di un dato utente inesistente", async function () {
         const res = await curr_session.get('/blog/posts/')
-            .query({ page_size: 5, page_number: 0, username: "FantasmaLuigino23" })
-            .expect(404);
-        expect(res.body.message).toBeDefined();
+            .query({ page_size: 5, page_number: 0, author: "FantasmaLuigino23" })
+            .expect(200);
     });
 });
 
@@ -108,8 +107,8 @@ describe("Modifica di un dato post", function () {
             topic: "Scoperte"
         }).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
 
-        const post = await PostModel.findById(blog_posts[0]._id).populate("topic_id").exec();
-        expect(post.topic_id.name).toEqual("Scoperte");
+        const post = await PostModel.findById(blog_posts[0]._id).exec();
+        expect(post.topic).toEqual("Scoperte");
     });
     
     test("Modifica post inesistente", async function () {
@@ -124,8 +123,8 @@ describe("Modifica di un dato post", function () {
             topic: "Animali"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(403);
 
-        const post = await PostModel.findById(blog_posts[0]._id).populate("topic_id").exec();
-        expect(post.topic_id.name).toEqual("Scoperte");
+        const post = await PostModel.findById(blog_posts[0]._id).exec();
+        expect(post.topic).toEqual("Scoperte");
         expect(res.body.message).toBeDefined();
     });
 });
