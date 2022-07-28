@@ -46,4 +46,28 @@ const postSchema = mongoose.Schema({
     }
 });
 
+postSchema.methods.getData = function() {
+    return {
+        id: this._id,
+        author: this.author,
+        content: this.content,
+        topic: this.topic,
+        tag_users: this.tag_users,
+        tag_animals_id: this.tag_animals_id,
+        creationDate: this.creationDate
+    };
+};
+
+postSchema.methods.getCommentByIndexData = function(index, real_index=null) {
+    if (real_index === null) { real_index = index; }
+
+    return {
+        index: real_index,
+        author: this.comments[index].author,
+        content: this.comments[index].content,
+        creationDate: this.comments[index].creationDate,
+        updateDate: this.comments[index].updateDate
+    };
+};
+
 module.exports = mongoose.model("posts", postSchema);
