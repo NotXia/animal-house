@@ -32,9 +32,9 @@ async function searchPosts(req, res) {
         let query = {};
 
         // Composizione query di ricerca
-        if (req.query.author) { query.author = req.query.author; }
+        if (req.query.authors) { query.author = { "$in": req.query.authors }; }
         if (req.query.topic) { query.topic = req.query.topic; }
-        
+
         // Composizione criterio di
         let sort_criteria = { creationDate: "desc" };
         if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }

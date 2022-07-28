@@ -39,9 +39,66 @@ describe("Pubblicazione post", function () {
             }).set({ Authorization: `Bearer ${operator1.token}` }).expect(201);
             blog_posts.push(res.body);
     
-            const post = await PostModel.findById(res.body._id).exec();
+            const post = await PostModel.findById(res.body.id).exec();
+            expect(post).toBeDefined();
+            expect(post.content).toEqual(text[i]);
         });
     }
+
+    test(`Pubblicazione altro post`, async function () {
+        const res = await curr_session.post('/blog/posts/').send({ 
+            content: "Ciao",
+            topic: "Animali"
+        }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
+        blog_posts.push(res.body);
+    });
+});
+
+describe("Pubblicazione post errate", function () {
+    test("Pubblicazione post senza accesso", async function () {
+        const res = await curr_session.post('/blog/posts/').send({ 
+            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
+        }).expect(401);
+        expect(res.body.message).toBeDefined();
+    });
+
+    test("Pubblicazione post senza permesso di scrittura", async function () {
+        const res = await curr_session.post('/blog/posts/').send({ 
+            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
+        }).set({ Authorization: `Bearer ${operator_no_permission.token}` }).expect(403);
+        expect(res.body.message).toBeDefined();
+    });
+});
+
+describe("Ricerca di un post di un dato utente", function () {
+    test("Ricerca di tutti i post di un dato utente", async function () {
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 5, page_number: 0, authors: [operator1.username] })
+            .expect(200);
+        expect(res.body.length).toEqual(3);
+        for (post of res.body) { expect(post.author).toEqual(operator1.username); }
+    });
+
+    test("Ricerca di tutti i post di un dato utente inesistente", async function () {
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 5, page_number: 0, authors: ["FantasmaLuigino23"] })
+            .expect(200);
+        expect(res.body.length).toEqual(0);
+    });
+
+    test("Ricerca di tutti i post di più utenti", async function () {
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 5, page_number: 0, authors: [operator1.username, operator2.username] })
+            .expect(200);
+        expect(res.body.length).toEqual(4);
+    });
+});
+
+describe("Ricerca di un dato post", function () {
+    test("Ricerca post dato il suo id", async function () {
+        const res = await curr_session.get('/blog/posts/'+ blog_posts[0].id).expect(200);
+        expect(res.body.id).toEqual(blog_posts[0].id);
+    });
 });
 
 describe("Pubblicazione commento", function () {
@@ -70,44 +127,6 @@ describe("Pubblicazione commento", function () {
         await curr_session.post('/blog/posts/'+ blog_posts[0].id +'/comments/').send({ 
             content: "Iscritto ricambi?"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
-    });
-});
-
-describe("Pubblicazione post errate", function () {
-    test("Pubblicazione post senza accesso", async function () {
-        const res = await curr_session.post('/blog/posts/').send({ 
-            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
-        }).expect(401);
-        expect(res.body.message).toBeDefined();
-    });
-
-    test("Pubblicazione post senza permesso di scrittura", async function () {
-        const res = await curr_session.post('/blog/posts/').send({ 
-            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
-        }).set({ Authorization: `Bearer ${operator_no_permission.token}` }).expect(403);
-        expect(res.body.message).toBeDefined();
-    });
-});
-
-describe("Ricerca di un post di un dato utente", function () {
-    test("Ricerca di tutti i post di un dato utente", async function () {
-        const res = await curr_session.get('/blog/posts/')
-            .query({ page_size: 5, page_number: 0, author: operator1.username })
-            .expect(200);
-        expect(res.body.length).toBeGreaterThan(0);
-    });
-
-    test("Ricerca di tutti i post di un dato utente inesistente", async function () {
-        const res = await curr_session.get('/blog/posts/')
-            .query({ page_size: 5, page_number: 0, author: "FantasmaLuigino23" })
-            .expect(200);
-    });
-});
-
-describe("Ricerca di un dato post", function () {
-    test("Ricerca post dato il suo id", async function () {
-        const res = await curr_session.get('/blog/posts/'+ blog_posts[0].id).expect(200);
-        expect(res.body.id).toEqual(blog_posts[0].id);
     });
 });
 

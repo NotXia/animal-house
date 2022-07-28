@@ -17,7 +17,7 @@ const validateSearchPosts = [
     query("page_size").exists().isInt({ min: 1 }).withMessage("Il valore deve essere un intero che inizia da 1"),
     query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     query("oldest").optional().isBoolean().withMessage("Formato non valido"),
-    user_validator.validateUsername("query", OPTIONAL, "author"),
+    user_validator.validateUsername("query", OPTIONAL, "authors.*"),
     blog_validator.validateTopicName("query", OPTIONAL, "topic"),
     utils.validatorErrorHandler
 ];
