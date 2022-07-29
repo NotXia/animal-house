@@ -1,0 +1,160 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni specifiche degli operatori"
+  version: "1.0.0"
+  title: "Operatori"
+basePath: "/user"
+
+paths:
+  /user/operators/{username}/absences/:
+    post:
+      tags:
+      - "Assenze"
+      summary: "Inserimento assenza"
+      description: |
+        Inserisce una nuova assenza tra quelle dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Intervallo di tempo dell'assenza"
+        required: true
+        schema:
+          type: object
+          properties:
+            absence_time:
+              $ref: "#/definitions/Absence"
+          required: [ absence_time ]
+      responses:
+        201:
+          description: "Aggiunto con successo"
+          schema:
+            $ref: "#/definitions/Absence"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    get:
+      tags:
+      - "Assenze"
+      summary: "Ricerca assenze"
+      description: |
+        Lista tutte le assenze dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Absence"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /user/operators/{username}/absences/{absence_time_index}:
+    post:
+      tags:
+      - "Assenze"
+      summary: "Cancella assenza"
+      description: |
+        Cancellazione di un'assenza dell'operatore cercato per indice.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: absence_time_index
+        in: path
+        description: "Indice dell'assenza"
+        required: true
+        type: number
+        format: int
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+definitions:
+
+  Absence:
+    type: object
+    properties:
+      start:
+        type: string
+        format: "ISO 8601"
+      end:
+        type: string
+        format: "ISO 8601"
+    required: [ start, end ]
