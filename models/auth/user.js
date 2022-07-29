@@ -116,4 +116,10 @@ userScheme.methods.getPublicData = async function() {
     return out;
 };
 
+userScheme.methods.updateType = async function(updated_data) {
+    const Model = this.isOperator() ? OperatorModel : CustomerModel;
+
+    return await Model.findByIdAndUpdate(this.type_id, updated_data, { new: true });
+};
+
 module.exports = mongoose.model("users", userScheme);

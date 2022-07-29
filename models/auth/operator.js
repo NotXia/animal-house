@@ -27,9 +27,9 @@ const operatorScheme = mongoose.Schema({
         required: true,
         default: {}
     },
-    absence_time: {
-        type: getAgendaSchema(timeSlotSchema)
-    }
+    absence_time: [{
+        type: timeSlotSchema
+    }]
 });
 
 module.exports = mongoose.model("operators", operatorScheme);
