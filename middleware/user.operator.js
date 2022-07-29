@@ -1,14 +1,31 @@
 const utils = require("./utils");
-const validator = require("./validators/user");
+const user_validator = require("./validators/user");
+const operator_validator = require("./validators/user.operator");
+const validator = require("express-validator");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
-const error = require("../error_handler");
 
-const validateUpdateAbsence = [
-    // validator.validateAddress("body", REQUIRED),
-    // utils.validatorErrorHandler,
-    // groupCustomerData("body")
+const validateInsertAbsenceTime = [
+    user_validator.validateUsername("param", REQUIRED),
+    operator_validator.validateAbsenceTime("body", REQUIRED),
+    utils.validatorErrorHandler,
+    user_validator.verifyUserOwnership("params")
+];
+
+const validategetAbsenceTime = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+    user_validator.verifyUserOwnership("params")
+];
+
+const validateDeleteAbsenceTimeByIndex = [
+    user_validator.validateUsername("param", REQUIRED),
+    operator_validator.validateAbsenceTimeIndex("param", REQUIRED),
+    utils.validatorErrorHandler,
+    user_validator.verifyUserOwnership("params")
 ];
 
 module.exports = {
-    validateUpdateAbsence: validateUpdateAbsence
+    validateInsertAbsenceTime: validateInsertAbsenceTime,
+    validategetAbsenceTime: validategetAbsenceTime,
+    validateDeleteAbsenceTimeByIndex: validateDeleteAbsenceTimeByIndex
 }
