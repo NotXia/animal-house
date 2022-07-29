@@ -1,6 +1,8 @@
 // const validator = require('express-validator');
 const utils = require("./utils");
-const validator = require("./validators/user");
+const user_validator = require("./validators/user");
+const operator_validator = require("./validators/user.operator");
+const customer_validator = require("./validators/user.customer");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
 const error = require("../error_handler");
 
@@ -63,63 +65,63 @@ function groupOperatorData(source) {
 
 function validateNewUserData(source) {
     return [
-        validator.validateUsername(source, REQUIRED),
-        validator.validatePassword(source, REQUIRED),
-        validator.validateEmail(source, REQUIRED),
-        validator.validateName(source, REQUIRED),
-        validator.validateSurname(source, REQUIRED),
-        validator.validateGender(source, OPTIONAL),
-        validator.validatePhone(source, OPTIONAL),
+        user_validator.validateUsername(source, REQUIRED),
+        user_validator.validatePassword(source, REQUIRED),
+        user_validator.validateEmail(source, REQUIRED),
+        user_validator.validateName(source, REQUIRED),
+        user_validator.validateSurname(source, REQUIRED),
+        user_validator.validateGender(source, OPTIONAL),
+        user_validator.validatePhone(source, OPTIONAL),
     ];
 }
 
 const validateInsertCustomer = [
     validateNewUserData("body"),
-    validator.validateAddress("body", REQUIRED),
+    customer_validator.validateAddress("body", REQUIRED),
     utils.validatorErrorHandler,
     groupCustomerData("body")
 ];
 
 const validateInsertOperator = [
     validateNewUserData("body"),
-    validator.validatePermission("body", OPTIONAL),
-    validator.validateRole("body", OPTIONAL),
-    validator.validateListOfServices("body", OPTIONAL),
+    user_validator.validatePermission("body", OPTIONAL),
+    operator_validator.validateRole("body", OPTIONAL),
+    operator_validator.validateListOfServices("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
 
 
 const validateSearchUser = [
-    validator.validateUsername("param", REQUIRED),
+    user_validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler,
-    validator.verifyUserOwnership("params"),
+    user_validator.verifyUserOwnership("params"),
 ];
 
 const validateSearchUserProfile = [
-    validator.validateUsername("param", REQUIRED),
+    user_validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 
 function validateUpdateUserData(source) {
     return [
-        validator.validatePassword(source, OPTIONAL),
-        validator.validateEmail(source, OPTIONAL),
-        validator.validateName(source, OPTIONAL),
-        validator.validateSurname(source, OPTIONAL),
-        validator.validateGender(source, OPTIONAL),
-        validator.validatePhone(source, OPTIONAL),
-        validator.validatePermission(source, OPTIONAL),
+        user_validator.validatePassword(source, OPTIONAL),
+        user_validator.validateEmail(source, OPTIONAL),
+        user_validator.validateName(source, OPTIONAL),
+        user_validator.validateSurname(source, OPTIONAL),
+        user_validator.validateGender(source, OPTIONAL),
+        user_validator.validatePhone(source, OPTIONAL),
+        user_validator.validatePermission(source, OPTIONAL),
     ];
 }
 
 const validateUpdateCustomer = [
-    validator.validateUsername("param", REQUIRED),
+    user_validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
-    validator.validateAddress("body", OPTIONAL),
+    customer_validator.validateAddress("body", OPTIONAL),
     utils.validatorErrorHandler,
-    validator.verifyUserOwnership("params"),
+    user_validator.verifyUserOwnership("params"),
     function (req, _, next) {
         if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
         next();
@@ -128,12 +130,12 @@ const validateUpdateCustomer = [
 ];
 
 const validateUpdateOperator = [
-    validator.validateUsername("param", REQUIRED),
+    user_validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
-    validator.validateRole("body", OPTIONAL),
-    validator.validateListOfServices("body", OPTIONAL),
+    operator_validator.validateRole("body", OPTIONAL),
+    operator_validator.validateListOfServices("body", OPTIONAL),
     utils.validatorErrorHandler,
-    validator.verifyUserOwnership("params"),
+    user_validator.verifyUserOwnership("params"),
     function (req, _, next) {
         if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
         next();
@@ -143,9 +145,9 @@ const validateUpdateOperator = [
 
 
 const validateDeleteUser = [
-    validator.validateUsername("param", REQUIRED),
+    user_validator.validateUsername("param", REQUIRED),
     utils.validatorErrorHandler,
-    validator.verifyUserOwnership("params")
+    user_validator.verifyUserOwnership("params")
 ];
 
 
