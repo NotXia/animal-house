@@ -42,7 +42,7 @@ async function getAbsenceTime(req, res) {
     return res.status(utils.http.OK).json(absence);
 }
 
-/* Aggiorna l'array delle assenze */
+/* Cancella un elemento dall'array delle assenze */
 async function deleteAbsenceTimeByIndex(req, res) {
     try {
         // Ricerca utenza
