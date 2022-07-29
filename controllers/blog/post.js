@@ -17,7 +17,7 @@ async function insertPost(req, res) {
         if (!topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
 
         let new_post_fields = validator.matchedData(req);
-        new_post_fields. author = req.auth.username; // L'autore si ricava dai dati provenienti dall'autenticazione
+        new_post_fields.author = req.auth.username; // L'autore si ricava dai dati provenienti dall'autenticazione
         const newPost = await new PostModel(new_post_fields).save();
 
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/posts/${newPost._id}`).json(newPost.getData());
