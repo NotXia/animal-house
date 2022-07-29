@@ -3,6 +3,7 @@ const timeSlotSchema = require("../utils/timeSlotSchema");
 const getAgendaSchema = require("../utils/agenda");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const HubModel = require("../services/hub");
+const moment = require("moment");
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -31,5 +32,14 @@ const operatorScheme = mongoose.Schema({
         type: timeSlotSchema
     }]
 });
+
+operatorScheme.methods.getAbsenceTime = function() {
+    return this.absence_time.map((absence) => (
+        {
+            start: moment(absence.start).utcOffset('+0200').format(),
+            end: moment(absence.end).utcOffset('+0200').format()
+        }
+    ));
+};
 
 module.exports = mongoose.model("operators", operatorScheme);

@@ -116,10 +116,24 @@ userScheme.methods.getPublicData = async function() {
     return out;
 };
 
+/**
+ * Cerca e restituisce i dati del tipo dell'utente
+ * @returns Una instanza di Customer od Operator
+ */
+userScheme.methods.findType = async function() {
+    const Model = this.isOperator() ? OperatorModel : CustomerModel;
+
+    return await Model.findById(this.type_id).exec();
+};
+
+/**
+ * Cerca e aggiorna i dati del tipo dell'utente
+ * @returns Una instanza di Customer od Operator aggiornata
+ */
 userScheme.methods.updateType = async function(updated_data) {
     const Model = this.isOperator() ? OperatorModel : CustomerModel;
 
-    return await Model.findByIdAndUpdate(this.type_id, updated_data, { new: true });
+    return await Model.findByIdAndUpdate(this.type_id, updated_data, { new: true, runValidators: true });
 };
 
 module.exports = mongoose.model("users", userScheme);
