@@ -129,7 +129,6 @@ async function searchCommentsByPost(req, res) {
         let comments = post.comments.map((_, index) => post.getCommentByIndexData(index, to_skip+index));
         return res.status(utils.http.OK).json(comments);
     } catch (err) {
-        console.warn(err);
         return error.response(err, res);
     }
 }
