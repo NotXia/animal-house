@@ -4,6 +4,7 @@ const getAgendaSchema = require("../utils/agenda");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const HubModel = require("../services/hub");
 const moment = require("moment");
+const { WEEKS } = require("../../utilities");
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -33,13 +34,31 @@ const operatorScheme = mongoose.Schema({
     }]
 });
 
-operatorScheme.methods.getAbsenceTime = function() {
-    return this.absence_time.map((absence) => (
-        {
-            start: moment(absence.start).utcOffset('+0200').format(),
-            end: moment(absence.end).utcOffset('+0200').format()
-        }
-    ));
+function formatTimeSlot(time) {
+    return {
+        start: moment(time.start).utcOffset('+0200').format(),
+        end: moment(time.end).utcOffset('+0200').format()
+    };
+}
+
+operatorScheme.methods.getAbsenceTimeData = function() {
+    return this.absence_time.map((absence) => formatTimeSlot(absence));
+};
+
+operatorScheme.methods.getWorkingTimeData = async function() {
+    let out = {};
+    const data = await this.populate("working_time.monday.hub_id");
+
+    for (let week of WEEKS) {
+        out[week] = data.working_time[week].map(function (work_time) {
+            return {
+                time: formatTimeSlot(work_time.time),
+                hub_id: work_time.hub_id === null ? null : work_time.hub_id._id.toString()
+            };
+        });
+    }
+
+    return out;
 };
 
 module.exports = mongoose.model("operators", operatorScheme);
