@@ -20,6 +20,9 @@ router.post("/operators/:username/absences/", [ auth_middleware([ ["operator"] ]
 router.get("/operators/:username/absences/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), operator_middleware.validategetAbsenceTime ], operator_controller.getAbsenceTime);
 router.delete("/operators/:username/absences/:absence_time_index", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), operator_middleware.validateDeleteAbsenceTimeByIndex ], operator_controller.deleteAbsenceTimeByIndex);
 
+router.get("/operators/:username/working-time/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), operator_middleware.validategetWorkingTime ], operator_controller.getWorkingTime);
+router.put("/operators/:username/working-time/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), operator_middleware.validateUpdateWorkingTime ], operator_controller.updateWorkingTime);
+
 
 router.get("/profiles/:username", user_middleware.validateSearchUserProfile, user_controller.searchUser(all=false));
 

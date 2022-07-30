@@ -24,8 +24,23 @@ const validateDeleteAbsenceTimeByIndex = [
     user_validator.verifyUserOwnership("params")
 ];
 
+const validategetWorkingTime = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+    user_validator.verifyUserOwnership("params")
+];
+
+const validateUpdateWorkingTime = [
+    user_validator.validateUsername("param", REQUIRED),
+    operator_validator.validateWorkingTime("body", REQUIRED),
+    utils.validatorErrorHandler,
+    user_validator.verifyUserOwnership("params")
+];
+
 module.exports = {
     validateInsertAbsenceTime: validateInsertAbsenceTime,
     validategetAbsenceTime: validategetAbsenceTime,
-    validateDeleteAbsenceTimeByIndex: validateDeleteAbsenceTimeByIndex
+    validateDeleteAbsenceTimeByIndex: validateDeleteAbsenceTimeByIndex,
+    validategetWorkingTime: validategetWorkingTime,
+    validateUpdateWorkingTime: validateUpdateWorkingTime
 }
