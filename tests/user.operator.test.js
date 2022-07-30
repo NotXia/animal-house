@@ -3,6 +3,7 @@ const app = require("../index.js");
 const utils = require("./utils/utils");
 const session = require('supertest-session');
 const moment = require("moment");
+const UserModel = require("../models/auth/user");
 
 let curr_session = session(app);
 
@@ -15,7 +16,7 @@ beforeAll(async function () {
 });
 
 
-describe("Ricerca vuota", function () {
+describe("Ricerca vuota di assenze", function () {
     test("Ricerca corretta", async function () {
         const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(0);
@@ -61,14 +62,14 @@ describe("Inserimento di assenze", function () {
 });
 
 
-describe("Ricerca", function () {
+describe("Ricerca di assenze", function () {
     test("Ricerca corretta", async function () {
         const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(2);
     });
 });
 
-describe("Cancellazione", function () {
+describe("Cancellazione assenza", function () {
     test("Cancellazione corretta", async function () {
         await curr_session.delete(`/user/operators/${operator1.username}/absences/0`)
             .set({ Authorization: `Bearer ${operator1.token}` }).expect(204);
@@ -83,6 +84,62 @@ describe("Cancellazione", function () {
 
         const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(1);
+    });
+});
+
+
+describe("Inserimento/Aggiornamento orario lavorativo", function () {
+    test("Inserimento corretto - Orario vuoto", async function () {
+        const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({
+                working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
+            }).expect(200);
+        
+        const user = await UserModel.findOne({ username: operator2.username }).exec();
+        const operator_data = await user.findType();
+        expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
+    });
+
+    test("Inserimento corretto", async function () {
+        const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({
+                working_time: { 
+                    monday: [{
+                        time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() }, 
+                        hub_id: "111111111111111111111111" 
+                    }], 
+                    tuesday: [
+                        {
+                            time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() }, 
+                            hub_id: "111111111111111111111111" 
+                        },
+                        {
+                            time: { start: moment("14:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }, 
+                            hub_id: "111111111111111111111111" 
+                        }
+                    ], 
+                    wednesday: [{
+                        time: { start: moment("9:00", "HH:mm").format(), end: moment("9:10", "HH:mm").format() }, 
+                        hub_id: "111111111111111111111111" 
+                    }], thursday: [], friday: [], saturday: [], sunday: [] }
+            }).expect(200);
+
+        const user = await UserModel.findOne({ username: operator2.username }).exec();
+        const operator_data = await user.findType();
+        expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
+    });
+});
+
+describe("Ricerca orario lavorativo", function () {
+    test("Ricerca corretta", async function () {
+        const res = await curr_session.get(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` }).expect(200);
+        
+        const user = await UserModel.findOne({ username: operator2.username }).exec();
+        const operator_data = await user.findType();
+        expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
     });
 });
 
