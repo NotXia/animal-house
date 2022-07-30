@@ -1,7 +1,9 @@
 const validator = require("express-validator");
 const utils = require("./utils");
 const service_validator = require("./service");
+const error = require("../../error_handler");
 const { WEEKS } = require("../../utilities");
+const moment = require("moment");
 
 module.exports.validateRole = (source, required=true, field_name="role") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 
@@ -13,20 +15,33 @@ module.exports.validateListOfServices = function (source, required=true, field_n
 }
 
 module.exports.validateWorkingTime = function (source, required=true, field_name="working_time") {
+    let out = [ utils.handleRequired(validator[source](field_name), required) ];
+
     if (required) {
-        let out = [ utils.handleRequired(validator[source](field_name), required) ];
         for (const week of WEEKS) {
             out.push(validator[source](`${field_name}.${week}`).exists().withMessage(`Valore di ${week} mancante`));
             out.push(validator[source](`${field_name}.${week}.*.time.start`).isISO8601().withMessage("Formato non valido").toDate());
             out.push(validator[source](`${field_name}.${week}.*.time.end`).isISO8601().withMessage("Formato non valido").toDate());
             out.push(validator[source](`${field_name}.${week}.*.hub_id`).isMongoId().withMessage("Formato non valido"));
         }
+    }
 
-        return out;
-    }
-    else {
-        return utils.handleRequired(validator[source](field_name), utils.OPTIONAL);
-    }
+    out.push(
+        // Verifica validità intervalli temporali
+        function (req, res, next) {
+            for (const week of WEEKS) {
+                for (const work_time of req[source][field_name][week]) {
+                    if (moment(work_time.time.start) >= moment(work_time.time.end)) { 
+                        next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
+                    }
+                }
+            }
+            
+            next();
+        }
+    )
+
+    return out;
 };
 
 module.exports.validateAbsenceTime = function (source, required=true, field_name="absence_time") {
