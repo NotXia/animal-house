@@ -2,8 +2,7 @@ const validator = require("express-validator");
 const utils = require("./utils");
 const error = require("../../error_handler");
 const service_validator = require("./service");
-
-const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const { WEEKS } = require("../../utilities");
 
 module.exports.validateUsername =   (source, required=true, field_name="username") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validatePassword =   (source, required=true, field_name="password") => { return utils.handleRequired(validator[source](field_name), required).isStrongPassword().withMessage("La password non è sufficientemente sicura"); }
