@@ -47,8 +47,23 @@ async function getHubByCode(req, res) {
     }
 }
 
+// Cancellazione di un hub dato il codice
+async function deleteHub(req, res) {
+    try {
+        const hub = await HubModel.findOne({ code: req.params.code }).exec();
+
+        const deletedHub = await HubModel.findOneAndDelete({ code: hub.code });
+        if (deletedHub.deletedCount === 0) { throw error.generate.NOT_FOUND("Hub inesistente"); }
+        
+        return res.sendStatus(utils.http.NO_CONTENT);
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 module.exports = {
     insertHub: insertHub,
     getHubs: getHubs,
     getHubByCode: getHubByCode,
+    deleteHub: deleteHub
 }

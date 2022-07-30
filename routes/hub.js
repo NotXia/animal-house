@@ -12,6 +12,6 @@ router.get("/:code", hub_middleware.validateGetHubByCode, hub_controller.getHubB
 
 // router.put("/posts/:post_id", [ auth_middleware([ ["post_write"] ], [ ["admin"] ]), post_middleware.validateUpdatePost ], post_controller.updatePost);
 
-// router.delete("/posts/:post_id", [ auth_middleware([ ["post_write"] ], [ ["admin"] ]), post_middleware.validateDeletePost ], post_controller.deletePost);
+router.delete("/:code", [ auth_middleware([], [ ["admin"] ]), hub_middleware.validateDeleteHub ], hub_controller.deleteHub);
 
 module.exports = router;
