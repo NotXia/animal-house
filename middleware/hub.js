@@ -12,6 +12,11 @@ const validateInsertHub = [
     utils.validatorErrorHandler
 ];
 
+const validateGetHubs = [
+    utils.validatorErrorHandler
+];
+
 module.exports = {
-    validateInsertHub: validateInsertHub   
+    validateInsertHub: validateInsertHub,
+    validateGetHubs: validateGetHubs
 }
