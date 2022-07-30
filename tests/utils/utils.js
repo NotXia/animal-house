@@ -1,10 +1,8 @@
 require("dotenv").config();
-const RoleModel = require("../../models/services/role");
 
 const usernames = ["Luigino", "Fabiello", "Marione"];
 const names = ["Gabriele", "Luigi"];
 const surnames = ["D'Annunzio", "Pirandello"];
-let test_role;
 
 const to_del_operators = [];
 
@@ -20,15 +18,11 @@ function getSurname()   { return `${surnames[randomInt(0, surnames.length - 1)]}
 
 
 module.exports.loginAsAdmin = async function (session) {
-    const res = await session.post('/auth/login_operator').send({ username: "admin", password: "admin" });
+    const res = await session.post('/auth/login').send({ username: "admin", password: "admin" });
     return res.body.access_token.value;
 }
 
 module.exports.loginAsOperatorWithPermission = async function (session, permission) {
-    if (!test_role) {
-        test_role = await new RoleModel({ name: "Test role" }).save();
-    }
-
     const admin_token = await module.exports.loginAsAdmin(session);
     const username = getUsername();
 
@@ -37,12 +31,12 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
         email: `${username}@animalhouse.com`,
         name: getName(), surname: getSurname(),
         permission: permission,
-        role_id: test_role._id,
+        role: "Test",
         working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
     }).set({ Authorization: `Bearer ${admin_token}`});
     to_del_operators.push(username);
 
-    const res_login = await session.post('/auth/login_operator').send({ username: username, password: "PasswordMoltoComplessa1!" });
+    const res_login = await session.post('/auth/login').send({ username: username, password: "PasswordMoltoComplessa1!" });
 
     return {
         username: username,
@@ -51,8 +45,6 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
 }
 
 module.exports.cleanup = async function (session) {
-    await RoleModel.findByIdAndDelete(test_role._id);
-    
     const admin_token = await module.exports.loginAsAdmin(session);
 
     for (operator of to_del_operators) {

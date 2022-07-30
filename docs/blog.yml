@@ -15,8 +15,10 @@ paths:
       summary: "Creazione di un nuovo post"
       description: |
         Gestisce l'inserimento  di un post.
+
         Un utente per pubblicare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_write", "admin"]
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -24,6 +26,7 @@ paths:
       parameters:
       - name: body
         in: body
+        required: true
         description: "Dati del post"
         schema:
           type: object
@@ -32,22 +35,25 @@ paths:
               type: string
             topic:
               type: string
-            tag_users_id:
+            tag_users:
               type: array
               items:
-                $ref: "#/definitions/ObjectId"
+                type: string
             tag_animals_id:
               type: array
               items:
-                $ref: "#/definitions/ObjectId"
-          required:
-          - content
+                $ref: "definitions/utils.yml#/definitions/ObjectId"
+          required: [ content, topic ]
       responses:
         201:
           description: "Creato con successo"
           schema:
             type: object
             $ref: "#/definitions/Post"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere al post"
         400:
           description: "Input malformato"
           schema:
@@ -60,17 +66,21 @@ paths:
           description: "Permessi mancanti"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Topic inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
     get:
       tags:
       - "Post"
       summary: "Ricerca dei post secondo determinati criteri"
       description: |
-        Gestisce la ricerca dei post dati alcuni criteri. Di default ordina in senso decrescente di data. 
-        Gestisce la paginazione.
-      consumes:
-      - "application/json"
+        Gestisce la ricerca dei post dati alcuni criteri. Gestisce la paginazione.
+        
+        Di default ordina in senso decrescente di data. 
       produces:
       - "application/json"
       parameters:
@@ -79,18 +89,22 @@ paths:
         description: "Numero di post per pagina"
         required: true
         type: number
+        format: int
       - name: page_number
         in: query
         description: "Numero di pagina"
         required: true
         type: number
-      - name: username
+        format: int
+      - name: authors
         in: query
-        description: "Username dell'autore"
-        type: string
+        description: "Username degli autori"
+        type: array
+        items:
+          type: string
       - name: topic
         in: query
-        description: "Categoria del post"
+        description: "Topic del post"
         type: string
       - name: oldest
         in: query
@@ -115,12 +129,9 @@ paths:
           description: "Permessi mancanti"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Non trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
   /posts/{post_id}:
     get:
       tags:
@@ -128,19 +139,19 @@ paths:
       summary: "Ricerca di un post"
       description: |
         Gestisce la ricerca di un post tramite il suo id.
+
         Un utente per ricercare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_write", "admin"]
-      consumes:
-      - "application/json"
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
       produces:
       - "application/json"
       parameters:
       - name: post_id
-        in: body
+        in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       responses:
         200:
           description: "Trovato con successo"
@@ -164,45 +175,52 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
     put:
       tags:
       - "Post"
       summary: "Modifica di un post"
       description: |
         Gestisce la modifica di un post tramite il suo id.
+
         Un utente per modificare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_write", "admin"]
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
+      - name: post_id
+        in: path
+        description: "Id del post da modificare"
+        required: true
+        type: string
+        format: ObjectId
       - name: body
         in: body
+        required: true
         description: "Dati del post"
         schema:
           type: object
           properties:
-            post_id:
-              type: object
-              $ref: "#/definitions/ObjectId"
             content:
               type: string
             topic:
               type: string
-            tag_users_id:
+            tag_users:
               type: array
               items:
-                $ref: "#/definitions/ObjectId"
+                type: string
             tag_animals_id:
               type: array
               items:
-                $ref: "#/definitions/ObjectId"
-          required:
-          - post_id
+                $ref: "definitions/utils.yml#/definitions/ObjectId"
       responses:
         200:
           description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Post"
         400:
           description: "Input malformato"
           schema:
@@ -216,32 +234,33 @@ paths:
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
-          description: "Non trovato"
+          description: "Topic o post non trovato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
     delete:
       tags:
       - "Post"
       summary: "Cancellazione di un post"
       description: |
         Gestisce la cancellazione di un post tramite il suo id.
+
         Un utente per cancellare un post deve avere fatto l'accesso.
-        Richiede permessi ["post_write", "admin"]
-      consumes:
-      - "application/json"
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
       produces:
       - "application/json"
       parameters:
       - name: post_id
-        in: body
-        description: "Id del post"
+        in: path
+        description: "Id del post da cancellare"
         required: true
-        schema:
-          $ref: "#/definitions/ObjectId"
+        type: string
+        format: ObjectId
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Input malformato"
@@ -272,30 +291,41 @@ paths:
       summary: "Creazione di un nuovo commento"
       description: |
         Gestisce l'inserimento di un commento sotto un post.
+
         Un utente per pubblicare un commento deve avere fatto l'accesso.
-        Richiede permessi ["comment_write", "admin"]
+
+        Richiede permessi [ ["comment_write"], ["admin"] ]
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
       - name: body
         in: body
-        description: "Dati del post"
+        required: true
+        description: "Dati del commento"
         schema:
           type: object
           properties:
-            post_id:
-              type: object
-              $ref: "#/definitions/ObjectId"
             content:
               type: string
-          required:
-          - post_id
-          - content
+          required: [ content ]
       responses:
         201:
           description: "Creato con successo"
+          schema:
+            type: object
+            $ref: "#/definitions/Comment"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere al commento"
         400:
           description: "Input malformato"
           schema:
@@ -306,6 +336,10 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         403:
           description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Post inesistente"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
@@ -315,42 +349,35 @@ paths:
       - "Commento"
       summary: "Ricerca dei commenti"
       description: |
-        Gestisce la ricerca dei commenti di un post tramite il suo id.
-        Un utente per ricercare dei commenti deve avere fatto l'accesso.
-        Richiede permessi ["comment_write", "admin"]
-      consumes:
-      - "application/json"
+        Gestisce la ricerca con paginazione dei commenti di un post tramite il suo id.
       produces:
       - "application/json"
       parameters:
       - name: post_id
-        in: body
+        in: path
         description: "Id del post"
         required: true
-        schema:
-          $ref: "#/definitions/ObjectId"
+        type: string
+        format: ObjectId
+      - name: page_size
+        in: query
+        description: "Numero di commenti per pagina"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+        format: int
       responses:
         200:
           description: "Trovato con successo"
           schema:
             type: array
             items:
-              type: object
-              properties:
-                user_id:
-                  $ref: "#/definitions/ObjectId"
-                content:
-                  type: string
-                creationDate:
-                  type: string
-                  format: date-time
-                updateDate:
-                  type: string
-                  format: date-time
-              required:
-              - user_id
-              - content
-              - creationDate
+              $ref: "#/definitions/Comment"
         400:
           description: "Input malformato"
           schema:
@@ -364,11 +391,12 @@ paths:
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
-          description: "Non trovato"
+          description: "Post inesistente"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
   /posts/{post_id}/comments/{comment_index}:
     get:
       tags:
@@ -376,47 +404,26 @@ paths:
       summary: "Ricerca di un commento"
       description: |
         Gestisce la ricerca di un commento di un post tramite l'id del post e l'indice del commento nell'array.
-        Un utente per ricercare dei commenti deve avere fatto l'accesso.
-        Richiede permessi ["comment_write", "admin"]
-      consumes:
-      - "application/json"
       produces:
       - "application/json"
       parameters:
-      - name: body
-        in: body
-        description: "Dati del commento"
-        schema:
-          type: object
-          properties:
-            post_id:
-              $ref: "#/definitions/ObjectId"
-            comment_index:
-              type: number
-              format: int
-          required:
-          - post_id
-          - comment_index
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: comment_index
+        in: path
+        description: "Indice del commento all'interno del post"
+        required: true
+        type: number
+        format: int
       responses:
         200:
           description: "Trovato con successo"
           schema:
-            type: object
-            properties:
-              user_id:
-                $ref: "#/definitions/ObjectId"
-              content:
-                type: string
-              creationDate:
-                type: string
-                format: date-time
-              updateDate:
-                type: string
-                format: date-time
-            required:
-            - user_id
-            - content
-            - creationDate
+            $ref: "#/definitions/Comment"
         400:
           description: "Input malformato"
           schema:
@@ -435,39 +442,48 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
     put:
       tags:
       - "Commento"
       summary: "Modifica di un commento"
       description: |
         Gestisce la modifica di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+        
         Un utente per modificare un commento deve avere fatto l'accesso.
-        Richiede permessi ["comment_write", "admin"]
+        
+        Richiede permessi [ ["comment_write"], ["admin"] ]
       consumes:
       - "application/json"
       produces:
       - "application/json"
       parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: comment_index
+        in: path
+        description: "Indice del commento all'interno del post"
+        required: true
+        type: number
+        format: int
       - name: body
         in: body
+        required: true
         description: "Dati del commento"
         schema:
           type: object
           properties:
-            post_id:
-              type: object
-              $ref: "#/definitions/ObjectId"
-            comment_index:
-              type: number
-              format: int
             content:
               type: string
-          required:
-          - post_id
-          - comment_index
       responses:
         200:
           description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Comment"
         400:
           description: "Input malformato"
           schema:
@@ -486,36 +502,32 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
     delete:
       tags:
       - "Commento"
       summary: "Cancellazione di un commento"
       description: |
         Gestisce la cancellazione di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+       
         Un utente per cancellare un commento deve avere fatto l'accesso.
+        
         Richiede permessi ["comment_write", "admin"]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
       parameters:
-      - name: body
-        in: body
-        description: "Dati del commento"
-        schema:
-          type: object
-          properties:
-            post_id:
-              type: object
-              $ref: "#/definitions/ObjectId"
-            comment_index:
-              type: number
-              format: int
-          required:
-          - post_id
-          - comment_index
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: comment_index
+        in: path
+        description: "Indice del commento all'interno del post"
+        required: true
+        type: number
+        format: int
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Input malformato"
@@ -536,9 +548,10 @@ paths:
         500:
           description: "Internal server error"
 
-  #
-  # Inizio topic
-  #
+
+#
+# Inizio topic
+#
   /posts/topics/:
     get:
       tags:
@@ -563,6 +576,7 @@ paths:
       summary: "Inserimento di topic"
       description: |
         Creazione di un nuovo topic.
+
         Richiede permessi [ [], [["admin"] ]
       produces:
       - "application/json"
@@ -571,12 +585,15 @@ paths:
       parameters:
       - name: body
         in: body
+        required: true
         description: "Dati del topic"
         schema:
           $ref: "#/definitions/Topic"
       responses:
         201:
           description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Topic"
         400:
           description: "Input malformato"
           schema:
@@ -602,6 +619,7 @@ paths:
       summary: "Aggiornamento di topic"
       description: |
         Aggiornamento di un topic.
+
         Richiede permessi [ [], [["admin"] ]
       produces:
       - "application/json"
@@ -612,14 +630,24 @@ paths:
         in: path
         type: string
         required: true
+        description: "Nome del topic da aggiornare"
       - name: body
         in: body
+        required: true
         description: "Dati da aggiornare del topic"
         schema:
-          $ref: "#/definitions/Topic"
+          type: object
+          properties:
+            name:
+              type: string
+            icon:
+              type: string
+              format: base64
       responses:
         200:
           description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Topic"
         400:
           description: "Input malformato"
           schema:
@@ -644,9 +672,8 @@ paths:
       summary: "Cancellazione di topic"
       description: |
         Cancellazione di un topic.
+
         Richiede permessi [ [], [["admin"] ]
-      produces:
-      - "application/json"
       consumes:
       - "application/json"
       parameters:
@@ -654,8 +681,9 @@ paths:
         in: path
         type: string
         required: true
+        description: "Nome del topic da cancellare"
       responses:
-        200:
+        204:
           description: "Cancellato con successo"
         400:
           description: "Input malformato"
@@ -685,53 +713,49 @@ definitions:
         type: string
       icon:
         type: string
-        format: byte
+        format: base64
+    required: [ name ]
 
   Post:
     type: object
     properties:
-      user_id:
-        $ref: "#/definitions/ObjectId" 
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      author:
+        type: string
+        description: "Username dell'autore"
       content:
         type: string
-      comments:
-        type: array
-        items:
-          type: object
-          properties:
-            user_id:
-              $ref: "#/definitions/ObjectId"
-            content:
-              type: string
-            creationDate:
-              type: string
-              format: date-time
-            updateDate:
-              type: string
-              format: date-time
-          required:
-          - user_id
-          - content
-          - creationDate
       topic:
         type: string
-      tag_users_id:
+      tag_users:
         type: array
         items:
-          $ref: "#/definitions/ObjectId"
+          type: string
       tag_animals_id:
         type: array
         items:
-          $ref: "#/definitions/ObjectId"
+          $ref: "definitions/utils.yml#/definitions/ObjectId"
       creationDate:
         type: string
         format: date-time
-    required:
-    - user_id
-    - content
-    - creationDate
+    required: [ id, author, content, topic, tag_users, tag_animals_id, creationDate ]
 
-  ObjectId:
-    type: string
-    format: ObjectId
-    example: "61338f5b47bfc65136b5de30"
+  Comment:
+    type: object
+    properties:
+      index:
+        type: number
+        format: int
+        description: "Indice del commento rispetto al post a cui appartiene"
+      author:
+        type: string
+      content:
+        type: string
+      creationDate:
+        type: string
+        format: date-time
+      updateDate:
+        type: string
+        format: date-time
+    required: [ index, author, content, creationDate, updateDate ]

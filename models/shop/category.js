@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const error = require("../../error_handler");
 
 const categorySchema = mongoose.Schema({
     name: {
@@ -14,6 +13,13 @@ const categorySchema = mongoose.Schema({
 
 categorySchema.statics.findByName = async function(category_name) {
     return await this.findOne({ name: category_name }).exec();
+};
+
+categorySchema.methods.getData = function() {
+    return {
+        name: this.name,
+        icon: this.icon  
+    };
 };
 
 module.exports = mongoose.model("categories", categorySchema);

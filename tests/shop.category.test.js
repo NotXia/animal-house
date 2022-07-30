@@ -98,7 +98,7 @@ describe("Modifica di categorie", function () {
 
 describe("Cancellazione di categorie", function () {
     test("Cancellazione corretta", async function () {
-        await curr_session.delete('/shop/categories/Vasche').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/shop/categories/Vasche').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
 
         const category = await CategoryModel.findOne({ name: "Vasche" }).exec();
         expect(category).toBeNull();
@@ -111,7 +111,7 @@ describe("Cancellazione di categorie", function () {
 
 describe("Pulizia", function () {
     test("Cancellazione categorie", async function () {
-        await curr_session.delete('/shop/categories/Alimenti').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
-        await curr_session.delete('/shop/categories/Giocattoli').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/shop/categories/Alimenti').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete('/shop/categories/Giocattoli').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 }); 

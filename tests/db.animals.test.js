@@ -8,24 +8,24 @@ function randomOf(array) {
 }
 
 describe("Database - gestione animali", function () {
-    let species_id = [];
+    let species = [];
     let animals_id = [];
     let users_id = [];
     let tmp = undefined;
 
     test("Popolazione database", async function () {
-        tmp = await new SpeciesModel({ type: "Cane", race: "Jack Russell terrier" }).save();
-        species_id.push(tmp._id);
-        tmp = await new SpeciesModel({ type: "Cane", race: "Bichon havanais" }).save();
-        species_id.push(tmp._id);
-        tmp = await new SpeciesModel({ type: "Gatto", race: "Sacro di Birmania" }).save();
-        species_id.push(tmp._id);
+        tmp = await new SpeciesModel({ name: "Cane" }).save();
+        species.push(tmp);
+        tmp = await new SpeciesModel({ name: "Criceto" }).save();
+        species.push(tmp);
+        tmp = await new SpeciesModel({ name: "Gatto" }).save();
+        species.push(tmp);
 
-        tmp = await new AnimalModel({ species_id: randomOf(species_id), name: "Animale1" }).save();
+        tmp = await new AnimalModel({ species: randomOf(species).name, name: "Animale1" }).save();
         animals_id.push(tmp._id);
-        tmp = await new AnimalModel({ species_id: randomOf(species_id), name: "Animale2" }).save();
+        tmp = await new AnimalModel({ species: randomOf(species).name, name: "Animale2" }).save();
         animals_id.push(tmp._id);
-        tmp = await new AnimalModel({ species_id: randomOf(species_id), name: "Animale3" }).save();
+        tmp = await new AnimalModel({ species: randomOf(species).name, name: "Animale3" }).save();
         animals_id.push(tmp._id);
 
         tmp = await new CustomerModel({ username: "user1", password: "a", email: "user1@test.it", name: "User1", surname: "Uno" }).save();
@@ -47,7 +47,7 @@ describe("Database - gestione animali", function () {
 
     test("Pulizia database", async function () {
         for (const id of users_id) { await CustomerModel.findByIdAndDelete(id); }
-        for (const id of species_id) { await SpeciesModel.findByIdAndDelete(id); }
+        for (const s of species) { await SpeciesModel.findByIdAndDelete(s._id); }
         for (const id of animals_id) { await AnimalModel.findByIdAndDelete(id); }
     });
 });

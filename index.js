@@ -8,7 +8,7 @@ const { middlewareErrorHandler } = require("./error_handler");
 const auth = require("./routes/auth");
 const user = require("./routes/user");
 const shop = require("./routes/shop");
-const blog = require("./routes/post");
+const blog = require("./routes/blog");
 const hub = require("./routes/hub");
 
 app.use(express.urlencoded({ extended: true }));

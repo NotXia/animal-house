@@ -16,4 +16,11 @@ topicSchema.statics.findByName = async function(topic_name) {
     return await this.findOne({ name: topic_name }).exec();
 };
 
+topicSchema.methods.getData = function() {
+    return {
+        name: this.name,
+        icon: this.icon  
+    };
+};
+
 module.exports = mongoose.model("topics", topicSchema);

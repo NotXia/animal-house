@@ -1,5 +1,4 @@
 require('dotenv').config();
-const mongoose = require("mongoose");
 const UserModel = require("../models/auth/user");
 const OperatorModel = require("../models/auth/operator");
 const CustomerModel = require("../models/auth/customer");
@@ -16,13 +15,14 @@ async function insertOperator(req, res) {
     try {
         new_operator = await new OperatorModel(data.operator).save();
         
+        data.user.enabled = true;
         data.user.permission.operator = true;
         data.user.type_id = new_operator._id;
+        data.user.type_name = "operator";
         new_user = await new UserModel(data.user).save();
 
-        return res.status(utils.http.CREATED).json({});
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
-        
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
             await OperatorModel.findByIdAndDelete(new_operator._id).exec().catch((err) => {}); // Cancella i dati inseriti
             e = error.generate.CONFLICT({ field: "username", message: "Username già in uso" });
@@ -42,9 +42,10 @@ async function insertCustomer(req, res) {
 
         data.user.permission = { customer: true };
         data.user.type_id = new_customer._id;
+        data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
-        return res.status(utils.http.CREATED).json({});
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/operators/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
             await CustomerModel.findByIdAndDelete(new_customer._id).exec().catch((err) => {}); // Cancella i dati inseriti
@@ -54,31 +55,46 @@ async function insertCustomer(req, res) {
     }
 }
 
-function searchUser(is_operator) {
-    return async function(req, res) {
+/* Restituisce tutti i dati di un utente */
+function searchUser(is_operator=false) {
+    return async function (req, res) {
         try {
-            const user = await UserModel.findOne({ username: req.params.username }).populate(is_operator ? "operator" : "customer").exec();
+            const user = await UserModel.findOne({ username: req.params.username }).exec();
             if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+            if (is_operator && !user.isOperator()) { throw error.generate.NOT_FOUND("L'utente non è un operatore"); }
+            if (!is_operator && user.isOperator()) { throw error.generate.NOT_FOUND("L'utente non è un cliente"); }
 
-            return res.status(utils.http.OK).json(user);
+            return res.status(utils.http.OK).json(await user.getAllData());
         }
         catch (e) {
             return error.response(e, res);
         }
-    };
+    }
+}
+
+/* Restituisce i dati pubblici di un utente */
+async function searchUserProfile(req, res) {
+    try {
+        const user = await UserModel.findOne({ username: req.params.username }).exec();
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        return res.status(utils.http.OK).json(await user.getPublicData());
+    }
+    catch (e) {
+        return error.response(e, res);
+    }
 }
 
 function updateUser(is_operator) {
     return async function(req, res) {
         let data = res.locals;
+        let user;
 
         try {
-            let user;
-
             // Aggiornamento dei dati generici dell'utente
             if (data.user) { 
                 if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
-                user = await UserModel.findOneAndUpdate({ username: req.params.username }, data.user);
+                user = await UserModel.findOneAndUpdate({ username: req.params.username }, data.user, { new: true });
                 if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
             }
 
@@ -94,7 +110,8 @@ function updateUser(is_operator) {
         } catch (e) {
             return error.response(e, res);
         }
-        return res.sendStatus(utils.http.OK);
+
+        return res.status(utils.http.OK).json(await user.getAllData());
     }
 }
 
@@ -117,10 +134,10 @@ function deleteUser(is_operator) {
                 await CustomerModel.findByIdAndDelete(user.customer._id);
             }
         } catch (e) {
-            return error.response(err, res);
+            return error.response(e, res);
         }
 
-        return res.sendStatus(utils.http.OK);
+        return res.sendStatus(utils.http.NO_CONTENT);
     }
 }
 
@@ -128,6 +145,7 @@ module.exports = {
     insertOperator: insertOperator,
     insertCustomer: insertCustomer,
     searchUser: searchUser,
+    searchUserProfile: searchUserProfile,
     updateUser: updateUser,
     deleteUser: deleteUser
 }

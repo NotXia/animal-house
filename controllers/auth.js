@@ -147,7 +147,7 @@ function logoutController(req, res) {
             return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR); 
         }
 
-        return res.sendStatus(utils.http.OK);
+        return res.sendStatus(utils.http.NO_CONTENT);
     });
 }
 
