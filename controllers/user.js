@@ -55,19 +55,33 @@ async function insertCustomer(req, res) {
     }
 }
 
-function searchUser(all=false) {
+/* Restituisce tutti i dati di un utente */
+function searchUser(is_operator=false) {
     return async function (req, res) {
         try {
             const user = await UserModel.findOne({ username: req.params.username }).exec();
             if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
-            
-            if (all) { return res.status(utils.http.OK).json(await user.getAllData()); }
-            else { return res.status(utils.http.OK).json(await user.getPublicData()); }
-            
+            if (is_operator && !user.isOperator()) { throw error.generate.NOT_FOUND("L'utente non è un operatore"); }
+            if (!is_operator && user.isOperator()) { throw error.generate.NOT_FOUND("L'utente non è un cliente"); }
+
+            return res.status(utils.http.OK).json(await user.getAllData());
         }
         catch (e) {
             return error.response(e, res);
         }
+    }
+}
+
+/* Restituisce i dati pubblici di un utente */
+async function searchUserProfile(req, res) {
+    try {
+        const user = await UserModel.findOne({ username: req.params.username }).exec();
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        return res.status(utils.http.OK).json(await user.getPublicData());
+    }
+    catch (e) {
+        return error.response(e, res);
     }
 }
 
@@ -131,6 +145,7 @@ module.exports = {
     insertOperator: insertOperator,
     insertCustomer: insertCustomer,
     searchUser: searchUser,
+    searchUserProfile: searchUserProfile,
     updateUser: updateUser,
     deleteUser: deleteUser
 }
