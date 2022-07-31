@@ -10,7 +10,7 @@ router.post("/", [ auth_middleware([], [ ["admin"] ]), hub_middleware.validateIn
 router.get("/", hub_middleware.validateGetHubs, hub_controller.getHubs);
 router.get("/:code", hub_middleware.validateGetHubByCode, hub_controller.getHubByCode);
 
-// router.put("/posts/:post_id", [ auth_middleware([ ["post_write"] ], [ ["admin"] ]), post_middleware.validateUpdatePost ], post_controller.updatePost);
+router.put("/:code", [ auth_middleware([], [ ["admin"] ]), hub_middleware.validateUpdateHub ], hub_controller.updateHub);
 
 router.delete("/:code", [ auth_middleware([], [ ["admin"] ]), hub_middleware.validateDeleteHub ], hub_controller.deleteHub);
 

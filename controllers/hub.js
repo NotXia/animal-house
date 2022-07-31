@@ -28,11 +28,12 @@ async function getHubs(req, res) {
     try {
         hubs = await HubModel.find({}, { _id: 0 }).exec();
         hubs = hubs.map(hub => hub.getData());
+        
+        return res.status(utils.http.OK).json(hubs);
     } catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(hubs);
 }
 
 // Ricerca di un hub dato il codice
@@ -42,6 +43,21 @@ async function getHubByCode(req, res) {
         if (!hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
         
         return res.status(utils.http.OK).json(await hub.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+// Aggiornamento di un hub dato il codice
+async function updateHub(req, res) {
+    try {
+        const to_change_hub = req.params.code;
+        const updated_data = validator.matchedData(req, { locations: ["body"] });
+
+        let updated_hub = await HubModel.findOneAndUpdate({ name: to_change_hub }, updated_data, { new: true }).exec();
+        if (!updated_hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
+
+        return res.status(utils.http.OK).json(updated_hub.getData());
     } catch (err) {
         return error.response(err, res);
     }
@@ -65,5 +81,6 @@ module.exports = {
     insertHub: insertHub,
     getHubs: getHubs,
     getHubByCode: getHubByCode,
+    updateHub: updateHub,
     deleteHub: deleteHub
 }
