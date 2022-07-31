@@ -51,9 +51,9 @@ async function getHubByCode(req, res) {
 async function updateHub(req, res) {
     try {
         const to_change_hub = req.params.code;
-        const updated_data = validator.matchedData(req, { locations: ["body"] });
+        const updated_data = matchedData(req, { locations: ["body"] });
 
-        let updated_hub = await HubModel.findOneAndUpdate({ name: to_change_hub }, updated_data, { new: true }).exec();
+        let updated_hub = await HubModel.findOneAndUpdate({ code: to_change_hub }, updated_data, { new: true }).exec();
         if (!updated_hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
 
         return res.status(utils.http.OK).json(updated_hub.getData());
