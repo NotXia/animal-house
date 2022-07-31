@@ -24,7 +24,6 @@ const hubSchema = mongoose.Schema({
         type: getAgendaSchema(timeSlotSchema),
         required: true
     },
-
     phone: { type: String },
     email: {
         type: String, 
