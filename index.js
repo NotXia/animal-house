@@ -20,7 +20,7 @@ app.use("/auth", auth);
 app.use("/user", user);
 app.use("/shop", shop);
 app.use("/blog", blog);
-app.use("/hub", hub);
+app.use("/hubs", hub);
 
 app.use(middlewareErrorHandler);
 
