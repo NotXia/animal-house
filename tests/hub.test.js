@@ -232,7 +232,6 @@ describe("Creazione di hub", function () {
     test("Creazione con parametri mancanti", async function () {
         const res = await curr_session.post('/hubs/').send({
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
-        console.warn(res.body);
     });
 });
 
@@ -247,13 +246,12 @@ describe("Ricerca di hub", function() {
     test("Ricerca totale", async function () {
         const hub = await curr_session.get('/hubs/').expect(200);
         expect(hub).toBeDefined();
-        expect(hub.body.length).toEqual(4);
-        expect(hub.body[0].name).toEqual("Sede centrale");
-        expect(hub.body[1].code).toEqual("MXP1");
-        expect(hub.body[2].code).toEqual("BLQ1");
-        expect(moment(hub.body[2].opening_time.monday[0].start).local().format()).toEqual(moment("9:00", "HH:mm").local().format());
-        expect(hub.body[3].code).toEqual("BLQ2");
-        expect(moment(hub.body[3].opening_time.wednesday[0].end).local().format()).toEqual(moment("23:00", "HH:mm").local().format());
+        expect(hub.body.length).toEqual(3);
+        expect(hub.body[0].code).toEqual("MXP1");
+        expect(hub.body[1].code).toEqual("BLQ1");
+        expect(moment(hub.body[1].opening_time.monday[0].start).local().format()).toEqual(moment("9:00", "HH:mm").local().format());
+        expect(hub.body[2].code).toEqual("BLQ2");
+        expect(moment(hub.body[2].opening_time.wednesday[0].end).local().format()).toEqual(moment("23:00", "HH:mm").local().format());
     });
 });
 
