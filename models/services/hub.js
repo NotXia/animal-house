@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const timeSlotSchema = require("../utils/timeSlotSchema");
 const getAgendaSchema = require("../utils/agenda");
 const addressSchema = require("../utils/address");
+const moment = require("moment");
+const { WEEKS } = require("../../utilities");
 
 const hubSchema = mongoose.Schema({
     code: {
@@ -30,12 +32,25 @@ const hubSchema = mongoose.Schema({
     }
 });
 
+hubSchema.methods.convertTime = function() {
+    let convertedOpeningTime = {};
+    for(const day of WEEKS) {
+        convertedOpeningTime[day] = [];
+        for(const time of this.opening_time[day]) {
+            let convertedStart = moment(time.start).local().format();
+            let convertedEnd = moment(time.end).local().format();
+            convertedOpeningTime[day].push({ start : convertedStart , end : convertedEnd });
+        }
+    }
+    return convertedOpeningTime;
+};
+
 hubSchema.methods.getData = function() {
     return {
         code: this.code,
         name: this.name,
         address: this.address,
-        opening_time: this.opening_time, // TODO
+        opening_time: this.convertTime(),
         phone: this.phone,
         email: this.email
     };
