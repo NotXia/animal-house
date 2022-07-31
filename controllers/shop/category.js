@@ -42,7 +42,7 @@ async function updateCategory(req, res) {
     let updated_category;
 
     try {
-        updated_category = await CategoryModel.findOneAndUpdate({ name: to_change_category }, updated_data).exec();
+        updated_category = await CategoryModel.findOneAndUpdate({ name: to_change_category }, updated_data, { new: true }).exec();
         if (!updated_category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
     }
     catch (err) {

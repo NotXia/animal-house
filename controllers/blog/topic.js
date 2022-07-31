@@ -42,7 +42,7 @@ async function updateTopic(req, res) {
     let updated_topic;
 
     try {
-        updated_topic = await TopicModel.findOneAndUpdate({ name: to_change_topic }, updated_data).exec();
+        updated_topic = await TopicModel.findOneAndUpdate({ name: to_change_topic }, updated_data, { new: true }).exec();
         if (!updated_topic) { throw error.generate.NOT_FOUND("Topic inesistente"); }
     }
     catch (err) {
