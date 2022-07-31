@@ -9,8 +9,8 @@ const hubSchema = mongoose.Schema({
     code: {
         type: String,
         required: true,
-        unique: true
-        // TODO: add regex (3 chars+number)
+        unique: true,
+        match: /^[A-Z]{3}[1-9][0-9]*$/
     },
     name: {
         type: String,
