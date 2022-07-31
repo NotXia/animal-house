@@ -120,11 +120,12 @@ function deleteUser(is_operator) {
     return async function(req, res) {
 
         try {
+            // Estrazione id
             const user = await UserModel.findOne({ username: req.params.username }).populate(is_operator ? "operator" : "customer").exec();
+            if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
             
             // Cancellazione utenza
-            const deleted_user = await UserModel.findByIdAndDelete(user._id);
-            if (deleted_user.deletedCount === 0) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+            await UserModel.findByIdAndDelete(user._id);
 
             // Cancellazione dati specifici
             if (is_operator) {
