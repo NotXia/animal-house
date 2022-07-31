@@ -48,7 +48,7 @@ paths:
         400:
           description: "Input malformato"
           schema:
-            $ref: "/definitions/utils.yml#/definitions/ValidationErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         401:
           description: "Non autenticato"
           schema:
@@ -60,7 +60,7 @@ paths:
         409:
           description: "Hub con lo stesso codice esistente"
           schema:
-            $ref: "/definitions/utils.yml#/definitions/FieldErrorMessage"
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
     get:
