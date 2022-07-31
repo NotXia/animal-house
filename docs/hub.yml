@@ -13,7 +13,7 @@ paths:
       description: | 
         Gestisce l'inserimento di un hub
 
-        Richiede permessi [ ["admin"] ]
+        Richiede permesso [ ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -115,7 +115,7 @@ paths:
       description: |
         Gestisce la modifica di un hub tramite codice
 
-        Richiede permessi [ ["admin"] ]
+        Richiede permesso [ ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -174,7 +174,7 @@ paths:
       description:  |
         Gestisce la modifica di un hub tramite codice
 
-        Richiede permessi [ ["admin"] ]
+        Richiede permesso [ ["admin"] ]
       produces:
       - "application/json"
       parameters:
