@@ -39,6 +39,10 @@ paths:
           description: "Creato con successo"
           schema:
             $ref: "#/definitions/ServiceData"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati del servizio"
         400:
           description: "Input malformato"
           schema:
