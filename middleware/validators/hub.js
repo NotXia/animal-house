@@ -9,38 +9,35 @@ module.exports.validateCode =       (source, required=true, field_name="code") =
 module.exports.validateName =       (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateAddress =    (source, required=true, field_name="address") => { return userValidator.validateAddress(source, required, field_name); }
 module.exports.validateOpeningTime = function (source, required=true, field_name="opening_time") {
-    if (required) {
-        let out = [ utils.handleRequired(validator[source](field_name), required) ];
-        
-        for (const week of WEEKS) {
-            out.push(validator[source](`${field_name}.${week}`).exists().withMessage(`Valore di ${week} mancante`));
-            out.push(validator[source](`${field_name}.${week}.*.start`).optional().isISO8601().withMessage("Formato non valido").toDate());
-            out.push(validator[source](`${field_name}.${week}.*.end`).optional().isISO8601().withMessage("Formato non valido").toDate());
-        }
+    let out = [ utils.handleRequired(validator[source](field_name), required) ];
+    
+    for (const week of WEEKS) {
+        out.push(validator[source](`${field_name}.${week}`).if((_, { req }) => { return req[source][field_name]; }).exists().withMessage(`Valore di ${week} mancante`));
+        out.push(validator[source](`${field_name}.${week}.*.start`).optional().isISO8601().withMessage("Formato non valido").toDate());
+        out.push(validator[source](`${field_name}.${week}.*.end`).optional().isISO8601().withMessage("Formato non valido").toDate());
+    }
 
-        out.push(
-            // Verifica validità intervalli temporali
-            function (req, res, next) {
-                if (!req[source][field_name]) {
-                    return next();
-                }
-                for (const week of WEEKS) {
-                    for (const opening_time of req[source][field_name][week]) {
-                        if (moment(opening_time.start).isSameOrAfter(moment(opening_time.end))) { 
-                            next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
-                        }
+    out.push(
+        // Verifica validità intervalli temporali
+        function (req, res, next) {
+            if (!req[source][field_name]) {
+                return next();
+            }
+            for (const week of WEEKS) {
+                if (!req[source][field_name][week]) { return next(); }
+
+                for (const opening_time of req[source][field_name][week]) {
+                    if (moment(opening_time.start).isSameOrAfter(moment(opening_time.end))) { 
+                        next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
                     }
                 }
-    
-                next();
             }
-        )
 
-        return out;
-    }
-    else {
-        return utils.handleRequired(validator[source](field_name), utils.OPTIONAL);
-    }
-};
+            next();
+        }
+    )
+
+    return out;
+}
 module.exports.validatePhone =      (source, required=true, field_name="phone") => { return userValidator.validatePhone(source, required, field_name); }
 module.exports.validateEmail =      (source, required=true, field_name="email") => { return userValidator.validateEmail(source, required, field_name); }

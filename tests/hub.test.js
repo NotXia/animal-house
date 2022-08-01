@@ -305,6 +305,34 @@ describe("Modifica di hub", function () {
         expect(moment(hub.opening_time.tuesday[0].start).local().format()).toEqual(moment("04:00", "HH:mm").local().format());
     });
 
+    test("Modifica dell'orario di apertura - Formato errato", async function () {
+        await curr_session.put('/hubs/BLQ2').send({
+            opening_time: { 
+                monday: [{
+                    start: moment("23:00", "HH:mm").format(), 
+                    end: moment("24:00", "HH:mm").format()
+                }],
+                tuesday: [{
+                    start: moment("23:00", "HH:mm").format(),
+                    end: moment("23:30", "HH:mm").format()
+                }]
+            },
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+    });
+
+    test("Modifica dell'orario di apertura - Intervallo di tempo errato", async function () {
+        await curr_session.put('/hubs/BLQ2').send({
+            opening_time: { 
+                monday: [{
+                    start: moment("19:00", "HH:mm").format(), 
+                    end: moment("11:00", "HH:mm").format()
+                }],
+                tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
+            },
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+    });
+
+
     test("Modifica hub inesistente", async function () {
         await curr_session.put('/hubs/FCO1').send({
             name: "Clinica Veterinaria Pippo"
