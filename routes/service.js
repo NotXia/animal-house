@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const auth_middleware = require("../middleware/auth");
+const service_middleware = require("../middleware/service");
+const service_controller = require("../controllers/service");
+
+// Router per i servizi
+router.post("/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateInsertService ], service_controller.insertService);
+
+module.exports = router;
