@@ -16,7 +16,6 @@ async function insertService(req, res) {
         if (err.code === utils.MONGO_DUPLICATED_KEY) {
             err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
         }
-        console.warn(err);
         return error.response(err, res);
     }
 }
