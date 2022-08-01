@@ -1,4 +1,4 @@
-name: 🌮 Unit test
+name: 🌮 API test
 
 on: 
   push:
