@@ -11,11 +11,19 @@ const serviceScheme = mongoose.Schema({
         required: true, 
         default: "" 
     },
-    duration: { // In ms
+    duration: { // In minuti
         type: Number, 
         required: true, 
         default: 0 
     } 
 });
+
+hubSchema.methods.getData = function() {
+    return {
+        name: this.name,
+        description: this.description,
+        duration: this.duration
+    };
+};
 
 module.exports = mongoose.model("services", serviceScheme);
