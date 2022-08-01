@@ -117,13 +117,16 @@ userScheme.methods.getPublicData = async function() {
 };
 
 /**
- * Cerca e restituisce i dati del tipo dell'utente
- * @returns Una instanza di Customer od Operator
+ * Cerca e restituisce i dati del tipo dell'utente. I dat idell'utenza sono disponibili nel campo user
+ * @returns Una instanza di Customer od Operator arricchita da user
  */
 userScheme.methods.findType = async function() {
     const Model = this.isOperator() ? OperatorModel : CustomerModel;
 
-    return await Model.findById(this.type_id).exec();
+    const data = await Model.findById(this.type_id).exec();
+    data.user = this;
+
+    return data
 };
 
 /**
