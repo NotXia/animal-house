@@ -1,0 +1,209 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sui servizi"
+  version: "1.0.0"
+  title: "Service"
+
+paths:
+  /services/:
+    post:
+      tags:
+        - "Services"
+      summary: "Creazione di un nuovo servizio"
+      description: | 
+        Gestisce l'inserimento di un servizio
+
+        Richiede permessi [ ["operator"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati del servizio"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            duration:
+              type: number
+              format: int
+          required: [ name, description, duration ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/ServiceData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        409:
+          description: "Servizio con lo stesso nome esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+      - "Services"
+      summary: "Ricerca di tutti i servizi"
+      description: "Gestisce la ricerca di tutti i servizi"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ServiceData"
+        500:
+          description: "Internal server error"
+  /services/{name}:
+    get:
+      tags:
+      - "Services"
+      summary: "Ricerca di un servizio"
+      description: "Gestisce la ricerca di un singolo servizio dato il suo nome"
+      produces:
+      - "application/json"
+      parameters:
+      - name: name
+        in: path
+        description: "Nome del servizio"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/ServiceData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+        - "Services"
+      summary: "Modifica di un servizio"
+      description: |
+        Gestisce la modifica di un servizio tramite nome
+
+        Richiede permesso [ ["operator"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: name
+        in: path
+        description: "Nome del servizio"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati del servizio"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            duration:
+              type: number
+              format: int
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/ServiceData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+        - "Services"
+      summary: "Cancellazione di un servizio"
+      description:  |
+        Gestisce la cancellazione di un servizio tramite nome
+
+        Richiede permesso [ ["operator"], ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: name
+        in: path
+        description: "Nome del servizio"
+        required: true
+        type: string
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+definitions:
+  ServiceData:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      duration:
+        type: number
+        format: int
+    required: [ name, description, duration ]
