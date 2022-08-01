@@ -18,7 +18,7 @@ const serviceScheme = mongoose.Schema({
     } 
 });
 
-hubSchema.methods.getData = function() {
+serviceSchema.methods.getData = function() {
     return {
         name: this.name,
         description: this.description,
