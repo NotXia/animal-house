@@ -11,11 +11,12 @@ async function insertService(req, res) {
         let toInsertService = await new ServiceModel(newService).save();
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertService.name}`)
-            .json(toInsertHub.getData());
+            .json(toInsertService.getData());
     } catch (err) {
         if (err.code === utils.MONGO_DUPLICATED_KEY) {
             err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
         }
+        console.warn(err);
         return error.response(err, res);
     }
 }
