@@ -146,7 +146,7 @@ paths:
               format: email
       responses:
         200:
-          description: "Trovato con successo"
+          description: "Modificato con successo"
           schema:
             $ref: "#/definitions/HubData"
         400:
