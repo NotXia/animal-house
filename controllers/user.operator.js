@@ -121,7 +121,7 @@ async function getAvailabilities(req, res) {
         const start_date = moment(req.query.start_date).startOf("day");
         const end_date = moment(req.query.end_date).startOf("day")
 
-        availability = operator_data.getAvailabilityData(start_date, end_date);
+        availability = await operator_data.getAvailabilityData(start_date, end_date);
     } catch (err) {
         return error.response(err, res);
     }

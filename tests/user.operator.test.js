@@ -4,6 +4,7 @@ const utils = require("./utils/utils");
 const session = require('supertest-session');
 const moment = require("moment");
 const UserModel = require("../models/auth/user");
+const BookingModel = require("../models/services/booking");
 
 let curr_session = session(app);
 
@@ -185,6 +186,8 @@ describe("Ricerca orario lavorativo", function () {
 
 
 describe("Ricerca disponibilità operatore", function () {
+    let to_delete_appointment;
+    
     test("Inserimento orario", async function () {
         await curr_session.put(`/user/operators/${operator3.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator3.token}` })
@@ -192,23 +195,95 @@ describe("Ricerca disponibilità operatore", function () {
                 working_time: { 
                     monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "MXP1" }, { time: {start: moment("14:00", "HH:mm"), end: moment("17:00", "HH:mm")}, hub: "MXP1" }], 
                     tuesday: [],
-                    wednesday: [{ time: {start: moment("14:00", "HH:mm"), end: moment("17:00", "HH:mm")}, hub: "MXP1" }],
+                    wednesday: [{ time: {start: moment("14:00", "HH:mm"), end: moment("17:00", "HH:mm")}, hub: "MXP2" }],
                     thursday: [], 
                     friday: [], 
                     saturday: [], 
                     sunday: [] 
                 }
             }).expect(200);
-
-            await curr_session.post(`/user/operators/${operator3.username}/absences/`)
-                .set({ Authorization: `Bearer ${operator3.token}` })
-                .send({ absence_time: { start: moment("08/08/2022 8:00", TIME_FORMAT), end: moment("08/08/2022 10:00", TIME_FORMAT) } }).expect(201);
     });
 
     test("Ricerca disponibilità", async function () {
         let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
-        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", "DD/MM/YYYY HH:mm").local().format());
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 9:00", TIME_FORMAT).local().format());
+        expect(res.body[0].time.end).toEqual(moment("08/08/2022 13:00", TIME_FORMAT).local().format());
+        expect(res.body[0].hub).toEqual("MXP1");
+        expect(res.body[1].time.start).toEqual(moment("08/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[1].time.end).toEqual(moment("08/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[1].hub).toEqual("MXP1");
+        expect(res.body[2].time.start).toEqual(moment("10/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[2].time.end).toEqual(moment("10/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[2].hub).toEqual("MXP2");
+    });
+
+    test("Inserimento assenza", async function () {
+        await curr_session.post(`/user/operators/${operator3.username}/absences/`)
+            .set({ Authorization: `Bearer ${operator3.token}` })
+            .send({ absence_time: { start: moment("08/08/2022 8:00", TIME_FORMAT), end: moment("08/08/2022 10:00", TIME_FORMAT) } }).expect(201);
+    });
+
+    test("Ricerca disponibilità", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
+        expect(res.body[0].time.end).toEqual(moment("08/08/2022 13:00", TIME_FORMAT).local().format());
+        expect(res.body[0].hub).toEqual("MXP1");
+        expect(res.body[1].time.start).toEqual(moment("08/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[1].time.end).toEqual(moment("08/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[1].hub).toEqual("MXP1");
+        expect(res.body[2].time.start).toEqual(moment("10/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[2].time.end).toEqual(moment("10/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[2].hub).toEqual("MXP2");
+    });
+
+    test("Inserimento appuntamento", async function () {
+        to_delete_appointment = await new BookingModel({
+            time_slot: {
+                start: moment("08/08/2022 12:30", TIME_FORMAT).format(),
+                end: moment("08/08/2022 13:00", TIME_FORMAT).format()
+            },
+            service_id: "111111111111111111111111",
+            customer: "BestCustomerEver2022",
+            operator: operator3.username,
+            hub: "MXP1"
+        }).save();
+    });
+
+    test("Ricerca disponibilità", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
+        expect(res.body[0].time.end).toEqual(moment("08/08/2022 12:30", TIME_FORMAT).local().format());
+        expect(res.body[0].hub).toEqual("MXP1");
+        expect(res.body[1].time.start).toEqual(moment("08/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[1].time.end).toEqual(moment("08/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[1].hub).toEqual("MXP1");
+        expect(res.body[2].time.start).toEqual(moment("10/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[2].time.end).toEqual(moment("10/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[2].hub).toEqual("MXP2");
+    });
+
+    test("Inserimento assenza", async function () {
+        await curr_session.post(`/user/operators/${operator3.username}/absences/`)
+            .set({ Authorization: `Bearer ${operator3.token}` })
+            .send({ absence_time: { start: moment("08/08/2022 14:00", TIME_FORMAT), end: moment("08/08/2022 17:00", TIME_FORMAT) } }).expect(201);
+    });
+
+    test("Ricerca disponibilità", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
+        expect(res.body[0].time.end).toEqual(moment("08/08/2022 12:30", TIME_FORMAT).local().format());
+        expect(res.body[0].hub).toEqual("MXP1");
+        expect(res.body[1].time.start).toEqual(moment("10/08/2022 14:00", TIME_FORMAT).local().format());
+        expect(res.body[1].time.end).toEqual(moment("10/08/2022 17:00", TIME_FORMAT).local().format());
+        expect(res.body[1].hub).toEqual("MXP2");
+    });
+
+    test("Pulizia", async function () {
+        await BookingModel.findByIdAndDelete(to_delete_appointment);
     });
 });
 

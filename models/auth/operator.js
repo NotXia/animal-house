@@ -5,6 +5,7 @@ const Moment = require("moment");
 const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 const { WEEKS } = require("../../utilities");
+const BookingModel = require("../services/booking");
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -61,11 +62,14 @@ operatorScheme.methods.getWorkingTimeData = function() {
     return out;
 };
 
-operatorScheme.methods.getAvailabilityData = function(start_date, end_date) {
+operatorScheme.methods.getAvailabilityData = async function(start_date, end_date) {
     let availabilities = [];
-    
+    let unavailable_slots = [];
+
+    // Aggiorna gli slot disponibili con l'orario lavorativo standard
     for (let query_day=moment(start_date); query_day.diff(end_date, 'days') <= 0; query_day.add(1, 'days')) {
         for (const work_time of this.working_time[WEEKS[query_day.isoWeekday()-1]]) {
+            // Imposta l'orario con la data corretta (quella della richiesta) 
             let start_time = moment(work_time.time.start).set({ date: query_day.date(), month: query_day.month(), year: query_day.year() });
             let end_time = moment(work_time.time.end).set({ date: query_day.date(), month: query_day.month(), year: query_day.year() });
             
@@ -75,8 +79,16 @@ operatorScheme.methods.getAvailabilityData = function(start_date, end_date) {
             });
         }
     }
-        
-    for (const absence of this.absence_time) { 
+
+    // Aggiorna gli slot indisponibili con le assenze
+    for (const absence of this.absence_time) { unavailable_slots.push(moment.range(absence.start, absence.end)); }
+
+    // Aggiorna gli slot indisponibili con gli appuntamenti già fissati
+    const appointments = await BookingModel.find({ operator: this.user.username }).exec();
+    for (const appointment of appointments) { unavailable_slots.push(moment.range(appointment.time_slot.start, appointment.time_slot.end)); }
+    
+    // Calcolo degli slot disponibili
+    for (const absence of unavailable_slots) { 
         let absence_interval = moment.range(absence.start, absence.end);
         let new_availabilities = [];
 
@@ -89,14 +101,12 @@ operatorScheme.methods.getAvailabilityData = function(start_date, end_date) {
         availabilities = new_availabilities;
     }
 
-    // TODO: Controllo rispetto alle prenotazioni
-
     availabilities = availabilities.map((availability) => ({
         time: formatTimeSlot(availability.time),
         hub: availability.hub
     }));
 
     return availabilities;
-};
+}
 
 module.exports = mongoose.model("operators", operatorScheme);
