@@ -26,7 +26,7 @@ module.exports.validateOpeningTime = function (source, required=true, field_name
                 }
                 for (const week of WEEKS) {
                     for (const opening_time of req[source][field_name][week]) {
-                        if (moment(opening_time.start) >= moment(opening_time.end)) { 
+                        if (moment(opening_time.start).isSameOrAfter(moment(opening_time.end))) { 
                             next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
                         }
                     }

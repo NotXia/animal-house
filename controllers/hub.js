@@ -25,7 +25,7 @@ async function getHubs(req, res) {
     let hubs;
 
     try {
-        hubs = await HubModel.find({}, { _id: 0 }).exec();
+        hubs = await HubModel.find({}).exec();
         hubs = hubs.map(hub => hub.getData());
         
         return res.status(utils.http.OK).json(hubs);
@@ -41,7 +41,7 @@ async function getHubByCode(req, res) {
         const hub = await HubModel.findOne({ code: req.params.code }).exec();
         if (!hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
         
-        return res.status(utils.http.OK).json(await hub.getData());
+        return res.status(utils.http.OK).json(hub.getData());
     } catch (err) {
         return error.response(err, res);
     }

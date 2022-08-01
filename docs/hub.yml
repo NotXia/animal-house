@@ -172,7 +172,7 @@ paths:
         - "Hubs"
       summary: "Cancellazione di un hub"
       description:  |
-        Gestisce la modifica di un hub tramite codice
+        Gestisce la cancellazione di un hub tramite codice
 
         Richiede permesso [ ["admin"] ]
       produces:
@@ -220,93 +220,49 @@ definitions:
         type: string
     required: [ city, street, number, postalcode ]
   
+  TimeSlot:
+    type: object
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+         type: string
+         format: date-time
+    required: [ start, end ]
+
   OpeningTime:
     type: object
     properties:
       monday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
       tuesday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
       wednesday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
       thursday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
       friday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
       saturday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
       sunday:
         type: array
         items:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-          required: [ start, end ]
+          $ref: "#/definitions/TimeSlot"
+    required: [ monday, tuesday, wednesday, thursday, friday, saturday, sunday ]
       
   HubData:
     type: object
@@ -324,3 +280,4 @@ definitions:
       email:
         type: string
         format: email
+    required: [ code, name, address, opening_time ]

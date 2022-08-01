@@ -12,9 +12,6 @@ const validateInsertHub = [
     utils.validatorErrorHandler
 ];
 
-const validateGetHubs = [
-    utils.validatorErrorHandler
-];
 
 const validateGetHubByCode = [
     validator.validateCode("param", REQUIRED),
@@ -38,7 +35,6 @@ const validateDeleteHub = [
 
 module.exports = {
     validateInsertHub: validateInsertHub,
-    validateGetHubs: validateGetHubs,
     validateGetHubByCode: validateGetHubByCode,
     validateUpdateHub: validateUpdateHub,
     validateDeleteHub: validateDeleteHub
