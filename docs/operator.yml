@@ -105,7 +105,7 @@ paths:
     post:
       tags:
       - "Assenze"
-      summary: "Cancella assenza"
+      summary: "Cancellazione assenza"
       description: |
         Cancellazione di un'assenza dell'operatore cercato per indice.
 
@@ -146,6 +146,98 @@ paths:
         500:
           description: "Internal server error"
 
+
+  /user/operators/{username}/working-time/:
+    get:
+      tags:
+      - "Orario lavorativo"
+      summary: "Ricerca orario lavorativo"
+      description: |
+        Restituisce l'orario lavorativo standard dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/WorkingTime"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+      - "Orario lavorativo"
+      summary: "Modifica orario lavorativo"
+      description: |
+        Modifica l'orario lavorativo standard dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: false
+        schema:
+          type: object
+          properties:
+            working_time:
+              $ref: "#/definitions/WorkingTime"
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/WorkingTime"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
 definitions:
 
   Absence:
@@ -153,8 +245,59 @@ definitions:
     properties:
       start:
         type: string
-        format: "ISO 8601"
+        format: date-time
       end:
         type: string
-        format: "ISO 8601"
+        format: date-time
     required: [ start, end ]
+
+  WorkingSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+    required: [ time, hub ]
+
+  WorkingTime:
+    type: object
+    properties:
+      monday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      tuesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      wednesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      thursday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      friday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      saturday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      sunday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+    required: [ monday, tuesday, wednesday, thursday, friday, saturday, sunday ]
