@@ -18,27 +18,29 @@ module.exports.validateListOfServices = function (source, required=true, field_n
 module.exports.validateWorkingTime = function (source, required=true, field_name="working_time") {
     let out = [ utils.handleRequired(validator[source](field_name), required) ];
 
-    if (required) {
-        for (const week of WEEKS) {
-            out.push(validator[source](`${field_name}.${week}`).exists().withMessage(`Valore di ${week} mancante`));
-            out.push(validator[source](`${field_name}.${week}.*.time.start`).exists().isISO8601().withMessage("Formato non valido").toDate());
-            out.push(validator[source](`${field_name}.${week}.*.time.end`).exists().isISO8601().withMessage("Formato non valido").toDate());
-            hub_validator.validateCode(source, required=true, `${field_name}.${week}.*.hub`);
-        }
+    for (const week of WEEKS) {
+        out.push(validator[source](`${field_name}.${week}`).if((_, { req }) => { return req[source][field_name]; }).exists().withMessage(`Valore di ${week} mancante`));
+        out.push(validator[source](`${field_name}.${week}.*.time.start`).exists().isISO8601().withMessage("Formato non valido").toDate());
+        out.push(validator[source](`${field_name}.${week}.*.time.end`).exists().isISO8601().withMessage("Formato non valido").toDate());
+        hub_validator.validateCode(source, required=true, `${field_name}.${week}.*.hub`);
     }
 
     out.push(
         // Verifica validità intervalli temporali
         function (req, res, next) {
+            if (!req[source][field_name]) { return next(); }
+
             for (const week of WEEKS) {
+                if (!req[source][field_name][week]) { return next(); }
+
                 for (const work_time of req[source][field_name][week]) {
-                    if (moment(work_time.time.start) >= moment(work_time.time.end)) { 
+                    if (moment(work_time.time.start).isSameOrAfter(moment(work_time.time.end))) { 
                         next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
                     }
                 }
             }
             
-            next();
+            return next();
         }
     )
 

@@ -126,6 +126,39 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
         const operator_data = await user.findType();
         expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
     });
+
+    test("Inserimento errato - Campo malformato (1)", async function () {
+        await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({
+                working_time: { 
+                    monday: [{ time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },  hub: "MXP1" }]
+                }
+            }).expect(400);
+    });
+
+    test("Inserimento errato - Campo malformato (2)", async function () {
+        await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({
+                working_time: { 
+                    lunedi: []
+                }
+            }).expect(400);
+    });
+
+    test("Inserimento errato - Orario inconsistente", async function () {
+        await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({
+                working_time: { 
+                    monday: [{
+                        time: { start: moment("9:00", "HH:mm").format(), end: moment("8:00", "HH:mm").format() },  hub: "MXP1"
+                    }], 
+                    tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] 
+                }
+            }).expect(400);
+    });
 });
 
 describe("Ricerca orario lavorativo", function () {
