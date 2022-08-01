@@ -1,0 +1,283 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sugli hub"
+  version: "1.0.0"
+  title: "Hub"
+
+paths:
+  /hubs/:
+    post:
+      tags:
+      - "Hubs"
+      summary: "Creazione di un nuovo hub"
+      description: | 
+        Gestisce l'inserimento di un hub
+
+        Richiede permesso [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati dell'hub"
+        required: true
+        schema:
+          type: object
+          properties:
+            code:
+              type: string
+            name:
+              type: string
+            address:
+              $ref: "#/definitions/Address"
+            opening_time:
+              $ref: "#/definitions/OpeningTime"
+            phone:
+              type: string
+            email:
+              type: string
+              format: email
+          required: [ code, name, address, opening_time ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/HubData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        409:
+          description: "Hub con lo stesso codice esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+      - "Hubs"
+      summary: "Ricerca di tutti gli hub"
+      description: "Gestisce la ricerca di tutti gli hub"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/HubData"
+        500:
+          description: "Internal server error"
+  /hubs/{code}:
+    get:
+      tags:
+      - "Hubs"
+      summary: "Ricerca di un hub"
+      description: "Gestisce la ricerca di un singolo hub dato il suo codice"
+      produces:
+      - "application/json"
+      parameters:
+      - name: code
+        in: path
+        description: "Codice dell'hub"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/HubData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+        - "Hubs"
+      summary: "Modifica di un hub"
+      description: |
+        Gestisce la modifica di un hub tramite codice
+
+        Richiede permesso [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: code
+        in: path
+        description: "Codice dell'hub"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati dell'hub"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            address:
+              $ref: "#/definitions/Address"
+            opening_time:
+              $ref: "#/definitions/OpeningTime"
+            phone:
+              type: string
+            email:
+              type: string
+              format: email
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/HubData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+        - "Hubs"
+      summary: "Cancellazione di un hub"
+      description:  |
+        Gestisce la cancellazione di un hub tramite codice
+
+        Richiede permesso [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: code
+        in: path
+        description: "Codice dell'hub"
+        required: true
+        type: string
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+definitions:
+  Address:
+    type: object
+    properties:
+      city:
+        type: string
+      street:
+        type: string
+      number:
+        type: string
+      postalcode:
+        type: string
+    required: [ city, street, number, postalcode ]
+  
+  TimeSlot:
+    type: object
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+         type: string
+         format: date-time
+    required: [ start, end ]
+
+  OpeningTime:
+    type: object
+    properties:
+      monday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+      tuesday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+      wednesday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+      thursday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+      friday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+      saturday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+      sunday:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+    required: [ monday, tuesday, wednesday, thursday, friday, saturday, sunday ]
+      
+  HubData:
+    type: object
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+      address:
+        $ref: "#/definitions/Address"
+      opening_time:
+        $ref: "#/definitions/OpeningTime"
+      phone:
+        type: string
+      email:
+        type: string
+        format: email
+    required: [ code, name, address, opening_time ]

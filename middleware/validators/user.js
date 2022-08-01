@@ -2,8 +2,7 @@ const validator = require("express-validator");
 const utils = require("./utils");
 const error = require("../../error_handler");
 const service_validator = require("./service");
-
-const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const { WEEKS } = require("../../utilities");
 
 module.exports.validateUsername =   (source, required=true, field_name="username") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validatePassword =   (source, required=true, field_name="password") => { return utils.handleRequired(validator[source](field_name), required).isStrongPassword().withMessage("La password non è sufficientemente sicura"); }
@@ -61,10 +60,10 @@ module.exports.validateAddress = function (source, required=true, field_name="ad
     if (required) {
         return [
             utils.handleRequired(validator[source](field_name), utils.REQUIRED),
-            validator[source](`${field_name}.city`).exists().trim().escape(),
-            validator[source](`${field_name}.street`).exists().trim().escape(),
-            validator[source](`${field_name}.number`).exists().trim().escape(),
-            validator[source](`${field_name}.postal_code`).exists().isPostalCode("any").withMessage("Formato non valido"),
+            validator[source](`${field_name}.city`).exists().withMessage("Valore mancante").trim().escape(),
+            validator[source](`${field_name}.street`).exists().withMessage("Valore mancante").trim().escape(),
+            validator[source](`${field_name}.number`).exists().withMessage("Valore mancante").trim().escape(),
+            validator[source](`${field_name}.postal_code`).exists().withMessage("Valore mancante").isPostalCode("any").withMessage("Formato non valido"),
         ];
     }
     else {
