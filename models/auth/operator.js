@@ -35,8 +35,8 @@ const operatorScheme = mongoose.Schema({
 
 function formatTimeSlot(time) {
     return {
-        start: moment(time.start).utcOffset('+0200').format(),
-        end: moment(time.end).utcOffset('+0200').format()
+        start: moment(time.start).local().format(),
+        end: moment(time.end).local().format()
     };
 }
 

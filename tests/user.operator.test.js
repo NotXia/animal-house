@@ -36,8 +36,8 @@ describe("Inserimento di assenze", function () {
         const res = await curr_session.post(`/user/operators/${operator1.username}/absences/`)
             .set({ Authorization: `Bearer ${operator1.token}` })
             .send({ absence_time: { start: start_vacation, end: end_vacation } }).expect(201);
-        expect(moment(res.body[0].start).utcOffset('+0200').toISOString()).toEqual(start_vacation.toISOString());
-        expect(moment(res.body[0].end).utcOffset('+0200').toISOString()).toEqual(end_vacation.toISOString());
+        expect(moment(res.body[0].start).local().toISOString()).toEqual(start_vacation.toISOString());
+        expect(moment(res.body[0].end).local().toISOString()).toEqual(end_vacation.toISOString());
     });
 
     test("Inserimento corretto (2)", async function () {
@@ -47,8 +47,8 @@ describe("Inserimento di assenze", function () {
         const res = await curr_session.post(`/user/operators/${operator1.username}/absences/`)
             .set({ Authorization: `Bearer ${operator1.token}` })
             .send({ absence_time: { start: start_vacation, end: end_vacation } }).expect(201);
-        expect(res.body[1].start).toEqual(start_vacation.utcOffset('+0200').format());
-        expect(res.body[1].end).toEqual(end_vacation.utcOffset('+0200').format());
+        expect(res.body[1].start).toEqual(start_vacation.local().format());
+        expect(res.body[1].end).toEqual(end_vacation.local().format());
     });
 
     test("Inserimento errato - inizio dopo fine", async function () {
