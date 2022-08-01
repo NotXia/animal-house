@@ -20,9 +20,24 @@ async function insertService(req, res) {
     }
 }
 
+// Ricerca di tutti i servizi
+async function getServices(req, res) {
+    let services;
+
+    try {
+        services = await ServiceModel.find({}).exec();
+        services = services.map(service => service.getData());
+        
+        return res.status(utils.http.OK).json(services);
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+}
+
 module.exports = {
     insertService: insertService,
-    // getHubs: getHubs,
+    getServices: getServices,
     // getHubByCode: getHubByCode,
     // updateHub: updateHub,
     // deleteHub: deleteHub

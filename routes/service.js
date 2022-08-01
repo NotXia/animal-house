@@ -7,4 +7,6 @@ const service_controller = require("../controllers/service");
 // Router per i servizi
 router.post("/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateInsertService ], service_controller.insertService);
 
+router.get("/", service_controller.getServices);
+
 module.exports = router;
