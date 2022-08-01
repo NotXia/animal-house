@@ -33,13 +33,13 @@ async function init() {
         const admin_user = await new OperatorModel({
             role: "Admin",
             working_time: {
-                monday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
-                tuesday:    [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
-                wednesday:  [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
-                thursday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
-                friday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
-                saturday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }],
-                sunday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub_id: hq._id }]
+                monday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                tuesday:    [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                wednesday:  [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                thursday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                friday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                saturday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                sunday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }]
             }
         }).save().catch((err) => { console.log(err.message); });
         await new UserModel({

@@ -1,6 +1,7 @@
 const validator = require("express-validator");
 const utils = require("./utils");
 const service_validator = require("./service");
+const hub_validator = require("./hub");
 const error = require("../../error_handler");
 const { WEEKS } = require("../../utilities");
 const moment = require("moment");
@@ -20,9 +21,9 @@ module.exports.validateWorkingTime = function (source, required=true, field_name
     if (required) {
         for (const week of WEEKS) {
             out.push(validator[source](`${field_name}.${week}`).exists().withMessage(`Valore di ${week} mancante`));
-            out.push(validator[source](`${field_name}.${week}.*.time.start`).isISO8601().withMessage("Formato non valido").toDate());
-            out.push(validator[source](`${field_name}.${week}.*.time.end`).isISO8601().withMessage("Formato non valido").toDate());
-            out.push(validator[source](`${field_name}.${week}.*.hub_id`).isMongoId().withMessage("Formato non valido"));
+            out.push(validator[source](`${field_name}.${week}.*.time.start`).exists().isISO8601().withMessage("Formato non valido").toDate());
+            out.push(validator[source](`${field_name}.${week}.*.time.end`).exists().isISO8601().withMessage("Formato non valido").toDate());
+            hub_validator.validateCode(source, required=true, `${field_name}.${week}.*.hub`);
         }
     }
 

@@ -34,8 +34,6 @@ function _getOperatorData(source) {
     return Object.fromEntries(Object.entries(
         {
             role: source.role,
-            working_time: source.working_time,
-            absence_time: source.absence_time
         }
     ).filter(([_, v]) => v != null)); 
 }

@@ -107,22 +107,18 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
             .send({
                 working_time: { 
                     monday: [{
-                        time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() }, 
-                        hub_id: "111111111111111111111111" 
+                        time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },  hub: "MXP1"
                     }], 
                     tuesday: [
                         {
-                            time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() }, 
-                            hub_id: "111111111111111111111111" 
+                            time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() }, hub: "MXP1"
                         },
                         {
-                            time: { start: moment("14:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }, 
-                            hub_id: "111111111111111111111111" 
+                            time: { start: moment("14:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }, hub: "MXP1"
                         }
                     ], 
                     wednesday: [{
-                        time: { start: moment("9:00", "HH:mm").format(), end: moment("9:10", "HH:mm").format() }, 
-                        hub_id: "111111111111111111111111" 
+                        time: { start: moment("9:00", "HH:mm").format(), end: moment("9:10", "HH:mm").format() }, hub: "MXP1"
                     }], thursday: [], friday: [], saturday: [], sunday: [] }
             }).expect(200);
 
