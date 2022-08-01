@@ -89,7 +89,7 @@ paths:
       - "application/json"
       parameters:
       - name: code
-        in: query
+        in: path
         description: "Codice dell'hub"
         required: true
         type: string
@@ -179,7 +179,7 @@ paths:
       - "application/json"
       parameters:
       - name: code
-        in: query
+        in: path
         description: "Codice dell'hub"
         required: true
         type: string
