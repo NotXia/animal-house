@@ -32,7 +32,18 @@ async function getServices(req, res) {
     } catch (err) {
         return error.response(err, res);
     }
+}
 
+// Ricerca di un hub dato il codice
+async function getHubByCode(req, res) {
+    try {
+        const hub = await HubModel.findOne({ code: req.params.code }).exec();
+        if (!hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
+        
+        return res.status(utils.http.OK).json(hub.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
 }
 
 module.exports = {
