@@ -61,10 +61,24 @@ async function updateService(req, res) {
     }
 }
 
+// Cancellazione di un servizio dato il nome
+async function deleteService(req, res) {
+    try {
+        const to_delete_service = req.params.name;
+
+        const deletedService = await ServiceModel.findOneAndDelete({ name: to_delete_service });
+        if (!deletedService) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
+        
+        return res.sendStatus(utils.http.NO_CONTENT);
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 module.exports = {
     insertService: insertService,
     getServices: getServices,
     getServiceByName: getServiceByName,
     updateService: updateService,
-    // deleteHub: deleteHub
+    deleteService: deleteService
 }

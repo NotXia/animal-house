@@ -22,9 +22,14 @@ const validateUpdateService = [
     utils.validatorErrorHandler
 ];
 
+const validateDeleteService = [
+    validator.validateServiceName("param", REQUIRED),
+    utils.validatorErrorHandler
+]
+
 module.exports = {
     validateInsertService: validateInsertService,
     validateGetServiceByName: validateGetServiceByName,
     validateUpdateService: validateUpdateService,
-    // validateDeleteHub: validateDeleteHub
+    validateDeleteService: validateDeleteService
 }

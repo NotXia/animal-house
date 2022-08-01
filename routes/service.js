@@ -12,5 +12,6 @@ router.get("/:name", service_middleware.validateGetServiceByName, service_contro
 
 router.put("/:name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateUpdateService ], service_controller.updateService);
 
+router.delete("/:name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateDeleteService ], service_controller.deleteService);
 
 module.exports = router;
