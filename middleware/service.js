@@ -14,9 +14,17 @@ const validateGetServiceByName = [
     utils.validatorErrorHandler
 ];
 
+const validateUpdateService = [
+    validator.validateServiceName("param", REQUIRED),
+    validator.validateServiceName("body", OPTIONAL),
+    validator.validateServiceDescription("body", OPTIONAL),
+    validator.validateServiceDuration("body", OPTIONAL),
+    utils.validatorErrorHandler
+];
+
 module.exports = {
     validateInsertService: validateInsertService,
     validateGetServiceByName: validateGetServiceByName,
-    // validateUpdateHub: validateUpdateHub,
+    validateUpdateService: validateUpdateService,
     // validateDeleteHub: validateDeleteHub
 }

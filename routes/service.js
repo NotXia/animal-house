@@ -10,5 +10,7 @@ router.post("/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_mid
 router.get("/", service_controller.getServices);
 router.get("/:name", service_middleware.validateGetServiceByName, service_controller.getServiceByName);
 
+router.put("/:name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateUpdateService ], service_controller.updateService);
+
 
 module.exports = router;

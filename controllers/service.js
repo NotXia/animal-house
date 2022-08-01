@@ -46,10 +46,25 @@ async function getServiceByName(req, res) {
     }
 }
 
+// Aggiornamento di un servizio dato il nome
+async function updateService(req, res) {
+    try {
+        const to_change_service = req.params.name;
+        const updated_data = matchedData(req, { locations: ["body"] });
+
+        let updated_service = await ServiceModel.findOneAndUpdate({ name: to_change_service }, updated_data, { new: true }).exec();
+        if (!updated_service) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
+
+        return res.status(utils.http.OK).json(updated_service.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 module.exports = {
     insertService: insertService,
     getServices: getServices,
     getServiceByName: getServiceByName,
-    // updateHub: updateHub,
+    updateService: updateService,
     // deleteHub: deleteHub
 }
