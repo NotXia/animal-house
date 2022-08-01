@@ -1,6 +1,6 @@
 function handleRequired(validator_obj, required, default_value=undefined) {
     if (default_value != undefined) { validator_obj = validator_obj.customSanitizer(value => value || default_value); }
-    if (required) { return validator_obj.exists().withMessage("Valore mancante"); }
+    if (required) { return validator_obj.exists().withMessage("Valore mancante").bail(); }
     else { return validator_obj.optional(); }
 }
 
