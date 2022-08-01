@@ -3,6 +3,7 @@ const validator = require("express-validator");
 const UserModel = require("../models/auth/user");
 const utils = require("../utilities");
 const error = require("../error_handler");
+const moment = require("moment");
 
 
 /* Aggiunge un elemento all'array delle assenze */
@@ -64,6 +65,7 @@ async function deleteAbsenceTimeByIndex(req, res) {
 }
 
 
+/* Ricerca dell'orario di lavoro */
 async function getWorkingTime(req, res) {
     let working_time;
 
@@ -73,7 +75,7 @@ async function getWorkingTime(req, res) {
         if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         const operator_data = await user.findType();
-        working_time = await operator_data.getWorkingTimeData();
+        working_time = operator_data.getWorkingTimeData();
     } catch (err) {
         return error.response(err, res);
     }
@@ -81,6 +83,7 @@ async function getWorkingTime(req, res) {
     return res.status(utils.http.OK).json(working_time);
 }
 
+/* Aggiornamento dell'orario di lavoro */
 async function updateWorkingTime(req, res) {
     let updated_working_time;
 
@@ -94,7 +97,7 @@ async function updateWorkingTime(req, res) {
 
         // Estrazione dati operatori
         const operator_data = await user.findType();
-        updated_working_time = await operator_data.getWorkingTimeData();
+        updated_working_time = operator_data.getWorkingTimeData();
     } catch (err) {
         console.warn(err);
         return error.response(err, res);
@@ -103,10 +106,35 @@ async function updateWorkingTime(req, res) {
     return res.status(utils.http.OK).json(updated_working_time);
 }
 
+
+/* Ricerca delle disponibilità */
+async function getAvailabilities(req, res) {
+    let availability;
+
+    try {
+        // Ricerca utenza
+        const user = await UserModel.findOne({ username: req.params.username }).exec();
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        const operator_data = await user.findType();
+        
+        // Normalizzazione valori delle date
+        const start_date = moment(req.query.start_date).startOf("day");
+        const end_date = moment(req.query.end_date).startOf("day")
+
+        availability = operator_data.getAvailabilityData(start_date, end_date);
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json(availability);
+}
+
+
 module.exports = {
     insertAbsenceTime: insertAbsenceTime,
     getAbsenceTime: getAbsenceTime,
     deleteAbsenceTimeByIndex: deleteAbsenceTimeByIndex,
     getWorkingTime: getWorkingTime,
-    updateWorkingTime: updateWorkingTime
+    updateWorkingTime: updateWorkingTime,
+    getAvailabilities: getAvailabilities
 }

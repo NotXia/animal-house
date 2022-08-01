@@ -37,10 +37,18 @@ const validateUpdateWorkingTime = [
     user_validator.verifyUserOwnership("params")
 ];
 
+const validateGetAvailabilities = [
+    user_validator.validateUsername("param", REQUIRED),
+    validator.query("start_date").isISO8601(),
+    validator.query("end_date").isISO8601(),
+    utils.validatorErrorHandler,
+];
+
 module.exports = {
     validateInsertAbsenceTime: validateInsertAbsenceTime,
-    validategetAbsenceTime: validategetAbsenceTime,
+    validateGetAbsenceTime: validategetAbsenceTime,
     validateDeleteAbsenceTimeByIndex: validateDeleteAbsenceTimeByIndex,
-    validategetWorkingTime: validategetWorkingTime,
-    validateUpdateWorkingTime: validateUpdateWorkingTime
+    validateGetWorkingTime: validategetWorkingTime,
+    validateUpdateWorkingTime: validateUpdateWorkingTime,
+    validateGetAvailabilities: validateGetAvailabilities
 }

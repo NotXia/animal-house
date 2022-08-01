@@ -7,12 +7,13 @@ const UserModel = require("../models/auth/user");
 
 let curr_session = session(app);
 
-let operator1, operator2;
+let operator1, operator2, operator3;
 const TIME_FORMAT = "DD/MM/YYYY HH:mm";
 
 beforeAll(async function () {
     operator1 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
     operator2 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
+    operator3 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
 });
 
 
@@ -179,6 +180,35 @@ describe("Ricerca orario lavorativo", function () {
         const user = await UserModel.findOne({ username: operator2.username }).exec();
         const operator_data = await user.findType();
         expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
+    });
+});
+
+
+describe("Ricerca disponibilità operatore", function () {
+    test("Inserimento orario", async function () {
+        await curr_session.put(`/user/operators/${operator3.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator3.token}` })
+            .send({
+                working_time: { 
+                    monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "MXP1" }, { time: {start: moment("14:00", "HH:mm"), end: moment("17:00", "HH:mm")}, hub: "MXP1" }], 
+                    tuesday: [],
+                    wednesday: [{ time: {start: moment("14:00", "HH:mm"), end: moment("17:00", "HH:mm")}, hub: "MXP1" }],
+                    thursday: [], 
+                    friday: [], 
+                    saturday: [], 
+                    sunday: [] 
+                }
+            }).expect(200);
+
+            await curr_session.post(`/user/operators/${operator3.username}/absences/`)
+                .set({ Authorization: `Bearer ${operator3.token}` })
+                .send({ absence_time: { start: moment("08/08/2022 8:00", TIME_FORMAT), end: moment("08/08/2022 10:00", TIME_FORMAT) } }).expect(201);
+    });
+
+    test("Ricerca disponibilità", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", "DD/MM/YYYY HH:mm").local().format());
     });
 });
 
