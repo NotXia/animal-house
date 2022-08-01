@@ -16,7 +16,7 @@ beforeAll(async function () {
 
 describe("Ricerca di topic", function () {
     test("Ricerca senza topic nel db", async function () {
-        await curr_session.get('/blog/topics/').expect(404);
+        await curr_session.get('/blog/topics/').expect(200);
     });
 });
 
@@ -32,7 +32,6 @@ describe("Creazione di topic", function () {
         expect(topic.name).toEqual("Animali");
         expect(topic.icon).toEqual(base64_img);
     });
-
 
     test("Creazione con conflitto", async function () {
         await curr_session.post('/blog/topics/').send({
@@ -104,7 +103,7 @@ describe("Modifica di topic", function () {
 
 describe("Cancellazione di topic", function () {
     test("Cancellazione corretta", async function () {
-        await curr_session.delete('/blog/topics/Animals').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/blog/topics/Animals').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
 
         const topic = await TopicModel.findOne({ name: "Animals" }).exec();
         expect(topic).toBeNull();
@@ -117,7 +116,7 @@ describe("Cancellazione di topic", function () {
 
 describe("Pulizia", function () {
     test("Cancellazione topic", async function () {
-        await curr_session.delete('/blog/topics/Shop').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
-        await curr_session.delete('/blog/topics/Alimenti').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        await curr_session.delete('/blog/topics/Shop').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete('/blog/topics/Alimenti').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 }); 

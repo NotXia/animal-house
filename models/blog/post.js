@@ -1,20 +1,18 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
-const UserModel = require("../auth/user");
 const AnimalModel = require("../animals/animal");
-const TopicModel = require("./topic");
 
 const postSchema = mongoose.Schema({
-    user_id: {
-        type: ObjectId, ref: UserModel.collection.collectionName,
+    author: {
+        type: String,
         required: true
     },
     content: {
         type: String, required: true
     },
     comments: [{
-        user_id: {
-            type: ObjectId, ref: UserModel.collection.collectionName,
+        author: {
+            type: String,
             required: true
         },
         content: {
@@ -30,12 +28,12 @@ const postSchema = mongoose.Schema({
             default: new Date()
         }
     }],
-    topic_id: { 
-        type: ObjectId, ref: TopicModel.collection.collectionName,
+    topic: { 
+        type: String,
         required: true
     },
-    tag_users_id: [{
-        type: ObjectId, ref: UserModel.collection.collectionName
+    tag_users: [{
+        type: String
     }],
     tag_animals_id: [{
         type: ObjectId, ref: AnimalModel.collection.collectionName
@@ -47,5 +45,29 @@ const postSchema = mongoose.Schema({
         default: new Date()
     }
 });
+
+postSchema.methods.getData = function() {
+    return {
+        id: this._id,
+        author: this.author,
+        content: this.content,
+        topic: this.topic,
+        tag_users: this.tag_users,
+        tag_animals_id: this.tag_animals_id,
+        creationDate: this.creationDate
+    };
+};
+
+postSchema.methods.getCommentByIndexData = function(index, real_index=null) {
+    if (real_index === null) { real_index = index; }
+
+    return {
+        index: real_index,
+        author: this.comments[index].author,
+        content: this.comments[index].content,
+        creationDate: this.comments[index].creationDate,
+        updateDate: this.comments[index].updateDate
+    };
+};
 
 module.exports = mongoose.model("posts", postSchema);

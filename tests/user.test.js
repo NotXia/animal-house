@@ -286,4 +286,8 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
     test("Cancellazione di un operatore", async function () {
         await curr_session.delete('/user/operators/Luigino234').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
+
+    test("Cancellazione di un operatore inesistente", async function () {
+        await curr_session.delete('/user/operators/LuiginoFantasmino').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
 });

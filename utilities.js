@@ -35,5 +35,4 @@ module.exports = {
     MONGO_DUPLICATED_KEY: 11000,
 
     WEEKS: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-
 }

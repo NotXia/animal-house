@@ -12,6 +12,7 @@ async function init() {
     await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
 
     const hq = await new HubModel({
+        code: "MXP1",
         name: "Sede centrale",
         address: {
             city: "Milano", street: "Via Vincenzo Monti", number: "51", postal_code: "20123"
