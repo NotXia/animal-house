@@ -34,13 +34,13 @@ async function getServices(req, res) {
     }
 }
 
-// Ricerca di un hub dato il codice
-async function getHubByCode(req, res) {
+// Ricerca di un servizio dato il nome
+async function getServiceByName(req, res) {
     try {
-        const hub = await HubModel.findOne({ code: req.params.code }).exec();
-        if (!hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
+        const service = await ServiceModel.findOne({ name: req.params.name }).exec();
+        if (!service) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
         
-        return res.status(utils.http.OK).json(hub.getData());
+        return res.status(utils.http.OK).json(service.getData());
     } catch (err) {
         return error.response(err, res);
     }
@@ -49,7 +49,7 @@ async function getHubByCode(req, res) {
 module.exports = {
     insertService: insertService,
     getServices: getServices,
-    // getHubByCode: getHubByCode,
+    getServiceByName: getServiceByName,
     // updateHub: updateHub,
     // deleteHub: deleteHub
 }

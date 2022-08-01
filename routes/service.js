@@ -8,5 +8,7 @@ const service_controller = require("../controllers/service");
 router.post("/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateInsertService ], service_controller.insertService);
 
 router.get("/", service_controller.getServices);
+router.get("/:name", service_middleware.validateGetServiceByName, service_controller.getServiceByName);
+
 
 module.exports = router;
