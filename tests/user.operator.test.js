@@ -89,7 +89,7 @@ describe("Cancellazione assenza", function () {
 
 
 describe("Inserimento/Aggiornamento orario lavorativo", function () {
-    test("Inserimento corretto - Orario vuoto", async function () {
+    test("Aggiornamento corretto - Orario vuoto", async function () {
         const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
@@ -101,7 +101,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
         expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
     });
 
-    test("Inserimento corretto", async function () {
+    test("Aggiornamento corretto", async function () {
         const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
@@ -127,7 +127,17 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
         expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
     });
 
-    test("Inserimento errato - Campo malformato (1)", async function () {
+    test("Aggiornamento vuoto", async function () {
+        const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({}).expect(200);
+        
+        const user = await UserModel.findOne({ username: operator2.username }).exec();
+        const operator_data = await user.findType();
+        expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
+    });
+
+    test("Aggiornamento errato - Campo malformato (1)", async function () {
         await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
@@ -137,7 +147,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
             }).expect(400);
     });
 
-    test("Inserimento errato - Campo malformato (2)", async function () {
+    test("Aggiornamento errato - Campo malformato (2)", async function () {
         await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
@@ -147,7 +157,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
             }).expect(400);
     });
 
-    test("Inserimento errato - Orario inconsistente", async function () {
+    test("Aggiornamento errato - Orario inconsistente", async function () {
         await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({

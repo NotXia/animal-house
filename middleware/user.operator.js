@@ -32,7 +32,7 @@ const validategetWorkingTime = [
 
 const validateUpdateWorkingTime = [
     user_validator.validateUsername("param", REQUIRED),
-    operator_validator.validateWorkingTime("body", REQUIRED),
+    operator_validator.validateWorkingTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params")
 ];
