@@ -20,7 +20,10 @@ const serviceScheme = mongoose.Schema({
         type: Number,
         required: true,
         default: 0
-    }
+    },
+    target: [{
+        type: String
+    }]
 });
 
 serviceScheme.methods.getData = function() {
