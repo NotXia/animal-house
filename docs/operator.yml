@@ -238,6 +238,63 @@ paths:
           description: "Internal server error"
 
 
+  /user/operators/{username}/availabilities/:
+    get:
+      tags:
+      - "Disponibilità"
+      summary: "Ricerca disponibilità operatore"
+      description: |
+        Restituisce gli slot temporali in cui l'operatore è disponibile.
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: start_date
+        in: query
+        description: "Data di inizio ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: end_date
+        in: query
+        description: "Data di fine ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: hub
+        in: query
+        description: "Codice dell'hub in cui deve essere presente l'operatore"
+        required: false
+        type: string
+      - name: slot_size
+        in: query
+        description: "Dimensione degli slot temporali"
+        required: false
+        type: number
+        format: int
+      responses:
+        200:
+          description: "Slot disponibili"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/WorkingTime"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Operatore inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
 definitions:
 
   Absence:
