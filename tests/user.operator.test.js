@@ -293,6 +293,40 @@ describe("Ricerca disponibilità operatore", function () {
         expect(res.body[1].hub).toEqual("MXP2");
     });
 
+    test("Ricerca disponibilità - Filtro per hub", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1" }).expect(200);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
+        expect(res.body[0].time.end).toEqual(moment("08/08/2022 12:30", TIME_FORMAT).local().format());
+        expect(res.body[0].hub).toEqual("MXP1");
+        expect(res.body.length).toEqual(1);
+    });
+
+    test("Ricerca disponibilità - Divisione in slot temporali (1)", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1", slot_size: 30 }).expect(200);
+        expect(res.body.length).toEqual(5);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
+        expect(res.body[1].time.start).toEqual(moment("08/08/2022 10:30", TIME_FORMAT).local().format());
+        expect(res.body[2].time.start).toEqual(moment("08/08/2022 11:00", TIME_FORMAT).local().format());
+        expect(res.body[3].time.start).toEqual(moment("08/08/2022 11:30", TIME_FORMAT).local().format());
+        expect(res.body[4].time.start).toEqual(moment("08/08/2022 12:00", TIME_FORMAT).local().format());
+    });
+
+    test("Ricerca disponibilità - Divisione in slot temporali (2)", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1", slot_size: 60 }).expect(200);
+        expect(res.body.length).toEqual(2);
+        expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
+        expect(res.body[1].time.start).toEqual(moment("08/08/2022 11:00", TIME_FORMAT).local().format());
+    });
+
+    test("Ricerca disponibilità - Divisione in slot temporali (3)", async function () {
+        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+            query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1", slot_size: 10000 }).expect(200);
+        expect(res.body.length).toEqual(0);
+    });
+
     test("Pulizia", async function () {
         for (const appointment of to_delete_appointments) {
             await BookingModel.findByIdAndDelete(appointment._id);

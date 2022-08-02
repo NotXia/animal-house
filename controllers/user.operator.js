@@ -108,7 +108,7 @@ async function updateWorkingTime(req, res) {
 
 /* Ricerca delle disponibilità */
 async function getAvailabilities(req, res) {
-    let availability;
+    let availabilities;
 
     try {
         // Ricerca utenza
@@ -116,12 +116,12 @@ async function getAvailabilities(req, res) {
         if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
         const operator_data = await user.findType();
         
-        availability = await operator_data.getAvailabilityData(req.query.start_date, req.query.end_date);
+        availabilities = await operator_data.getAvailabilityData(req.query.start_date, req.query.end_date, req.query.hub, req.query.slot_size);
     } catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(availability);
+    return res.status(utils.http.OK).json(availabilities);
 }
 
 
