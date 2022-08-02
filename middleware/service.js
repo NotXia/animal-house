@@ -9,13 +9,13 @@ const validateInsertService = [
     utils.validatorErrorHandler
 ];
 
-const validateGetServiceByName = [
-    validator.validateServiceName("param", REQUIRED),
+const validateGetServiceById = [
+    validator.validateServiceId("param", REQUIRED),
     utils.validatorErrorHandler
 ];
 
 const validateUpdateService = [
-    validator.validateServiceName("param", REQUIRED),
+    validator.validateServiceId("param", REQUIRED),
     validator.validateServiceName("body", OPTIONAL),
     validator.validateServiceDescription("body", OPTIONAL),
     validator.validateServiceDuration("body", OPTIONAL),
@@ -23,13 +23,13 @@ const validateUpdateService = [
 ];
 
 const validateDeleteService = [
-    validator.validateServiceName("param", REQUIRED),
+    validator.validateServiceId("param", REQUIRED),
     utils.validatorErrorHandler
 ]
 
 module.exports = {
     validateInsertService: validateInsertService,
-    validateGetServiceByName: validateGetServiceByName,
+    validateGetServiceById: validateGetServiceById,
     validateUpdateService: validateUpdateService,
     validateDeleteService: validateDeleteService
 }
