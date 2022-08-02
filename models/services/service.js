@@ -20,6 +20,7 @@ const serviceScheme = mongoose.Schema({
 
 serviceScheme.methods.getData = function() {
     return {
+        id: this._id,
         name: this.name,
         description: this.description,
         duration: this.duration
