@@ -6,4 +6,9 @@ module.exports.validateServiceName =            (source, required=true, field_na
 module.exports.validateServiceDescription =     (source, required=true, field_name="description") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateServiceDuration =        (source, required=true, field_name="duration") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
 module.exports.validateServicePrice =           (source, required=true, field_name="price") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
-
+module.exports.validateServiceTarget = function (source, required=true, field_name="target") {
+    return [
+        utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Valore invalido"),
+        utils.handleRequired(validator[source](`${field_name}.*`), required).notEmpty().withMessage("Valore mancante").trim().escape()
+    ]
+}
