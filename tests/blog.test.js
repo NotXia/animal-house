@@ -2,7 +2,8 @@ require("dotenv").config();
 const app = require("../index.js");
 const utils = require("./utils/utils");
 const session = require('supertest-session');
-
+const path = require("path");
+const fs = require("fs");
 const PostModel = require("../models/blog/post");
 const TopicModel = require("../models/blog/topic");
 
@@ -12,6 +13,9 @@ let blog_posts = [];
 let admin_token;
 let operator1, operator2;
 let operator_no_permission;
+
+const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
+const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
@@ -248,6 +252,80 @@ describe("Cancellazione di un dato commento", function () {
         
         const post_after = await PostModel.findById(blog_posts[0].id).exec();
         expect(post_before.comments.length).toBeGreaterThan(post_after.comments.length);
+    });
+});
+
+let post_with_image;
+
+describe("Inserimento post con immagini", function () {
+    test("Inserimento corretto", async function () {
+        let res = await curr_session.post(`/blog/posts/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .attach("file1", img2)
+            .expect(200);
+        const images_path = res.body;
+
+        res = await curr_session.post('/blog/posts/').send({ 
+            content: "Guardate che bei cavalli!!!!!!",
+            topic: "Animali",
+            images: [
+                { path: images_path[0], description: "Un cavallo bello" },
+                { path: images_path[1], description: "Un cavallo ancora più bello" }
+            ]
+        }).set({ Authorization: `Bearer ${operator1.token}` }).expect(201);
+        blog_posts.push(res.body);
+        post_with_image = res.body;
+
+        const post = await PostModel.findById(res.body.id).exec();
+        expect(post.images.length).toEqual(2);
+        expect( fs.existsSync(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, post.images[0].path)) ).toEqual(true);
+        expect( fs.existsSync(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, post.images[1].path)) ).toEqual(true);
+    });
+
+    test("Inserimento con immagini inesistenti", async function () {
+        await curr_session.post('/blog/posts/').send({ 
+            content: "Guardate che bei White-bellied go-away-bird ho fotografato questa mattina",
+            topic: "Animali",
+            images: [
+                { path: "immagine_persa1.jpeg", description: "M'illumino" },
+                { path: "immagine_persa2.jpeg", description: "d'immenso" }
+            ]
+        }).set({ Authorization: `Bearer ${operator1.token}` }).expect(404);
+    });
+});
+
+describe("Aggiornamento post con immagini", function () {
+    test("Aggiornamento corretto", async function () {
+        let res = await curr_session.post(`/blog/posts/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .attach("file1", img2)
+            .expect(200);
+        const images_path = res.body;
+
+        res = await curr_session.put(`/blog/posts/${post_with_image.id}`).send({ 
+            images: [
+                { path: post_with_image.images[0].path, description: "Un cavallo bello" },
+                { path: images_path[0], description: "La foto di prima era sbagliata, ho aggiornato con questo FANTASTICO CAVALLO!!!!!!!" },
+                { path: images_path[1], description: "Come bonus ecco la foto di un canguro" }
+            ]
+        }).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+
+        const post = await PostModel.findById(res.body.id).exec();
+        expect(post.images.length).toEqual(3);
+        expect( fs.existsSync(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, path.basename(post_with_image.images[0].path))) ).toEqual(true);
+        expect( fs.existsSync(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, post.images[0].path)) ).toEqual(true);
+        expect( fs.existsSync(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, post.images[1].path)) ).toEqual(true);
+        expect( fs.existsSync(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, path.basename(post_with_image.images[1].path))) ).toEqual(false);
+    });
+
+    test("Aggiornamento con immagine inesistente", async function () {
+        res = await curr_session.put(`/blog/posts/${post_with_image.id}`).send({ 
+            images: [
+                { path: "ufo.png", description: "Ecco cosa ci nascondono 🛸" }
+            ]
+        }).set({ Authorization: `Bearer ${operator1.token}` }).expect(404);
     });
 });
 

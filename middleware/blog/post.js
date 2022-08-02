@@ -3,6 +3,7 @@ const user_validator = require("../validators/user");
 const blog_validator = require("../validators/blog");
 const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const utils = require("../utils");
+const file_upload = require("express-fileupload");
 
 const validateInsertPost = [
     // L'autore lo prendo da auth.
@@ -10,6 +11,7 @@ const validateInsertPost = [
     blog_validator.validateTopicName("body", REQUIRED, "topic"),
     blog_validator.validateTagUsers("body", OPTIONAL),
     blog_validator.validateTagAnimalsId("body", OPTIONAL),
+    blog_validator.validateImages("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
@@ -34,6 +36,7 @@ const validateUpdatePost = [
     blog_validator.validateTopicName("body", OPTIONAL, "topic"),
     blog_validator.validateTagUsers("body", OPTIONAL),
     blog_validator.validateTagAnimalsId("body", OPTIONAL),
+    blog_validator.validateImages("body", OPTIONAL),
     utils.validatorErrorHandler,
     blog_validator.verifyPostOwnership("params")
 ];
@@ -78,6 +81,11 @@ const validateDeleteComment = [
     blog_validator.verifyCommentOwnership("params", "params")
 ];
 
+const validateUploadPostImages = [
+    file_upload(),
+    utils.verifyImage
+]
+
 module.exports = {
     validateInsertPost: validateInsertPost,
     validateSearchPosts: validateSearchPosts,
@@ -88,5 +96,6 @@ module.exports = {
     validateSearchCommentsByPost: validateSearchCommentsByPost,
     validateSearchCommentByIndex: validateSearchCommentByIndex,
     validateUpdateComment: validateUpdateComment,
-    validateDeleteComment: validateDeleteComment
+    validateDeleteComment: validateDeleteComment,
+    validateUploadPostImages: validateUploadPostImages
 }
