@@ -99,7 +99,6 @@ async function updateWorkingTime(req, res) {
         const operator_data = await user.findType();
         updated_working_time = operator_data.getWorkingTimeData();
     } catch (err) {
-        console.warn(err);
         return error.response(err, res);
     }
 
@@ -117,11 +116,7 @@ async function getAvailabilities(req, res) {
         if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
         const operator_data = await user.findType();
         
-        // Normalizzazione valori delle date
-        const start_date = moment(req.query.start_date).startOf("day");
-        const end_date = moment(req.query.end_date).startOf("day")
-
-        availability = await operator_data.getAvailabilityData(start_date, end_date);
+        availability = await operator_data.getAvailabilityData(req.query.start_date, req.query.end_date);
     } catch (err) {
         return error.response(err, res);
     }

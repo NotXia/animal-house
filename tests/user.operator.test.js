@@ -186,7 +186,7 @@ describe("Ricerca orario lavorativo", function () {
 
 
 describe("Ricerca disponibilità operatore", function () {
-    let to_delete_appointment;
+    let to_delete_appointments = [];
     
     test("Inserimento orario", async function () {
         await curr_session.put(`/user/operators/${operator3.username}/working-time/`)
@@ -239,7 +239,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Inserimento appuntamento", async function () {
-        to_delete_appointment = await new BookingModel({
+        to_delete_appointments.push( await new BookingModel({
             time_slot: {
                 start: moment("08/08/2022 12:30", TIME_FORMAT).format(),
                 end: moment("08/08/2022 13:00", TIME_FORMAT).format()
@@ -248,7 +248,18 @@ describe("Ricerca disponibilità operatore", function () {
             customer: "BestCustomerEver2022",
             operator: operator3.username,
             hub: "MXP1"
-        }).save();
+        }).save() );
+
+        to_delete_appointments.push( await new BookingModel({
+            time_slot: {
+                start: moment("08/08/2032 12:30", TIME_FORMAT).format(),
+                end: moment("08/08/2032 13:00", TIME_FORMAT).format()
+            },
+            service_id: "111111111111111111111111",
+            customer: "BestCustomerEver2022",
+            operator: operator3.username,
+            hub: "MXP1"
+        }).save() );
     });
 
     test("Ricerca disponibilità", async function () {
@@ -283,7 +294,9 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Pulizia", async function () {
-        await BookingModel.findByIdAndDelete(to_delete_appointment);
+        for (const appointment of to_delete_appointments) {
+            await BookingModel.findByIdAndDelete(appointment._id);
+        }
     });
 });
 

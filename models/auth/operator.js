@@ -63,15 +63,20 @@ operatorScheme.methods.getWorkingTimeData = function() {
 };
 
 operatorScheme.methods.getAvailabilityData = async function(start_date, end_date) {
+    // Normalizzazione valori delle date
+    start_date = moment(start_date).startOf("day");
+    end_date = moment(end_date).endOf("day");
+
     let availabilities = [];
     let unavailable_slots = [];
+    const query_interval = moment.range(start_date, end_date);
 
     // Aggiorna gli slot disponibili con l'orario lavorativo standard
-    for (let query_day=moment(start_date); query_day.diff(end_date, 'days') <= 0; query_day.add(1, 'days')) {
-        for (const work_time of this.working_time[WEEKS[query_day.isoWeekday()-1]]) {
+    for (let working_day of query_interval.by('days')) {
+        for (const work_time of this.working_time[WEEKS[working_day.isoWeekday()-1]]) {
             // Imposta l'orario con la data corretta (quella della richiesta) 
-            let start_time = moment(work_time.time.start).set({ date: query_day.date(), month: query_day.month(), year: query_day.year() });
-            let end_time = moment(work_time.time.end).set({ date: query_day.date(), month: query_day.month(), year: query_day.year() });
+            let start_time = moment(work_time.time.start).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
+            let end_time = moment(work_time.time.end).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
             
             availabilities.push({
                 time: moment.range(start_time, end_time),
@@ -81,12 +86,21 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
     }
 
     // Aggiorna gli slot indisponibili con le assenze
-    for (const absence of this.absence_time) { unavailable_slots.push(moment.range(absence.start, absence.end)); }
+    for (const absence of this.absence_time) {
+        let absence_interval = moment.range(absence.start, absence.end);
+        // Considero solo le assenze che effettivamente servono
+        if (absence_interval.overlaps(query_interval, { adjacent: true })) { unavailable_slots.push(absence_interval); }
+    }
 
     // Aggiorna gli slot indisponibili con gli appuntamenti già fissati
-    const appointments = await BookingModel.find({ operator: this.user.username }).exec();
+    const appointments = await BookingModel.find({ 
+        "operator": this.user.username, 
+        "time_slot.start": {"$gte": start_date}, 
+        "time_slot.end": {"$lte": end_date}
+    }, { "time_slot": 1 }).exec();
     for (const appointment of appointments) { unavailable_slots.push(moment.range(appointment.time_slot.start, appointment.time_slot.end)); }
     
+
     // Calcolo degli slot disponibili
     for (const absence of unavailable_slots) { 
         let absence_interval = moment.range(absence.start, absence.end);
