@@ -35,9 +35,9 @@ async function getServices(req, res) {
 }
 
 // Ricerca di un servizio dato il nome
-async function getServiceByName(req, res) {
+async function getServiceById(req, res) {
     try {
-        const service = await ServiceModel.findOne({ name: req.params.name }).exec();
+        const service = await ServiceModel.findOne({ _id: req.params.service_id }).exec();
         if (!service) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
         
         return res.status(utils.http.OK).json(service.getData());
@@ -49,10 +49,10 @@ async function getServiceByName(req, res) {
 // Aggiornamento di un servizio dato il nome
 async function updateService(req, res) {
     try {
-        const to_change_service = req.params.name;
+        const to_change_service = req.params.service_id;
         const updated_data = matchedData(req, { locations: ["body"] });
 
-        let updated_service = await ServiceModel.findOneAndUpdate({ name: to_change_service }, updated_data, { new: true }).exec();
+        let updated_service = await ServiceModel.findOneAndUpdate({ _id: to_change_service }, updated_data, { new: true }).exec();
         if (!updated_service) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
 
         return res.status(utils.http.OK).json(updated_service.getData());
@@ -64,9 +64,9 @@ async function updateService(req, res) {
 // Cancellazione di un servizio dato il nome
 async function deleteService(req, res) {
     try {
-        const to_delete_service = req.params.name;
+        const to_delete_service = req.params.service_id;
 
-        const deletedService = await ServiceModel.findOneAndDelete({ name: to_delete_service });
+        const deletedService = await ServiceModel.findOneAndDelete({ _id: to_delete_service });
         if (!deletedService) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
         
         return res.sendStatus(utils.http.NO_CONTENT);
@@ -78,7 +78,7 @@ async function deleteService(req, res) {
 module.exports = {
     insertService: insertService,
     getServices: getServices,
-    getServiceByName: getServiceByName,
+    getServiceById: getServiceById,
     updateService: updateService,
     deleteService: deleteService
 }
