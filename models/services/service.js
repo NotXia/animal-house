@@ -32,7 +32,8 @@ serviceScheme.methods.getData = function() {
         name: this.name,
         description: this.description,
         duration: this.duration,
-        price: this.price
+        price: this.price,
+        target: this.target
     };
 };
 
