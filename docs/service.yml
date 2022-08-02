@@ -36,6 +36,10 @@ paths:
             price:
               type: number
               format: int
+            target:
+              type: array
+              items:
+                type: string
           required: [ name, description, duration, price ]
       responses:
         201:
@@ -67,10 +71,16 @@ paths:
     get:
       tags:
       - "Services"
-      summary: "Ricerca di tutti i servizi"
-      description: "Gestisce la ricerca di tutti i servizi"
+      summary: "Ricerca generale"
+      description: "Gestisce la ricerca di tutti i servizi oppure è possibile applicare un filtro per mostrare i servizi richiesti"
       produces:
       - "application/json"
+      parameters:
+      - name: name
+        in: query
+        description: "Nome del servizio"
+        required: false
+        type: string
       responses:
         200:
           description: "Trovato con successo"
@@ -84,8 +94,8 @@ paths:
     get:
       tags:
       - "Services"
-      summary: "Ricerca di un servizio"
-      description: "Gestisce la ricerca di un singolo servizio dato il suo nome"
+      summary: "Ricerca specifica di un servizio"
+      description: "Gestisce la ricerca di un singolo servizio dato il suo id"
       produces:
       - "application/json"
       parameters:
@@ -114,7 +124,7 @@ paths:
         - "Services"
       summary: "Modifica di un servizio"
       description: |
-        Gestisce la modifica di un servizio tramite nome
+        Gestisce la modifica di un servizio tramite id
 
         Richiede permesso [ ["operator"], ["admin"] ]
       consumes:
@@ -172,7 +182,7 @@ paths:
         - "Services"
       summary: "Cancellazione di un servizio"
       description:  |
-        Gestisce la cancellazione di un servizio tramite nome
+        Gestisce la cancellazione di un servizio tramite id
 
         Richiede permesso [ ["operator"], ["admin"] ]
       produces:
@@ -221,4 +231,8 @@ definitions:
       price:
         type: number
         format: int
+      target:
+        type: array
+        items:
+          type: string
     required: [ id, name, description, duration, price ]
