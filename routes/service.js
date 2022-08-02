@@ -7,7 +7,7 @@ const service_controller = require("../controllers/service");
 // Router per i servizi
 router.post("/", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateInsertService ], service_controller.insertService);
 
-router.get("/", service_controller.getServices);
+router.get("/", service_middleware.validateGetService, service_controller.getServices);
 router.get("/:service_id", service_middleware.validateGetServiceById, service_controller.getServiceById);
 
 router.put("/:service_id", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), service_middleware.validateUpdateService ], service_controller.updateService);

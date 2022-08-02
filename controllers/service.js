@@ -24,8 +24,12 @@ async function insertService(req, res) {
 async function getServices(req, res) {
     let services;
 
+    let query = {};
+    
+    if (req.query.name) { query.name = {$regex : `.*${req.query.name}.*`}; }
+
     try {
-        services = await ServiceModel.find({}).exec();
+        services = await ServiceModel.find(query).exec();
         services = services.map(service => service.getData());
         
         return res.status(utils.http.OK).json(services);

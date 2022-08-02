@@ -83,6 +83,14 @@ describe("Ricerca dei servizi", function() {
         expect(services.body[1].name).toEqual("Dog-sitting");
         expect(services.body[1].duration).toEqual(120);
     });
+
+    test("Ricerca totale", async function () {
+        const services = await curr_session.get('/services/').query({ name: "Dog" }).expect(200);
+        expect(services).toBeDefined();
+        expect(services.body.length).toEqual(1);
+        expect(services.body[0].name).toEqual("Dog-sitting");
+        expect(services.body[0].duration).toEqual(120);
+    });
 });
 
 describe("Modifica di servizi", function () {

@@ -11,6 +11,11 @@ const validateInsertService = [
     utils.validatorErrorHandler
 ];
 
+const validateGetService = [
+    validator.validateServiceName("query", OPTIONAL),
+    utils.validatorErrorHandler
+];
+
 const validateGetServiceById = [
     validator.validateServiceId("param", REQUIRED),
     utils.validatorErrorHandler
@@ -33,6 +38,7 @@ const validateDeleteService = [
 
 module.exports = {
     validateInsertService: validateInsertService,
+    validateGetService: validateGetService,
     validateGetServiceById: validateGetServiceById,
     validateUpdateService: validateUpdateService,
     validateDeleteService: validateDeleteService
