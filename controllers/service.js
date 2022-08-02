@@ -10,7 +10,7 @@ async function insertService(req, res) {
         let newService = matchedData(req);
         let toInsertService = await new ServiceModel(newService).save();
         return res.status(utils.http.CREATED)
-            .location(`${req.baseUrl}/${toInsertService.name}`)
+            .location(`${req.baseUrl}/${toInsertService._id}`)
             .json(toInsertService.getData());
     } catch (err) {
         if (err.code === utils.MONGO_DUPLICATED_KEY) {
