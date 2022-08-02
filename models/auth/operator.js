@@ -198,4 +198,24 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
     return availabilities;
 }
 
+/**
+ * Indica se l'operatore è disponibile in una determinata fascia oraria
+ * @param {Date} start_date     Data e ora di inizio ricerca
+ * @param {Date} end_date       Data e ora di fine ricerca
+ * @param {String} hub          Codice di uno specifico hub (facoltativo)
+ * @returns true se disponibile, false altrimenti
+ */
+operatorScheme.methods.isAvailableAt = async function(start_date, end_date, hub) {
+    const availabilities = await this.getAvailabilityData(start_date, end_date, hub);
+    const query_interval = moment.range(start_date, end_date);
+
+    for (const availability of availabilities) {
+        if (moment.range(availability.time.start, availability.time.end).contains(query_interval)) { 
+            return true; 
+        }
+    }
+
+    return false;
+}
+
 module.exports = mongoose.model("operators", operatorScheme);
