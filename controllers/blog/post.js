@@ -45,7 +45,13 @@ async function insertPost(req, res) {
 
         let new_post_fields = validator.matchedData(req);
         new_post_fields.author = req.auth.username; // L'autore si ricava dai dati provenienti dall'autenticazione
-        if (new_post_fields.images) { await _uploadImages(new_post_fields.images.map((image) => image.path)); } // "Reclamo" immagini
+        if (new_post_fields.images) {
+            // Normalizzazione dei percorsi rimuovendo l'eventuale path relativo in testa
+            new_post_fields.images = new_post_fields.images.map( (image) => ({ path: path.basename(image.path), description: image.description }) );
+
+            const to_upload_images = new_post_fields.images.map((image) => image.path);
+            await _uploadImages(to_upload_images); // "Reclamo" delle immagini
+        } 
 
         const newPost = await new PostModel(new_post_fields).save();
 
