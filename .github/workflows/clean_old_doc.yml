@@ -1,0 +1,44 @@
+name: 🧲 Pulizia documentazione vecchia
+
+on:
+  push:
+    paths:
+      - .github/workflows/clean_old_doc.yml
+  schedule:
+    - cron: "0 0 * * *" # Ogni giorno a mezzanotte
+
+jobs:  
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+
+    - name: Git bot name/email
+      uses: fregante/setup-git-user@v1
+
+    - name: Fetch branches
+      run: git fetch
+      
+    - name: Change branch
+      run: git checkout documentation
+
+    - name: Delete old docs
+      run: |
+        for dir in ./*;
+        do
+          [ -d "${dir}" ] || continue # if not a directory, skip
+
+          branch=$(basename $dir)
+          echo $branch
+          if ! git show-ref --quiet $branch; then
+              rm -rf $dir
+          fi
+        done
+
+    - name: Commit changes
+      run: |
+        git add .
+        git commit -m "Amici ho fatto un po' di pulizia 🗑"
+        git push
