@@ -19,11 +19,12 @@ beforeAll(async function () {
 
 describe("Creazione di un servizio", function () {
     test("Creazione corretta", async function () {
-        await curr_session.post('/services/').send({
+        const res = await curr_session.post('/services/').send({
             name: "Vaccino antirabbia",
             description: "Vaccino antirabbia per il vostro animale domestico",
             duration: 60
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        expect(res.body).toBeDefined();
 
         const service = await ServiceModel.findOne({ name: "Vaccino antirabbia" }).exec();
         servizioTest = service;
@@ -78,7 +79,7 @@ describe("Ricerca dei servizi", function() {
     });
 });
 
-describe("Modifica di servizio", function () {
+describe("Modifica di servizi", function () {
     test("Modifica del nome", async function () {
         await curr_session.put(`/services/${servizioTest._id}`).send({
             name: "Fisioterapia" // era Vaccino antirabbia
