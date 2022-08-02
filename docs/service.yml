@@ -33,7 +33,10 @@ paths:
             duration:
               type: number
               format: int
-          required: [ name, description, duration ]
+            price:
+              type: number
+              format: int
+          required: [ name, description, duration, price ]
       responses:
         201:
           description: "Creato con successo"
@@ -77,7 +80,7 @@ paths:
               $ref: "#/definitions/ServiceData"
         500:
           description: "Internal server error"
-  /services/{name}:
+  /services/{service_id}:
     get:
       tags:
       - "Services"
@@ -86,9 +89,9 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: name
+      - name: service_id
         in: path
-        description: "Nome del servizio"
+        description: "Id del servizio"
         required: true
         type: string
       responses:
@@ -119,9 +122,9 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: name
+      - name: service_id
         in: path
-        description: "Nome del servizio"
+        description: "Id del servizio"
         required: true
         type: string
       - name: body
@@ -136,6 +139,9 @@ paths:
             description:
               type: string
             duration:
+              type: number
+              format: int
+            price:
               type: number
               format: int
       responses:
@@ -172,9 +178,9 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: name
+      - name: service_id
         in: path
-        description: "Nome del servizio"
+        description: "Id del servizio"
         required: true
         type: string
       responses:
@@ -203,6 +209,8 @@ definitions:
   ServiceData:
     type: object
     properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
       name:
         type: string
       description:
@@ -210,4 +218,7 @@ definitions:
       duration:
         type: number
         format: int
-    required: [ name, description, duration ]
+      price:
+        type: number
+        format: int
+    required: [ id, name, description, duration, price ]

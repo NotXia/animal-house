@@ -22,7 +22,8 @@ describe("Creazione di un servizio", function () {
         const res = await curr_session.post('/services/').send({
             name: "Vaccino antirabbia",
             description: "Vaccino antirabbia per il vostro animale domestico",
-            duration: 60
+            duration: 60,
+            price: 1000
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
         expect(res.body).toBeDefined();
 
@@ -37,7 +38,8 @@ describe("Creazione di un servizio", function () {
         await curr_session.post('/services/').send({
             name: "Dog-sitting",
             description: "Servizio di dog-sitting per il vostro cane (o tartaruga)",
-            duration: 120
+            duration: 120,
+            price: 500
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
 
         const service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
@@ -51,7 +53,8 @@ describe("Creazione di un servizio", function () {
         await curr_session.post('/services/').send({
             name: "Vaccino antirabbia",
             description: "Un altro vaccino antirabbia ma con lo stesso nome di prima",
-            duration: 60
+            duration: 60,
+            price: 1000
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
     });
 
@@ -82,7 +85,8 @@ describe("Ricerca dei servizi", function() {
 describe("Modifica di servizi", function () {
     test("Modifica del nome", async function () {
         await curr_session.put(`/services/${servizioTest._id}`).send({
-            name: "Fisioterapia" // era Vaccino antirabbia
+            name: "Fisioterapia",   // era Vaccino antirabbia
+            price: 3000             // era 1000
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         const service = await ServiceModel.findOne({ name: "Fisioterapia" }).exec();
@@ -90,6 +94,7 @@ describe("Modifica di servizi", function () {
         expect(service).toBeDefined();
         expect(service.name).toEqual("Fisioterapia");
         expect(service.duration).toEqual(60);
+        expect(service.price).toEqual(3000);
     });
 
     test("Modifica servizio inesistente", async function () {
