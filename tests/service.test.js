@@ -9,6 +9,10 @@ let curr_session = session(app);
 
 let admin_token;
 
+let servizioTest;
+let servizioTest2;
+const WRONG_MONGOID = "111111111111111111111111";
+
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 });
@@ -22,6 +26,7 @@ describe("Creazione di un servizio", function () {
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
 
         const service = await ServiceModel.findOne({ name: "Vaccino antirabbia" }).exec();
+        servizioTest = service;
         expect(service).toBeDefined();
         expect(service.name).toEqual("Vaccino antirabbia");
         expect(service.duration).toEqual(60);
@@ -35,6 +40,7 @@ describe("Creazione di un servizio", function () {
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
 
         const service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
+        servizioTest2 = service;
         expect(service).toBeDefined();
         expect(service.name).toEqual("Dog-sitting");
         expect(service.duration).toEqual(120);
@@ -56,7 +62,7 @@ describe("Creazione di un servizio", function () {
 
 describe("Ricerca dei servizi", function() {
     test("Ricerca singola", async function () {
-        const service = await curr_session.get('/services/Vaccino antirabbia').expect(200);
+        const service = await curr_session.get(`/services/${servizioTest._id}`).expect(200);
         expect(service).toBeDefined();
         expect(service.body.name).toEqual("Vaccino antirabbia");
         expect(service.body.duration).toEqual(60);
@@ -72,20 +78,21 @@ describe("Ricerca dei servizi", function() {
     });
 });
 
-describe("Modifica di hub", function () {
+describe("Modifica di servizio", function () {
     test("Modifica del nome", async function () {
-        await curr_session.put('/services/Vaccino antirabbia').send({
+        await curr_session.put(`/services/${servizioTest._id}`).send({
             name: "Fisioterapia" // era Vaccino antirabbia
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         const service = await ServiceModel.findOne({ name: "Fisioterapia" }).exec();
+        servizioTest = service;
         expect(service).toBeDefined();
         expect(service.name).toEqual("Fisioterapia");
         expect(service.duration).toEqual(60);
     });
 
     test("Modifica servizio inesistente", async function () {
-        await curr_session.put('/services/ServizioInesistente').send({
+        await curr_session.put(`/services/${WRONG_MONGOID}`).send({
             name: "Nuovo servizio inesistente"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
@@ -93,14 +100,14 @@ describe("Modifica di hub", function () {
 
 describe("Cancellazione di un servizio", function () {
     test("Cancellazione corretta", async function () {
-        await curr_session.delete('/services/Fisioterapia').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete(`/services/${servizioTest._id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
 
         const service = await ServiceModel.findOne({ name: "Fisioterapia" }).exec();
         expect(service).toBeNull();
     });
 
     test("Cancellazione corretta", async function () {
-        await curr_session.delete('/services/Dog-sitting').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete(`/services/${servizioTest2._id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
 
         const service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
         expect(service).toBeNull();
