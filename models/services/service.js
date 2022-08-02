@@ -15,7 +15,12 @@ const serviceScheme = mongoose.Schema({
         type: Number, 
         required: true, 
         default: 0 
-    } 
+    },
+    price: {    // In centesimi
+        type: Number,
+        required: true,
+        default: 0
+    }
 });
 
 serviceScheme.methods.getData = function() {
@@ -23,7 +28,8 @@ serviceScheme.methods.getData = function() {
         id: this._id,
         name: this.name,
         description: this.description,
-        duration: this.duration
+        duration: this.duration,
+        price: this.price
     };
 };
 
