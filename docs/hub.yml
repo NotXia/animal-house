@@ -41,7 +41,7 @@ paths:
             email:
               type: string
               format: email
-          required: [ code, name, address, opening_time ]
+          required: [ code, name, address, position, opening_time ]
       responses:
         201:
           description: "Creato con successo"
@@ -302,4 +302,4 @@ definitions:
       email:
         type: string
         format: email
-    required: [ code, name, address, opening_time ]
+    required: [ code, name, address, position, opening_time ]
