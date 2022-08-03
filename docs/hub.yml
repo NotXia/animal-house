@@ -91,12 +91,12 @@ paths:
         format: int
       - name: lat
         in: query
-        description: "Latitudine del centro di ricerca (deve essere definito con lon)"
+        description: "Latitudine del punto centrale di ricerca (deve essere definito con lon)"
         required: false
         type: number
       - name: lon
         in: query
-        description: "Longitudine del centro di ricerca (deve essere definito con lat)"
+        description: "Longitudine del punto centrale di ricerca (deve essere definito con lat)"
         required: false
         type: number
       responses:
