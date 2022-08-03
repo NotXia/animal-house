@@ -15,6 +15,11 @@ env:
   ACCESS_TOKEN_EXP: 10m
   REFRESH_TOKEN_EXP: 14d
   IMAGES_NAME_LENGTH: 25
+  IMAGES_TMP_ABS_PATH: "./public/tmp"
+  SHOP_IMAGES_DIR_ABS_PATH: "./public/shop/images"
+  SHOP_IMAGES_BASE_URL: "/shop/images"
+  BLOG_IMAGES_DIR_ABS_PATH: "./public/posts/images"
+  BLOG_IMAGES_BASE_URL: "/posts/images"
 
 
 jobs:  

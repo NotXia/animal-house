@@ -4,6 +4,7 @@ const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const { middlewareErrorHandler } = require("./error_handler");
+const fs = require("fs");
 
 const auth = require("./routes/auth");
 const user = require("./routes/user");
@@ -23,6 +24,11 @@ app.use("/blog", blog);
 app.use("/hubs", hub);
 
 app.use(middlewareErrorHandler);
+
+// Creazione cartelle
+for (const dir of [process.env.IMAGES_TMP_ABS_PATH, process.env.SHOP_IMAGES_DIR_ABS_PATH, process.env.BLOG_IMAGES_DIR_ABS_PATH]) {
+    if ( !fs.existsSync(dir) ){  fs.mkdirSync(dir, { recursive: true }); }
+}
 
 if (!process.env.TESTING) {
     // Crea la connessione al database prima di avviare il server
