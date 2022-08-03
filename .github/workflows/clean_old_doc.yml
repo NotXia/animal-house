@@ -39,6 +39,8 @@ jobs:
 
     - name: Commit changes
       run: |
-        git add .
-        git commit -m "Amici ho fatto un po' di pulizia 🗑"
-        git push
+        if [ -n "$(git status --porcelain)" ]; then
+          git add .
+          git commit -m "Amici ho fatto un po' di pulizia 🗑"
+          git push
+        fi
