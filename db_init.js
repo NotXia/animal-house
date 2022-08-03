@@ -17,6 +17,9 @@ async function init() {
         address: {
             city: "Milano", street: "Via Vincenzo Monti", number: "51", postal_code: "20123"
         },
+        position: {
+            type: "Point", coordinates: [0.0, 0.0]
+        },
         opening_time: {
             monday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
             tuesday:    [{ start: createTime("00:00"), end: createTime("23:59") }],

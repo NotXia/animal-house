@@ -25,46 +25,22 @@ describe("Creazione di hub", function () {
                 number: "15/B",
                 postal_code: "40100"
             },
+            position: {
+                type: "Point", coordinates: [44.499192, 11.327076] // Porta San Felice
+            },
             opening_time: { 
-                monday: [{
-                    start: moment("9:00", "HH:mm").format(), 
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                tuesday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                wednesday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                thursday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                friday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
+                monday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
+                tuesday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
+                wednesday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
+                thursday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
+                friday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
                 saturday: [
-                    {
-                        start: moment("10:00", "HH:mm").format(),
-                        end: moment("13:00", "HH:mm").format()
-                    },
-                    {
-                        start: moment("15:00", "HH:mm").format(),
-                        end: moment("17:00", "HH:mm").format() 
-                    }
+                    { start: moment("10:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },
+                    { start: moment("15:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }
                 ],
                 sunday: [
-                    {
-                        start: moment("10:00", "HH:mm").format(),
-                        end: moment("13:00", "HH:mm").format() 
-                    },
-                    {
-                        start: moment("15:00", "HH:mm").format(),
-                        end: moment("17:00", "HH:mm").format() 
-                    }
+                    { start: moment("10:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },
+                    { start: moment("15:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }
                 ]
             },
             phone: "051000000",
@@ -75,6 +51,8 @@ describe("Creazione di hub", function () {
         expect(hub).toBeDefined();
         expect(hub.code).toEqual("BLQ1");
         expect(moment(hub.opening_time.monday[0].start).local().format()).toEqual(moment("9:00", "HH:mm").local().format());
+        expect(hub.position.coordinates[0]).toEqual(44.499192);
+        expect(hub.position.coordinates[1]).toEqual(11.327076);
     });
 
     test("Creazione corretta", async function () {
@@ -87,27 +65,15 @@ describe("Creazione di hub", function () {
                 number: "350/A",
                 postal_code: "40100"
             },
+            position: {
+                type: "Point", coordinates: [44.484245, 11.356587] // Porta Santo Stefano
+            },
             opening_time: { 
-                monday: [{
-                    start: moment("04:00", "HH:mm").format(), 
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                tuesday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                wednesday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                thursday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                friday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
+                monday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                tuesday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                wednesday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                thursday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                friday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
                 saturday: [],
                 sunday: []
             },
@@ -131,14 +97,11 @@ describe("Creazione di hub", function () {
                 number: "69/X",
                 postal_code: "00042"
             },
+            position: {
+                type: "Point", coordinates: [0.0, 0.0]
+            },
             opening_time: { 
-                monday: [],
-                tuesday: [],
-                wednesday: [],
-                thursday: [],
-                friday: [],
-                saturday: [],
-                sunday: []
+                monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
             },
             phone: "010000000",
             email: "animalicapitale@romacapitale.it"
@@ -155,17 +118,12 @@ describe("Creazione di hub", function () {
                 number: "69/X",
                 postal_code: "00042"
             },
+            position: {
+                type: "Point", coordinates: [0.0, 0.0]
+            },
             opening_time: { 
-                monday: [{
-                    start: moment("10:00", "HH:mm").format(),
-                    end: moment("09:00", "HH:mm").format()
-                }],
-                tuesday: [],
-                wednesday: [],
-                thursday: [],
-                friday: [],
-                saturday: [],
-                sunday: []
+                monday: [{ start: moment("10:00", "HH:mm").format(), end: moment("09:00", "HH:mm").format() }], 
+                tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
             },
             phone: "010000000",
             email: "animalicapitale@romacapitale.it"
@@ -182,46 +140,22 @@ describe("Creazione di hub", function () {
                 number: "15/B",
                 postal_code: "40100"
             },
+            position: {
+                type: "Point", coordinates: [0.0, 0.0]
+            },
             opening_time: { 
-                monday: [{
-                    start: moment("9:00", "HH:mm").format(), 
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                tuesday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                wednesday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                thursday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                friday: [{
-                    start: moment("9:00", "HH:mm").format(),
-                    end: moment("19:00", "HH:mm").format()
-                }],
+                monday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
+                tuesday: [{ start: moment("9:00", "HH:mm").format(),end: moment("19:00", "HH:mm").format() }],
+                wednesday: [{ start: moment("9:00", "HH:mm").format(),end: moment("19:00", "HH:mm").format() }],
+                thursday: [{ start: moment("9:00", "HH:mm").format(),end: moment("19:00", "HH:mm").format() }],
+                friday: [{ start: moment("9:00", "HH:mm").format(),end: moment("19:00", "HH:mm").format() }],
                 saturday: [
-                    {
-                        start: moment("10:00", "HH:mm").format(),
-                        end: moment("13:00", "HH:mm").format()
-                    },
-                    {
-                        start: moment("15:00", "HH:mm").format(),
-                        end: moment("17:00", "HH:mm").format() 
-                    }
+                    { start: moment("10:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },
+                    { start: moment("15:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }
                 ],
                 sunday: [
-                    {
-                        start: moment("10:00", "HH:mm").format(),
-                        end: moment("13:00", "HH:mm").format() 
-                    },
-                    {
-                        start: moment("15:00", "HH:mm").format(),
-                        end: moment("17:00", "HH:mm").format() 
-                    }
+                    { start: moment("10:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },
+                    { start: moment("15:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }
                 ]
             },
             phone: "051000000",
@@ -270,30 +204,12 @@ describe("Modifica di hub", function () {
     test("Modifica dell'orario di apertura", async function () {
         await curr_session.put('/hubs/BLQ2').send({
             opening_time: { 
-                monday: [{
-                    start: moment("11:00", "HH:mm").format(), 
-                    end: moment("19:00", "HH:mm").format()
-                }],
-                tuesday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                wednesday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                thursday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                friday: [{
-                    start: moment("04:00", "HH:mm").format(),
-                    end: moment("23:00", "HH:mm").format()
-                }],
-                saturday: [
-                ],
-                sunday: [
-                ]
+                monday: [{ start: moment("11:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
+                tuesday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                wednesday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                thursday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                friday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
+                saturday: [ ], sunday: [ ]
             },
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
@@ -308,14 +224,8 @@ describe("Modifica di hub", function () {
     test("Modifica dell'orario di apertura - Formato errato", async function () {
         await curr_session.put('/hubs/BLQ2').send({
             opening_time: { 
-                monday: [{
-                    start: moment("23:00", "HH:mm").format(), 
-                    end: moment("24:00", "HH:mm").format()
-                }],
-                tuesday: [{
-                    start: moment("23:00", "HH:mm").format(),
-                    end: moment("23:30", "HH:mm").format()
-                }]
+                monday: [{ start: moment("23:00", "HH:mm").format(), end: moment("24:00", "HH:mm").format() }],
+                tuesday: [{ start: moment("23:00", "HH:mm").format(), end: moment("23:30", "HH:mm").format() }]
             },
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
     });
@@ -323,10 +233,7 @@ describe("Modifica di hub", function () {
     test("Modifica dell'orario di apertura - Intervallo di tempo errato", async function () {
         await curr_session.put('/hubs/BLQ2').send({
             opening_time: { 
-                monday: [{
-                    start: moment("19:00", "HH:mm").format(), 
-                    end: moment("11:00", "HH:mm").format()
-                }],
+                monday: [{ start: moment("19:00", "HH:mm").format(), end: moment("11:00", "HH:mm").format() }],
                 tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: []
             },
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
