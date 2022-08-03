@@ -41,3 +41,11 @@ module.exports.validateOpeningTime = function (source, required=true, field_name
 }
 module.exports.validatePhone =      (source, required=true, field_name="phone") => { return userValidator.validatePhone(source, required, field_name); }
 module.exports.validateEmail =      (source, required=true, field_name="email") => { return userValidator.validateEmail(source, required, field_name); }
+module.exports.validateCoordinates = function (source, required=true, field_name="position") { 
+    return [
+        utils.handleRequired(validator[source](field_name), required),
+        utils.handleRequired(validator[source](`${field_name}.type`), required).if((_, { req }) => { return req[source][field_name]; }).equals("Point").withMessage("Il tipo deve essere 'Point'"),
+        utils.handleRequired(validator[source](`${field_name}.coordinates`), required).if((_, { req }) => { return req[source][field_name]; }).isArray().withMessage("Formato non valido"),
+        utils.handleRequired(validator[source](`${field_name}.coordinates.*`), required).if((_, { req }) => { return req[source][field_name]; }).isFloat().withMessage("Formato non valido")
+    ]; 
+}

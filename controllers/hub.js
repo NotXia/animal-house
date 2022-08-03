@@ -23,9 +23,21 @@ async function insertHub(req, res) {
 // Ricerca di tutti gli hub
 async function getHubs(req, res) {
     let hubs;
+    let query = {};
+
+    if (req.query.lat != undefined && req.query.lon != undefined) {
+        query.position = {
+            "$near": {
+                "$geometry": { type: "Point", coordinates: [ req.query.lat , req.query.lon ] }
+            }
+        }
+    }
 
     try {
-        hubs = await HubModel.find({}).exec();
+        hubs = await HubModel.find(query)
+                .limit(req.query.page_size)
+                .skip(req.query.page_number)
+                .exec();
         hubs = hubs.map(hub => hub.getData());
         
         return res.status(utils.http.OK).json(hubs);
