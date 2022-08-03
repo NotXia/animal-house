@@ -73,9 +73,32 @@ paths:
       tags:
       - "Hubs"
       summary: "Ricerca di tutti gli hub"
-      description: "Gestisce la ricerca di tutti gli hub"
+      description: "Gestisce la ricerca di tutti gli hub con criteri e paginazione."
       produces:
       - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di item da restituire"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Offset per paginazione"
+        required: true
+        type: number
+        format: int
+      - name: lat
+        in: query
+        description: "Latitudine del centro di ricerca (deve essere definito con lon)"
+        required: false
+        type: number
+      - name: lon
+        in: query
+        description: "Longitudine del centro di ricerca (deve essere definito con lat)"
+        required: false
+        type: number
       responses:
         200:
           description: "Trovato con successo"
@@ -83,6 +106,10 @@ paths:
             type: array
             items:
               $ref: "#/definitions/HubData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         500:
           description: "Internal server error"
   /hubs/{code}:

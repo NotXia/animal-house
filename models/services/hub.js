@@ -42,6 +42,8 @@ const hubSchema = mongoose.Schema({
     }
 });
 
+hubSchema.index({ "position": "2dsphere" });
+
 hubSchema.methods.convertTime = function() {
     let convertedOpeningTime = {};
     for(const day of WEEKS) {

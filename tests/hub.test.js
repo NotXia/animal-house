@@ -178,7 +178,7 @@ describe("Ricerca di hub", function() {
     });
 
     test("Ricerca totale", async function () {
-        const hub = await curr_session.get('/hubs/').expect(200);
+        const hub = await curr_session.get('/hubs/').query({ page_size: 100, page_number: 0 }).expect(200);
         expect(hub).toBeDefined();
         expect(hub.body.length).toEqual(3);
         expect(hub.body[0].code).toEqual("MXP1");
@@ -186,6 +186,33 @@ describe("Ricerca di hub", function() {
         expect(moment(hub.body[1].opening_time.monday[0].start).local().format()).toEqual(moment("9:00", "HH:mm").local().format());
         expect(hub.body[2].code).toEqual("BLQ2");
         expect(moment(hub.body[2].opening_time.wednesday[0].end).local().format()).toEqual(moment("23:00", "HH:mm").local().format());
+    });
+
+    test("Ricerca per vicinanza (1)", async function () {
+        const res = await curr_session.get('/hubs/').query({ page_size: 100, page_number: 0, lat: 44.504122, lon: 11.317321 }).expect(200); // Ospedale Maggiore
+        expect(res.body[0].code).toEqual("BLQ1");
+        expect(res.body[1].code).toEqual("BLQ2");
+    });
+
+    test("Ricerca per vicinanza (2)", async function () {
+        const res = await curr_session.get('/hubs/').query({ page_size: 100, page_number: 0, lat: 44.490653, lon: 11.361153 }).expect(200); // Sant'Orsola
+        expect(res.body[0].code).toEqual("BLQ2");
+        expect(res.body[1].code).toEqual("BLQ1");
+    });
+
+    test("Ricerca per vicinanza errata - Coordinata mancante", async function () {
+        const res = await curr_session.get('/hubs/').query({ page_size: 100, page_number: 0, lat: 44.490653 }).expect(400);
+        expect(res.body[0].field).toEqual("lon");
+    });
+
+    test("Ricerca per vicinanza con paginazione", async function () {
+        let res = await curr_session.get('/hubs/').query({ page_size: 1, page_number: 0, lat: 44.504122, lon: 11.317321 }).expect(200); // Ospedale Maggiore
+        expect(res.body.length).toEqual(1);
+        expect(res.body[0].code).toEqual("BLQ1");
+
+        res = await curr_session.get('/hubs/').query({ page_size: 1, page_number: 1, lat: 44.504122, lon: 11.317321 }).expect(200); // Ospedale Maggiore
+        expect(res.body.length).toEqual(1);
+        expect(res.body[0].code).toEqual("BLQ2");
     });
 });
 
