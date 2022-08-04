@@ -45,6 +45,10 @@ paths:
           description: "Creato con successo"
           schema:
             $ref: "#/definitions/HubData"
+          headers:
+           location:
+             type : string
+             description: "Endpoint da cui è possibile accedere ai dati dell'hub"
         400:
           description: "Input malformato"
           schema:
@@ -146,7 +150,7 @@ paths:
               format: email
       responses:
         200:
-          description: "Trovato con successo"
+          description: "Modificato con successo"
           schema:
             $ref: "#/definitions/HubData"
         400:
