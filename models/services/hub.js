@@ -20,6 +20,17 @@ const hubSchema = mongoose.Schema({
         type: addressSchema, 
         required: true 
     },
+    position: { // Formato GeoJSON
+        type: {
+            type: String, enum: ["Point"],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
+
     opening_time: {
         type: getAgendaSchema(timeSlotSchema),
         required: true
@@ -30,6 +41,8 @@ const hubSchema = mongoose.Schema({
         match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     }
 });
+
+hubSchema.index({ "position": "2dsphere" });
 
 hubSchema.methods.convertTime = function() {
     let convertedOpeningTime = {};
@@ -49,6 +62,7 @@ hubSchema.methods.getData = function() {
         code: this.code,
         name: this.name,
         address: this.address,
+        position: this.coordinates,
         opening_time: this.convertTime(),
         phone: this.phone,
         email: this.email

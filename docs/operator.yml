@@ -1,0 +1,360 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni specifiche degli operatori"
+  version: "1.0.0"
+  title: "Operatori"
+basePath: "/user"
+
+paths:
+  /user/operators/{username}/absences/:
+    post:
+      tags:
+      - "Assenze"
+      summary: "Inserimento assenza"
+      description: |
+        Inserisce una nuova assenza tra quelle dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Intervallo di tempo dell'assenza"
+        required: true
+        schema:
+          type: object
+          properties:
+            absence_time:
+              $ref: "#/definitions/Absence"
+          required: [ absence_time ]
+      responses:
+        201:
+          description: "Aggiunto con successo"
+          schema:
+            $ref: "#/definitions/Absence"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    get:
+      tags:
+      - "Assenze"
+      summary: "Ricerca assenze"
+      description: |
+        Lista tutte le assenze dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Absence"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /user/operators/{username}/absences/{absence_time_index}:
+    post:
+      tags:
+      - "Assenze"
+      summary: "Cancellazione assenza"
+      description: |
+        Cancellazione di un'assenza dell'operatore cercato per indice.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: absence_time_index
+        in: path
+        description: "Indice dell'assenza"
+        required: true
+        type: number
+        format: int
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+  /user/operators/{username}/working-time/:
+    get:
+      tags:
+      - "Orario lavorativo"
+      summary: "Ricerca orario lavorativo"
+      description: |
+        Restituisce l'orario lavorativo standard dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            $ref: "#/definitions/WorkingTime"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+      - "Orario lavorativo"
+      summary: "Modifica orario lavorativo"
+      description: |
+        Modifica l'orario lavorativo standard dell'operatore.
+
+        Richiede permessi [ ["operator"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: false
+        schema:
+          type: object
+          properties:
+            working_time:
+              $ref: "#/definitions/WorkingTime"
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/WorkingTime"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+  /user/operators/{username}/availabilities/:
+    get:
+      tags:
+      - "Disponibilità"
+      summary: "Ricerca disponibilità operatore"
+      description: |
+        Restituisce gli slot temporali in cui l'operatore è disponibile.
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username dell'operatore"
+        required: true
+        type: string
+      - name: start_date
+        in: query
+        description: "Data di inizio ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: end_date
+        in: query
+        description: "Data di fine ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: hub
+        in: query
+        description: "Codice dell'hub in cui deve essere presente l'operatore"
+        required: false
+        type: string
+      - name: slot_size
+        in: query
+        description: "Dimensione degli slot temporali"
+        required: false
+        type: number
+        format: int
+      responses:
+        200:
+          description: "Slot disponibili"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/WorkingTime"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Operatore inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+definitions:
+
+  Absence:
+    type: object
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+        type: string
+        format: date-time
+    required: [ start, end ]
+
+  WorkingSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+    required: [ time, hub ]
+
+  WorkingTime:
+    type: object
+    properties:
+      monday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      tuesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      wednesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      thursday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      friday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      saturday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      sunday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+    required: [ monday, tuesday, wednesday, thursday, friday, saturday, sunday ]
