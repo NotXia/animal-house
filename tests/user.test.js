@@ -113,15 +113,7 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
             username: "Luigino23", password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            role: "Pissicologo",
-            working_time: {
-                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                saturday: [], sunday: []
-            }
+            role: "Pissicologo"
         }).expect(401);
 
         expect(await UserModel.findOne({ username: "Luigino23" }).exec()).toBeNull();
@@ -146,23 +138,13 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Luigino234", password: "LuiginoVerona33!",
             email: "luigino444@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role: "Quoco",
-            working_time: {
-                monday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                tuesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                wednesday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                thursday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                friday: [{ time: { start: createTime("08:00"), end: createTime("17:00") }, hub_id: hub._id }],
-                saturday: [], sunday: []
-            }
+            permission: { operator: true }, role: "Quoco"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
 
         const user = await UserModel.findOne({ username: "Luigino234" }).populate("operator").exec();
         expect(user).toBeDefined();
         expect(await bcrypt.compare("LuiginoVerona33!", user.password)).toBeTruthy();
         expect(user.operator).toBeDefined();
-        expect(user.operator.working_time).toBeDefined();
-        expect(user.operator.working_time.monday.length).toBeGreaterThanOrEqual(1);
     });
 
     test("Creazione di un cliente", async function () {
@@ -179,7 +161,6 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
             permission: { operator: true },
-            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
         const user = await UserModel.findOne({ username: "Marcolino23" }).populate("operator").exec();
@@ -193,7 +174,6 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "marconi17@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
             permission: { operator: true },
-            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
         expect(await UserModel.findOne({ username: "NonSonoMarcolino23" }).exec()).toBeNull();
