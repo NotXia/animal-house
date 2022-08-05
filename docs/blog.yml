@@ -8,7 +8,7 @@ paths:
   ###################
   ### INIZIO POST ###
   ###################
-  /posts/:
+  /blog/posts/:
     post:
       tags:
       - "Post"
@@ -43,6 +43,16 @@ paths:
               type: array
               items:
                 $ref: "definitions/utils.yml#/definitions/ObjectId"
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path ]
           required: [ content, topic ]
       responses:
         201:
@@ -132,7 +142,7 @@ paths:
         500:
           description: "Internal server error"
 
-  /posts/{post_id}:
+  /blog/posts/{post_id}:
     get:
       tags:
       - "Post"
@@ -216,6 +226,17 @@ paths:
               type: array
               items:
                 $ref: "definitions/utils.yml#/definitions/ObjectId"
+            images:
+              description: Immagini aggiornate. Quelle non più presenti verranno cancellate.
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path ]
       responses:
         200:
           description: "Modificato con successo"
@@ -280,11 +301,51 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
+  /blog/posts/images/:
+    post:
+      tags:
+      - "Post"
+      summary: "Caricamento di immagini per post"
+      description: |
+        Gestisce il caricamento di immagini da utilizzare nei post.
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
+      consumes:
+      - multipart/form-data
+      produces:
+      - "application/json"
+      parameters:
+      - name: files
+        in: formData
+        type: file
+        required: true
+      responses:
+        200:
+          description: "Nome delle immagini inserite"
+          schema:
+            type: array
+            items:
+              type: string
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
   
   #######################
   ### INIZIO COMMENTO ###
   #######################
-  /posts/{post_id}/comments/:
+  /blog/posts/{post_id}/comments/:
     post:
       tags:
       - "Commento"
@@ -397,7 +458,7 @@ paths:
         500:
           description: "Internal server error"
 
-  /posts/{post_id}/comments/{comment_index}:
+  /blog/posts/{post_id}/comments/{comment_index}:
     get:
       tags:
       - "Commento"
@@ -552,7 +613,7 @@ paths:
 #
 # Inizio topic
 #
-  /posts/topics/:
+  /blog/posts/topics/:
     get:
       tags:
       - "Topic"
@@ -612,7 +673,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
-  /posts/topics/{topic}:
+  /blog/posts/topics/{topic}:
     put:
       tags:
       - "Topic"
@@ -736,6 +797,16 @@ definitions:
         type: array
         items:
           $ref: "definitions/utils.yml#/definitions/ObjectId"
+      images:
+        type: array
+        items:
+          type: object
+          properties:
+            path:
+              type: string
+            description:
+              type: string
+          required: [ path ]
       creationDate:
         type: string
         format: date-time

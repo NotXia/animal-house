@@ -1,6 +1,8 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const AnimalModel = require("../animals/animal");
+const path = require('path');
 
 const postSchema = mongoose.Schema({
     author: {
@@ -39,6 +41,11 @@ const postSchema = mongoose.Schema({
         type: ObjectId, ref: AnimalModel.collection.collectionName
     }],
 
+    images: [{
+        path: { type: String },
+        description: { type: String }
+    }],
+
     creationDate: {
         type: Date,
         required: true,
@@ -54,6 +61,10 @@ postSchema.methods.getData = function() {
         topic: this.topic,
         tag_users: this.tag_users,
         tag_animals_id: this.tag_animals_id,
+        images: this.images.map( (image) => ({
+            path: path.join(process.env.BLOG_IMAGES_BASE_URL, image.path),
+            description: image.description
+        }) ),
         creationDate: this.creationDate
     };
 };
