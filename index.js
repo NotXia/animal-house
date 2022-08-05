@@ -11,6 +11,7 @@ const user = require("./routes/user");
 const shop = require("./routes/shop");
 const blog = require("./routes/blog");
 const hub = require("./routes/hub");
+const service = require("./routes/service");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -22,6 +23,7 @@ app.use("/user", user);
 app.use("/shop", shop);
 app.use("/blog", blog);
 app.use("/hubs", hub);
+app.use("/services", service);
 
 app.use(middlewareErrorHandler);
 

@@ -34,6 +34,7 @@ function _getOperatorData(source) {
     return Object.fromEntries(Object.entries(
         {
             role: source.role,
+            services_id: source.services_id,
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -84,7 +85,7 @@ const validateInsertOperator = [
     validateNewUserData("body"),
     user_validator.validatePermission("body", OPTIONAL),
     operator_validator.validateRole("body", OPTIONAL),
-    operator_validator.validateListOfServices("body", OPTIONAL),
+    operator_validator.validateListOfServicesId("body", OPTIONAL),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
@@ -131,7 +132,7 @@ const validateUpdateOperator = [
     user_validator.validateUsername("param", REQUIRED),
     validateUpdateUserData("body"),
     operator_validator.validateRole("body", OPTIONAL),
-    operator_validator.validateListOfServices("body", OPTIONAL),
+    operator_validator.validateListOfServicesId("body", OPTIONAL),
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params"),
     function (req, _, next) {

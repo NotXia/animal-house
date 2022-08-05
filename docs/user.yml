@@ -259,10 +259,10 @@ paths:
                   type: boolean
             role:
               type: string
-            services:
+            services_id:
               type: array
               items:
-                type: string
+                $ref: "definitions/utils.yml#/definitions/ObjectId"
           required: [ username, password, email, name, surname ]
       responses:
         201:
@@ -372,10 +372,10 @@ paths:
               type: string
             role:
               type: string
-            services:
+            services_id:
               type: array
               items:
-                type: string
+                $ref: "definitions/utils.yml#/definitions/ObjectId"
             permission:
               description: Permessi dell'utente (modificabile solo dagli amministratori)
               type: object
@@ -550,11 +550,11 @@ definitions:
         type: boolean
       role:
         type: string
-      services:
+      services_id:
         type: array
         items:
-          type: string
-    required: [ username, email, phone, name, surname, permission, enabled, role, services ]
+          $ref: "definitions/utils.yml#/definitions/ObjectId"
+    required: [ username, email, phone, name, surname, permission, enabled, role, services_id ]
 
   OperatorUserProfile:
     type: object
@@ -571,11 +571,11 @@ definitions:
         type: string
       role:
         type: string
-      services:
+      services_id:
         type: array
         items:
-          type: string
-    required: [ username, name, surname, role, services, email, phone, address ]
+          $ref: "definitions/utils.yml#/definitions/ObjectId"
+    required: [ username, name, surname, role, services_id, email, phone, address ]
   
   Address:
     type: object

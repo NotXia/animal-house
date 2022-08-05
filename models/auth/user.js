@@ -88,7 +88,7 @@ userScheme.methods.getAllData = async function() {
 
     if (this.isOperator()) {
         out.role = data.operator.role;
-        out.services = data.operator.services;
+        out.services_id = data.operator.services_id;
     }
     else {
         out.address = data.customer.address;
@@ -110,7 +110,7 @@ userScheme.methods.getPublicData = async function() {
         out.email = data.email,
         out.phone = data.phone,
         out.role = data.operator.role;
-        out.services = data.operator.services_id;
+        out.services_id = data.operator.services_id;
     }
 
     return out;
