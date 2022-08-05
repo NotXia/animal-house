@@ -6,6 +6,8 @@ const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 const { WEEKS } = require("../../utilities");
 const BookingModel = require("../services/booking");
+const ServiceModel = require("../services/service");
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -22,8 +24,8 @@ const workingSlot = mongoose.Schema({
 const operatorScheme = mongoose.Schema({
     role: { type: String, default: "" },
 
-    services: [{ 
-        type: String,  
+    services_id: [{ 
+        type: ObjectId, ref: ServiceModel.collection.name
     }],
 
     working_time: {
