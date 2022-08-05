@@ -32,7 +32,7 @@ async function getServices(req, res) {
         if (req.query.hub_code) {
             // Estrazione operatori che lavorano nell'hub
             let operator_query = { "$or": [] };
-            for (const week of utils.WEEKS) { operator_query["$or"].push( { [`working_time.${week}.hub`]: req.query.hub_code } ); }
+            for (const days of utils.WEEKS) { operator_query["$or"].push( { [`working_time.${days}.hub`]: req.query.hub_code } ); }
             const operators = await OperatorModel.find(operator_query, { services_id: 1 }).exec();
 
             // Unione di tutti i servizi
