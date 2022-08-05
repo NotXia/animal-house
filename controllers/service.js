@@ -66,7 +66,7 @@ async function getServiceById(req, res) {
     }
 }
 
-// Aggiornamento di un servizio dato il nome
+// Aggiornamento di un servizio
 async function updateService(req, res) {
     try {
         const to_change_service = req.params.service_id;

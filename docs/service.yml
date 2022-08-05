@@ -93,6 +93,10 @@ paths:
             type: array
             items:
               $ref: "#/definitions/ServiceData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         500:
           description: "Internal server error"
   /services/{service_id}:
@@ -159,6 +163,10 @@ paths:
             price:
               type: number
               format: int
+            target:
+              type: array
+              items:
+                type: string
       responses:
         200:
           description: "Modificato con successo"
