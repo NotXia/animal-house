@@ -42,7 +42,7 @@ const hubSchema = mongoose.Schema({
     }
 });
 
-hubSchema.index({ "position": "2dsphere" });
+hubSchema.index({ position: "2dsphere", code: 1 });
 
 hubSchema.methods.convertTime = function() {
     let convertedOpeningTime = {};

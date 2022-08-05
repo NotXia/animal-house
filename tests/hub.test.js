@@ -274,6 +274,58 @@ describe("Modifica di hub", function () {
     });
 });
 
+
+let services = [];
+let operators = [];
+describe("Ricerca servizi", function () {
+    test("Creazione servizi", async function () {
+        let res = await curr_session.post('/services/').send({ name: "Livellamento cemento", description: "A", duration: 120, price: 50000 }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        services.push(res.body);
+        res = await curr_session.post('/services/').send({ name: "Costruzione cottage", description: "A", duration: 10, price: 1000 }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        services.push(res.body);
+        res = await curr_session.post('/services/').send({ name: "Demolizione palo", description: "A", duration: 30, price: 5000 }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        services.push(res.body);
+    });
+
+    test("Creazione utenti", async function () {
+        operators.push( await utils.loginAsOperatorWithPermission(curr_session, {}, [services[0].id, services[2].id]) );
+        await curr_session.put(`/user/operators/${operators[0].username}/working-time`)
+            .send({ 
+                working_time: { 
+                    monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
+                    tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+                }
+                }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        operators.push( await utils.loginAsOperatorWithPermission(curr_session, {}, [services[1].id]) );
+        await curr_session.put(`/user/operators/${operators[1].username}/working-time`)
+            .send({ 
+                working_time: { 
+                    monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+                    tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+                }
+                }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    });
+
+    test("Ricerca servizi (1)", async function () {
+        const res = await curr_session.get(`/hubs/BLQ1/services/`).expect(200);
+        expect(res.body.length).toEqual(2);
+        expect((res.body[0].id == services[0].id) || (res.body[0].id == services[2].id)).toBeTruthy();
+        expect((res.body[1].id == services[0].id) || (res.body[1].id == services[2].id)).toBeTruthy();
+    });
+
+    test("Ricerca servizi (2)", async function () {
+        const res = await curr_session.get(`/hubs/BLQ2/services/`).expect(200);
+        expect(res.body.length).toEqual(1);
+        expect((res.body[0].id == services[1].id) || (res.body[0].id == services[1].id)).toBeTruthy();
+    });
+
+    test("Ricerca servizi (3)", async function () {
+        const res = await curr_session.get(`/hubs/MXP1/services/`).expect(200);
+        expect(res.body.length).toEqual(0);
+    });
+});
+
 describe("Cancellazione di hub", function () {
     test("Cancellazione corretta", async function () {
         await curr_session.delete('/hubs/BLQ1').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
@@ -291,5 +343,14 @@ describe("Cancellazione di hub", function () {
 
     test("Cancellazione hub inesistente", async function () {
         await curr_session.delete('/hubs/BLQ1710').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
+});
+
+describe("", function () {
+    test("Pulizia", async function () {
+        await utils.cleanup(curr_session);
+        for (const service of services) {
+            await curr_session.delete(`/services/${service.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        }
     });
 });
