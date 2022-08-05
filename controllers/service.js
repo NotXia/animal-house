@@ -54,7 +54,7 @@ async function getServices(req, res) {
     }
 }
 
-// Ricerca di un servizio dato il nome
+// Ricerca di un servizio
 async function getServiceById(req, res) {
     try {
         const service = await ServiceModel.findOne({ _id: req.params.service_id }).exec();
