@@ -1,6 +1,7 @@
 const utils = require("./utils");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
 const validator = require("./validators/service");
+const hub_validator = require("./validators/hub");
 
 const validateInsertService = [
     validator.validateServiceName("body", REQUIRED),
@@ -13,6 +14,7 @@ const validateInsertService = [
 
 const validateGetService = [
     validator.validateServiceName("query", OPTIONAL),
+    hub_validator.validateCode("query", OPTIONAL, "hub_code"),
     utils.validatorErrorHandler
 ];
 

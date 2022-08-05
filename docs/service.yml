@@ -80,6 +80,11 @@ paths:
         in: query
         description: "Nome del servizio"
         required: false
+        type: string      
+      - name: hub_code
+        in: query
+        description: "Codice di un hub da cui si vogliono ricercare servizi"
+        required: false
         type: string
       responses:
         200:

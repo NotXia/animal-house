@@ -22,7 +22,7 @@ module.exports.loginAsAdmin = async function (session) {
     return res.body.access_token.value;
 }
 
-module.exports.loginAsOperatorWithPermission = async function (session, permission) {
+module.exports.loginAsOperatorWithPermission = async function (session, permission, services_id=[]) {
     const admin_token = await module.exports.loginAsAdmin(session);
     const username = getUsername();
 
@@ -32,6 +32,7 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
         name: getName(), surname: getSurname(),
         permission: permission,
         role: "Test",
+        services_id: services_id,
         working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
     }).set({ Authorization: `Bearer ${admin_token}`});
     to_del_operators.push(username);

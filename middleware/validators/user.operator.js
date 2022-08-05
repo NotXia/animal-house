@@ -8,10 +8,10 @@ const moment = require("moment");
 
 module.exports.validateRole = (source, required=true, field_name="role") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 
-module.exports.validateListOfServices = function (source, required=true, field_name="services") {
+module.exports.validateListOfServicesId = function (source, required=true, field_name="services_id") {
     return [
         utils.handleRequired(validator[source](field_name), required),
-        service_validator.validateServiceName(source, utils.OPTIONAL, `${field_name}.*`)
+        service_validator.validateServiceId(source, utils.OPTIONAL, `${field_name}.*`)
     ];
 }
 
