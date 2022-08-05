@@ -2,6 +2,7 @@ require("dotenv").config();
 const app = require("../index.js");
 const utils = require("./utils/utils");
 const session = require('supertest-session');
+const moment = require("moment");
 
 const ServiceModel = require("../models/services/service");
 
@@ -11,6 +12,7 @@ let admin_token;
 
 let servizioTest;
 let servizioTest2;
+let servizioTest3;
 const WRONG_MONGOID = "111111111111111111111111";
 
 beforeAll(async function () {
@@ -44,12 +46,17 @@ describe("Creazione di un servizio", function () {
             duration: 120,
             price: 500
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
-
-        const service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
+        let service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
         servizioTest2 = service;
-        expect(service).toBeDefined();
-        expect(service.name).toEqual("Dog-sitting");
-        expect(service.duration).toEqual(120);
+
+        await curr_session.post('/services/').send({
+            name: "Workshop - Come fare la pizza",
+            description: "🔥🍕🔥",
+            duration: 15,
+            price: 50000
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        service = await ServiceModel.findOne({ name: "Workshop - Come fare la pizza" }).exec();
+        servizioTest3 = service;
     });
 
     test("Creazione con conflitto", async function () {
@@ -78,13 +85,13 @@ describe("Ricerca dei servizi", function() {
     test("Ricerca totale", async function () {
         const services = await curr_session.get('/services/').expect(200);
         expect(services).toBeDefined();
-        expect(services.body.length).toEqual(2);
+        expect(services.body.length).toEqual(3);
         expect(services.body[0].name).toEqual("Vaccino antirabbia");
         expect(services.body[1].name).toEqual("Dog-sitting");
         expect(services.body[1].duration).toEqual(120);
     });
 
-    test("Ricerca totale", async function () {
+    test("Ricerca totale per nome", async function () {
         const services = await curr_session.get('/services/').query({ name: "Dog" }).expect(200);
         expect(services).toBeDefined();
         expect(services.body.length).toEqual(1);
@@ -92,6 +99,47 @@ describe("Ricerca dei servizi", function() {
         expect(services.body[0].duration).toEqual(120);
     });
 });
+
+describe("Ricerca per hub", function () {
+    test("Creazione utenti", async function () {
+        let operator1 = await utils.loginAsOperatorWithPermission(curr_session, {}, [servizioTest._id, servizioTest2._id]);
+        await curr_session.put(`/user/operators/${operator1.username}/working-time`)
+            .send({ 
+                working_time: { 
+                    monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
+                    tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+                }
+            }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        let operator2 = await utils.loginAsOperatorWithPermission(curr_session, {}, [servizioTest3._id]);
+        await curr_session.put(`/user/operators/${operator2.username}/working-time`)
+            .send({ 
+                working_time: { 
+                    monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+                    tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+                }
+            }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    });
+
+    test("Ricerca servizi di un hub (1)", async function () {
+        const res = await curr_session.get(`/services/`).query({ hub_code: "BLQ1" }).expect(200);
+        expect(res.body.length).toEqual(2);
+        expect((res.body[0].id == servizioTest._id) || (res.body[0].id == servizioTest2._id)).toBeTruthy();
+        expect((res.body[1].id == servizioTest._id) || (res.body[1].id == servizioTest2._id)).toBeTruthy();
+    });
+
+    test("Ricerca servizi di un hub (2)", async function () {
+        const res = await curr_session.get(`/services/`).query({ hub_code: "BLQ2" }).expect(200);
+        expect(res.body.length).toEqual(1);
+        expect((res.body[0].id == servizioTest3._id) || (res.body[0].id == servizioTest3._id)).toBeTruthy();
+    });
+
+    test("Ricerca servizi di un hub (3)", async function () {
+        const res = await curr_session.get(`/services/`).query({ hub_code: "MXP1" }).expect(200);
+        expect(res.body.length).toEqual(0);
+    });
+});
+
 
 describe("Modifica di servizi", function () {
     test("Modifica del nome", async function () {
@@ -128,12 +176,16 @@ describe("Cancellazione di un servizio", function () {
 
     test("Cancellazione corretta", async function () {
         await curr_session.delete(`/services/${servizioTest2._id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
-
-        const service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
-        expect(service).toBeNull();
+        await curr_session.delete(`/services/${servizioTest3._id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
     });
 
     test("Cancellazione servizio inesistente", async function () {
         await curr_session.delete('/service/ServizioInesistente').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
+});
+
+describe("", function () {
+    test("Pulizia", async function () {
+        await utils.cleanup(curr_session);
     });
 });

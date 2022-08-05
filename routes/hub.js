@@ -9,7 +9,6 @@ router.post("/", [ auth_middleware([], [ ["admin"] ]), hub_middleware.validateIn
 
 router.get("/", hub_middleware.validateGetHubs, hub_controller.getHubs);
 router.get("/:code", hub_middleware.validateGetHubByCode, hub_controller.getHubByCode);
-router.get("/:code/services/", hub_middleware.validateGetServicesOfHub, hub_controller.getServicesOfHub);
 
 router.put("/:code", [ auth_middleware([], [ ["admin"] ]), hub_middleware.validateUpdateHub ], hub_controller.updateHub);
 

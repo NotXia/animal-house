@@ -1,7 +1,5 @@
 require('dotenv').config();
 const HubModel = require("../models/services/hub");
-const OperatorModel = require("../models/auth/operator");
-const ServiceModel = require("../models/services/service");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
@@ -61,33 +59,6 @@ async function getHubByCode(req, res) {
     }
 }
 
-async function getServicesOfHub(req, res) {
-    let hub_services;
-
-    try {
-        let query = { "$or": [] };
-
-        // Estrazione operatori che lavorano nell'hub
-        for (const week of utils.WEEKS) { query["$or"].push( { [`working_time.${week}.hub`]: req.params.code } ); }
-        const operators = await OperatorModel.find(query, { services_id: 1 }).exec();
-
-        // Estrazione dei distinti servizi
-        let available_services_id =  new Set();
-        for (const operator of operators) {
-            operator.services_id.forEach(service_id => { available_services_id.add(service_id) });
-        }
-        available_services_id = [...available_services_id];
-
-        // Estrazione dati servizi
-        hub_services = await ServiceModel.find({ _id: { "$in": available_services_id } }).exec();
-        hub_services = hub_services.map((service) => service.getData());
-    } catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.status(200).send(hub_services);
-}
-
 // Aggiornamento di un hub dato il codice
 async function updateHub(req, res) {
     try {
@@ -119,7 +90,6 @@ module.exports = {
     insertHub: insertHub,
     getHubs: getHubs,
     getHubByCode: getHubByCode,
-    getServicesOfHub: getServicesOfHub,
     updateHub: updateHub,
     deleteHub: deleteHub
 }

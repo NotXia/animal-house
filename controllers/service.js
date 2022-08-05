@@ -1,5 +1,6 @@
 require('dotenv').config();
 const ServiceModel = require("../models/services/service");
+const OperatorModel = require("../models/auth/operator");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
@@ -23,12 +24,27 @@ async function insertService(req, res) {
 // Ricerca di tutti i servizi
 async function getServices(req, res) {
     let services;
-
     let query = {};
     
-    if (req.query.name) { query.name = {$regex : `.*${req.query.name}.*`}; }
-
     try {
+        if (req.query.name) { query.name = {$regex : `.*${req.query.name}.*`}; }
+
+        if (req.query.hub_code) {
+            // Estrazione operatori che lavorano nell'hub
+            let operator_query = { "$or": [] };
+            for (const week of utils.WEEKS) { operator_query["$or"].push( { [`working_time.${week}.hub`]: req.query.hub_code } ); }
+            const operators = await OperatorModel.find(operator_query, { services_id: 1 }).exec();
+
+            // Unione di tutti i servizi
+            let available_services_id =  new Set();
+            for (const operator of operators) {
+                operator.services_id.forEach(service_id => { available_services_id.add(service_id) });
+            }
+            available_services_id = [...available_services_id];
+    
+            query._id = { "$in": available_services_id };
+        }
+
         services = await ServiceModel.find(query).exec();
         services = services.map(service => service.getData());
         
