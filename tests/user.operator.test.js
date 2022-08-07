@@ -246,6 +246,7 @@ describe("Ricerca disponibilità operatore", function () {
             },
             service_id: "111111111111111111111111",
             customer: "BestCustomerEver2022",
+            animal_id: "111111111111111111111111",
             operator: operator3.username,
             hub: "MXP1"
         }).save() );
@@ -257,6 +258,7 @@ describe("Ricerca disponibilità operatore", function () {
             },
             service_id: "111111111111111111111111",
             customer: "BestCustomerEver2022",
+            animal_id: "111111111111111111111111",
             operator: operator3.username,
             hub: "MXP1"
         }).save() );
