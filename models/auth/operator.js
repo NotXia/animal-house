@@ -25,7 +25,7 @@ const operatorScheme = mongoose.Schema({
     role: { type: String, default: "" },
 
     services_id: [{ 
-        type: ObjectId, ref: ServiceModel.collection.name
+        type: ObjectId, ref: ServiceModel.collection.collectionName
     }],
 
     working_time: {
