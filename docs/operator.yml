@@ -324,7 +324,9 @@ definitions:
       hub:
         type: string
         description: Codice dell'hub
-    required: [ time, hub ]
+      operator_username:
+        type: string
+    required: [ time, hub, operator_username ]
 
   WorkingTime:
     type: object
