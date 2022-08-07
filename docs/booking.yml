@@ -1,0 +1,77 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per la gestione di appuntamenti"
+  version: "1.0.0"
+  title: "Appuntamenti"
+basePath: "/appointments"
+
+paths:
+  /appointments/availabilities/:
+    get:
+      tags:
+      - "Disponibilità"
+      summary: "Ricerca slot disponibili"
+      description: |
+        Restituisce gli slot temporali disponibili per un determinato servizio presso un dato hub.
+      produces:
+      - "application/json"
+      parameters:
+      - name: start_date
+        in: query
+        description: "Data di inizio ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: end_date
+        in: query
+        description: "Data di fine ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: hub_code
+        in: query
+        description: "Codice dell'hub in cui verificare le disponibilità"
+        required: true
+        type: string
+      - name: service_id
+        in: query
+        description: "Id del servizio richiesto"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Slot disponibili raggruppati per operatore"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TimeSlot"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+definitions:
+
+  TimeSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+      operator_username:
+        type: string
+    required: [ time, hub, operator_username ]
