@@ -1,5 +1,6 @@
 require('dotenv').config();
 const HubModel = require("../models/services/hub");
+const OperatorModel = require("../models/auth/operator");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
@@ -34,6 +35,24 @@ async function getHubs(req, res) {
     }
 
     try {
+        if (req.query.service_id) {
+            // Estrazione operatori in grado di erogare il servizio
+            const operators = await OperatorModel.find({ services_id: req.query.service_id }, { working_time: 1 }).exec();
+
+            // Estrazione hub
+            let available_hubs = new Set();
+            for (const operator of operators) {
+                for (const day of utils.WEEKS) {
+                    for (const working_time of operator.working_time[day]) {
+                        available_hubs.add(working_time.hub);
+                    }
+                }
+            }
+            available_hubs = [...available_hubs];
+
+            query.code = { "$in": available_hubs };
+        }
+
         hubs = await HubModel.find(query)
                 .limit(req.query.page_size)
                 .skip(req.query.page_number)
@@ -42,9 +61,9 @@ async function getHubs(req, res) {
         
         return res.status(utils.http.OK).json(hubs);
     } catch (err) {
+        console.warn(err);
         return error.response(err, res);
     }
-
 }
 
 // Ricerca di un hub dato il codice
