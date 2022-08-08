@@ -42,11 +42,7 @@ async function getHubs(req, res) {
             // Estrazione hub
             let available_hubs = new Set();
             for (const operator of operators) {
-                for (const day of utils.WEEKS) {
-                    for (const working_time of operator.working_time[day]) {
-                        available_hubs.add(working_time.hub);
-                    }
-                }
+                for (const day of utils.WEEKS) { operator.working_time[day].forEach((working_slot) => available_hubs.add(working_slot.hub)); }
             }
             available_hubs = [...available_hubs];
 
@@ -61,7 +57,6 @@ async function getHubs(req, res) {
         
         return res.status(utils.http.OK).json(hubs);
     } catch (err) {
-        console.warn(err);
         return error.response(err, res);
     }
 }
