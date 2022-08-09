@@ -186,6 +186,61 @@ describe("Ricerca ordine", function () {
     });
 });
 
+describe("Aggiornamento ordine", function () {
+    test("Aggiornamento corretto", async function () {
+        const res = await curr_session.put(`/shop/orders/${order1.id}`)
+            .send({ status: "processed" })
+            .set({ Authorization: `Bearer ${operator.token}` }).expect(200);
+        expect(res.body).toBeDefined();
+
+        const order = await OrderModel.findById(order1.id).exec();
+        expect(order.status).toEqual("processed");
+    });
+
+    test("Aggiornamento errato - Stato non previsto", async function () {
+        await curr_session.put(`/shop/orders/${order1.id}`)
+            .send({ status: "cooking" })
+            .set({ Authorization: `Bearer ${operator.token}` }).expect(400);
+    });
+
+    test("Aggiornamento errato - Permessi mancanti", async function () {
+        await curr_session.put(`/shop/orders/${order1.id}`)
+            .send({ status: "delivered" })
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(403);
+    });
+});
+
+describe("Cancellazione ordine", function () {
+    test("Cancellazione corretta come cliente", async function () {
+        await curr_session.delete(`/shop/orders/${order2.id}`)
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
+
+        const order = await OrderModel.findById(order2.id).exec();
+        expect(order.status).toEqual("cancelled");
+    });
+
+    test("Cancellazione errata come cliente - Ordine già processato", async function () {
+        await curr_session.delete(`/shop/orders/${order1.id}`)
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(403);
+
+        const order = await OrderModel.findById(order1.id).exec();
+        expect(order.status).toEqual("processed");
+    });
+
+    test("Cancellazione errata come cliente - Ordine non proprio", async function () {
+        await curr_session.delete(`/shop/orders/${order3.id}`)
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(403);
+    });
+
+    test("Cancellazione corretta come operatore", async function () {
+        await curr_session.delete(`/shop/orders/${order1.id}`)
+            .set({ Authorization: `Bearer ${operator.token}` }).expect(204);
+
+        const order = await OrderModel.findById(order1.id).exec();
+        expect(order.status).toEqual("cancelled");
+    });
+});
+
 describe("Pulizia", function () {
     test("", async function () {
         await OrderModel.deleteMany({});

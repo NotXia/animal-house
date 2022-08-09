@@ -111,21 +111,34 @@ async function searchOrderById(req, res) {
 }
 
 /* 
+    Modifica di un ordine
 */
 async function updateOrder(req, res) {
+    let updated_order;
+    let updated_data = validator.matchedData(req, { locations: ["body"] });
+
     try {
+        updated_order = await OrderModel.findByIdAndUpdate(req.params.order_id, updated_data, { new: true }).exec();
+        if (!updated_order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(await new_item.getData());
+    return res.status(utils.http.OK).json(updated_order.getData());
 }
 
 /* 
 */
 async function removeOrder(req, res) {
     try {
+        // Gli utenti normali non possono cancellare un ordine in modo arbitrario
+        if (!req.auth.superuser) {
+            const order = await OrderModel.findById(req.params.order_id).exec();
+            if (order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
+        }
+        
+        await OrderModel.findByIdAndUpdate(req.params.order_id, { status: "cancelled" }).exec();
     }
     catch (err) {
         return error.response(err, res);
