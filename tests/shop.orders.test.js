@@ -9,7 +9,7 @@ const ProductModel = require("../models/shop/product");
 let curr_session = session(app);
 let itemA, itemB, itemC;
 let customer1, customer2, operator;
-let order1, order2, order3
+let order1, order2, order3;
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
@@ -167,10 +167,29 @@ describe("Ricerca ordine", function () {
             .set({ Authorization: `Bearer ${operator.token}` }).expect(200);
         expect(res.body.length).toEqual(1);
     });
+
+    test("Ricerca ordine specifico come cliente - Proprio ordine", async function () {
+        const res = await curr_session.get(`/shop/orders/${order1.id}`)
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
+        expect(res.body.id).toEqual(order1.id);
+    });
+
+    test("Ricerca ordine specifico come cliente - Ordine altrui", async function () {
+        await curr_session.get(`/shop/orders/${order3.id}`)
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(403);
+    });
+
+    test("Ricerca ordine specifico come operatore", async function () {
+        const res = await curr_session.get(`/shop/orders/${order3.id}`)
+            .set({ Authorization: `Bearer ${operator.token}` }).expect(200);
+        expect(res.body.id).toEqual(order3.id);
+    });
 });
 
 describe("Pulizia", function () {
     test("", async function () {
+        await OrderModel.deleteMany({});
+
         await curr_session.delete(`/shop/items/${itemA.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
         await curr_session.delete(`/shop/items/${itemB.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
         await curr_session.delete(`/shop/items/${itemC.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);

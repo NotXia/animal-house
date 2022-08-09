@@ -94,15 +94,20 @@ async function searchOrder(req, res) {
 }
 
 /* 
+    Ricerca di uno specifico ordine
 */
 async function searchOrderById(req, res) {
+    let order;
+
     try {
+        order = await OrderModel.findById(req.params.order_id).exec();
+        if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(await new_item.getData());
+    return res.status(utils.http.OK).json(order.getData());
 }
 
 /* 

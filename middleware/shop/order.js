@@ -35,7 +35,16 @@ const validateSearchOrder = [
 ];
 
 const validateSearchOrderById = [
-    utils.validatorErrorHandler
+    shop_validator.validateOrderId("param", REQUIRED, "order_id"),
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+        
+        let err = await shop_validator.verifyOrderOwnership(req.params.order_id, req.auth.username);
+        if (err) { return next(err) };
+
+        return next();
+    }
 ];
 
 const validateUpdateOrder = [

@@ -1,6 +1,8 @@
 const validator = require("express-validator");
 const { REQUIRED } = require("./utils");
 const utils = require("./utils");
+const error = require("../../error_handler");
+const OrderModel = require("../../models/shop/order");
 
 /* Item */
 module.exports.validateItemName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
@@ -49,4 +51,11 @@ module.exports.validateOrderProductsList = function (source, required=true, fiel
         module.exports.validateProductBarcode(source, REQUIRED, `${field_name}.*.barcode`),
         module.exports.validateProductQuantity(source, REQUIRED, `${field_name}.*.quantity`)
     ];
+}
+
+module.exports.verifyOrderOwnership = async function(order_id, username) {
+    const order = await OrderModel.findById(order_id).exec();
+    if (!order) { return error.generate.NOT_FOUND(); }
+
+    if (order.customer !== username) { return error.generate.FORBIDDEN("Non sei il proprietario"); }
 }

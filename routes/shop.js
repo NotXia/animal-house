@@ -54,7 +54,7 @@ router.delete("/categories/:category", [ auth_middleware([ ["operator", "shop_wr
 
 router.post("/orders/", [ auth_middleware([ ["customer"] ] , [ ["admin"] ]), shop_middleware.order.validateCreate ], shop_controller.order.create);
 router.get("/orders/", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]), shop_middleware.order.validateSearch ], shop_controller.order.search);
-router.get("/orders/:order_id", [ auth_middleware([ ["customer"], ["admin"] ]), shop_middleware.order.validateSearchById ], shop_controller.order.searchById);
+router.get("/orders/:order_id", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]), shop_middleware.order.validateSearchById ], shop_controller.order.searchById);
 router.put("/orders/:order_id", [ auth_middleware([ ["customer"], ["admin"] ]), shop_middleware.order.validateUpdate ], shop_controller.order.update);
 router.delete("/orders/:order_id", [ auth_middleware([ ["customer"], ["admin"] ]), shop_middleware.order.validateRemove ], shop_controller.order.remove);
 
