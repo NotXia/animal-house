@@ -221,16 +221,12 @@ describe("Test GET /shop/items/:item_id", function () {
 
 describe("Test GET /shop/items/barcode/:barcode", function () {
     test("Richiesta corretta", async function () {
-        const res = await curr_session.get("/shop/items/barcode/A12345").set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        const res = await curr_session.get("/shop/items/barcode/A12345").expect(200);
         expect(res.body.name).toEqual("Item_A");
     });
 
-    test("Richiesta non autenticata", async function () {
-        await curr_session.get("/shop/items/barcode/A12345").expect(401);
-    });
-
     test("Richiesta vuota", async function () {
-        const res = await curr_session.get("/shop/items/barcode/aaaa").set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        const res = await curr_session.get("/shop/items/barcode/aaaa").expect(404);
         expect(res.body.message).toBeDefined();
     });
 });

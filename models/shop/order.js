@@ -17,6 +17,7 @@ const orderSchema = mongoose.Schema({
     pickup: { type: Boolean, default: false }, // true per ritiro in sede, false per consegna
     hub_code: { type: String },
     address: { type: addressSchema }, tracking: { type: String },
+    processed: { type: Boolean, default: false },
     delivered: { type: Boolean, default: false },
 
     creationDate: {
