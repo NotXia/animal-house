@@ -8,11 +8,14 @@ const ProductModel = require("../models/shop/product");
 
 let curr_session = session(app);
 let itemA, itemB, itemC;
-let customer;
+let customer1, customer2, operator;
+let order1, order2, order3
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
-    customer = await utils.loginAsCustomerWithPermission(curr_session, { customer: true });
+    customer1 = await utils.loginAsCustomerWithPermission(curr_session, { customer: true });
+    customer2 = await utils.loginAsCustomerWithPermission(curr_session, { customer: true });
+    operator = await utils.loginAsOperatorWithPermission(curr_session, { operator: true, warehouse: true });
 });
 
 describe("Popolazione dati", function () {
@@ -51,13 +54,14 @@ describe("Popolazione dati", function () {
 describe("Inserimento ordine", function () {
     test("Inseriment corretto (1)", async function () {
         const res = await curr_session.post("/shop/orders/")
-            .set({ Authorization: `Bearer ${customer.token}` })
+            .set({ Authorization: `Bearer ${customer1.token}` })
             .send({
                 products: [{ barcode: "A12345", quantity: 2 }],
                 pickup: true, hub_code: "MXP1"
             }).expect(201);
         expect(res.body).toBeDefined();
         expect(res.header.location).toEqual(`/shop/orders/${res.body.id}`);
+        order1 = res.body;
 
         const order = await OrderModel.findById(res.body.id).exec();
         expect(order.total).toEqual(4000);
@@ -70,11 +74,12 @@ describe("Inserimento ordine", function () {
 
     test("Inseriment corretto (2)", async function () {
         const res = await curr_session.post("/shop/orders/")
-            .set({ Authorization: `Bearer ${customer.token}` })
+            .set({ Authorization: `Bearer ${customer1.token}` })
             .send({
                 products: [{ barcode: "A23456", quantity: 1 }, { barcode: "C12345", quantity: 2 }],
                 pickup: false, address: { city: "Bologna", street: "Via vai", number: 42, postal_code: "40100" }
             }).expect(201);
+        order2 = res.body;
 
         const order = await OrderModel.findById(res.body.id).exec();
         expect(order.total).toEqual(25398);
@@ -87,9 +92,19 @@ describe("Inserimento ordine", function () {
         expect(product.quantity).toEqual(18);
     });
 
+    test("Inseriment corretto (3)", async function () {
+        const res = await curr_session.post("/shop/orders/")
+            .set({ Authorization: `Bearer ${customer2.token}` })
+            .send({
+                products: [{ barcode: "C12345", quantity: 2 }],
+                pickup: false, address: { city: "Bologna", street: "Via vai", number: 42, postal_code: "40100" }
+            }).expect(201);
+        order3 = res.body;
+    });
+
     test("Inseriment errato - Prodotto non sufficiente", async function () {
         await curr_session.post("/shop/orders/")
-            .set({ Authorization: `Bearer ${customer.token}` })
+            .set({ Authorization: `Bearer ${customer1.token}` })
             .send({
                 products: [{ barcode: "A23456", quantity: 10 }, { barcode: "C12345", quantity: 2 }],
                 pickup: true, hub_code: "MXP1"
@@ -98,7 +113,7 @@ describe("Inserimento ordine", function () {
 
     test("Inseriment errato - Prodotto inesistente", async function () {
         await curr_session.post("/shop/orders/")
-            .set({ Authorization: `Bearer ${customer.token}` })
+            .set({ Authorization: `Bearer ${customer1.token}` })
             .send({
                 products: [{ barcode: "Z12345", quantity: 1 }],
                 pickup: true, hub_code: "MXP1"
@@ -107,11 +122,50 @@ describe("Inserimento ordine", function () {
 
     test("Inseriment errato - Hub inesistente", async function () {
         await curr_session.post("/shop/orders/")
-            .set({ Authorization: `Bearer ${customer.token}` })
+            .set({ Authorization: `Bearer ${customer1.token}` })
             .send({
                 products: [{ barcode: "Z12345", quantity: 1 }],
                 pickup: true, hub_code: "MXP2"
             }).expect(404);
+    });
+});
+
+
+describe("Ricerca ordine", function () {
+    test("Ricerca come cliente - Tutti i propri ordini", async function () {
+        const res = await curr_session.get("/shop/orders/")
+            .query({ page_size: 10, page_number: 0, customer: customer1.username })
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
+        expect(res.body.length).toEqual(2);
+        expect(res.body[0].id).toEqual(order1.id);
+        expect(res.body[1].id).toEqual(order2.id);
+    });
+
+    test("Ricerca come cliente - Solo processati", async function () {
+        const res = await curr_session.get("/shop/orders/")
+            .query({ page_size: 10, page_number: 0, customer: customer1.username, status: "processed" })
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
+        expect(res.body.length).toEqual(0);
+    });
+
+    test("Ricerca come cliente - Non propri", async function () {
+        await curr_session.get("/shop/orders/")
+            .query({ page_size: 10, page_number: 0, customer: customer2.username })
+            .set({ Authorization: `Bearer ${customer1.token}` }).expect(403);
+    });
+
+    test("Ricerca come operatore", async function () {
+        const res = await curr_session.get("/shop/orders/")
+            .query({ page_size: 10, page_number: 0 })
+            .set({ Authorization: `Bearer ${operator.token}` }).expect(200);
+        expect(res.body.length).toEqual(3);
+    });
+
+    test("Ricerca come operatore - Cliente specifico", async function () {
+        const res = await curr_session.get("/shop/orders/")
+            .query({ page_size: 10, page_number: 0, customer: customer2.username })
+            .set({ Authorization: `Bearer ${operator.token}` }).expect(200);
+        expect(res.body.length).toEqual(1);
     });
 });
 

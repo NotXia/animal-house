@@ -5,6 +5,7 @@ const error = require("../../error_handler");
 const OrderModel = require("../../models/shop/order");
 const ProductModel = require("../../models/shop/product");
 const HubModel = require("../../models/services/hub");
+const moment = require("moment");
 
 /* 
     Creazione di un ordine
@@ -42,8 +43,6 @@ async function createOrder(req, res) {
 
         // Inserimento dati mancanti dell'ordine
         order_data.customer = req.auth.username;
-        order_data.processed = false;
-        order_data.delivered = false;
         order_data.total = products.reduce((total, product) => total + parseInt(product.price)*ordered_products_quantity[product.barcode], 0);
         order_data.products = products.map((product) => ({
             barcode: product.barcode,
@@ -57,19 +56,41 @@ async function createOrder(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/orders/${new_order._id}`).json(await new_order.getData());
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/orders/${new_order._id}`).json(new_order.getData());
 }
 
-/* 
+/*
+    Ricerca di ordini
 */
 async function searchOrder(req, res) {
+    let query = {};
+    let orders = [];
+    
+    // Composizione query
+    if (req.query.customer) { query.customer = req.query.customer; }
+    if (req.query.status) { query.status = req.query.status; }
+    if (req.query.start_date && req.query.end_date) { 
+        query.creationDate = {
+            "$gte": moment(req.query.start_date).startOf("day").format(),
+            "$lte": moment(req.query.end_date).endOf("day").format(),
+        }; 
+    }
+    
     try {
+        orders = await OrderModel.find(query)
+                            .sort({ creationDate: "desc" })
+                            .limit(req.query.page_size)
+                            .skip(req.query.page_number)
+                            .exec();
+
+        orders = orders.map((order) => order.getData());
     }
     catch (err) {
+        console.warn(err);
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(await new_item.getData());
+    return res.status(utils.http.OK).json(orders);
 }
 
 /* 

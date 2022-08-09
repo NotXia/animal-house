@@ -17,8 +17,7 @@ const orderSchema = mongoose.Schema({
     pickup: { type: Boolean, default: false }, // true per ritiro in sede, false per consegna
     hub_code: { type: String },
     address: { type: addressSchema }, tracking: { type: String },
-    processed: { type: Boolean, default: false },
-    delivered: { type: Boolean, default: false },
+    status: { type: String, default: "created", enum: ["created", "processed", "ready", "delivered"] },
 
     creationDate: {
         type: Date,
@@ -36,7 +35,7 @@ orderSchema.pre("validate", function (next) {
     }
 });
 
-orderSchema.methods.getData = async function() {
+orderSchema.methods.getData = function() {
     return {
         id: this._id,
         customer: this.customer,
@@ -45,6 +44,7 @@ orderSchema.methods.getData = async function() {
         pickup: this.pickup,
         hub_code: this.hub_code,
         address: this.address,
+        processed: this.processed,
         delivered: this.delivered,
         creationDate: this.creationDate 
     };

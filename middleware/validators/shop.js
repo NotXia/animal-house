@@ -42,6 +42,7 @@ module.exports.validateCategoryIcon = (source, required=true, field_name="icon")
 /* Ordini */
 module.exports.validateOrderId = (source, required=true, field_name="order_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateOrderPickupFlag = (source, required=true, field_name="pickup") => { return utils.handleRequired(validator[source](field_name), required).isBoolean().withMessage("Valore mancante"); }
+module.exports.validateOrderStatus = (source, required=true, field_name="status") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape().isIn(["created", "processed", "ready", "delivered"]).withMessage("Valore invalido"); }
 module.exports.validateOrderProductsList = function (source, required=true, field_name="products") {
     return [
         utils.handleRequired(validator[source](field_name), required).isArray({ min: 1 }).withMessage("Formato errato"),

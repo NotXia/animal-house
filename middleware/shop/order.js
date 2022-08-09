@@ -1,9 +1,11 @@
-const { query } = require("express-validator");
+const validator = require("express-validator");
 const shop_validator = require("../validators/shop");
 const hub_validator = require("../validators/hub");
 const customer_validator = require("../validators/user.customer");
+const user_validator = require("../validators/user");
 const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const utils = require("../utils");
+const error = require("../../error_handler");
 
 const validateCreateOrder = [
     // Username del cliente estratto dai dati di autenticazione
@@ -19,6 +21,16 @@ const validateCreateOrder = [
 ];
 
 const validateSearchOrder = [
+    validator.query("page_size").exists().isInt({ min: 1 }).withMessage("Il valore deve essere un intero che inizia da 1"),
+    validator.query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
+    shop_validator.validateOrderStatus("query", OPTIONAL),
+    validator.query("start_date").optional().if(validator.query("end_date").exists()).exists().withMessage("Valore mancante").isISO8601().withMessage("Formato non valido"),
+    validator.query("end_date").optional().if(validator.query("end_date").exists()).exists().withMessage("Valore mancante").isISO8601().withMessage("Formato non valido"),
+    user_validator.validateUsername("query", OPTIONAL, "customer"),
+    function (req, res, next) {
+        if (!req.auth.superuser && req.query.customer != req.auth.username) { throw error.generate.FORBIDDEN("Non puoi visualizzare gli ordini altrui"); }
+        next();
+    },
     utils.validatorErrorHandler
 ];
 
