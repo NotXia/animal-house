@@ -5,7 +5,6 @@ const TopicModel = require("../../models/blog/topic");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const validator = require("express-validator");
-const { nanoid } = require("nanoid");
 const path = require("path");
 const fs = require("fs");
 
@@ -245,27 +244,6 @@ async function deleteComment(req, res) {
 }
 
 
-/* Upload di immagini */
-async function uploadPostImage(req, res) {
-    let files_name = []
-
-    try {
-        // Salvataggio dei file nel filesystem
-        for (const [_, file] of Object.entries(req.files)) {
-            const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
-            
-            await file.mv(path.join(process.env.IMAGES_TMP_ABS_PATH, filename));
-            files_name.push(filename);
-        }
-    }
-    catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.status(utils.http.OK).json(files_name);
-}
-
-
 module.exports = {
     insertPost: insertPost,
     searchPosts: searchPosts,
@@ -276,6 +254,5 @@ module.exports = {
     searchCommentsByPost: searchCommentsByPost,
     searchCommentByIndex: searchCommentByIndex,
     updateComment: updateComment,
-    deleteComment: deleteComment,
-    uploadPostImage: uploadPostImage
+    deleteComment: deleteComment
 }

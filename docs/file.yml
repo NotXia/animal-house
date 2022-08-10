@@ -1,0 +1,43 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sui file"
+  version: "1.1.0"
+  title: "Gestione file"
+basePath: "/files"
+
+paths:
+  /files/images/:
+    post:
+      tags:
+      - "Immagini"
+      summary: "Caricamento di immagini"
+      description: |
+        Gestisce il caricamento di immagini nella cartella temporanea
+
+        Richiede autenticazione
+      consumes:
+      - multipart/form-data
+      produces:
+      - "application/json"
+      parameters:
+      - name: files
+        in: formData
+        type: file
+        required: true
+      responses:
+        200:
+          description: "Nome con cui le immagini sono state salvate"
+          schema:
+            type: array
+            items:
+              type: string
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"

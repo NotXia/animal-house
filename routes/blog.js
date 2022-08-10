@@ -18,8 +18,6 @@ router.put("/posts/:post_id", [ auth_middleware([ ["post_write"] ], [ ["admin"] 
 
 router.delete("/posts/:post_id", [ auth_middleware([ ["post_write"] ], [ ["admin"] ]), post_middleware.validateDeletePost ], post_controller.deletePost);
 
-router.post("/posts/images/", [ auth_middleware([ ["post_write"] ], [ ["admin"] ]), post_middleware.validateUploadPostImages ], post_controller.uploadPostImage);
-
 
 /* Router per i commenti */
 
