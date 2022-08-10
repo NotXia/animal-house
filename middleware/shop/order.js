@@ -50,6 +50,7 @@ const validateSearchOrderById = [
 const validateUpdateOrder = [
     shop_validator.validateOrderId("param", REQUIRED, "order_id"),
     shop_validator.validateOrderStatus("body", OPTIONAL),
+    shop_validator.validateOrderTrackingCode("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
