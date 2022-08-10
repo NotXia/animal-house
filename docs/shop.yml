@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "Endpoint per le operazioni sullo shop"
-  version: "1.1.0"
+  version: "1.2.0"
   title: "Shop"
 basePath: "/shop"
 tags:
@@ -692,6 +692,278 @@ paths:
           description: "Internal server error"
 
 
+  /shop/orders/:
+    post:
+      tags:
+      - "Ordini"
+      summary: "Creazione di ordini"
+      description: |
+        Gestisce la creazione di un nuovo ordine associato al cliente.
+
+        Richiede permessi [ ["customer"] ] , [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  barcode:
+                    type: string
+                  quantity:
+                    type: number
+                required: [ barcode, quantity ]
+            pickup:
+              type: boolean
+              description: "true per ritiro in sede, false per consegna"
+            hub_code:
+              type: string
+              description: "Codice dell'hub di ritiro. Obbligatorio se si richiede il ritiro"
+            address:
+              $ref: "#/definitions/Address"
+              description: "Indirizzo di consegna. Obbligatorio se si richiede la consegna"
+          required: [ products, pickup ]
+      responses:
+        200:
+          description: "Inserito con successo"
+          schema:
+            $ref: "#/definitions/Order"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati dell'ordine"
+        400:
+          description: "Parametri malformati, quantità insufficiente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Parametri fanno riferimento a entità inesistenti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    get:
+      tags:
+      - "Ordini"
+      summary: "Ricerca di ordini"
+      description: |
+        Gestisce la ricerca degli ordini ordinati in senso decrescente.
+
+        I clienti posso cercare solo i propri ordini, gli operatori tutti.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di post per pagina"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+        format: int
+      - name: status
+        in: query
+        description: "Stato dell'ordine"
+        required: false
+        type: string
+      - name: start_date
+        in: query
+        description: "Inizio intervallo temporale di ricerca"
+        required: false
+        type: string
+        format: date-time
+      - name: end_date
+        in: query
+        description: "Fine intervallo temporale di ricerca"
+        required: false
+        type: string
+        format: date-time
+      - name: customer
+        in: query
+        description: "Username dell'autore dell'ordine"
+        required: false
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Order"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+
+  /shop/orders/{order_id}:
+    get:
+      tags:
+      - "Ordini"
+      summary: "Creazione ordine per id"
+      description: |
+        Gestisce la ricerca di uno specifico ordine per id.
+
+        I clienti possono ricercare solo i propri ordini. Gli operatori tutti.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    put:
+      tags:
+      - "Ordini"
+      summary: "Aggiornamento ordine per id"
+      description: |
+        Gestisce l'aggiornamento di uno specifico ordine per id.
+
+        Richiede permessi [], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    delete:
+      tags:
+      - "Ordini"
+      summary: "Cancellazione ordine per id"
+      description: |
+        Gestisce la cancellazione di uno specifico ordine per id.
+
+        I clienti possono cancellare ordini i propri ordini che non sono in lavorazione. Gli operatori tutti.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
 definitions:
 
   Category:
@@ -760,3 +1032,54 @@ definitions:
       - target_species
       - price
       - quantity
+
+  Order:
+    type: object
+    properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      customer:
+        type: string
+        description: "Username del cliente"
+      products:
+        type: array
+        items:
+          type: object
+          properties:
+            barcode:
+              type: string
+            name:
+              type: string
+            price:
+              type: number
+            required: [ barcode, name, price ]
+      total:
+        type: number
+      pickup:
+        type: boolean
+        description: "true per ritiro in sede, false per consegna"
+      hub_code:
+        type: string
+        description: "Codice dell'hub in cui ritirare"
+      address:
+        type: string
+        description: "Indirizzo di consegna"
+      status:
+        type: string
+        description: "Stato dell'ordine"
+      creationDate:
+        type: string
+        formate: date-time
+    required: [ id, customer, products, total, pickup, status, creationDate ]
+
+  Address:
+    type: object
+    properties:
+      city:
+        type: string
+      street:
+        type: string
+      number:
+        type: string
+      postalcode:
+        type: string
