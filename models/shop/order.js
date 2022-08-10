@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const addressSchema = require("../utils/address");
 const ValidationError = mongoose.Error.ValidationError
 
+const STATUSES = ["created", "processed", "ready", "delivered", "cancelled"]
+
 const orderSchema = mongoose.Schema({
     customer: { type: String, required: true },
     products: [ mongoose.Schema({
@@ -17,7 +19,7 @@ const orderSchema = mongoose.Schema({
     pickup: { type: Boolean, default: false }, // true per ritiro in sede, false per consegna
     hub_code: { type: String },
     address: { type: addressSchema }, tracking: { type: String },
-    status: { type: String, default: "created", enum: ["created", "processed", "ready", "delivered", "cancelled"] },
+    status: { type: String, default: "created", enum: STATUSES },
 
     creationDate: {
         type: Date,
@@ -50,3 +52,4 @@ orderSchema.methods.getData = function() {
 };
 
 module.exports = mongoose.model("orders", orderSchema);
+module.exports.STATUSES = STATUSES;
