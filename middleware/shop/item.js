@@ -54,6 +54,7 @@ const validateUpdateProductByIndex = [
     validator.validateProductTargetSpecies("body", OPTIONAL),
     validator.validateProductPrice("body", OPTIONAL),
     validator.validateProductQuantity("body", OPTIONAL),
+    validator.validateProductImages("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
@@ -69,31 +70,13 @@ const validateDeleteProductByIndex = [
 ];
 
 
-const validateCreateFileUpload = [
-    validator.validateItemId("param", REQUIRED),
-    validator.validateProductIndex("param", REQUIRED),
-    utils.validatorErrorHandler,
-    file_upload(),
-    utils.verifyImage,
-]
-
-const validateDeleteImage = [
-    validator.validateItemId("param", REQUIRED),
-    validator.validateProductIndex("param", REQUIRED),
-    validator.validateProductImageIndex("param", REQUIRED),
-    utils.validatorErrorHandler
-]
-
-
 module.exports = {
     validateCreate: validateCreate,
-    validateCreateFileUpload: validateCreateFileUpload,
     validateSearch: validateSearchItems,
     validateSearchByBarcode: validateSearchItemByBarcode,
     validateSearchItem: validateSearchSingleItem,
     validateUpdateItem: validateUpdateItemById,
     validateUpdateProduct: validateUpdateProductByIndex,
     validateDeleteItem: validateDeleteItemById,
-    validateDeleteProduct: validateDeleteProductByIndex,
-    validateDeleteImage: validateDeleteImage
+    validateDeleteProduct: validateDeleteProductByIndex
 }

@@ -15,7 +15,13 @@ module.exports.validateProductIndex = (source, required=true, field_name="produc
 module.exports.validateProductPrice = (source, required=true, field_name="price") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Formato non valido"); }
 module.exports.validateProductQuantity = (source, required=true, field_name="quantity") => { return utils.handleRequired(validator[source](field_name), required, 0).isInt({ min: 0 }).withMessage("Formato non valido"); }
 module.exports.validateProductTargetSpecies = (source, required = true, field_name = "target_species.*") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
-module.exports.validateProductImageIndex = (source, required=true, field_name="image_index") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"); }
+module.exports.validateProductImages = function (source, required=true, field_name="images") { 
+    return [
+        utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato non valido"),
+        utils.handleRequired(validator[source](`${field_name}.*.path`), required=true).notEmpty().withMessage("Valore mancante").trim(),
+        utils.handleRequired(validator[source](`${field_name}.*.description`), required=true).notEmpty().withMessage("Valore mancante").trim().escape()
+    ]; 
+}
 
 module.exports.validateListOfProducts = function (source, required=true, field_name="products") {
     if (required) {
@@ -27,6 +33,7 @@ module.exports.validateListOfProducts = function (source, required=true, field_n
             module.exports.validateProductPrice(source, utils.REQUIRED, `${field_name}.*.price`),
             module.exports.validateProductQuantity(source, utils.REQUIRED, `${field_name}.*.quantity`),
             module.exports.validateProductTargetSpecies(source, utils.OPTIONAL, `${field_name}.*.target_species_id.*`),
+            module.exports.validateProductImages(source, utils.OPTIONAL, `${field_name}.*.images`),
         ];
     }
     else {

@@ -58,11 +58,17 @@ paths:
                     type: array
                     items:
                       type: string
-                required:
-                  - barcode
-                  - name
-                  - price
-                  - quantity
+                  images:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        description:
+                          type: string
+                      required: [ path, description ]
+                required: [ barcode, name, price, quantity ]
           required:
             - name
             - category
@@ -367,6 +373,16 @@ paths:
               type: number
             quantity:
               type: number
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path, description ]
       responses:
         200:
           description: "Modificato con successo"
@@ -448,102 +464,6 @@ paths:
         500:
           description: "Errore lato server"
 
-  /shop/items/{item_id}/products/{product_index}/images/:
-    post:
-      tags:
-      - "Item e prodotti"
-      summary: "Caricamento di immagini associate ad un prodotto"
-      description: |
-        Gestisce il caricamento delle immagini associate ad un prodotto.
-
-        Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - multipart/form-data
-      produces:
-      - "application/json"
-      parameters:
-      - name: item_id
-        in: path
-        type: string
-        format: ObjectId
-        required: true
-      - name: product_index
-        in: path
-        type: number
-        required: true
-      - name: files
-        in: formData
-        type: file
-        required: true
-      responses:
-        200:
-          description: "Immagini inserite con successo"
-          schema:
-            $ref: "#/definitions/Product"
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi insufficienti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Nessun prodotto trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Errore lato server"
-
-  /shop/items/{item_id}/products/{product_index}/images/{image_index}:
-    delete:
-      tags:
-      - "Item e prodotti"
-      summary: "Cancellazione di una immagine associata ad un prodotto"
-      description: |
-        Gestisce la cancellazione di una immagine associata ad un prodotto.
-
-
-        Richiede permessi ["operator", "shop_write"]
-      parameters:
-      - name: item_id
-        in: path
-        type: string
-        format: ObjectId
-        required: true
-      - name: product_index
-        in: path
-        type: number
-        required: true
-      - name: image_index
-        in: path
-        type: number
-        required: true
-      responses:
-        204:
-          description: "Immagine cancellata con successo"
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi insufficienti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Nessun prodotto trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Errore lato server"
 
   #
   # Inizio categorie
@@ -740,10 +660,16 @@ definitions:
         type: string
       description:
         type: string
-      images_path:
+      images:
         type: array
         items:
-          type: string
+          type: object
+          properties:
+            path:
+              type: string
+            description:
+              type: string
+          required: [ path, description ]
       target_species:
         type: array
         items:
@@ -752,11 +678,4 @@ definitions:
         type: number
       quantity:
         type: number
-  required:
-      - barcode
-      - name
-      - description
-      - images_path
-      - target_species
-      - price
-      - quantity
+    required: [ barcode, name, description, images, target_species, price, quantity ]
