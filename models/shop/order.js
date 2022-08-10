@@ -44,8 +44,7 @@ orderSchema.methods.getData = function() {
         pickup: this.pickup,
         hub_code: this.hub_code,
         address: this.address,
-        processed: this.processed,
-        delivered: this.delivered,
+        status: this.status,
         creationDate: this.creationDate 
     };
 };
