@@ -1,10 +1,12 @@
 require("dotenv").config();
+const UserModel = require("../../models/auth/user");
 
 const usernames = ["Luigino", "Fabiello", "Marione"];
 const names = ["Gabriele", "Luigi"];
 const surnames = ["D'Annunzio", "Pirandello"];
 
 const to_del_operators = [];
+const to_del_customers = [];
 
 function randomInt(min, max) { // Estremi inclusi
     min = Math.ceil(min);
@@ -45,10 +47,36 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
     };
 }
 
+module.exports.loginAsCustomerWithPermission = async function (session, permission) {
+    const admin_token = await module.exports.loginAsAdmin(session);
+    const username = getUsername();
+
+    const res = await session.post('/user/customers/').send({
+        username: username, password: "PasswordMoltoComplessa1!",
+        email: `${username}@mondo.com`,
+        name: getName(), surname: getSurname(),
+        permission: permission,
+        address: { city: "BoloTown", street: "Via da qua", number: 42, postal_code: "40100" }
+    }).set({ Authorization: `Bearer ${admin_token}`});
+    await UserModel.findOneAndUpdate({ username: username }, { enabled: true });
+    to_del_customers.push(username);
+
+    const res_login = await session.post('/auth/login').send({ username: username, password: "PasswordMoltoComplessa1!" });
+
+    return {
+        username: username,
+        token: res_login.body.access_token.value
+    };
+}
+
 module.exports.cleanup = async function (session) {
     const admin_token = await module.exports.loginAsAdmin(session);
 
     for (operator of to_del_operators) {
         await session.delete(`/user/operators/${operator}`).set({ Authorization: `Bearer ${admin_token}` });
+    }
+
+    for (customer of to_del_customers) {
+        await session.delete(`/user/customers/${customer}`).set({ Authorization: `Bearer ${admin_token}` });
     }
 }

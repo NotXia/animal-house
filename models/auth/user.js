@@ -10,6 +10,7 @@ const permissionSchema = mongoose.Schema({
 
     shop_read: { type: Boolean, default: false },
     shop_write: { type: Boolean, default: false },
+    warehouse: { type: Boolean, default: false },
 
     post_write: { type: Boolean, default: false },
     comment_write: { type: Boolean, default: false },

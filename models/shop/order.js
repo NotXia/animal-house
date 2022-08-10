@@ -1,24 +1,24 @@
 const mongoose = require("mongoose");
 const addressSchema = require("../utils/address");
-const ObjectId = mongoose.Schema.Types.ObjectId;
 const ValidationError = mongoose.Error.ValidationError
-const ProductModel = require("./product");
-const CustomerModel = require("../auth/customer");
 
 const orderSchema = mongoose.Schema({
-    customer_id: {
-        type: ObjectId, ref: CustomerModel.collection.collectionName,
-        required: true
-    },
-    products_id: [{
-        type: ObjectId, ref: ProductModel.collection.collectionName,
-    }],
+    customer: { type: String, required: true },
+    products: [ mongoose.Schema({
+        barcode: { type: String },
+        name: { type: String },
+        price: { type: Number }
+    }, { _id: false }) ],
     total: { 
-        type: Number, 
-        required: true,
+        type: Number, required: true,
         validate: (val) => { return val >= 0; }
     },
-    address: { type: addressSchema, required: true },
+    
+    pickup: { type: Boolean, default: false }, // true per ritiro in sede, false per consegna
+    hub_code: { type: String },
+    address: { type: addressSchema }, tracking: { type: String },
+    status: { type: String, default: "created", enum: ["created", "processed", "ready", "delivered", "cancelled"] },
+
     creationDate: {
         type: Date,
         required: true,
@@ -27,11 +27,26 @@ const orderSchema = mongoose.Schema({
 });
 
 orderSchema.pre("validate", function (next) {
-    if (this.products_id.length <= 0) {
+    if (this.products.length <= 0 ||
+        (this.pickup && !this.hub_code) || (!this.pickup && !this.address)) {
         next(new ValidationError());
     } else {
         next();
     }
 });
+
+orderSchema.methods.getData = function() {
+    return {
+        id: this._id,
+        customer: this.customer,
+        products: this.products,
+        total: this.total,
+        pickup: this.pickup,
+        hub_code: this.hub_code,
+        address: this.address,
+        status: this.status,
+        creationDate: this.creationDate 
+    };
+};
 
 module.exports = mongoose.model("orders", orderSchema);
