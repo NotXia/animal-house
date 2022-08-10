@@ -33,7 +33,7 @@ async function createOrder(req, res) {
         
         // Verifica quantità
         for (const product of products) {
-            if (product.quantity < ordered_products_quantity[product.barcode]) { throw error.generate.BAD_REQUEST("Sono presenti prodotti non disponibili"); }
+            if (product.quantity < ordered_products_quantity[product.barcode]) { throw error.generate.BAD_REQUEST({ field: "products", message: "Sono presenti prodotti non disponibili"}); }
         }
 
         // Aggiornamento quantità
@@ -129,6 +129,7 @@ async function updateOrder(req, res) {
 }
 
 /* 
+    Cancellazione di un ordine
 */
 async function removeOrder(req, res) {
     try {
