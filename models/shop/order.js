@@ -46,6 +46,7 @@ orderSchema.methods.getData = function() {
         pickup: this.pickup,
         hub_code: this.hub_code,
         address: this.address,
+        tracking: this.tracking,
         status: this.status,
         creationDate: this.creationDate 
     };
