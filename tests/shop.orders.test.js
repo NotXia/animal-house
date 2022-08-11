@@ -188,12 +188,13 @@ describe("Ricerca ordine", function () {
 describe("Aggiornamento ordine", function () {
     test("Aggiornamento corretto", async function () {
         const res = await curr_session.put(`/shop/orders/${order1.id}`)
-            .send({ status: "processed" })
+            .send({ status: "processed", tracking: "123abc456def" })
             .set({ Authorization: `Bearer ${operator.token}` }).expect(200);
         expect(res.body).toBeDefined();
 
         const order = await OrderModel.findById(order1.id).exec();
         expect(order.status).toEqual("processed");
+        expect(order.tracking).toEqual("123abc456def");
     });
 
     test("Aggiornamento errato - Stato non previsto", async function () {
