@@ -5,13 +5,14 @@ const session = require('supertest-session');
 const path = require("path");
 const fs = require("fs");
 
-const CategoryModel = require("../models/shop/category");
 const ItemModel = require("../models/shop/item");
 const ProductModel = require("../models/shop/product");
 
 let curr_session = session(app);
 let itemA, itemB, itemC;
 const WRONG_MONGOID = "111111111111111111111111";
+const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
+const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
@@ -26,13 +27,20 @@ describe("Popolazione dati", function () {
 
 describe("Test inserimento", function () {
     test("Richiesta corretta a POST /shop/items/", async function () {
-        const res = await curr_session.post("/shop/items/")
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .attach("file1", img1)
+            .attach("file2", img2)
+            .expect(200);
+
+        res = await curr_session.post("/shop/items/")
             .set({ Authorization: `Bearer ${admin_token}` })
             .send({
                 name: "Item_A", category: "Alimenti",
                 products: [
-                    { barcode: "A12345", name: "ProdottoA1", price: 1000, quantity: 5 },
-                    { barcode: "A23456", name: "ProdottoA2", price: 2000 },
+                    { barcode: "A12345", name: "ProdottoA1", price: 1000, quantity: 5, images: [ {path: res.body[0], description: "A"}, {path: res.body[1], description: "B"} ] },
+                    { barcode: "A23456", name: "ProdottoA2", price: 2000, images: [ {path: res.body[2], description: "C"} ] },
                 ]
             }).expect(201);
 
@@ -42,6 +50,9 @@ describe("Test inserimento", function () {
         expect(res.header.location).toEqual(`/shop/items/${item._id}`);
         expect(res.body.name).toEqual(item.name);
         expect(res.body.products.length).toEqual(item.products_id.length);
+        expect( fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(res.body.products[0].images[0].path))) ).toBeTruthy();
+        expect( fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(res.body.products[0].images[1].path))) ).toBeTruthy();
+        expect( fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(res.body.products[1].images[0].path))) ).toBeTruthy();
         itemA = res.body;
     });
 
@@ -85,46 +96,6 @@ describe("Test inserimento", function () {
                 products: [{ barcode: "A12345", name: "Prodotto", price: 1000, quantity: 5 },]
             }).expect(409);
         expect(res.body.field).toEqual("barcode");
-        expect(res.body.message).toBeDefined();
-    });
-
-    test("Richiesta corretta a POST /shop/items/:item_id/products/:product_index/images/", async function () {
-        const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
-        const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
-
-        await curr_session.post(`/shop/items/${itemA.id}/products/0/images/`)
-            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
-            .attach("file0", img1)
-            .attach("file1", img1)
-            .attach("file2", img2)
-            .expect(200);
-
-        await curr_session.post(`/shop/items/${itemA.id}/products/1/images/`)
-            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
-            .attach("file0", img2)
-            .expect(200);
-
-        const products = (await curr_session.get(`/shop/items/${itemA.id}`)).body.products;
-        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[0].images_path[0])))).toBeTruthy();
-        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[0].images_path[1])))).toBeTruthy();
-        expect(fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(products[1].images_path[0])))).toBeTruthy();
-    });
-
-    test("Richieste errate a POST /shop/items/:item_id/products/:product_index/images/ - Formato sbagliato", async function () {
-        const txt = path.resolve(path.join(__dirname, "/resources/txt.txt"));
-
-        // Formato sbagliato
-        await curr_session.post(`/shop/items/${itemA.id}/products/0/images/`)
-            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
-            .attach("file0", txt)
-            .expect(400);
-    });
-
-    test("Richieste errate a POST /shop/items/:item_id/products/:product_index/images/ - Nessun file", async function () {
-        // Nessun file
-        const res = await curr_session.post(`/shop/items/${itemA.id}/products/0/images/`)
-            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
-            .expect(400);
         expect(res.body.message).toBeDefined();
     });
 });
@@ -259,13 +230,25 @@ describe("Test modifica", function () {
     });
 
     test("Richieste corrette a PUT /items/:item_id/products/:product_index", async function () {
-        const res = await curr_session.put(`/shop/items/${itemA.id}/products/0`)
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file2", img2)
+            .expect(200);
+
+        res = await curr_session.put(`/shop/items/${itemA.id}/products/0`)
             .set({ Authorization: `Bearer ${admin_token}` })
-            .send({ name: "NewProdotto1", description: "Nuova descrizione", price: 6000, quantity: 20 }).expect(200);
+            .send({ 
+                name: "NewProdotto1", description: "Nuova descrizione", price: 6000, quantity: 20,
+                images: [ {path: itemA.products[0].images[0].path, description: "D"}, {path: res.body[0], description: "E"} ]
+            }).expect(200);
+
         expect(res.body.name).toEqual("NewProdotto1");
         expect(res.body.description).toEqual("Nuova descrizione");
         expect(res.body.price).toEqual(6000);
         expect(res.body.quantity).toEqual(20);
+        expect( fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(res.body.images[0].path))) ).toBeTruthy();
+        expect( fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(res.body.images[1].path))) ).toBeTruthy();
+        expect( !fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(itemA.products[0].images[1].path))) ).toBeTruthy();
         
         const item = await ProductModel.findOne({ barcode: res.body.barcode }).exec();
         expect(item.name).toEqual("NewProdotto1");
@@ -287,20 +270,8 @@ describe("Test modifica", function () {
 });
 
 describe("Test cancellazione", function () {
-    test("Richiesta corretta a DELETE /items/:item_id/products/:product_index/images/:image_index", async function () {
-        const product0_before = (await curr_session.get(`/shop/items/${itemA.id}`)).body.products[0];
-        await curr_session.delete(`/shop/items/${itemA.id}/products/0/images/0`)
-            .set({ Authorization: `Bearer ${admin_token}` })
-            .expect(204);
-        const product0_after = (await curr_session.get(`/shop/items/${itemA.id}`)).body.products[0];
-        
-        expect(product0_before.images_path.length).toEqual(3);
-        expect(product0_after.images_path.length).toEqual(2);
-        expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, product0_before.images_path[0]))).toBeTruthy();
-    });
-
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
-        const probably_deleted_image = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body.products[1].images_path[0];
+        const probably_deleted_image = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body.products[1].images[0].path;
 
         await curr_session.delete(`/shop/items/${itemA.id}/products/1`)
             .set({ Authorization: `Bearer ${admin_token}` })
@@ -308,7 +279,7 @@ describe("Test cancellazione", function () {
 
         const products = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body.products;
         expect(products.length).toEqual(1);
-        expect(!fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(probably_deleted_image)))).toBeTruthy();
+        expect( !fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(probably_deleted_image))) ).toBeTruthy();
         expect(await ProductModel.findOne({ barcode: "A23456" }).exec()).toBeNull();
     });
 

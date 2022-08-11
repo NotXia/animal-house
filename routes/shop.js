@@ -39,13 +39,6 @@ router.delete("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] 
 router.delete("/items/:item_id/products/:product_index", [ auth_middleware([ ["operator", "shop_write"]], [ ["admin"] ]), shop_middleware.item.validateDeleteProduct ], shop_controller.item.deleteProduct);
 
 
-/* Carica un'immagine associata ad un prodotto */
-router.post("/items/:item_id/products/:product_index/images/", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateCreateFileUpload ], shop_controller.item.createUploadImages);
-
-/* Cancella un'immagine di un prodotto */
-router.delete("/items/:item_id/products/:product_index/images/:image_index", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateDeleteImage ], shop_controller.item.deleteImage);
-
-
 router.post("/categories/", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateCreate ], shop_controller.category.create);
 router.get("/categories/", shop_controller.category.getAll);
 router.put("/categories/:category", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateUpdate ], shop_controller.category.update);

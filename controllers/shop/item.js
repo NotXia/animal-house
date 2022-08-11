@@ -12,6 +12,7 @@ const fs = require("fs");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const product = require('../../models/shop/product');
+const file_controller = require('../file');
 
 async function checkCategoryExists(category_name) {
     if (!await CategoryModel.findByName(category_name)) { 
@@ -44,6 +45,13 @@ async function createItem(req, res) {
             if (product.target_species) {
                 for (const species of product.target_species) { await checkSpeciesExists(species.name); }
             }
+        }
+
+        // Reclamo immagini
+        for (const product of to_insert_products) {
+            if (!product.images) { continue; }
+            const product_images_name = product.images.map((image) => image.path);
+            await file_controller.utils.claim(product_images_name, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
 
         // Inserimento dei singoli prodotti
@@ -184,8 +192,25 @@ async function updateProductByIndex(req, res) {
         const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
         if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
+        const product_id = item.products_id[parseInt(req.params.product_index)];
+
+        // Gestione caricamento/cancellazione delle immagini aggiornate
+        if (updated_fields.images) {
+            // Normalizzazione dei percorsi
+            updated_fields.images = updated_fields.images.map( (image) => ({ path: path.basename(image.path), description: image.description }) );
+
+            const curr_product = await ProductModel.findById(product_id, { images: 1 });
+            if (!curr_product) { throw error.generate.NOT_FOUND("Post inesistente"); }
+            const curr_images_name = curr_product.images.map((image) => image.path);
+            const updated_image_name = updated_fields.images.map((image) => image.path);
+
+            // Gestione delle immagini cambiate
+            const images_changes = file_controller.utils.diff(curr_images_name, updated_image_name);
+            await file_controller.utils.claim(images_changes.added, process.env.SHOP_IMAGES_DIR_ABS_PATH);
+            await file_controller.utils.delete(images_changes.removed, process.env.SHOP_IMAGES_DIR_ABS_PATH);
+        }
     
-        updated_product = await ProductModel.findByIdAndUpdate(item.products_id[parseInt(req.params.product_index)], updated_fields, { new: true });
+        updated_product = await ProductModel.findByIdAndUpdate(product_id, updated_fields, { new: true });
     }
     catch (err) {
         return error.response(err, res);
@@ -204,11 +229,11 @@ async function deleteItemById(req, res) {
         if (!to_delete_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
 
         // Rimozione delle immagini associate ai prodotti
-        const products = await ProductModel.find({ _id: { $in: to_delete_item.products_id } }, { images_path: 1 }).exec();
+        const products = await ProductModel.find({ _id: { $in: to_delete_item.products_id } }, { images: 1 }).exec();
         for (const product of products) {
-            for (const image of product.images_path) {
-                await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, image));
-            }
+            if (!product.images) { continue; }
+            const to_delete_images = product.images.map((image) => image.path);
+            await file_controller.utils.delete(to_delete_images, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
 
         // Rimozione dei prodotti e dell'item
@@ -236,9 +261,10 @@ async function deleteProductByIndex(req, res) {
         }
 
         // Rimozione delle immagini associate al prodotti
-        const to_delete_product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
-        for (const image of to_delete_product.images_path) {
-            await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, image));
+        const to_delete_product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images: 1 }).exec();
+        if (to_delete_product.images) {
+            const to_delete_images = to_delete_product.images.map((image) => image.path);
+            await file_controller.utils.delete(to_delete_images, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
 
         // Rimozione dei prodotti e dell'item
@@ -253,78 +279,13 @@ async function deleteProductByIndex(req, res) {
 }
 
 
-/* 
-    Gestisce il caricamento e salvataggio di immagini associate ai prodotti 
-*/
-async function createUploadImages(req, res) {
-    let updated_product = undefined;
-
-    try {
-        // Ricerca dell'id del prodotto
-        const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
-        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
-
-        const product_id = item.products_id[parseInt(req.params.product_index)];
-
-        // Salvataggio dei file nel filesystem
-        let files_name = []
-        for (const [key, file] of Object.entries(req.files)) {
-            const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
-            files_name.push(filename);
-
-            await file.mv(`${process.env.SHOP_IMAGES_DIR_ABS_PATH}/${filename}`);
-        }
-
-        // Salvataggio dei nomi dei file nel database
-        updated_product = await ProductModel.findByIdAndUpdate(product_id, { $push: { images_path: { $each: files_name } } }, { new: true });
-    }
-    catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.status(utils.http.OK).json(updated_product.getData());
-}
-
-/*
-    Gestisce la cancellazione di un'immagine di un prodotto, ricercando a partire dall'item associato
-*/
-async function deleteImageByIndex(req, res) {
-    try {
-        // Estrazione dell'item
-        const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
-        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
-        
-        // Estrazione del prodotto
-        const product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images_path: 1 }).exec();
-        if (!product) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
-        if (!product.images_path[parseInt(req.params.image_index)]) { throw error.generate.NOT_FOUND("Immagine inesistente"); }
-
-        // Determina l'immagine da cancellare
-        const to_delete_image = product.images_path[parseInt(req.params.image_index)];
-
-        // Cancella l'immagine dal filesystem e database
-        await fs.promises.rm(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, to_delete_image));
-        await ProductModel.findByIdAndUpdate(product._id, { $pull: { images_path: to_delete_image } });
-    }
-    catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.sendStatus(utils.http.NO_CONTENT);
-}
-
-
 module.exports = {
     create: createItem,
-    createUploadImages: createUploadImages,
     search: searchItem,
     searchByBarcode: searchItemByBarcode,
     searchItem: searchSingleItem,
     updateItem: updateItemById,
     updateProduct: updateProductByIndex,
     deleteItem: deleteItemById,
-    deleteProduct: deleteProductByIndex,
-    deleteImage: deleteImageByIndex
+    deleteProduct: deleteProductByIndex
 }

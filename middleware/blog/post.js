@@ -3,7 +3,6 @@ const user_validator = require("../validators/user");
 const blog_validator = require("../validators/blog");
 const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const utils = require("../utils");
-const file_upload = require("express-fileupload");
 
 const validateInsertPost = [
     // L'autore lo prendo da auth.
@@ -81,10 +80,6 @@ const validateDeleteComment = [
     blog_validator.verifyCommentOwnership("params", "params")
 ];
 
-const validateUploadPostImages = [
-    file_upload(),
-    utils.verifyImage
-]
 
 module.exports = {
     validateInsertPost: validateInsertPost,
@@ -96,6 +91,5 @@ module.exports = {
     validateSearchCommentsByPost: validateSearchCommentsByPost,
     validateSearchCommentByIndex: validateSearchCommentByIndex,
     validateUpdateComment: validateUpdateComment,
-    validateDeleteComment: validateDeleteComment,
-    validateUploadPostImages: validateUploadPostImages
+    validateDeleteComment: validateDeleteComment
 }

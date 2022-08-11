@@ -259,7 +259,7 @@ let post_with_image;
 
 describe("Inserimento post con immagini", function () {
     test("Inserimento corretto", async function () {
-        let res = await curr_session.post(`/blog/posts/images/`)
+        let res = await curr_session.post(`/files/images/`)
             .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .attach("file0", img1)
             .attach("file1", img2)
@@ -297,7 +297,7 @@ describe("Inserimento post con immagini", function () {
 
 describe("Aggiornamento post con immagini", function () {
     test("Aggiornamento corretto", async function () {
-        let res = await curr_session.post(`/blog/posts/images/`)
+        let res = await curr_session.post(`/files/images/`)
             .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
             .attach("file0", img1)
             .attach("file1", img2)

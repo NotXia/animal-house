@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require("mongoose");
+const path = require("path");
 
 const productSchema = mongoose.Schema({
     barcode: {
@@ -9,7 +10,10 @@ const productSchema = mongoose.Schema({
     },
     name: { type: String },
     description: { type: String, default: "" },
-    images_path: [{ type: String }],
+    images: [{
+        path: { type: String, required: true },
+        description: { type: String },
+    }],
 
     target_species: [{
         type: String
@@ -35,7 +39,10 @@ productSchema.methods.getData = function() {
         barcode: this.barcode,
         name: this.name,
         description: this.description,
-        images_path: this.images_path.map(path => `${process.env.SHOP_IMAGES_BASE_URL}/${path}`),
+        images: this.images.map( (image) => ({
+            path: path.join(process.env.SHOP_IMAGES_BASE_URL, image.path),
+            description: image.description
+        }) ),
         target_species: this.target_species,
         price: this.price,
         quantity: this.quantity
