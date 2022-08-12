@@ -3,7 +3,21 @@ const utils = require("../utilities");
 const error = require("../error_handler");
 const OperatorModel = require("../models/auth/operator");
 const ServiceModel = require("../models/services/service");
+const BookingModel = require("../models/services/booking");
 const moment = require("moment");
+
+/* Inserimento appuntamento */
+async function insertAppointment(req, res) {
+    try {
+        let newAppointment = matchedData(req);
+        let toInsertAppointment = await new BookingModel(newAppointment).save();
+        return res.status(utils.http.CREATED)
+            .location(`${req.baseUrl}/${toInsertAppointment._id}`)
+            .json(toInsertAppointment.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
 
 /* Ricerca degli slot disponibili */
 async function searchAvailabilities(req, res) {
@@ -37,5 +51,6 @@ async function searchAvailabilities(req, res) {
 }
 
 module.exports = {
+    insertAppointment: insertAppointment,
     searchAvailabilities: searchAvailabilities,
 }
