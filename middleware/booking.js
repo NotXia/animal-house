@@ -17,6 +17,11 @@ const validateInsertAppointment = [
     utils.validatorErrorHandler
 ]
 
+const validateGetAppointmentById = [
+    booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
+    utils.validatorErrorHandler
+]
+
 const validateSearchAvailabilities = [
     validator.query("start_date").exists().withMessage("Valore mancante").isISO8601().withMessage("Formato non valido"),
     validator.query("end_date").exists().withMessage("Valore mancante").isISO8601().withMessage("Formato non valido"),
@@ -27,5 +32,6 @@ const validateSearchAvailabilities = [
 
 module.exports = {
     validateInsertAppointment: validateInsertAppointment,
+    validateGetAppointmentById: validateGetAppointmentById,
     validateSearchAvailabilities: validateSearchAvailabilities
 }

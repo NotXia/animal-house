@@ -19,6 +19,17 @@ async function insertAppointment(req, res) {
     }
 }
 
+async function getAppointmentById(req, res) {
+    try {
+        const appointment = await BookingModel.findOne({ _id: req.params.appointment_id }).exec();
+        if (!appointment) { throw error.generate.NOT_FOUND("Appuntamento inesistente"); }
+        
+        return res.status(utils.http.OK).json(appointment.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 /* Ricerca degli slot disponibili */
 async function searchAvailabilities(req, res) {
     let availabilities = [];
@@ -52,5 +63,6 @@ async function searchAvailabilities(req, res) {
 
 module.exports = {
     insertAppointment: insertAppointment,
+    getAppointmentById: getAppointmentById,
     searchAvailabilities: searchAvailabilities,
 }
