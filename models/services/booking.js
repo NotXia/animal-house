@@ -14,4 +14,15 @@ const bookingScheme = mongoose.Schema({
     hub: { type: String, required: true }
 });
 
+bookingScheme.methods.getData = function() {
+    return {
+        time_slot: this.time_slot,
+        service_id: this.service_id,
+        customer: this.customer,
+        animal_id: this.animal_id,
+        operator: this.operator,
+        hub: this.hub
+    };
+};
+
 module.exports = mongoose.model("booking", bookingScheme);
