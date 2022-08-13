@@ -4,6 +4,7 @@ const error = require("../error_handler");
 const OperatorModel = require("../models/auth/operator");
 const ServiceModel = require("../models/services/service");
 const BookingModel = require("../models/services/booking");
+const UserModel = require("../models/auth/user");
 const moment = require("moment");
 
 /* Inserimento appuntamento */
@@ -64,6 +65,24 @@ async function getAppointmentById(req, res) {
     }
 }
 
+/* Ricerca appuntamenti utente dato username */
+async function getAppointmentsByUser(req, res) {
+    let appointments;
+    try {
+        const user = await UserModel.findOne({ username: req.query.username }).exec();
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (user.isOperator()) {
+            appointments = await BookingModel.find({ operator: req.query.username }).exec();
+        } else {
+            appointments = await BookingModel.find({ customer: req.query.username }).exec();
+        }
+        appointments = appointments.map(appointment => appointment.getData());
+        return res.status(utils.http.OK).json(appointments);
+    } catch (error) {
+        return error.response(err, res);
+    }
+}
+
 /* Cancellazione appuntamento dato id */
 async function deleteAppointment(req, res) {
     try {
@@ -82,5 +101,6 @@ module.exports = {
     insertAppointment: insertAppointment,
     searchAvailabilities: searchAvailabilities,
     getAppointmentById: getAppointmentById,
+    getAppointmentsByUser: getAppointmentsByUser,
     deleteAppointment: deleteAppointment
 }
