@@ -53,7 +53,9 @@ async function searchAvailabilities(req, res) {
 /* Ricerca appuntamento dato id */
 async function getAppointmentById(req, res) {
     try {
-        const appointment = await BookingModel.findOne({ _id: req.params.appointment_id }).exec();
+        const to_search_appointment = req.params.appointment_id;
+
+        const appointment = await BookingModel.findOne({ _id: to_search_appointment }).exec();
         if (!appointment) { throw error.generate.NOT_FOUND("Appuntamento inesistente"); }
         
         return res.status(utils.http.OK).json(appointment.getData());
@@ -62,8 +64,23 @@ async function getAppointmentById(req, res) {
     }
 }
 
+/* Cancellazione appuntamento dato id */
+async function deleteAppointment(req, res) {
+    try {
+        const to_delete_appointment = req.params.appointment_id;
+
+        const deletedAppointment = await BookingModel.findOneAndDelete({ _id: to_delete_appointment });
+        if (!deletedAppointment) { throw error.generate.NOT_FOUND("Appuntamento inesistente"); }
+
+        return res.sendStatus(utils.http.NO_CONTENT);
+    } catch (error) {
+        return error.response(err, res);
+    }
+}
+
 module.exports = {
     insertAppointment: insertAppointment,
     searchAvailabilities: searchAvailabilities,
     getAppointmentById: getAppointmentById,
+    deleteAppointment: deleteAppointment
 }

@@ -30,8 +30,14 @@ const validateGetAppointmentById = [
     utils.validatorErrorHandler
 ]
 
+const validateDeleteAppointment = [
+    booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
+    utils.validatorErrorHandler
+]
+
 module.exports = {
     validateInsertAppointment: validateInsertAppointment,
     validateSearchAvailabilities: validateSearchAvailabilities,
     validateGetAppointmentById: validateGetAppointmentById,
+    validateDeleteAppointment: validateDeleteAppointment
 }

@@ -9,4 +9,6 @@ router.post("/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), booking_mid
 router.get("/availabilities/", booking_middleware.validateSearchAvailabilities, booking_controller.searchAvailabilities);
 router.get("/:appointment_id", booking_middleware.validateGetAppointmentById, booking_controller.getAppointmentById);
 
+router.delete("/:appointment_id", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), booking_middleware.validateDeleteAppointment ], booking_controller.deleteAppointment);
+
 module.exports = router;
