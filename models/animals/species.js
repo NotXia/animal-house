@@ -7,8 +7,8 @@ const speciesSchema = mongoose.Schema({
     }
 });
 
-speciesSchema.statics.findByName = async function(topic_name) {
-    return await this.findOne({ name: topic_name }).exec();
+speciesSchema.statics.findByName = async function(species_name) {
+    return await this.findOne({ name: species_name }).exec();
 };
 
 module.exports = mongoose.model("species", speciesSchema);

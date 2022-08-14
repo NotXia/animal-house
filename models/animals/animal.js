@@ -14,4 +14,14 @@ const animalScheme = mongoose.Schema ({
     image_path: { type: String }
 });
 
+animalScheme.methods.getData = function() {
+    return {
+        species: this.species,
+        name: this.name,
+        weight: this.weight,
+        height: this.height,
+        image_path: this.image_path
+    };
+};
+
 module.exports = mongoose.model("animals", animalScheme);
