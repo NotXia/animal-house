@@ -1,5 +1,5 @@
 require('dotenv').config();
-const SpeciesModel = require("../models/services/species");
+const SpeciesModel = require("../models/animals/species");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
@@ -8,7 +8,7 @@ const { matchedData } = require('express-validator');
 async function addSpecies(req, res) {
     try {
         let newSpecies = matchedData(req);
-        let toInsertSpecies = await new ServiceModel(newSpecies).save();
+        let toInsertSpecies = await new SpeciesModel(newSpecies).save();
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertSpecies._id}`)
             .json(toInsertSpecies.getData());
@@ -28,7 +28,7 @@ async function getSpecies(req, res) {
     try {
         if (req.query.name) { query.name = {$regex : `.*${req.query.name}.*`}; }
 
-        species = await ServiceModel.find(query).exec();
+        species = await SpeciesModel.find(query).exec();
         species = species.map(species => species.getData());
         
         return res.status(utils.http.OK).json(species);
@@ -38,7 +38,38 @@ async function getSpecies(req, res) {
     }
 }
 
+// Modifica di una specie dato il nome
+async function updateSpecies(req, res) {
+    try {
+        const to_change_species = req.params.name;
+        const updated_data = matchedData(req, { locations: ["body"] });
+
+        let updated_species = await SpeciesModel.findByIdAndUpdate(to_change_species, updated_data, { new: true })
+        if (!updated_species) { throw error.generate.NOT_FOUND("Specie inesistente"); }
+
+        return res.status(utils.http.OK).json(updated_species.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+// Cancellazione di una specie
+async function deleteSpecies(req, res) {
+    try {
+        const to_delete_species = req.params.name;
+
+        const deletedSpecies = await SpeciesModel.findOneAndDelete({ name: to_delete_species });
+        if (!deletedSpecies) { throw error.generate.NOT_FOUND("Specie inesistente"); }
+        
+        return res.sendStatus(utils.http.NO_CONTENT);
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 module.exports = {
     addSpecies: addSpecies,
     getSpecies: getSpecies,
+    updateSpecies: updateSpecies,
+    deleteSpecies: deleteSpecies
 }
