@@ -64,7 +64,7 @@ describe("Ricerca delle specie", function() {
     });
 
     test("Ricerca per nome", async function () {
-        const species = await curr_session.get('/species/').query({ name: "Roditore" }).expect(200);
+        const species = await curr_session.get('/species/').query({ name: "Roditor" }).expect(200);
         expect(species).toBeDefined();
         expect(species.body.length).toEqual(1);
         expect(species.body[0].name).toEqual("Roditore");
