@@ -20,7 +20,7 @@ async function insertAppointment(req, res) {
         if(!await operator.isAvailableAt(newAppointment.time_slot.start, newAppointment.time_slot.end, newAppointment.hub)) {
             throw error.generate.BAD_REQUEST({ field: newAppointment.time_slot, message: "Slot non disponibile" });
         }
-        
+
         let toInsertAppointment = await new BookingModel(newAppointment).save();
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertAppointment._id}`)
@@ -102,7 +102,7 @@ async function deleteAppointment(req, res) {
         if (!deletedAppointment) { throw error.generate.NOT_FOUND("Appuntamento inesistente"); }
 
         return res.sendStatus(utils.http.NO_CONTENT);
-    } catch (error) {
+    } catch (err) {
         return error.response(err, res);
     }
 }
