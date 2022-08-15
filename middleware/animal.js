@@ -8,6 +8,21 @@ const validateGetAnimalById = [
     utils.validatorErrorHandler
 ]
 
+const validateAddAnimal = [
+    user_validator.validateUsername("param", REQUIRED),
+    validator.validateAnimalSpecies("body", REQUIRED),
+    validator.validateAnimalName("body", REQUIRED),
+    validator.validateAnimalWeight("body", OPTIONAL),
+    validator.validateAnimalHeight("body", OPTIONAL),
+    validator.validateAnimalImagePath("body", OPTIONAL),
+    utils.validatorErrorHandler
+]
+
+const validateGetAnimals = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler
+]
+
 const validateUpdateAnimal = [
     user_validator.validateUsername("param", REQUIRED),
     validator.validateAnimalId("param", REQUIRED),
@@ -27,6 +42,8 @@ const validateDeleteAnimal = [
 
 module.exports = {
     validateGetAnimalById: validateGetAnimalById,
+    validateAddAnimal: validateAddAnimal,
+    validateGetAnimals: validateGetAnimals,
     validateUpdateAnimal: validateUpdateAnimal,
     validateDeleteAnimal: validateDeleteAnimal
 }

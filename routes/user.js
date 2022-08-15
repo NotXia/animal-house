@@ -38,6 +38,8 @@ router.get("/operators/:username/availabilities/", operator_middleware.validateG
 router.get("/profiles/:username", user_middleware.validateSearchUserProfile, user_controller.searchUserProfile);
 
 /* Operazioni sugli animali */
+router.post("/customers/:username/animals/", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateAddAnimal ], animal_controller.addAnimal);
+router.get("/customers/:username/animals/", animal_middleware.validateGetAnimals, animal_controller.getAnimals)
 router.put("/customers/:username/animals/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateUpdateAnimal ], animal_controller.updateAnimal);
 router.delete("/customers/:username/animals/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateDeleteAnimal ], animal_controller.deleteAnimal);
 

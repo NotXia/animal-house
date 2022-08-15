@@ -1,5 +1,6 @@
 require('dotenv').config();
 const AnimalModel = require("../models/animals/animal");
+const UserModel = require("../models/auth/user");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
@@ -11,6 +12,39 @@ async function getAnimalById(req, res) {
         if (!animal) { throw error.generate.NOT_FOUND("Animale inesistente"); }
         
         return res.status(utils.http.OK).json(animal.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+// Aggiunta di un animale
+async function addAnimal(req, res) {
+    try {
+        let newAnimal = matchedData(req);
+        let toInsertAnimal = await new AnimalModel(newAnimal).save();
+        return res.status(utils.http.CREATED)
+            .location(`${req.baseUrl}/${toInsertAnimal._id}`)
+            .json(toInsertAnimal.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+// Ricerca animali di un cliente
+async function getAnimals(req, res) {
+    let animals;
+
+    try {
+        const customer_user = await UserModel.findOne({ username: req.params.username }).exec();
+        if(!customer_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        // Estrazione oggetto customer da user
+        const customer = await customer_user.findType();
+
+        animals = await UserModel.find({ username: req.params.username }, { animals_id : 1 }).exec();
+        animals = animals.map(animal => animal.getData());
+
+        return res.status(utils.http.OK).json(animals);
     } catch (err) {
         return error.response(err, res);
     }
@@ -47,6 +81,8 @@ async function deleteAnimal(req, res) {
 
 module.exports = {
     getAnimalById: getAnimalById,
+    addAnimal: addAnimal,
+    getAnimals: getAnimals,
     updateAnimal: updateAnimal,
     deleteAnimal: deleteAnimal
 }
