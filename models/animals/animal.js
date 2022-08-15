@@ -9,8 +9,8 @@ const animalScheme = mongoose.Schema ({
         type: String, 
         required: true
     },
-    weight: { type: Number },
-    height: { type: Number },
+    weight: { type: Number }, // In grammi
+    height: { type: Number }, // In cm
     image_path: { type: String }
 });
 
