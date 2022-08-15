@@ -12,6 +12,7 @@ async function insertAppointment(req, res) {
     try {
         let newAppointment = matchedData(req);
         const operator_user = await UserModel.findOne({ username: newAppointment.operator }).exec();
+        if(!operator_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Estrazione oggetto operator da user
         const operator = await operator_user.findType();
