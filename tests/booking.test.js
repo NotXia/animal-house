@@ -4,12 +4,16 @@ const utils = require("./utils/utils");
 const session = require('supertest-session');
 const moment = require("moment");
 
+const BookingModel = require("../models/services/booking");
+
 let curr_session = session(app);
 
 let admin_token;
 
 let service1, service2;
 let operator1, operator2, operator3, operator4;
+let customer1;
+const RANDOM_MONGOID = "111111111111111111111111";
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
@@ -44,6 +48,8 @@ beforeAll(async function () {
         monday: [{ time: {start: moment("11:00", "HH:mm"), end: moment("16:59", "HH:mm")}, hub: "BLQ2" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
+
+    customer1 = await utils.loginAsCustomerWithPermission(curr_session, {});
 });
 
 describe("Ricerca disponibilità", function () {
@@ -108,6 +114,48 @@ describe("Ricerca disponibilità", function () {
                 end_date: moment("09/08/2100", "DD/MM/YYYY").format(),
                 hub_code: "BLQ2", service_id: service1.id
             }).expect(400);
+    });
+});
+
+describe("Creazione di un appuntamento", function () {
+    let availabilities;
+    test("Creazione corretta", async function () {
+        availabilities = (await curr_session.get(`/appointments/availabilities/`)
+            .query({ 
+                start_date: moment("09/08/2100", "DD/MM/YYYY").format(), 
+                end_date: moment("09/08/2100", "DD/MM/YYYY").format(),
+                hub_code: "BLQ2", service_id: service1.id
+            }).expect(200)).body;
+
+        const res = await curr_session.post('/appointments/').send({
+            time_slot: availabilities[0].time,
+            service_id: service1.id,
+            customer: customer1.username,
+            animal_id: RANDOM_MONGOID,
+            operator: operator4.username,
+            hub: "BLQ2"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        expect(res.body).toBeDefined();
+
+        const appointment = await BookingModel.findById(res.body.id).exec();
+        expect(appointment).toBeDefined();
+        expect(appointment.service_id.toString()).toEqual(service1.id);
+    });
+
+    test("Creazione con slot impegnato", async function () {
+        await curr_session.post('/appointments/').send({
+            time_slot: availabilities[0].time,
+            service_id: service1.id,
+            customer: customer1.username,
+            animal_id: RANDOM_MONGOID,
+            operator: operator4.username,
+            hub: "BLQ2"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+    });
+
+    test("Creazione con parametri mancanti", async function () {
+        const res = await curr_session.post('/appointments/').send({
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
     });
 });
 
