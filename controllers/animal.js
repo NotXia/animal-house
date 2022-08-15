@@ -5,6 +5,7 @@ const UserModel = require("../models/auth/user");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
+const customer = require('../models/auth/customer');
 
 // Ricerca di un animale dato il suo id
 async function getAnimalById(req, res) {
@@ -21,13 +22,18 @@ async function getAnimalById(req, res) {
 // Aggiunta di un animale
 async function addAnimal(req, res) {
     try {
-        let newAnimal = matchedData(req);
+        let newAnimal = matchedData(req, {locations: ["body"]});
         
         // Controllo se la specie inserita esiste
         const insertedSpecies = await SpeciesModel.findOne({ name: newAnimal.species }).exec();
         if(!insertedSpecies) { throw error.generate.NOT_FOUND("Specie inesistente"); }
 
+        const customer_user = await UserModel.findOne({ username: req.params.username }).exec();
+        if(!customer_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        
         let toInsertAnimal = await new AnimalModel(newAnimal).save();
+        await customer_user.updateType({ $push: { animals_id: toInsertAnimal._id } });
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertAnimal._id}`)
             .json(toInsertAnimal.getData());
@@ -37,17 +43,17 @@ async function addAnimal(req, res) {
 }
 
 // Ricerca animali di un cliente
-async function getAnimals(req, res) {
-    let animals;
-
+async function getAnimals(req, res) {    
     try {
+        let animals;
         const customer_user = await UserModel.findOne({ username: req.params.username }).exec();
         if(!customer_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Estrazione oggetto customer da user
         const customer = await customer_user.findType();
 
-        animals = await UserModel.find({ username: req.params.username }, { animals_id : 1 }).exec();
+        // Cerca gli animali dell'utente dati gli id
+        animals = await AnimalModel.find({ _id : {$in : customer.animals_id} });
         animals = animals.map(animal => animal.getData());
 
         return res.status(utils.http.OK).json(animals);
