@@ -1,6 +1,6 @@
 const utils = require("./utils");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
-const validator = require("./validators/animals");
+const validator = require("./validators/animal");
 const user_validator = require("./validators/user");
 
 const validateGetAnimalById = [
