@@ -7,6 +7,7 @@ const { middlewareErrorHandler } = require("./error_handler");
 const fs = require("fs");
 
 const auth = require("./routes/auth");
+const file = require("./routes/file");
 const user = require("./routes/user");
 const shop = require("./routes/shop");
 const blog = require("./routes/blog");
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 app.use("/", express.static("public"));
 app.use("/auth", auth);
+app.use("/files", file);
 app.use("/user", user);
 app.use("/shop", shop);
 app.use("/blog", blog);

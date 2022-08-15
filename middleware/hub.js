@@ -1,6 +1,7 @@
 const utils = require("./utils");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
 const hub_validator = require("./validators/hub");
+const service_validator = require("./validators/service");
 const validator = require("express-validator");
 
 const validateInsertHub = [
@@ -19,6 +20,7 @@ const validateGetHubs = [
     validator.query("page_number").exists().isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"),
     validator.query("lat").if(validator.query('lon').exists()).exists().withMessage("Valore mancante").bail().isFloat().withMessage("Formato non valido"),
     validator.query("lon").if(validator.query('lat').exists()).exists().withMessage("Valore mancante").bail().isFloat().withMessage("Formato non valido"),
+    service_validator.validateServiceId("query", OPTIONAL, "service_id"),
     utils.validatorErrorHandler
 ]
 

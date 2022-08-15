@@ -5,37 +5,13 @@ const TopicModel = require("../../models/blog/topic");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const validator = require("express-validator");
-const { nanoid } = require("nanoid");
 const path = require("path");
-const fs = require("fs");
+const file_controller = require("../file");
+
 
 /////////////////
 // INIZIO POST //
 /////////////////
-
-/**
- * Gestisce lo spostamento delle immagini dalla cartella temporanea alla destinazione finale
- */
-async function _uploadImages(images_path) {
-    for (const image of images_path) {
-        const tmp_path = path.join(process.env.IMAGES_TMP_ABS_PATH, image);
-        const final_path = path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, image);
-
-        // Verifica esistenza
-        await fs.promises.access(tmp_path, fs.constants.F_OK).catch((err) => { throw error.generate.NOT_FOUND("Immagine non trovata") });
-
-        await fs.promises.rename(tmp_path, final_path);
-    }
-}
-
-/**
- * Gestisce la cancellazione di immagini
- */
- async function _deleteImages(images_path) {
-    for (const image of images_path) {
-        await fs.promises.unlink(path.join(process.env.BLOG_IMAGES_DIR_ABS_PATH, image));
-    }
-}
 
 // Inserimento di un post
 async function insertPost(req, res) {
@@ -50,7 +26,7 @@ async function insertPost(req, res) {
             new_post_fields.images = new_post_fields.images.map( (image) => ({ path: path.basename(image.path), description: image.description }) );
 
             const to_upload_images = new_post_fields.images.map((image) => image.path);
-            await _uploadImages(to_upload_images); // "Reclamo" delle immagini
+            await file_controller.utils.claim(to_upload_images, process.env.BLOG_IMAGES_DIR_ABS_PATH); // "Reclamo" delle immagini
         } 
 
         const newPost = await new PostModel(new_post_fields).save();
@@ -119,15 +95,13 @@ async function updatePost(req, res) {
 
             const curr_post = await PostModel.findById(req.params.post_id, { images: 1 });
             if (!curr_post) { throw error.generate.NOT_FOUND("Post inesistente"); }
-            const curr_images = curr_post.images.map((image) => image.path);
-            const updated_image = updated_fields.images.map((image) => image.path);
+            const curr_images_name = curr_post.images.map((image) => image.path);
+            const updated_image_name = updated_fields.images.map((image) => image.path);
 
-            // Nota: si può vedere questa operazione come la differenza insiemistica
-            const to_upload_images = updated_image.filter(x => !curr_images.includes(x)); // Immagini che non erano presenti prima e quindi vanno "reclamate" dalla cartella temporanea
-            const to_delete_images = curr_images.filter(x => !updated_image.includes(x)); // Immagini che nella versione aggiornata non sono più presenti
-
-            await _uploadImages(to_upload_images);
-            await _deleteImages(to_delete_images);
+            // Gestione delle immagini cambiate
+            const images_changes = file_controller.utils.diff(curr_images_name, updated_image_name);
+            await file_controller.utils.claim(images_changes.added, process.env.BLOG_IMAGES_DIR_ABS_PATH);
+            await file_controller.utils.delete(images_changes.removed, process.env.BLOG_IMAGES_DIR_ABS_PATH);
         }
 
         updated_post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields, { new: true });
@@ -147,7 +121,7 @@ async function deletePost(req, res) {
 
         // Cancellazione immagini
         const to_delete_images = post.images.map((image) => image.path);
-        await _deleteImages(to_delete_images);
+        await file_controller.utils.delete(to_delete_images, process.env.BLOG_IMAGES_DIR_ABS_PATH);
 
         return res.sendStatus(utils.http.NO_CONTENT);
     } catch (err) {
@@ -245,27 +219,6 @@ async function deleteComment(req, res) {
 }
 
 
-/* Upload di immagini */
-async function uploadPostImage(req, res) {
-    let files_name = []
-
-    try {
-        // Salvataggio dei file nel filesystem
-        for (const [_, file] of Object.entries(req.files)) {
-            const filename = `${nanoid(process.env.IMAGES_NAME_LENGTH)}${path.extname(file.name)}`;
-            
-            await file.mv(path.join(process.env.IMAGES_TMP_ABS_PATH, filename));
-            files_name.push(filename);
-        }
-    }
-    catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.status(utils.http.OK).json(files_name);
-}
-
-
 module.exports = {
     insertPost: insertPost,
     searchPosts: searchPosts,
@@ -276,6 +229,5 @@ module.exports = {
     searchCommentsByPost: searchCommentsByPost,
     searchCommentByIndex: searchCommentByIndex,
     updateComment: updateComment,
-    deleteComment: deleteComment,
-    uploadPostImage: uploadPostImage
+    deleteComment: deleteComment
 }

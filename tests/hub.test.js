@@ -9,9 +9,33 @@ const HubModel = require("../models/services/hub");
 let curr_session = session(app);
 
 let admin_token;
+const service1 = "111111111111111111111111";
+const service2 = "111111111111111111111112";
+const service3 = "111111111111111111111113";
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
+
+    const operator1 = await utils.loginAsOperatorWithPermission(curr_session, {}, [ service1, service2 ]);
+    await curr_session.put(`/user/operators/${operator1.username}/working-time`)
+    .send({ working_time: { 
+        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
+        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+    } }).set({ Authorization: `Bearer ${admin_token}` });
+
+    const operator2 = await utils.loginAsOperatorWithPermission(curr_session, {}, [ service2 ]);
+    await curr_session.put(`/user/operators/${operator2.username}/working-time`)
+    .send({ working_time: { 
+        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+    } }).set({ Authorization: `Bearer ${admin_token}` });
+
+    const operator3 = await utils.loginAsOperatorWithPermission(curr_session, {}, [ service3 ]);
+    await curr_session.put(`/user/operators/${operator3.username}/working-time`)
+    .send({ working_time: { 
+        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+    } }).set({ Authorization: `Bearer ${admin_token}` });
 });
 
 describe("Creazione di hub", function () {
@@ -214,6 +238,25 @@ describe("Ricerca di hub", function() {
         expect(res.body.length).toEqual(1);
         expect(res.body[0].code).toEqual("BLQ2");
     });
+
+    test("Ricerca per servizio (1)", async function () {
+        let res = await curr_session.get('/hubs/').query({ page_size: 50, page_number: 0, service_id: service1 }).expect(200);
+        expect(res.body.length).toEqual(1);
+        expect(res.body[0].code=="BLQ1").toBeTruthy();
+    });
+
+    test("Ricerca per servizio (2)", async function () {
+        let res = await curr_session.get('/hubs/').query({ page_size: 50, page_number: 0, service_id: service2 }).expect(200);
+        expect(res.body.length).toEqual(2);
+        expect((res.body[0].code=="BLQ1") || (res.body[0].code=="BLQ2")).toBeTruthy();
+        expect((res.body[1].code=="BLQ1") || (res.body[1].code=="BLQ2")).toBeTruthy();
+    });
+
+    test("Ricerca per servizio (2)", async function () {
+        let res = await curr_session.get('/hubs/').query({ page_size: 50, page_number: 0, service_id: service3 }).expect(200);
+        expect(res.body.length).toEqual(1);
+        expect(res.body[0].code=="BLQ2").toBeTruthy();
+    });
 });
 
 describe("Modifica di hub", function () {
@@ -291,5 +334,11 @@ describe("Cancellazione di hub", function () {
 
     test("Cancellazione hub inesistente", async function () {
         await curr_session.delete('/hubs/BLQ1710').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
+});
+
+describe("", function () {
+    test("Pulizia", async function () {
+        await utils.cleanup(curr_session);
     });
 });
