@@ -11,9 +11,8 @@ const animal_controller = require("../controllers/animal");
 /* Operazioni sull'utenza dei clienti */
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
 router.get("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(is_operator=false));
-router.put("/customers/:username", [ auth_middleware([ ["user"]] , [ ["admin"] ]), user_middleware.validateUpdateCustomer ], user_controller.updateUser(is_operator=false));
+router.put("/customers/:username", [ auth_middleware([ ["user"] ] , [ ["admin"] ]), user_middleware.validateUpdateCustomer ], user_controller.updateUser(is_operator=false));
 router.delete("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(is_operator=false));
-
 
 /* Operazioni sull'utenza degli operatori */
 router.post("/operators/", [ auth_middleware([], [ ["admin"] ]), user_middleware.validateInsertOperator ], user_controller.insertOperator);
@@ -42,6 +41,5 @@ router.post("/customers/:username/animals/", [ auth_middleware([ ["customer"], [
 router.get("/customers/:username/animals/", animal_middleware.validateGetAnimals, animal_controller.getAnimals)
 router.put("/customers/:username/animals/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateUpdateAnimal ], animal_controller.updateAnimal);
 router.delete("/customers/:username/animals/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateDeleteAnimal ], animal_controller.deleteAnimal);
-
 
 module.exports = router;
