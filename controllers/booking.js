@@ -5,12 +5,22 @@ const OperatorModel = require("../models/auth/operator");
 const ServiceModel = require("../models/services/service");
 const BookingModel = require("../models/services/booking");
 const UserModel = require("../models/auth/user");
-const moment = require("moment");
+const { matchedData } = require('express-validator');
 
 /* Inserimento appuntamento */
 async function insertAppointment(req, res) {
     try {
         let newAppointment = matchedData(req);
+        const operator_user = await UserModel.findOne({ username: newAppointment.operator }).exec();
+
+        // Estrazione oggetto operator da user
+        const operator = await operator_user.findType();
+
+        // Controllo se l'operatore in questione è disponibile nello slot indicato
+        if(!await operator.isAvailableAt(newAppointment.time_slot.start, newAppointment.time_slot.end, newAppointment.hub)) {
+            throw error.generate.BAD_REQUEST({ field: newAppointment.time_slot, message: "Slot non disponibile" });
+        }
+        
         let toInsertAppointment = await new BookingModel(newAppointment).save();
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertAppointment._id}`)
