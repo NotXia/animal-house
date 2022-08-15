@@ -13,6 +13,7 @@ let admin_token;
 let service1, service2;
 let operator1, operator2, operator3, operator4;
 let customer1;
+let appointment1, appointment2;
 const RANDOM_MONGOID = "111111111111111111111111";
 
 beforeAll(async function () {
@@ -117,10 +118,10 @@ describe("Ricerca disponibilità", function () {
     });
 });
 
-describe("Creazione di un appuntamento", function () {
-    let availabilities;
-    test("Creazione corretta", async function () {
-        availabilities = (await curr_session.get(`/appointments/availabilities/`)
+describe("Creazione degli appuntamenti", function () {
+    let availabilities1;
+    test("Creazione corretta (1)", async function () {
+        availabilities1 = (await curr_session.get(`/appointments/availabilities/`)
             .query({ 
                 start_date: moment("09/08/2100", "DD/MM/YYYY").format(), 
                 end_date: moment("09/08/2100", "DD/MM/YYYY").format(),
@@ -128,7 +129,7 @@ describe("Creazione di un appuntamento", function () {
             }).expect(200)).body;
 
         const res = await curr_session.post('/appointments/').send({
-            time_slot: availabilities[0].time,
+            time_slot: availabilities1[0].time,
             service_id: service1.id,
             customer: customer1.username,
             animal_id: RANDOM_MONGOID,
@@ -140,11 +141,36 @@ describe("Creazione di un appuntamento", function () {
         const appointment = await BookingModel.findById(res.body.id).exec();
         expect(appointment).toBeDefined();
         expect(appointment.service_id.toString()).toEqual(service1.id);
+        appointment1 = appointment;
+    });
+
+    test("Creazione corretta (2)", async function () {
+        availabilities2 = (await curr_session.get(`/appointments/availabilities/`)
+            .query({ 
+                start_date: moment("09/08/2100", "DD/MM/YYYY").format(), 
+                end_date: moment("09/08/2100", "DD/MM/YYYY").format(),
+                hub_code: "BLQ1", service_id: service2.id
+            }).expect(200)).body;
+
+        const res = await curr_session.post('/appointments/').send({
+            time_slot: availabilities2[0].time,
+            service_id: service2.id,
+            customer: customer1.username,
+            animal_id: RANDOM_MONGOID,
+            operator: operator1.username,
+            hub: "BLQ1"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        expect(res.body).toBeDefined();
+
+        const appointment = await BookingModel.findById(res.body.id).exec();
+        expect(appointment).toBeDefined();
+        expect(appointment.service_id.toString()).toEqual(service2.id);
+        appointment2 = appointment;
     });
 
     test("Creazione con slot impegnato", async function () {
         await curr_session.post('/appointments/').send({
-            time_slot: availabilities[0].time,
+            time_slot: availabilities1[0].time,
             service_id: service1.id,
             customer: customer1.username,
             animal_id: RANDOM_MONGOID,
@@ -159,6 +185,49 @@ describe("Creazione di un appuntamento", function () {
     });
 });
 
+describe("Ricerca degli appuntamenti", function() {
+    test("Ricerca singola", async function () {
+        const appointment = await curr_session.get(`/appointments/${appointment1.id}`).expect(200);
+        expect(appointment).toBeDefined();
+        expect(appointment.body.service_id.toString()).toEqual(service1.id);
+        expect(appointment.body.customer).toEqual(customer1.username);
+    });
+
+    test("Ricerca totale per cliente", async function () {
+        const appointments = await curr_session.get('/appointments/').query({ username: customer1.username }).expect(200);
+        expect(appointments).toBeDefined();
+        expect(appointments.body.length).toEqual(2);
+        expect(appointments.body[0].operator).toEqual(operator4.username);
+        expect(appointments.body[0].hub).toEqual("BLQ2");
+        expect(appointments.body[1].operator).toEqual(operator1.username);
+        expect(appointments.body[1].hub).toEqual("BLQ1");
+    });
+
+    test("Ricerca totale per operatore", async function () {
+        const appointments = await curr_session.get('/appointments/').query({ username: operator1.username }).expect(200);
+        expect(appointments).toBeDefined();
+        expect(appointments.body.length).toEqual(1);
+        expect(appointments.body[0].customer).toEqual(customer1.username);
+        expect(appointments.body[0].hub).toEqual("BLQ1");
+    });
+});
+
+describe("Cancellazione degli appuntamenti", function () {
+    test("Cancellazione corretta", async function () {
+        await curr_session.delete(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+
+        const appointment = await BookingModel.findById(appointment1.id).exec();
+        expect(appointment).toBeNull();
+    });
+
+    test("Cancellazione corretta", async function () {
+        await curr_session.delete(`/appointments/${appointment2.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+    });
+
+    test("Cancellazione servizio inesistente", async function () {
+        await curr_session.delete(`/appointments/${RANDOM_MONGOID}`).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
+});
 
 describe("", function () {
     test("Pulizia", async function () {
