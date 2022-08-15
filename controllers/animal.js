@@ -1,5 +1,6 @@
 require('dotenv').config();
 const AnimalModel = require("../models/animals/animal");
+const SpeciesModel = require("../models/animals/species");
 const UserModel = require("../models/auth/user");
 const utils = require("../utilities");
 const error = require("../error_handler");
@@ -21,6 +22,11 @@ async function getAnimalById(req, res) {
 async function addAnimal(req, res) {
     try {
         let newAnimal = matchedData(req);
+        
+        // Controllo se la specie inserita esiste
+        const insertedSpecies = await SpeciesModel.findOne({ name: newAnimal.species }).exec();
+        if(!insertedSpecies) { throw error.generate.NOT_FOUND("Specie inesistente"); }
+
         let toInsertAnimal = await new AnimalModel(newAnimal).save();
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertAnimal._id}`)
