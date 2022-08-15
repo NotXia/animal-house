@@ -89,7 +89,7 @@ async function getAppointmentsByUser(req, res) {
         }
         appointments = appointments.map(appointment => appointment.getData());
         return res.status(utils.http.OK).json(appointments);
-    } catch (error) {
+    } catch (err) {
         return error.response(err, res);
     }
 }

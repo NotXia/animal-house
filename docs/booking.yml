@@ -14,7 +14,7 @@ paths:
       description: | 
         Gestisce l'inserimento di un appuntamento
 
-        Richiede permessi [ ["customer"], ["operator"], ["admin"] ]
+        Richiede permessi [ ["customer"], ["operator"] ], [ ["admin"] ]
       consumes:
       - "application/json"
       produces:
@@ -41,12 +41,15 @@ paths:
               $ref: "definitions/utils.yml#/definitions/ObjectId"
             customer:
               type: string
+              description: "Username del cliente"
             animal_id:
               $ref: "definitions/utils.yml#/definitions/ObjectId"
             operator:
               type: string
+              description: "Username dell'operatore"
             hub:
               type: string
+              description: "Codice dell'hub"
           required: [ time_slot, service_id, customer, animal_id, operator, hub ]
       responses:
         201:
@@ -179,7 +182,7 @@ paths:
       description:  |
         Gestisce la cancellazione di un appuntamento tramite id
 
-        Richiede permesso [ ["customer"], ["operator"], ["admin"] ]
+        Richiede permesso [ ["customer"], ["operator"] ], [ ["admin"] ]
       produces:
       - "application/json"
       parameters:
