@@ -1,6 +1,7 @@
 const utils = require("./utils");
 const { REQUIRED, OPTIONAL } = require("./validators/utils");
 const validator = require("./validators/animals");
+const user_validator = require("./validators/user");
 
 const validateGetAnimalById = [
     validator.validateAnimalId("param", REQUIRED),
@@ -8,6 +9,7 @@ const validateGetAnimalById = [
 ]
 
 const validateUpdateAnimal = [
+    user_validator.validateUsername("param", REQUIRED),
     validator.validateAnimalId("param", REQUIRED),
     validator.validateAnimalSpecies("body", OPTIONAL),
     validator.validateAnimalName("body", OPTIONAL),
@@ -18,6 +20,7 @@ const validateUpdateAnimal = [
 ]
 
 const validateDeleteAnimal = [
+    user_validator.validateUsername("param", REQUIRED),
     validator.validateAnimalId("param", REQUIRED),
     utils.validatorErrorHandler
 ]

@@ -9,8 +9,4 @@ const animal_controller = require("../controllers/animal");
 
 router.get("/:animal_id", animal_middleware.validateGetAnimalById, animal_controller.getAnimalById);
 
-router.put("/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateUpdateAnimal ], animal_controller.updateAnimal);
-
-router.delete("/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateDeleteAnimal ], animal_controller.deleteAnimal);
-
 module.exports = router;

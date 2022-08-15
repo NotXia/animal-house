@@ -5,6 +5,8 @@ const user_middleware = require("../middleware/user");
 const user_controller = require("../controllers/user");
 const operator_middleware = require("../middleware/user.operator");
 const operator_controller = require("../controllers/user.operator");
+const animal_middleware = require("../middleware/animal");
+const animal_controller = require("../controllers/animal");
 
 /* Operazioni sull'utenza dei clienti */
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
@@ -34,5 +36,10 @@ router.get("/operators/:username/availabilities/", operator_middleware.validateG
 
 /* Operazioni profilo degli utenti */
 router.get("/profiles/:username", user_middleware.validateSearchUserProfile, user_controller.searchUserProfile);
+
+/* Operazioni sugli animali */
+router.put("/customers/:username/animals/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateUpdateAnimal ], animal_controller.updateAnimal);
+router.delete("/customers/:username/animals/:animal_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateDeleteAnimal ], animal_controller.deleteAnimal);
+
 
 module.exports = router;
