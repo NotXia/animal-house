@@ -16,6 +16,7 @@ const animalScheme = mongoose.Schema ({
 
 animalScheme.methods.getData = function() {
     return {
+        id: this._id,
         species: this.species,
         name: this.name,
         weight: this.weight,
