@@ -187,14 +187,14 @@ describe("Creazione degli appuntamenti", function () {
 
 describe("Ricerca degli appuntamenti", function() {
     test("Ricerca singola", async function () {
-        const appointment = await curr_session.get(`/appointments/${appointment1.id}`).expect(200);
+        const appointment = await curr_session.get(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
         expect(appointment).toBeDefined();
         expect(appointment.body.service_id.toString()).toEqual(service1.id);
         expect(appointment.body.customer).toEqual(customer1.username);
     });
 
     test("Ricerca totale per cliente", async function () {
-        const appointments = await curr_session.get('/appointments/').query({ username: customer1.username }).expect(200);
+        const appointments = await curr_session.get('/appointments/').query({ username: customer1.username }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
         expect(appointments).toBeDefined();
         expect(appointments.body.length).toEqual(2);
         expect(appointments.body[0].operator).toEqual(operator4.username);
@@ -204,7 +204,7 @@ describe("Ricerca degli appuntamenti", function() {
     });
 
     test("Ricerca totale per operatore", async function () {
-        const appointments = await curr_session.get('/appointments/').query({ username: operator1.username }).expect(200);
+        const appointments = await curr_session.get('/appointments/').query({ username: operator1.username }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
         expect(appointments).toBeDefined();
         expect(appointments.body.length).toEqual(1);
         expect(appointments.body[0].customer).toEqual(customer1.username);
