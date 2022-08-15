@@ -82,7 +82,10 @@ paths:
       tags:
       - "Appointments"
       summary: "Ricerca generale"
-      description: "Gestisce la ricerca di tutti gli appuntamenti oppure è possibile applicare un filtro per mostrare gli appuntamenti di un cliente o di un operatore"
+      description: | 
+        Gestisce la ricerca di tutti gli appuntamenti oppure è possibile applicare un filtro per mostrare gli appuntamenti di un cliente o di un operatore
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator"] ]
       produces:
       - "application/json"
       parameters:
@@ -155,7 +158,10 @@ paths:
       tags:
       - "Appointments"
       summary: "Ricerca per id"
-      description: "Gestisce la ricerca di un appuntamento tramite id"
+      description: |
+        Gestisce la ricerca di un appuntamento tramite id
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator"] ]
       produces:
       - "application/json"
       parameters:
