@@ -16,6 +16,7 @@ const bookingScheme = mongoose.Schema({
 
 bookingScheme.methods.getData = function() {
     return {
+        id: this._id,
         time_slot: this.time_slot,
         service_id: this.service_id,
         customer: this.customer,
