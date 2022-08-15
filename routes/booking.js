@@ -7,8 +7,8 @@ const booking_controller = require("../controllers/booking");
 router.post("/", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), booking_middleware.validateInsertAppointment ], booking_controller.insertAppointment);
 
 router.get("/availabilities/", booking_middleware.validateSearchAvailabilities, booking_controller.searchAvailabilities);
-router.get("/:appointment_id", booking_middleware.validateGetAppointmentById, booking_controller.getAppointmentById);
-router.get("/", booking_middleware.validateGetAppointmentsByUser, booking_controller.getAppointmentsByUser);
+router.get("/:appointment_id", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator"] ]), booking_middleware.validateGetAppointmentById ], booking_controller.getAppointmentById);
+router.get("/", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator"] ]), booking_middleware.validateGetAppointmentsByUser ], booking_controller.getAppointmentsByUser);
 
 router.delete("/:appointment_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), booking_middleware.validateDeleteAppointment ], booking_controller.deleteAppointment);
 
