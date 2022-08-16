@@ -10,7 +10,7 @@ const AnimalModel = require("../models/animals/animal");
 let curr_session = session(app);
 
 let admin_token;
-let customer1;
+let customer1, customer2;
 
 let species1, species2;
 let animal1, animal2;
@@ -23,6 +23,7 @@ beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 
     customer1 = await utils.loginAsCustomerWithPermission(curr_session, {});
+    customer2 = await utils.loginAsCustomerWithPermission(curr_session, {});
 
     species1 = (await curr_session.post("/species/").send({ name: "Felino" }).set({ Authorization: `Bearer ${admin_token}` })).body;
     species2 = (await curr_session.post("/species/").send({ name: "Roditore" }).set({ Authorization: `Bearer ${admin_token}` })).body;
@@ -123,9 +124,19 @@ describe("Modifica degli animali", function () {
         expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, animal.image_path)) ).toBeTruthy();
         animal2 = res.body
     });
+    
+    test("Modifica animale senza permessi", async function () {
+        await curr_session.put(`/animals/${animal1.id}`).send({
+            name: "Ghepardone rapito"
+        }).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
+    });
 });
 
 describe("Cancellazione degli animali", function () {
+    test("Cancellazione errata - Permessi mancanti", async function () {
+        await curr_session.delete(`/animals/${animal1.id}`).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
+    });
+
     test("Cancellazione corretta", async function () {
         await curr_session.delete(`/animals/${animal1.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
 

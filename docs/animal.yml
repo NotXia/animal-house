@@ -34,6 +34,103 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+    put:
+      tags:
+        - "Animals"
+      summary: "Modifica di un animale"
+      description: |
+        Gestisce la modifica di un animale di un cliente tramite id
+
+        Richiede permesso [ ["customer"] ], [ ["admin"], ["operator"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal_id
+        in: path
+        description: "Id dell'animale"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati dell'animale"
+        required: true
+        schema:
+          type: object
+          properties:
+            species:
+              type: string
+            name:
+              type: string
+            weight:
+              type: number
+              format: int
+            height:
+              type: number
+              format: int
+            image_patch:
+              type: string
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/AnimalData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+        - "Animals"
+      summary: "Cancellazione di un animale"
+      description:  |
+        Gestisce la cancellazione di un animale di un cliente tramite id
+
+        Richiede permesso [ ["customer"] ], [ ["admin"], ["operator"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal_id
+        in: path
+        description: "Id dell'animale"
+        required: true
+        type: string
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
   /user/customers/{username}/animals:
     post:
       tags:
@@ -120,114 +217,6 @@ paths:
           description: "Input malformato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        404:
-          description: "Non trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Internal server error"
-  /user/customers/{username}/animals/{animal_id}:
-    put:
-      tags:
-        - "Animals"
-      summary: "Modifica di un animale"
-      description: |
-        Gestisce la modifica di un animale di un cliente tramite id
-
-        Richiede permesso [ ["customer"], ["operator"], ["admin"] ]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - name: username
-        in: path
-        description: "Username del cliente"
-        required: true
-        type: string
-      - name: animal_id
-        in: path
-        description: "Id dell'animale"
-        required: true
-        type: string
-      - name: body
-        in: body
-        description: "Dati dell'animale"
-        required: true
-        schema:
-          type: object
-          properties:
-            species:
-              type: string
-            name:
-              type: string
-            weight:
-              type: number
-              format: int
-            height:
-              type: number
-              format: int
-            image_patch:
-              type: string
-      responses:
-        200:
-          description: "Modificato con successo"
-          schema:
-            $ref: "#/definitions/AnimalData"
-        400:
-          description: "Input malformato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi mancanti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Non trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Internal server error"
-    delete:
-      tags:
-        - "Animals"
-      summary: "Cancellazione di un animale"
-      description:  |
-        Gestisce la cancellazione di un animale di un cliente tramite id
-
-        Richiede permesso [ ["customer"], ["operator"], ["admin"] ]
-      produces:
-      - "application/json"
-      parameters:
-      - name: username
-        in: path
-        description: "Username del cliente"
-        required: true
-        type: string
-      - name: animal_id
-        in: path
-        description: "Id dell'animale"
-        required: true
-        type: string
-      responses:
-        204:
-          description: "Cancellato con successo"
-        400:
-          description: "Input malformato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi mancanti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Non trovato"
           schema:
