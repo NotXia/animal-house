@@ -34,10 +34,6 @@ paths:
           description: "Creato con successo"
           schema:
             $ref: "#/definitions/SpeciesData"
-          headers:
-            location:
-              type : string
-              description: "Endpoint da cui è possibile accedere ai dati della specie"
         400:
           description: "Input malformato"
           schema:
