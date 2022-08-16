@@ -12,7 +12,7 @@ let admin_token;
 
 let service1, service2;
 let operator1, operator2, operator3, operator4;
-let customer1;
+let customer1, customer2;
 let appointment1, appointment2;
 const RANDOM_MONGOID = "111111111111111111111111";
 
@@ -51,6 +51,7 @@ beforeAll(async function () {
     } }).set({ Authorization: `Bearer ${admin_token}` });
 
     customer1 = await utils.loginAsCustomerWithPermission(curr_session, {});
+    customer2 = await utils.loginAsCustomerWithPermission(curr_session, {});
 });
 
 describe("Ricerca disponibilità", function () {
@@ -135,7 +136,7 @@ describe("Creazione degli appuntamenti", function () {
             animal_id: RANDOM_MONGOID,
             operator: operator4.username,
             hub: "BLQ2"
-        }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        }).set({ Authorization: `Bearer ${customer1.token}` }).expect(201);
         expect(res.body).toBeDefined();
 
         const appointment = await BookingModel.findById(res.body.id).exec();
@@ -159,7 +160,7 @@ describe("Creazione degli appuntamenti", function () {
             animal_id: RANDOM_MONGOID,
             operator: operator1.username,
             hub: "BLQ1"
-        }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
+        }).set({ Authorization: `Bearer ${customer1.token}` }).expect(201);
         expect(res.body).toBeDefined();
 
         const appointment = await BookingModel.findById(res.body.id).exec();
@@ -176,25 +177,35 @@ describe("Creazione degli appuntamenti", function () {
             animal_id: RANDOM_MONGOID,
             operator: operator4.username,
             hub: "BLQ2"
-        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+        }).set({ Authorization: `Bearer ${customer1.token}` }).expect(400);
     });
 
     test("Creazione con parametri mancanti", async function () {
         const res = await curr_session.post('/appointments/').send({
-        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+        }).set({ Authorization: `Bearer ${customer1.token}` }).expect(400);
     });
 });
 
 describe("Ricerca degli appuntamenti", function() {
-    test("Ricerca singola", async function () {
-        const appointment = await curr_session.get(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    test("Ricerca singola come cliente", async function () {
+        const appointment = await curr_session.get(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
         expect(appointment).toBeDefined();
         expect(appointment.body.service_id.toString()).toEqual(service1.id);
         expect(appointment.body.customer).toEqual(customer1.username);
     });
 
-    test("Ricerca totale per cliente", async function () {
-        const appointments = await curr_session.get('/appointments/').query({ username: customer1.username }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+    test("Ricerca singola come operatore", async function () {
+        const appointment = await curr_session.get(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+        expect(appointment.body.service_id).toEqual(service1.id);
+        expect(appointment.body.customer).toEqual(customer1.username);
+    });
+
+    test("Ricerca singola - Permessi mancanti", async function () {
+        await curr_session.get(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
+    });
+
+    test("Ricerca totale per cliente come cliente", async function () {
+        const appointments = await curr_session.get('/appointments/').query({ username: customer1.username }).set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
         expect(appointments).toBeDefined();
         expect(appointments.body.length).toEqual(2);
         expect(appointments.body[0].operator).toEqual(operator4.username);
@@ -203,8 +214,17 @@ describe("Ricerca degli appuntamenti", function() {
         expect(appointments.body[1].hub).toEqual("BLQ1");
     });
 
+    test("Ricerca totale per cliente come operatore", async function () {
+        const appointments = await curr_session.get('/appointments/').query({ username: customer1.username }).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+        expect(appointments.body.length).toEqual(2);
+    });
+
+    test("Ricerca totale per cliente - Permessi mancanti", async function () {
+        await curr_session.get('/appointments/').query({ username: customer1.username }).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
+    });
+
     test("Ricerca totale per operatore", async function () {
-        const appointments = await curr_session.get('/appointments/').query({ username: operator1.username }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        const appointments = await curr_session.get('/appointments/').query({ username: operator1.username }).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(appointments).toBeDefined();
         expect(appointments.body.length).toEqual(1);
         expect(appointments.body[0].customer).toEqual(customer1.username);
@@ -213,18 +233,22 @@ describe("Ricerca degli appuntamenti", function() {
 });
 
 describe("Cancellazione degli appuntamenti", function () {
+    test("Cancellazione errata - Permessi mancanti", async function () {
+        await curr_session.delete(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
+    });
+
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete(`/appointments/${appointment1.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
 
         const appointment = await BookingModel.findById(appointment1.id).exec();
         expect(appointment).toBeNull();
     });
 
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/appointments/${appointment2.id}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete(`/appointments/${appointment2.id}`).set({ Authorization: `Bearer ${operator1.token}` }).expect(204);
     });
 
-    test("Cancellazione servizio inesistente", async function () {
+    test("Cancellazione appuntamento inesistente", async function () {
         await curr_session.delete(`/appointments/${RANDOM_MONGOID}`).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });
