@@ -10,7 +10,6 @@ async function addSpecies(req, res) {
         let newSpecies = matchedData(req);
         let toInsertSpecies = await new SpeciesModel(newSpecies).save();
         return res.status(utils.http.CREATED)
-            .location(`${req.baseUrl}/${toInsertSpecies._id}`)
             .json(toInsertSpecies.getData());
     } catch (err) {
         if (err.code === utils.MONGO_DUPLICATED_KEY) {

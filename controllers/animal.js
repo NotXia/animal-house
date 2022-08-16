@@ -35,7 +35,7 @@ async function addAnimal(req, res) {
         let toInsertAnimal = await new AnimalModel(newAnimal).save();
         await customer_user.updateType({ $push: { animals_id: toInsertAnimal._id } });
         return res.status(utils.http.CREATED)
-            .location(`${req.baseUrl}/${toInsertAnimal._id}`)
+            .location(`/animals/${toInsertAnimal._id}`)
             .json(toInsertAnimal.getData());
     } catch (err) {
         return error.response(err, res);
