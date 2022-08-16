@@ -6,6 +6,7 @@ const service_validator = require("./validators/service");
 const booking_validator = require("./validators/booking");
 const user_validator = require("./validators/user");
 const animal_validator = require("./validators/animal");
+const error = require("../error_handler");
 
 const validateInsertAppointment = [
     booking_validator.validateTimeSlot("body", REQUIRED, "time_slot"),
@@ -27,17 +28,40 @@ const validateSearchAvailabilities = [
 
 const validateGetAppointmentById = [
     booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        let err = await booking_validator.verifyAppointmentOwnership(req.params.appointment_id, req.auth.username);
+        if (err) { return next(err); }
+
+        return next();
+    }
 ]
 
 const validateGetAppointmentsByUser = [
     user_validator.validateUsername("query", REQUIRED, "username"),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        if (req.query.username !== req.auth.username) { return next(error.generate.FORBIDDEN("Non puoi ricercare gli appuntamenti altrui")); }
+
+        return next();
+    }
 ]
 
 const validateDeleteAppointment = [
     booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        let err = await booking_validator.verifyAppointmentOwnership(req.params.appointment_id, req.auth.username);
+        if (err) { return next(err); }
+
+        return next();
+    }
 ]
 
 module.exports = {
