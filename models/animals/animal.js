@@ -1,4 +1,6 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
+const path = require("path");
 
 const animalScheme = mongoose.Schema ({
     species: { 
@@ -21,7 +23,7 @@ animalScheme.methods.getData = function() {
         name: this.name,
         weight: this.weight,
         height: this.height,
-        image_path: this.image_path
+        image_path: this.image_path ? path.join(process.env.CUSTOMER_ANIMAL_IMAGES_BASE_URL, this.image_path) : ""
     };
 };
 
