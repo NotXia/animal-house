@@ -9,10 +9,11 @@ module.exports.validateName =       (source, required=true, field_name="name") =
 module.exports.validateSurname =    (source, required=true, field_name="surname") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateGender =     (source, required=true, field_name="gender") => { return utils.handleRequired(validator[source](field_name), required).trim().isIn(["M", "F", "Non-binary", "Altro"]).withMessage("Formato non valido"); }
 module.exports.validatePhone =      (source, required=true, field_name="phone") => { return utils.handleRequired(validator[source](field_name), required).isMobilePhone("any").withMessage("Formato non valido"); }
+module.exports.validatePermissionName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validatePermissions = function (source, required=true, field_name="permissions") { 
     return [
         utils.handleRequired(validator[source](field_name), required).isArray({ min: 0 }),
-        utils.handleRequired(validator[source](`${field_name}.*`), required).notEmpty().withMessage("Valore mancante").trim().escape()
+        module.exports.validatePermissionName(source, required, `${field_name}.*`)
     ];
 }
 

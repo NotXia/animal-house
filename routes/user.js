@@ -35,4 +35,7 @@ router.get("/operators/:username/availabilities/", operator_middleware.validateG
 /* Operazioni profilo degli utenti */
 router.get("/profiles/:username", user_middleware.validateSearchUserProfile, user_controller.searchUserProfile);
 
+/* Operazioni profilo degli utenti */
+router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), user_middleware.validateSearchPermissionByName ], user_controller.getPermissionByName);
+
 module.exports = router;

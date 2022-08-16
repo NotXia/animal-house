@@ -2,6 +2,7 @@ require('dotenv').config();
 const UserModel = require("../models/auth/user");
 const OperatorModel = require("../models/auth/operator");
 const CustomerModel = require("../models/auth/customer");
+const PermissionModel = require("../models/auth/permission");
 const bcrypt = require("bcrypt");
 const utils = require("../utilities");
 const error = require("../error_handler");
@@ -144,11 +145,25 @@ function deleteUser(is_operator) {
     }
 }
 
+// Ricerca dei dati di un permesso
+async function searchPermissionByName(req, res) {
+    try {
+        const permission = await PermissionModel.findOne({ name: req.params.permission_name }).exec();
+        if (!permission) { throw error.generate.NOT_FOUND("Permesso inesistente"); }
+        
+        return res.status(utils.http.OK).json(permission.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+
 module.exports = {
     insertOperator: insertOperator,
     insertCustomer: insertCustomer,
     searchUser: searchUser,
     searchUserProfile: searchUserProfile,
     updateUser: updateUser,
-    deleteUser: deleteUser
+    deleteUser: deleteUser,
+    getPermissionByName: searchPermissionByName
 }

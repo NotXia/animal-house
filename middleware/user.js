@@ -149,6 +149,12 @@ const validateDeleteUser = [
     user_validator.verifyUserOwnership("params")
 ];
 
+const validateSearchPermissionByName = [
+    user_validator.validatePermissionName("param", REQUIRED, "permission_name"),
+    utils.validatorErrorHandler
+];
+
+
 
 module.exports = {
     validateInsertCustomer : validateInsertCustomer,
@@ -157,5 +163,6 @@ module.exports = {
     validateUpdateCustomer : validateUpdateCustomer,
     validateUpdateOperator : validateUpdateOperator,
     validateDeleteUser : validateDeleteUser,
-    validateSearchUserProfile : validateSearchUserProfile
+    validateSearchUserProfile : validateSearchUserProfile,
+    validateSearchPermissionByName: validateSearchPermissionByName
 }
