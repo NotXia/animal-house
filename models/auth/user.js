@@ -51,7 +51,7 @@ const userScheme = mongoose.Schema({
         default: new Date()
     },
 
-    permission: { type: permissionSchema, default: {}, required: true },
+    permissions: [{ type: String }],
     type_id: { type: ObjectId, required: true },
     type_name: { type: String, required: true, enum: ['customer', 'operator'] }
 }, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
@@ -83,7 +83,7 @@ userScheme.methods.getAllData = async function() {
         surname: data.surname,
         gender: data.gender,
         phone: data.phone,
-        permission: Object.keys(data.permission.toObject()).filter((v) => data.permission[v] === true),
+        permissions: data.permissions,
         enabled: data.enabled,
     };
 
