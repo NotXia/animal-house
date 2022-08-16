@@ -142,6 +142,10 @@ describe("Cancellazione degli animali", function () {
 
         const animal = await AnimalModel.findById(animal1.id).exec();
         expect(animal).toBeNull();
+
+        // Controllo se l'utente ha ancora l'id dell'animale
+        const user = await curr_session.get(`/user/customers/${customer1.username}/animals/`).set({ Authorization: `Bearer ${admin_token}` });
+        expect(user.body.length).toEqual(1);        // Anziché 2
     });
 
     test("Cancellazione corretta", async function () {

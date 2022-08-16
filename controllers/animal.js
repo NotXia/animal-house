@@ -108,6 +108,14 @@ async function deleteAnimal(req, res) {
         if (deletedAnimal.image_path) {
             await file_controller.utils.delete([deletedAnimal.image_path], process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH);
         }
+
+        // Rimozione id dell'animale dagli utenti
+        const users = await UserModel.find({ animals_id : deletedAnimal.id }, {username : 1}).exec();
+        users.forEach(user => {
+            let filter = { username: user.username };
+            let update = { $pull: { animals_id: deletedAnimal.id } };
+            UserModel.findOneAndUpdate(filter, update);
+        });
         
         return res.sendStatus(utils.http.NO_CONTENT);
     } catch (err) {
