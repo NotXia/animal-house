@@ -15,7 +15,7 @@ beforeAll(async function () {
 
 describe("Creazione di una specie", function () {
     test("Creazione corretta", async function () {
-        const res = await curr_session.post('/species/').send({
+        const res = await curr_session.post('/animals/species/').send({
             name: "Roditore",
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
         expect(res.body).toBeDefined();
@@ -26,7 +26,7 @@ describe("Creazione di una specie", function () {
     });
 
     test("Creazione corretta", async function () {
-        const res = await curr_session.post('/species/').send({
+        const res = await curr_session.post('/animals/species/').send({
             name: "Pesce",
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
         expect(res.body).toBeDefined();
@@ -37,26 +37,26 @@ describe("Creazione di una specie", function () {
     });
 
     test("Creazione con conflitto", async function () {
-        await curr_session.post('/species/').send({
+        await curr_session.post('/animals/species/').send({
             name: "Roditore",
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
     });
 
     test("Creazione con spazio", async function () {
-        await curr_session.post('/species/').send({
+        await curr_session.post('/animals/species/').send({
             name: "Roditore Australiano",
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
     });
 
     test("Creazione con parametri mancanti", async function () {
-        const res = await curr_session.post('/species/').send({
+        const res = await curr_session.post('/animals/species/').send({
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
     });
 });
 
 describe("Ricerca delle specie", function() {
     test("Ricerca totale", async function () {
-        const species = await curr_session.get('/species/').expect(200);
+        const species = await curr_session.get('/animals/species/').expect(200);
         expect(species).toBeDefined();
         expect(species.body.length).toEqual(2);
         expect(species.body[0].name).toEqual("Roditore");
@@ -64,7 +64,7 @@ describe("Ricerca delle specie", function() {
     });
 
     test("Ricerca per nome", async function () {
-        const species = await curr_session.get('/species/').query({ name: "Roditor" }).expect(200);
+        const species = await curr_session.get('/animals/species/').query({ name: "Roditor" }).expect(200);
         expect(species).toBeDefined();
         expect(species.body.length).toEqual(1);
         expect(species.body[0].name).toEqual("Roditore");
@@ -73,7 +73,7 @@ describe("Ricerca delle specie", function() {
 
 describe("Modifica di specie", function () {
     test("Modifica del nome", async function () {
-        await curr_session.put(`/species/Roditore`).send({
+        await curr_session.put(`/animals/species/Roditore`).send({
             name: "Roditorone",   // era Roditore
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
@@ -83,7 +83,7 @@ describe("Modifica di specie", function () {
     });
 
     test("Modifica specie inesistente", async function () {
-        await curr_session.put(`/species/SpecieInesistente`).send({
+        await curr_session.put(`/animals/species/SpecieInesistente`).send({
             name: "NuovaSpecie"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
@@ -91,20 +91,20 @@ describe("Modifica di specie", function () {
 
 describe("Cancellazione di una specie", function () {
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/species/Roditorone`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete(`/animals/species/Roditorone`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
 
         const species = await SpeciesModel.findOne({ name: "Roditore" }).exec();
         expect(species).toBeNull();
     });
 
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/species/Pesce`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+        await curr_session.delete(`/animals/species/Pesce`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
 
         const species = await SpeciesModel.findOne({ name: "Pesce" }).exec();
         expect(species).toBeNull();
     });
 
     test("Cancellazione specie inesistente", async function () {
-        await curr_session.delete('/service/SpecieInesistente').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        await curr_session.delete('/animals/service/SpecieInesistente').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });

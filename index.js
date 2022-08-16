@@ -28,7 +28,7 @@ app.use("/shop", shop);
 app.use("/blog", blog);
 app.use("/hubs", hub);
 app.use("/services", service);
-app.use("/species", species);
+app.use("/animals/species", species);
 app.use("/animals", animal);
 
 app.use(middlewareErrorHandler);
