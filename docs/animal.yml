@@ -131,7 +131,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
-  /user/customers/{username}/animals:
+  /user/customers/{username}/animals/:
     post:
       tags:
         - "Animals"
