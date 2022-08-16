@@ -2,6 +2,8 @@ require("dotenv").config();
 const app = require("../index.js");
 const utils = require("./utils/utils");
 const session = require('supertest-session');
+const path = require("path");
+const fs = require("fs");
 
 const AnimalModel = require("../models/animals/animal");
 
@@ -15,6 +17,8 @@ let animal1, animal2;
 
 const WRONG_MONGOID = "111111111111111111111111";
 
+const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
+
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 
@@ -25,7 +29,7 @@ beforeAll(async function () {
 });
 
 describe("Creazione degli animali", function () {
-    test("Creazione corretta (1)", async function () {
+    test("Creazione corretta senza immagine", async function () {
         const res = await curr_session.post(`/user/customers/${customer1.username}/animals/`).send({
             species: species1.name,
             name: "Ghepardo",
@@ -39,17 +43,23 @@ describe("Creazione degli animali", function () {
         animal1 = animal;
     });
 
-    test("Creazione corretta (2)", async function () {
-        const res = await curr_session.post(`/user/customers/${customer1.username}/animals/`).send({
+    test("Creazione corretta con immagine", async function () {
+        let res = await curr_session.post(`/files/images/`).set({ Authorization: `Bearer ${customer1.token}`, "content-type": "application/octet-stream" }).attach("file0", img1);
+        const image_path = res.body[0];
+
+        res = await curr_session.post(`/user/customers/${customer1.username}/animals/`).send({
             species: species2.name,
             name: "Topolino",
             weight: 200,
+            image_path: image_path
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(201);
         expect(res.body).toBeDefined();
 
         const animal = await AnimalModel.findById(res.body.id).exec();
         expect(animal).toBeDefined();
         expect(animal.name).toEqual("Topolino");
+        expect(res.body.image_path).toEqual(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_BASE_URL, animal.image_path));
+        expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, animal.image_path)) ).toBeTruthy();
         animal2 = animal;
     });
 
@@ -94,6 +104,25 @@ describe("Modifica degli animali", function () {
             name: "NuovoAnimalettoInesistente"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
+
+    test("Modifica immagine", async function () {
+        let res = await curr_session.post(`/files/images/`).set({ Authorization: `Bearer ${customer1.token}`, "content-type": "application/octet-stream" }).attach("file0", img1);
+        const image_path = res.body[0];
+        
+        res = await curr_session.put(`/animals/${animal2.id}`).send({
+            name: "Ghepardone",     // era Ghepardo
+            height: 100,            // era vuoto
+            image_path: image_path
+        }).set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
+
+        const animal = await AnimalModel.findById(animal2.id).exec();
+        expect(animal.name).toEqual("Ghepardone");
+        expect(animal.height).toEqual(100);
+        expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(animal2.image_path))) ).toBeFalsy();
+        expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(res.body.image_path))) ).toBeTruthy();
+        expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, animal.image_path)) ).toBeTruthy();
+        animal2 = res.body
+    });
 });
 
 describe("Cancellazione degli animali", function () {
@@ -109,6 +138,7 @@ describe("Cancellazione degli animali", function () {
 
         const animal = await AnimalModel.findById(animal2.id).exec();
         expect(animal).toBeNull();
+        expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(animal2.image_path))) ).toBeFalsy();
     });
 
     test("Cancellazione specie inesistente", async function () {

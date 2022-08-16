@@ -6,6 +6,8 @@ const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
 const customer = require('../models/auth/customer');
+const file_controller = require('./file');
+const path = require("path");
 
 // Ricerca di un animale dato il suo id
 async function getAnimalById(req, res) {
@@ -27,6 +29,12 @@ async function addAnimal(req, res) {
         // Controllo se la specie inserita esiste
         const insertedSpecies = await SpeciesModel.findOne({ name: newAnimal.species }).exec();
         if(!insertedSpecies) { throw error.generate.NOT_FOUND("Specie inesistente"); }
+
+        // Salvataggio immagine
+        if (newAnimal.image_path) {
+            newAnimal.image_path = path.basename(newAnimal.image_path); // Normalizzazione path
+            await file_controller.utils.claim([newAnimal.image_path], process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH);
+        }
 
         const customer_user = await UserModel.findOne({ username: req.params.username }).exec();
         if(!customer_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
@@ -68,6 +76,17 @@ async function updateAnimal(req, res) {
         const to_update_animal = req.params.animal_id;
         const updated_data = matchedData(req, { locations: ["body"] });
 
+        // Aggiornamento immagine
+        if (updated_data.image_path) {
+            updated_data.image_path = path.basename(updated_data.image_path); // Normalizzazione path
+            const curr_animal = await AnimalModel.findById(to_update_animal).exec();
+
+            if (curr_animal.image_path != updated_data.image_path) { // Aggiorna l'immagine se cambiata
+                await file_controller.utils.claim([updated_data.image_path], process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH);
+                await file_controller.utils.delete([curr_animal.image_path], process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH);
+            }
+        }
+
         let updated_animal = await AnimalModel.findByIdAndUpdate(to_update_animal, updated_data, { new: true });
         if (!updated_animal) { throw error.generate.NOT_FOUND("Animale inesistente"); }
 
@@ -84,6 +103,11 @@ async function deleteAnimal(req, res) {
 
         const deletedAnimal = await AnimalModel.findByIdAndDelete(to_delete_animal);
         if (!deletedAnimal) { throw error.generate.NOT_FOUND("Animale inesistente"); }
+
+        // Cancellazione immagine
+        if (deletedAnimal.image_path) {
+            await file_controller.utils.delete([deletedAnimal.image_path], process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH);
+        }
         
         return res.sendStatus(utils.http.NO_CONTENT);
     } catch (err) {
