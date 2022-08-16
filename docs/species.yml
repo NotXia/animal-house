@@ -28,6 +28,9 @@ paths:
           properties:
             name:
               type: string
+            logo:
+              type: string
+              format: Base64
           required: [ name ]
       responses:
         201:
@@ -80,7 +83,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
-  /species/{name}/:
+  /species/{name}:
     put:
       tags:
         - "Species"
@@ -108,6 +111,9 @@ paths:
           properties:
             name:
               type: string
+            logo:
+              type: string
+              format: Base64
       responses:
         200:
           description: "Modificato con successo"
@@ -175,4 +181,7 @@ definitions:
     properties:
       name:
         type: string
+      logo:
+        type: string
+        format: Base64
     required: [ name ]
