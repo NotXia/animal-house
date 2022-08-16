@@ -4,6 +4,7 @@ const validator = require("./validators/species");
 
 const validateAddSpecies = [
     validator.validateSpeciesName("body", REQUIRED),
+    validator.validateSpeciesLogo("body", OPTIONAL),
     utils.validatorErrorHandler
 ]
 
@@ -14,7 +15,8 @@ const validateGetSpecies = [
 
 const validateUpdateSpecies = [
     validator.validateSpeciesName("param", REQUIRED),
-    validator.validateSpeciesName("body", REQUIRED),
+    validator.validateSpeciesName("body", OPTIONAL),
+    validator.validateSpeciesLogo("body", OPTIONAL),
     utils.validatorErrorHandler
 ]
 

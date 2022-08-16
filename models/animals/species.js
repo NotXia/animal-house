@@ -5,7 +5,9 @@ const speciesSchema = mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+
+    logo: { type: String }
 });
 
 speciesSchema.statics.findByName = async function(species_name) {
@@ -13,7 +15,10 @@ speciesSchema.statics.findByName = async function(species_name) {
 };
 
 speciesSchema.methods.getData = function() {
-    return { name: this.name };
+    return { 
+        name: this.name,
+        logo: this.logo
+    };
 };
 
 module.exports = mongoose.model("species", speciesSchema);
