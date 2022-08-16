@@ -22,8 +22,8 @@ const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 
-    customer1 = await utils.loginAsCustomerWithPermission(curr_session, {});
-    customer2 = await utils.loginAsCustomerWithPermission(curr_session, {});
+    customer1 = await utils.loginAsCustomer(curr_session, {});
+    customer2 = await utils.loginAsCustomer(curr_session, {});
 
     species1 = (await curr_session.post("/species/").send({ name: "Felino" }).set({ Authorization: `Bearer ${admin_token}` })).body;
     species2 = (await curr_session.post("/species/").send({ name: "Roditore" }).set({ Authorization: `Bearer ${admin_token}` })).body;
