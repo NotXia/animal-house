@@ -30,12 +30,28 @@ const validateUpdateAnimal = [
     validator.validateAnimalWeight("body", OPTIONAL),
     validator.validateAnimalHeight("body", OPTIONAL),
     validator.validateAnimalImagePath("body", OPTIONAL),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        let err = await validator.verifyAnimalOwnership(req.params.animal_id, req.auth.username);
+        if (err) { return next(err) };
+
+        return next();
+    }
 ]
 
 const validateDeleteAnimal = [
     validator.validateAnimalId("param", REQUIRED),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        let err = await validator.verifyAnimalOwnership(req.params.animal_id, req.auth.username);
+        if (err) { return next(err) };
+
+        return next();
+    }
 ]
 
 module.exports = {
