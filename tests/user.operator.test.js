@@ -12,9 +12,9 @@ let operator1, operator2, operator3;
 const TIME_FORMAT = "DD/MM/YYYY HH:mm";
 
 beforeAll(async function () {
-    operator1 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
-    operator2 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
-    operator3 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
+    operator1 = await utils.loginAsOperatorWithPermission(curr_session, []);
+    operator2 = await utils.loginAsOperatorWithPermission(curr_session, []);
+    operator3 = await utils.loginAsOperatorWithPermission(curr_session, []);
 });
 
 

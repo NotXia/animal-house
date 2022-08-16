@@ -15,11 +15,6 @@ describe("Database - gestione dipendenti", function () {
         users_id.push(user._id);
     });
 
-    test("Verifica presenza permessi", async function () {
-        expect(user.permission).toBeDefined();
-        expect(user.permission.admin).toBe(false);
-    });
-
     test("Pulizia database", async function () {
         for (const id of operators_id) { await OperatorModel.findByIdAndDelete(id); }
         for (const id of users_id) { await UserModel.findByIdAndDelete(id); }

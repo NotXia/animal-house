@@ -17,7 +17,7 @@ function _getUserData(source) {
             surname: source.surname,
             gender: source.gender,
             phone: source.phone,
-            permission: source.permission
+            permissions: source.permissions
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -83,7 +83,7 @@ const validateInsertCustomer = [
 
 const validateInsertOperator = [
     validateNewUserData("body"),
-    user_validator.validatePermission("body", OPTIONAL),
+    user_validator.validatePermissions("body", OPTIONAL),
     operator_validator.validateRole("body", OPTIONAL),
     operator_validator.validateListOfServicesId("body", OPTIONAL),
     utils.validatorErrorHandler,
@@ -111,7 +111,7 @@ function validateUpdateUserData(source) {
         user_validator.validateSurname(source, OPTIONAL),
         user_validator.validateGender(source, OPTIONAL),
         user_validator.validatePhone(source, OPTIONAL),
-        user_validator.validatePermission(source, OPTIONAL),
+        user_validator.validatePermissions(source, OPTIONAL),
     ];
 }
 

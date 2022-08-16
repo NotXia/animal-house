@@ -9,6 +9,7 @@ const error = require("../error_handler");
 async function insertOperator(req, res) {
     let data = res.locals; // Estrae i dati validati
     data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS));
+    if (!data.user.permissions) { data.user.permissions = []; }
     let new_operator = undefined;
     let new_user = undefined;
 
@@ -16,12 +17,12 @@ async function insertOperator(req, res) {
         new_operator = await new OperatorModel(data.operator).save();
         
         data.user.enabled = true;
-        data.user.permission.operator = true;
+        data.user.permissions.push("operator");
         data.user.type_id = new_operator._id;
         data.user.type_name = "operator";
         new_user = await new UserModel(data.user).save();
 
-        return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/operators/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
             await OperatorModel.findByIdAndDelete(new_operator._id).exec().catch((err) => {}); // Cancella i dati inseriti
@@ -34,18 +35,19 @@ async function insertOperator(req, res) {
 async function insertCustomer(req, res) {
     let data = res.locals; // Estrae i dati validati
     data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS));
+    if (!data.user.permissions) { data.user.permissions = []; }
     let new_customer = undefined;
     let new_user = undefined;
 
     try {
         new_customer = await new CustomerModel(data.customer).save();
 
-        data.user.permission = { customer: true };
+        data.user.permissions = data.user.permissions.concat(["customer"]);
         data.user.type_id = new_customer._id;
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
-        return res.status(utils.http.CREATED).location(`${req.baseUrl}/operators/${new_user.username}`).json(await new_user.getAllData());
+        return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
         if (e.code === utils.MONGO_DUPLICATED_KEY) {
             await CustomerModel.findByIdAndDelete(new_customer._id).exec().catch((err) => {}); // Cancella i dati inseriti
