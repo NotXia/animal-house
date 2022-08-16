@@ -25,8 +25,8 @@ beforeAll(async function () {
     customer1 = await utils.loginAsCustomer(curr_session, {});
     customer2 = await utils.loginAsCustomer(curr_session, {});
 
-    species1 = (await curr_session.post("/species/").send({ name: "Felino" }).set({ Authorization: `Bearer ${admin_token}` })).body;
-    species2 = (await curr_session.post("/species/").send({ name: "Roditore" }).set({ Authorization: `Bearer ${admin_token}` })).body;
+    species1 = (await curr_session.post("/animals/species/").send({ name: "Felino" }).set({ Authorization: `Bearer ${admin_token}` })).body;
+    species2 = (await curr_session.post("/animals/species/").send({ name: "Roditore" }).set({ Authorization: `Bearer ${admin_token}` })).body;
 });
 
 describe("Creazione degli animali", function () {
@@ -160,7 +160,7 @@ describe("Cancellazione degli animali", function () {
 describe("", function () {
     test("Pulizia", async function () {
         await utils.cleanup(curr_session);
-        await curr_session.delete(`/species/${species1.name}`).set({ Authorization: `Bearer ${admin_token}` });
-        await curr_session.delete(`/species/${species2.name}`).set({ Authorization: `Bearer ${admin_token}` });
+        await curr_session.delete(`/animals/species/${species1.name}`).set({ Authorization: `Bearer ${admin_token}` });
+        await curr_session.delete(`/animals/species/${species2.name}`).set({ Authorization: `Bearer ${admin_token}` });
     });
 }); 
