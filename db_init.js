@@ -52,7 +52,7 @@ async function init() {
             name: "Admin",
             surname: "Admin",
             enabled: true,
-            permission: { admin: true },
+            permissions: ["admin"],
             type_id: admin_user._id,
             type_name: "operator"
         }).save().catch((err) => { console.log(err.message); });

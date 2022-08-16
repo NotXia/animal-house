@@ -13,9 +13,9 @@ let order1, order2, order3;
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
-    customer1 = await utils.loginAsCustomerWithPermission(curr_session, { customer: true });
-    customer2 = await utils.loginAsCustomerWithPermission(curr_session, { customer: true });
-    operator = await utils.loginAsOperatorWithPermission(curr_session, { operator: true, warehouse: true });
+    customer1 = await utils.loginAsCustomer(curr_session);
+    customer2 = await utils.loginAsCustomer(curr_session);
+    operator = await utils.loginAsOperatorWithPermission(curr_session, [ "warehouse" ]);
 });
 
 describe("Popolazione dati", function () {

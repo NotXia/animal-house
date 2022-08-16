@@ -40,4 +40,7 @@ router.get("/profiles/:username", user_middleware.validateSearchUserProfile, use
 router.post("/customers/:username/animals/", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), animal_middleware.validateAddAnimal ], animal_controller.addAnimal);
 router.get("/customers/:username/animals/", animal_middleware.validateGetAnimals, animal_controller.getAnimals)
 
+/* Operazioni profilo degli utenti */
+router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), user_middleware.validateSearchPermissionByName ], user_controller.getPermissionByName);
+
 module.exports = router;

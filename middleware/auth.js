@@ -32,8 +32,9 @@ function auth_middleware(required_permissions=[], superuser_permissions=[]) {
             if (required_permissions.length === 0 && superuser_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
 
             // Estrazione permessi
-            const user = await UserModel.findById(req.auth.id, { permission: 1 });
-            const user_permissions = Object.keys(user.permission.toObject()).filter((key) => { return user.permission[key]; });
+            const user = await UserModel.findById(req.auth.id, { permissions: 1 });
+            const user_permissions = user.permissions;
+
 
             // Verifica se uno dei gruppi di permessi da superuser è soddisfatto
             for (const permissions of superuser_permissions) {

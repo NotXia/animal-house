@@ -19,9 +19,9 @@ const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
-    operator1 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
-    operator2 = await utils.loginAsOperatorWithPermission(curr_session, { post_write: true, comment_write: true });
-    operator_no_permission = await utils.loginAsOperatorWithPermission(curr_session, { post_write: false, comment_write: false });
+    operator1 = await utils.loginAsOperatorWithPermission(curr_session, [ "post_write", "comment_write" ]);
+    operator2 = await utils.loginAsOperatorWithPermission(curr_session, [ "post_write", "comment_write" ]);
+    operator_no_permission = await utils.loginAsOperatorWithPermission(curr_session, []);
 
     await new TopicModel({ name: "Scoperte" }).save();
     await new TopicModel({ name: "Animali" }).save();
