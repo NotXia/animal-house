@@ -5,7 +5,7 @@ info:
   title: "Species"
 
 paths:
-  /species/:
+  /animals/species/:
     post:
       tags:
         - "Species"
@@ -83,7 +83,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
-  /species/{name}:
+  /animals/species/{name}:
     put:
       tags:
         - "Species"
