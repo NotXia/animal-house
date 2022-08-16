@@ -24,7 +24,7 @@ module.exports.loginAsAdmin = async function (session) {
     return res.body.access_token.value;
 }
 
-module.exports.loginAsOperatorWithPermission = async function (session, permission, services_id=[]) {
+module.exports.loginAsOperatorWithPermission = async function (session, permissions=[], services_id=[]) {
     const admin_token = await module.exports.loginAsAdmin(session);
     const username = getUsername();
 
@@ -32,7 +32,7 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
         username: username, password: "PasswordMoltoComplessa1!",
         email: `${username}@animalhouse.com`,
         name: getName(), surname: getSurname(),
-        permission: permission,
+        permissions: permissions,
         role: "Test",
         services_id: services_id,
         working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
@@ -47,15 +47,14 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
     };
 }
 
-module.exports.loginAsCustomerWithPermission = async function (session, permission) {
+module.exports.loginAsCustomer = async function (session) {
     const admin_token = await module.exports.loginAsAdmin(session);
     const username = getUsername();
 
-    const res = await session.post('/user/customers/').send({
+    await session.post('/user/customers/').send({
         username: username, password: "PasswordMoltoComplessa1!",
         email: `${username}@mondo.com`,
         name: getName(), surname: getSurname(),
-        permission: permission,
         address: { city: "BoloTown", street: "Via da qua", number: 42, postal_code: "40100" }
     }).set({ Authorization: `Bearer ${admin_token}`});
     await UserModel.findOneAndUpdate({ username: username }, { enabled: true });

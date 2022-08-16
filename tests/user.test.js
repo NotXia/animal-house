@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 
 const HubModel = require("../models/services/hub");
 const UserModel = require("../models/auth/user");
+const PermissionModel = require("../models/auth/permission");
 
 
 let curr_session = session(app);
@@ -269,5 +270,17 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
 
     test("Cancellazione di un operatore inesistente", async function () {
         await curr_session.delete('/user/operators/LuiginoFantasmino').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+    });
+});
+
+describe("Ricerca di permessi", function () {
+    test("Ricerca corretta", async function () {
+        await new PermissionModel({ name: "test_permission", url: "/admin/control_panel" }).save();
+
+        const res = await curr_session.get('/user/permissions/test_permission').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        expect(res.body.name).toEqual("test_permission");
+        expect(res.body.url).toEqual("/admin/control_panel");
+
+        await PermissionModel.findOneAndDelete({ name: "test_permission" });
     });
 });
