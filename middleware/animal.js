@@ -24,7 +24,6 @@ const validateGetAnimals = [
 ]
 
 const validateUpdateAnimal = [
-    user_validator.validateUsername("param", REQUIRED),
     validator.validateAnimalId("param", REQUIRED),
     validator.validateAnimalSpecies("body", OPTIONAL),
     validator.validateAnimalName("body", OPTIONAL),
@@ -35,7 +34,6 @@ const validateUpdateAnimal = [
 ]
 
 const validateDeleteAnimal = [
-    user_validator.validateUsername("param", REQUIRED),
     validator.validateAnimalId("param", REQUIRED),
     utils.validatorErrorHandler
 ]

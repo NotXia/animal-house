@@ -78,7 +78,7 @@ describe("Ricerca degli animali", function() {
 
 describe("Modifica degli animali", function () {
     test("Modifica dei parametri", async function () {
-        await curr_session.put(`/user/customers/${customer1.username}/animals/${animal1.id}`).send({
+        await curr_session.put(`/animals/${animal1.id}`).send({
             name: "Ghepardone",     // era Ghepardo
             height: 100             // era vuoto
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
@@ -90,7 +90,7 @@ describe("Modifica degli animali", function () {
     });
 
     test("Modifica animale inesistente", async function () {
-        await curr_session.put(`/user/customers/${customer1.username}/animals/${WRONG_MONGOID}`).send({
+        await curr_session.put(`/animals/${WRONG_MONGOID}`).send({
             name: "NuovoAnimalettoInesistente"
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
@@ -98,21 +98,21 @@ describe("Modifica degli animali", function () {
 
 describe("Cancellazione degli animali", function () {
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/user/customers/${customer1.username}/animals/${animal1.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
+        await curr_session.delete(`/animals/${animal1.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
 
         const animal = await AnimalModel.findById(animal1.id).exec();
         expect(animal).toBeNull();
     });
 
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/user/customers/${customer1.username}/animals/${animal2.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
+        await curr_session.delete(`/animals/${animal2.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
 
         const animal = await AnimalModel.findById(animal2.id).exec();
         expect(animal).toBeNull();
     });
 
     test("Cancellazione specie inesistente", async function () {
-        await curr_session.delete(`/user/customers/${customer1.username}/animals/${WRONG_MONGOID}`).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        await curr_session.delete(`/animals/${WRONG_MONGOID}`).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });
 
