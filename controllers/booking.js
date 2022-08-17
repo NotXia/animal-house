@@ -21,7 +21,7 @@ async function insertAppointment(req, res) {
         const operator_user = await UserModel.findOne({ username: newAppointment.operator }).exec();
         if(!operator_user || !operator_user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
-        // Controllo se l'animale sia effettivamente un animale
+        // Controllo se l'animale esista
         const inserted_animal = await AnimalModel.findById(newAppointment.animal_id).exec();
         if(!inserted_animal) { throw error.generate.NOT_FOUND("Animale inesistente"); }
 
