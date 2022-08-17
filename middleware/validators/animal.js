@@ -15,7 +15,7 @@ module.exports.verifyAnimalOwnership = async function(animal_id, username) {
     const user = await UserModel.findOne({ username: username }).exec();
     if (!user) { return error.generate.NOT_FOUND("Utente inesistente"); }
     const customer = await user.findType();
-    if (!customer) { return error.generate.NOT_FOUND("Utente inesistente"); }
+    if (!customer || user.isOperator()) { return error.generate.NOT_FOUND("Utente inesistente"); }
 
     if (!customer.animals_id.includes(animal_id)) { return error.generate.FORBIDDEN("Non sei il proprietario dell'animale"); }
 }
