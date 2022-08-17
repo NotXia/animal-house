@@ -15,7 +15,7 @@ async function insertAppointment(req, res) {
 
         // Controllo se il cliente sia effettivamente un cliente
         const user_customer = await UserModel.findOne({ username: newAppointment.customer }).exec();
-        if(user_customer.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if(!user_customer || user_customer.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Controllo se l'operatore sia effettivamente un operatore
         const operator_user = await UserModel.findOne({ username: newAppointment.operator }).exec();
