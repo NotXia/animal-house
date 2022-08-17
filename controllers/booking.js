@@ -5,14 +5,25 @@ const OperatorModel = require("../models/auth/operator");
 const ServiceModel = require("../models/services/service");
 const BookingModel = require("../models/services/booking");
 const UserModel = require("../models/auth/user");
+const AnimalModel = require("../models/animals/animal");
 const { matchedData } = require('express-validator');
 
 /* Inserimento appuntamento */
 async function insertAppointment(req, res) {
     try {
         let newAppointment = matchedData(req);
+
+        // Controllo se il cliente sia effettivamente un cliente
+        const user_customer = await UserModel.findOne({ username: newAppointment.customer }).exec();
+        if(user_customer.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        // Controllo se l'operatore sia effettivamente un operatore
         const operator_user = await UserModel.findOne({ username: newAppointment.operator }).exec();
-        if(!operator_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if(!operator_user || !operator_user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        // Controllo se l'animale sia effettivamente un animale
+        const inserted_animal = await AnimalModel.findById(newAppointment.animal_id).exec();
+        if(!inserted_animal) { throw error.generate.NOT_FOUND("Animale inesistente"); }
 
         // Estrazione oggetto operator da user
         const operator = await operator_user.findType();

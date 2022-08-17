@@ -5,6 +5,8 @@ const session = require('supertest-session');
 const moment = require("moment");
 
 const BookingModel = require("../models/services/booking");
+const SpeciesModel = require("../models/animals/species");
+const AnimalModel = require("../models/animals/animal");
 
 let curr_session = session(app);
 
@@ -13,6 +15,8 @@ let admin_token;
 let service1, service2;
 let operator1, operator2, operator3, operator4;
 let customer1, customer2;
+let species1;
+let animal1;
 let appointment1, appointment2;
 const RANDOM_MONGOID = "111111111111111111111111";
 
@@ -52,6 +56,19 @@ beforeAll(async function () {
 
     customer1 = await utils.loginAsCustomerWithPermission(curr_session, {});
     customer2 = await utils.loginAsCustomerWithPermission(curr_session, {});
+
+    species1 = await new SpeciesModel(
+        {
+            name: "Felino"
+        }
+    ).save();
+
+    animal1 = await new AnimalModel(
+        {
+            species: species1._id,
+            name: "Ghepardonono",
+        }
+    ).save();
 });
 
 describe("Ricerca disponibilità", function () {
@@ -133,7 +150,7 @@ describe("Creazione degli appuntamenti", function () {
             time_slot: availabilities1[0].time,
             service_id: service1.id,
             customer: customer1.username,
-            animal_id: RANDOM_MONGOID,
+            animal_id: animal1._id,
             operator: operator4.username,
             hub: "BLQ2"
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(201);
@@ -157,7 +174,7 @@ describe("Creazione degli appuntamenti", function () {
             time_slot: availabilities2[0].time,
             service_id: service2.id,
             customer: customer1.username,
-            animal_id: RANDOM_MONGOID,
+            animal_id: animal1._id,
             operator: operator1.username,
             hub: "BLQ1"
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(201);
@@ -174,7 +191,7 @@ describe("Creazione degli appuntamenti", function () {
             time_slot: availabilities1[0].time,
             service_id: service1.id,
             customer: customer1.username,
-            animal_id: RANDOM_MONGOID,
+            animal_id: animal1._id,
             operator: operator4.username,
             hub: "BLQ2"
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(400);
@@ -258,5 +275,7 @@ describe("", function () {
         await utils.cleanup(curr_session);
         await curr_session.delete(`/services/${service1.id}`).set({ Authorization: `Bearer ${admin_token}` });
         await curr_session.delete(`/services/${service2.id}`).set({ Authorization: `Bearer ${admin_token}` });
+        await AnimalModel.findByIdAndDelete(animal1._id);
+        await SpeciesModel.findByIdAndDelete(species1._id);
     });
 });
