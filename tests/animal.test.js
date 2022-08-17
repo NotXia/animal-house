@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 
 const AnimalModel = require("../models/animals/animal");
+const UserModel = require("../models/auth/user");
 
 let curr_session = session(app);
 
@@ -111,13 +112,13 @@ describe("Modifica degli animali", function () {
         const image_path = res.body[0];
         
         res = await curr_session.put(`/animals/${animal2.id}`).send({
-            name: "Ghepardone",     // era Ghepardo
+            name: "Ghepardoneone",  // era Ghepardo
             height: 100,            // era vuoto
             image_path: image_path
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
 
         const animal = await AnimalModel.findById(animal2.id).exec();
-        expect(animal.name).toEqual("Ghepardone");
+        expect(animal.name).toEqual("Ghepardoneone");
         expect(animal.height).toEqual(100);
         expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(animal2.image_path))) ).toBeFalsy();
         expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(res.body.image_path))) ).toBeTruthy();
@@ -144,8 +145,13 @@ describe("Cancellazione degli animali", function () {
         expect(animal).toBeNull();
 
         // Controllo se l'utente ha ancora l'id dell'animale
-        const user = await curr_session.get(`/user/customers/${customer1.username}/animals/`).set({ Authorization: `Bearer ${admin_token}` });
+        let user = await curr_session.get(`/user/customers/${customer1.username}/animals/`).set({ Authorization: `Bearer ${admin_token}` });
         expect(user.body.length).toEqual(1);        // Anziché 2
+        expect(user.body[0].id).toEqual(animal2.id);
+
+        user = await UserModel.findOne({ username: customer1.username }).exec();
+        expect( (await user.findType()).animals_id.length ).toEqual(1);
+        expect( (await user.findType()).animals_id[0].toString() ).toEqual(animal2.id);
     });
 
     test("Cancellazione corretta", async function () {

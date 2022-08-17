@@ -2,10 +2,10 @@ require('dotenv').config();
 const AnimalModel = require("../models/animals/animal");
 const SpeciesModel = require("../models/animals/species");
 const UserModel = require("../models/auth/user");
+const CustomerModel = require("../models/auth/customer");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
-const customer = require('../models/auth/customer');
 const file_controller = require('./file');
 const path = require("path");
 
@@ -110,12 +110,7 @@ async function deleteAnimal(req, res) {
         }
 
         // Rimozione id dell'animale dagli utenti
-        const users = await UserModel.find({ animals_id : deletedAnimal.id }, {username : 1}).exec();
-        users.forEach(user => {
-            let filter = { username: user.username };
-            let update = { $pull: { animals_id: deletedAnimal.id } };
-            UserModel.findOneAndUpdate(filter, update);
-        });
+        await CustomerModel.updateMany({ animals_id: deletedAnimal._id }, { "$pull": { animals_id: deletedAnimal._id } });
         
         return res.sendStatus(utils.http.NO_CONTENT);
     } catch (err) {
