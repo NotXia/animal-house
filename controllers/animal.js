@@ -36,12 +36,13 @@ async function addAnimal(req, res) {
             await file_controller.utils.claim([newAnimal.image_path], process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH);
         }
 
-        const customer_user = await UserModel.findOne({ username: req.params.username }).exec();
-        if(!customer_user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
-
+        const user = await UserModel.findOne({ username: req.params.username }).exec();
+        if(!user || user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        let customer = await user.findType();
         
         let toInsertAnimal = await new AnimalModel(newAnimal).save();
-        await customer_user.updateType({ $push: { animals_id: toInsertAnimal._id } });
+        customer.animals_id.push(toInsertAnimal._id);
+        await customer.save()
         return res.status(utils.http.CREATED)
             .location(`/animals/${toInsertAnimal._id}`)
             .json(toInsertAnimal.getData());
@@ -87,8 +88,10 @@ async function updateAnimal(req, res) {
             }
         }
 
-        let updated_animal = await AnimalModel.findByIdAndUpdate(to_update_animal, updated_data, { new: true });
+        let updated_animal = await AnimalModel.findById(to_update_animal);
         if (!updated_animal) { throw error.generate.NOT_FOUND("Animale inesistente"); }
+        for (const [field, value] of Object.entries(updated_data)) { updated_animal[field] = value; }
+        await updated_animal.save();
 
         return res.status(utils.http.OK).json(updated_animal.getData());
     } catch (err) {

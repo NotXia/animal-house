@@ -166,8 +166,12 @@ async function updateItemById(req, res) {
     if (updated_fields.category) { await checkCategoryExists(to_insert_item.category); }
 
     try {
-        updated_item = await ItemModel.findByIdAndUpdate(req.params.item_id, updated_fields, { new: true });
+        updated_item = await ItemModel.findById(req.params.item_id);
         if (!updated_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
+
+        for (const [field, value] of Object.entries(updated_fields)) { updated_item[field] = value; }
+        await updated_item.save();
+
     }
     catch (err) {
         return error.response(err, res);
@@ -210,7 +214,10 @@ async function updateProductByIndex(req, res) {
             await file_controller.utils.delete(images_changes.removed, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
     
-        updated_product = await ProductModel.findByIdAndUpdate(product_id, updated_fields, { new: true });
+        updated_product = await ProductModel.findById(product_id);
+        for (const [field, value] of Object.entries(updated_fields)) { updated_product[field] = value; }
+        await updated_product.save();
+
     }
     catch (err) {
         return error.response(err, res);
@@ -253,7 +260,7 @@ async function deleteItemById(req, res) {
 async function deleteProductByIndex(req, res) {
     try {
         // Estrazione del prodotto
-        const item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
+        const item = await ItemModel.findById(req.params.item_id).exec();
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
         if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
         if (item.products_id.length === 1) { 
@@ -269,7 +276,8 @@ async function deleteProductByIndex(req, res) {
 
         // Rimozione dei prodotti e dell'item
         await ProductModel.findByIdAndDelete(to_delete_product._id);
-        await ItemModel.findByIdAndUpdate(req.params.item_id, { $pull: { products_id: to_delete_product._id } });
+        item.products_id.splice(parseInt(req.params.product_index), 1);
+        await item.save();
     }
     catch (err) {
         return error.response(err, res);

@@ -72,12 +72,10 @@ async function updateService(req, res) {
         const to_change_service = req.params.service_id;
         const updated_data = matchedData(req, { locations: ["body"] });
 
-        if (updated_data.target) {
-            updated_data.$set = { "target": updated_data.target };
-            delete updated_data.target;
-        }
-        let updated_service = await ServiceModel.findByIdAndUpdate(to_change_service, updated_data, { new: true })
+        let updated_service = await ServiceModel.findById(to_change_service)
         if (!updated_service) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
+        for (const [field, value] of Object.entries(updated_data)) { updated_service[field] = value; }
+        await updated_service.save();
 
         return res.status(utils.http.OK).json(updated_service.getData());
     } catch (err) {

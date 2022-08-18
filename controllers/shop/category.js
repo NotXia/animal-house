@@ -42,8 +42,11 @@ async function updateCategory(req, res) {
     let updated_category;
 
     try {
-        updated_category = await CategoryModel.findOneAndUpdate({ name: to_change_category }, updated_data, { new: true }).exec();
+        updated_category = await CategoryModel.findOne({ name: to_change_category }).exec();
         if (!updated_category) { throw error.generate.NOT_FOUND("Categoria inesistente"); }
+
+        for (const [field, value] of Object.entries(updated_data)) { updated_category[field] = value; }
+        await updated_category.save();
     }
     catch (err) {
         return error.response(err, res);

@@ -129,14 +129,10 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
         expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
     });
 
-    test("Aggiornamento vuoto", async function () {
-        const res = await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
+    test("Aggiornamento errato - Parametri vuoti", async function () {
+        await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
-            .send({}).expect(200);
-        
-        const user = await UserModel.findOne({ username: operator2.username }).exec();
-        const operator_data = await user.findType();
-        expect(await operator_data.getWorkingTimeData()).toEqual(res.body);
+            .send({}).expect(400);
     });
 
     test("Aggiornamento errato - Campo malformato (1)", async function () {

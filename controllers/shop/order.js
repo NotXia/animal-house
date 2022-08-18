@@ -38,7 +38,9 @@ async function createOrder(req, res) {
 
         // Aggiornamento quantità
         for (const product of products) {
-            await ProductModel.findByIdAndUpdate(product._id, { quantity: product.quantity - ordered_products_quantity[product.barcode] }).exec();
+            let to_update_product = await ProductModel.findById(product._id).exec();
+            to_update_product.quantity -= ordered_products_quantity[product.barcode];
+            await to_update_product.save();
         }
 
         // Inserimento dati mancanti dell'ordine
@@ -118,8 +120,11 @@ async function updateOrder(req, res) {
     let updated_data = validator.matchedData(req, { locations: ["body"] });
 
     try {
-        updated_order = await OrderModel.findByIdAndUpdate(req.params.order_id, updated_data, { new: true }).exec();
+        updated_order = await OrderModel.findById(req.params.order_id).exec();
         if (!updated_order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+        for (const [field, value] of Object.entries(updated_data)) { updated_order[field] = value; }
+        await updated_order.save();
+
     }
     catch (err) {
         return error.response(err, res);
@@ -133,13 +138,14 @@ async function updateOrder(req, res) {
 */
 async function removeOrder(req, res) {
     try {
+        let order = await OrderModel.findById(req.params.order_id).exec();
+        if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+
         // Gli utenti normali non possono cancellare un ordine in modo arbitrario
-        if (!req.auth.superuser) {
-            const order = await OrderModel.findById(req.params.order_id).exec();
-            if (order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
-        }
+        if (!req.auth.superuser && order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
         
-        await OrderModel.findByIdAndUpdate(req.params.order_id, { status: "cancelled" }).exec();
+        order.status = "cancelled";
+        await order.save();
     }
     catch (err) {
         return error.response(err, res);

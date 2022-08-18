@@ -13,12 +13,14 @@ async function insertAbsenceTime(req, res) {
     try {
         // Ricerca utenza
         const user = await UserModel.findOne({ username: req.params.username }).exec();
-        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (!user || !user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Inserimento nuova assenza
-        const updated_operator_data = await user.updateType({ "$push": { absence_time: req.body.absence_time } });
+        let operator = await user.findType();
+        operator.absence_time.push(req.body.absence_time);
+        await operator.save();
 
-        absence = updated_operator_data.getAbsenceTimeData();
+        absence = operator.getAbsenceTimeData();
     } catch (err) {
         return error.response(err, res);
     }
@@ -33,7 +35,7 @@ async function getAbsenceTime(req, res) {
     try {
         // Ricerca utenza
         const user = await UserModel.findOne({ username: req.params.username }).exec();
-        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (!user || !user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         absence = (await user.findType()).getAbsenceTimeData();
     } catch (err) {
@@ -48,15 +50,15 @@ async function deleteAbsenceTimeByIndex(req, res) {
     try {
         // Ricerca utenza
         const user = await UserModel.findOne({ username: req.params.username }).exec();
-        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (!user || !user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Verifica esistenza indice
-        const operator_data = await user.findType();
+        let operator_data = await user.findType();
         if (!operator_data.absence_time[parseInt(req.params.absence_time_index)]) { throw error.generate.NOT_FOUND("Valore inesistente"); }
         
         // Rimozione elemento all'indice
-        await user.updateType({ $unset: { [`absence_time.${req.params.absence_time_index}`]: 1 } });
-        await user.updateType({ $pull: { absence_time: null } });
+        operator_data.absence_time.splice(parseInt(req.params.absence_time_index), 1);
+        await operator_data.save();
     } catch (err) {
         return error.response(err, res);
     }
@@ -72,7 +74,7 @@ async function getWorkingTime(req, res) {
     try {
         // Ricerca utenza
         const user = await UserModel.findOne({ username: req.params.username }).exec();
-        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (!user || !user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         const operator_data = await user.findType();
         working_time = operator_data.getWorkingTimeData();
@@ -90,14 +92,14 @@ async function updateWorkingTime(req, res) {
     try {
         // Ricerca utenza
         let user = await UserModel.findOne({ username: req.params.username }).exec();
-        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (!user || !user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Aggiornamento
-        await user.updateType({ working_time: req.body.working_time });
+        let operator = await user.findType();
+        operator.working_time = req.body.working_time;
+        await operator.save();
 
-        // Estrazione dati operatori
-        const operator_data = await user.findType();
-        updated_working_time = operator_data.getWorkingTimeData();
+        updated_working_time = operator.getWorkingTimeData();
     } catch (err) {
         return error.response(err, res);
     }

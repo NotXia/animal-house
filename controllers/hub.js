@@ -79,8 +79,10 @@ async function updateHub(req, res) {
         const to_change_hub = req.params.code;
         const updated_data = matchedData(req, { locations: ["body"] });
 
-        let updated_hub = await HubModel.findOneAndUpdate({ code: to_change_hub }, updated_data, { new: true }).exec();
+        let updated_hub = await HubModel.findOne({ code: to_change_hub }).exec();
         if (!updated_hub) { throw error.generate.NOT_FOUND("Hub inesistente"); }
+        for (const [field, value] of Object.entries(updated_data)) { updated_hub[field] = value; }
+        await updated_hub.save();
 
         return res.status(utils.http.OK).json(updated_hub.getData());
     } catch (err) {

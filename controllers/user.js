@@ -97,18 +97,25 @@ function updateUser(is_operator) {
             // Aggiornamento dei dati generici dell'utente
             if (data.user) { 
                 if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
-                user = await UserModel.findOneAndUpdate({ username: req.params.username }, data.user, { new: true });
+                user = await UserModel.findOne({ username: req.params.username });
                 if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+                for (const [field, value] of Object.entries(data.user)) { user[field] = value; }
+                await user.save();
+        
             }
 
             // Aggiornamento dei dati specifici
             if (is_operator && data.operator) {
-                const operator = await OperatorModel.findByIdAndUpdate(user.type_id, data.operator);
+                let operator = await OperatorModel.findById(user.type_id).exec();
                 if (!operator) { throw error.generate.FORBIDDEN("L'utente non è un operatore"); }
+                for (const [field, value] of Object.entries(data.operator)) { operator[field] = value; }
+                await operator.save();
             } 
             else if (!is_operator && data.customer) {
-                const customer = await CustomerModel.findByIdAndUpdate(user.type_id, data.customer);
+                let customer = await CustomerModel.findById(user.type_id).exec();
                 if (!customer) { throw error.generate.FORBIDDEN("L'utente non è un cliente"); }
+                for (const [field, value] of Object.entries(data.customer)) { customer[field] = value; }
+                await customer.save();
             }
         } catch (e) {
             return error.response(e, res);
