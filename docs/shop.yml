@@ -1121,7 +1121,9 @@ definitions:
               type: string
             price:
               type: number
-          required: [ barcode, name, price ]
+            quantity:
+              type: number
+          required: [ barcode, name, price, quantity ]
       total:
         type: number
       pickup:

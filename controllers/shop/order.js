@@ -49,7 +49,8 @@ async function createOrder(req, res) {
         order_data.products = products.map((product) => ({
             barcode: product.barcode,
             name: product.name,
-            price: product.price
+            price: product.price,
+            quantity: ordered_products_quantity[product.barcode]
         }));
 
         new_order = await new OrderModel(order_data).save();
@@ -122,9 +123,10 @@ async function updateOrder(req, res) {
     try {
         updated_order = await OrderModel.findById(req.params.order_id).exec();
         if (!updated_order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+        if (updated_order.status === "cancelled") { throw error.generate.BAD_REQUEST("Non è possibile riaprire un ordine cancellato"); }
+        
         for (const [field, value] of Object.entries(updated_data)) { updated_order[field] = value; }
         await updated_order.save();
-
     }
     catch (err) {
         return error.response(err, res);
@@ -146,6 +148,13 @@ async function removeOrder(req, res) {
         
         order.status = "cancelled";
         await order.save();
+
+        // Aggiornamento quantità prodotti
+        for (const product of order.products) {
+            let to_update_product = await ProductModel.findOne({ barcode: product.barcode }).exec();
+            to_update_product.quantity += product.quantity;
+            await to_update_product.save();
+        }
     }
     catch (err) {
         return error.response(err, res);
