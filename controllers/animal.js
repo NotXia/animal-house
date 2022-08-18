@@ -118,10 +118,38 @@ async function deleteAnimal(req, res) {
     }
 }
 
+// Aggiornamento degli animali di un utente
+async function updateUserAnimals(req, res) {
+    let updated_animals;
+
+    try {
+        // Verifica esistenza animali
+        const animals = await AnimalModel.find({ _id: { "$in": req.body.animals_id } }).exec();
+        if (animals.length != req.body.animals_id.length) { throw error.generate.NOT_FOUND("Sono presenti animali inesistenti"); }
+        
+        // Estrazione utente
+        const user = await UserModel.findOne({ username: req.params.username }).exec();
+        if (!user || user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+
+        // Aggiornamento dati
+        const customer = await user.findType();
+        customer.animals_id = req.body.animals_id;
+        await customer.save();
+
+        // Estrazione dati animali
+        updated_animals = animals.map((animal) => animal.getData());
+    } catch (err) {
+        return error.response(err, res);
+    }
+    
+    return res.status(utils.http.OK).json(updated_animals);
+}
+
 module.exports = {
     getAnimalById: getAnimalById,
     addAnimal: addAnimal,
     getAnimals: getAnimals,
     updateAnimal: updateAnimal,
-    deleteAnimal: deleteAnimal
+    deleteAnimal: deleteAnimal,
+    updateUserAnimals: updateUserAnimals
 }

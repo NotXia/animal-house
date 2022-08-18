@@ -133,6 +133,42 @@ describe("Modifica degli animali", function () {
     });
 });
 
+describe("Modifica animali di un utente", function() {
+    test("Condivisione di animali", async function () {
+        let res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(0);
+        res = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(2);
+
+        res = await curr_session.put(`/user/customers/${customer2.username}/animals/`)
+            .set({ Authorization: `Bearer ${customer2.token}` })
+            .send({ animals_id: [ animal1.id, animal2.id ] }).expect(200);
+
+        res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(2);
+        res = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(2);
+    });
+
+    test("Condivisione di animali errata - Animale inesistente", async function () {
+        let res = await curr_session.put(`/user/customers/${customer2.username}/animals/`)
+            .set({ Authorization: `Bearer ${customer2.token}` })
+            .send({ animals_id: [ WRONG_MONGOID ] }).expect(404);
+        
+        res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(2);
+    });
+
+    test("Rimozione di animali posseduti", async function () {
+        let res = await curr_session.put(`/user/customers/${customer2.username}/animals/`)
+        .set({ Authorization: `Bearer ${customer2.token}` })
+        .send({ animals_id: [ animal2.id ] }).expect(200);
+
+        res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(1);
+    });
+});
+
 describe("Cancellazione degli animali", function () {
     test("Cancellazione errata - Permessi mancanti", async function () {
         await curr_session.delete(`/animals/${animal1.id}`).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
@@ -155,11 +191,16 @@ describe("Cancellazione degli animali", function () {
     });
 
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/animals/${animal2.id}`).set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
+        await curr_session.delete(`/animals/${animal2.id}`).set({ Authorization: `Bearer ${customer2.token}` }).expect(204);
 
         const animal = await AnimalModel.findById(animal2.id).exec();
         expect(animal).toBeNull();
         expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(animal2.image_path))) ).toBeFalsy();
+        
+        let res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(0);
+        res = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        expect(res.body.length).toEqual(0);
     });
 
     test("Cancellazione specie inesistente", async function () {

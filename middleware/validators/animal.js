@@ -10,6 +10,12 @@ module.exports.validateAnimalName =         (source, required=true, field_name="
 module.exports.validateAnimalWeight =       (source, required=true, field_name="weight") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
 module.exports.validateAnimalHeight =       (source, required=true, field_name="height") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
 module.exports.validateAnimalImagePath =    (source, required=true, field_name="image_path") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
+module.exports.validateListOfAnimalsId = function (source, required=true, field_name="animals_id") { 
+    return [
+        utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato non valido"),
+        module.exports.validateAnimalId(source, required, `${field_name}.*`)
+    ]; 
+}
 
 module.exports.verifyAnimalOwnership = async function(animal_id, username) {
     const user = await UserModel.findOne({ username: username }).exec();
