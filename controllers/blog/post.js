@@ -198,7 +198,7 @@ async function updateComment(req, res) {
         if (!post.comments[parseInt(req.params.comment_index)]) { throw error.generate.NOT_FOUND("Commento inesistente"); }
 
         // Ricerca post
-        const updated_post = await PostModel.findById(req.params.post_id).exec();// { "$set": { [`comments.${req.params.comment_index}`]: newComment } }, { new: true });
+        const updated_post = await PostModel.findById(req.params.post_id).exec();
         
         // Aggiornamento commento
         updated_post.comments[parseInt(req.params.comment_index)] = newComment;
