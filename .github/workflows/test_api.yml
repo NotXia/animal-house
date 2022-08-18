@@ -20,7 +20,8 @@ env:
   SHOP_IMAGES_BASE_URL: "/shop/images"
   BLOG_IMAGES_DIR_ABS_PATH: "./public/posts/images"
   BLOG_IMAGES_BASE_URL: "/posts/images"
-
+  CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH: "./public/animals/images"
+  CUSTOMER_ANIMAL_IMAGES_BASE_URL: "/animals/images"
 
 jobs:  
   build:
