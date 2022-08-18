@@ -212,11 +212,21 @@ describe("Aggiornamento ordine", function () {
 
 describe("Cancellazione ordine", function () {
     test("Cancellazione corretta come cliente", async function () {
+        let product = await ProductModel.findOne({ barcode: "A23456" }).exec();
+        expect(product.quantity).toEqual(0);
+        product = await ProductModel.findOne({ barcode: "C12345" }).exec();
+        expect(product.quantity).toEqual(16);
+        
         await curr_session.delete(`/shop/orders/${order2.id}`)
             .set({ Authorization: `Bearer ${customer1.token}` }).expect(204);
 
         const order = await OrderModel.findById(order2.id).exec();
         expect(order.status).toEqual("cancelled");
+
+        product = await ProductModel.findOne({ barcode: "A23456" }).exec();
+        expect(product.quantity).toEqual(1);
+        product = await ProductModel.findOne({ barcode: "C12345" }).exec();
+        expect(product.quantity).toEqual(18);
     });
 
     test("Cancellazione errata come cliente - Ordine già processato", async function () {
