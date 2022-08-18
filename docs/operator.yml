@@ -282,7 +282,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/definitions/WorkingTime"
+              $ref: "#/definitions/TimeSlot"
         400:
           description: "Input malformato"
           schema:
@@ -325,6 +325,26 @@ definitions:
         type: string
         description: Codice dell'hub
     required: [ time, hub ]
+
+  TimeSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+      operator_username:
+        type: string
+    required: [ time, hub, operator_username ]
 
   WorkingTime:
     type: object

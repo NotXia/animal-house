@@ -25,7 +25,7 @@ const operatorScheme = mongoose.Schema({
     role: { type: String, default: "" },
 
     services_id: [{ 
-        type: ObjectId, ref: ServiceModel.collection.name
+        type: ObjectId, ref: ServiceModel.collection.collectionName
     }],
 
     working_time: {
@@ -47,6 +47,20 @@ function formatTimeSlot(time) {
         end: moment(time.end).local().format()
     };
 }
+
+/**
+ * Restituisce i dati sull'utenza
+ */
+operatorScheme.methods.getUserData = async function() {
+    const UserModel = require("./user");
+
+    if (!this.user) {
+        const user = await UserModel.findOne({ type_name: "operator", type_id: this._id }).exec();
+        this.user = user; // Caching della query
+    }
+
+    return this.user;
+};
 
 /**
  * Restituisce i dati sulle assenze
@@ -103,7 +117,7 @@ operatorScheme.methods.getAppointmentTimeSlots = async function (start_date, end
     let appointment_slots = []
 
     let query = { 
-        "operator": this.user.username, 
+        "operator": (await this.getUserData()).username, 
         "time_slot.start": {"$gte": start_date}, 
         "time_slot.end": {"$lte": end_date}
     }
@@ -144,7 +158,7 @@ function createSlots(availabilities, slot_size) {
  * @param {Date} end_date       Data di fine ricerca
  * @param {String} hub          Codice di uno specifico hub (facoltativo)
  * @param {Number} slot_size    Dimensione dello slot di tempo (facoltativo)
- * @returns Array di disponibilità [ {time: {start, end}, hub} ]
+ * @returns Array di disponibilità [ {time: {start, end}, hub, username} ]
  */
 operatorScheme.methods.getAvailabilityData = async function(start_date, end_date, hub, slot_size) {
     // Normalizzazione valori delle date
@@ -192,10 +206,13 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
     // Divisione in slot temporali
     if (slot_size) { availabilities = createSlots(availabilities, slot_size); }
 
-    availabilities = availabilities.map((availability) => ({
-        time: formatTimeSlot(availability.time),
-        hub: availability.hub
-    }));
+    availabilities = await Promise.all(
+        availabilities.map(async (availability) => ({
+            time: formatTimeSlot(availability.time),
+            hub: availability.hub,
+            operator_username: (await this.getUserData()).username
+        })) 
+    );
 
     return availabilities;
 }

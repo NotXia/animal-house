@@ -118,7 +118,7 @@ userScheme.methods.getPublicData = async function() {
 };
 
 /**
- * Cerca e restituisce i dati del tipo dell'utente. I dat idell'utenza sono disponibili nel campo user
+ * Cerca e restituisce i dati del tipo dell'utente. I dati dell'utenza sono disponibili nel campo user
  * @returns Una instanza di Customer od Operator arricchita da user
  */
 userScheme.methods.findType = async function() {

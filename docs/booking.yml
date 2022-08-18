@@ -1,0 +1,280 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per la gestione di appuntamenti"
+  version: "1.0.0"
+  title: "Appuntamenti"
+basePath: "/appointments"
+
+paths:
+  /appointments/:
+    post:
+      tags:
+        - "Appointments"
+      summary: "Creazione"
+      description: | 
+        Gestisce l'inserimento di un appuntamento
+
+        Richiede permessi [ ["customer"], ["operator"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati dell'appuntamento"
+        required: true
+        schema:
+          type: object
+          properties:
+            time_slot:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+              required: [ start, end ]
+            service_id:
+              $ref: "definitions/utils.yml#/definitions/ObjectId"
+            customer:
+              type: string
+              description: "Username del cliente"
+            animal_id:
+              $ref: "definitions/utils.yml#/definitions/ObjectId"
+            operator:
+              type: string
+              description: "Username dell'operatore"
+            hub:
+              type: string
+              description: "Codice dell'hub"
+          required: [ time_slot, service_id, customer, animal_id, operator, hub ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/BookingData"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati della prenotazione"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+      - "Appointments"
+      summary: "Ricerca generale"
+      description: | 
+        Gestisce la ricerca di tutti gli appuntamenti oppure è possibile applicare un filtro per mostrare gli appuntamenti di un cliente o di un operatore
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: query
+        description: "Username dell'utente"
+        required: false
+        type: string      
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/BookingData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+  /appointments/availabilities/:
+    get:
+      tags:
+      - "Disponibilità"
+      summary: "Ricerca slot disponibili"
+      description: |
+        Restituisce gli slot temporali disponibili per un determinato servizio presso un dato hub.
+      produces:
+      - "application/json"
+      parameters:
+      - name: start_date
+        in: query
+        description: "Data di inizio ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: end_date
+        in: query
+        description: "Data di fine ricerca"
+        required: true
+        type: string
+        format: date-time
+      - name: hub_code
+        in: query
+        description: "Codice dell'hub in cui verificare le disponibilità"
+        required: true
+        type: string
+      - name: service_id
+        in: query
+        description: "Id del servizio richiesto"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Slot disponibili raggruppati per operatore"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TimeSlot"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        500:
+          description: "Internal server error"
+  /appointments/{appointment_id}:
+    get:
+      tags:
+      - "Appointments"
+      summary: "Ricerca per id"
+      description: |
+        Gestisce la ricerca di un appuntamento tramite id
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: appointment_id
+        in: path
+        description: "Id dell'appuntamento"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/BookingData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+        - "Appointments"
+      summary: "Cancellazione"
+      description:  |
+        Gestisce la cancellazione di un appuntamento tramite id
+
+        Richiede permesso [ ["customer"], ["operator"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: appointment_id
+        in: path
+        description: "Id dell'appuntamento"
+        required: true
+        type: string
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    
+definitions:
+  BookingData:
+    type: object
+    properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      time_slot:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      service_id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      customer:
+        type: string
+      animal_id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      operator:
+        type: string
+      hub:
+        type: string
+    required: [ id, time_slot, service_id, customer, animal_id, operator, hub ]
+
+  TimeSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+      operator_username:
+        type: string
+    required: [ time, hub, operator_username ]
