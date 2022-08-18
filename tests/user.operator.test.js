@@ -20,12 +20,12 @@ beforeAll(async function () {
 
 describe("Ricerca vuota di assenze", function () {
     test("Ricerca corretta", async function () {
-        const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+        const res = await curr_session.get(`/users/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(0);
     });
 
     test("Ricerca senza permessi di proprietà", async function () {
-        await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator2.token}` }).expect(403);
+        await curr_session.get(`/users/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator2.token}` }).expect(403);
     });
 });
 
@@ -35,7 +35,7 @@ describe("Inserimento di assenze", function () {
         const start_vacation = moment("29/07/2022 9:00", TIME_FORMAT);
         const end_vacation = moment("29/07/2022 12:00", TIME_FORMAT)
 
-        const res = await curr_session.post(`/user/operators/${operator1.username}/absences/`)
+        const res = await curr_session.post(`/users/operators/${operator1.username}/absences/`)
             .set({ Authorization: `Bearer ${operator1.token}` })
             .send({ absence_time: { start: start_vacation, end: end_vacation } }).expect(201);
         expect(moment(res.body[0].start).local().toISOString()).toEqual(start_vacation.toISOString());
@@ -46,7 +46,7 @@ describe("Inserimento di assenze", function () {
         const start_vacation = moment("14/08/2022 0:00", TIME_FORMAT);
         const end_vacation = moment("20/08/2022 23:59", TIME_FORMAT)
 
-        const res = await curr_session.post(`/user/operators/${operator1.username}/absences/`)
+        const res = await curr_session.post(`/users/operators/${operator1.username}/absences/`)
             .set({ Authorization: `Bearer ${operator1.token}` })
             .send({ absence_time: { start: start_vacation, end: end_vacation } }).expect(201);
         expect(res.body[1].start).toEqual(start_vacation.local().format());
@@ -57,7 +57,7 @@ describe("Inserimento di assenze", function () {
         const start_vacation = moment("29/07/2022 10:30", TIME_FORMAT);
         const end_vacation = moment("29/07/2022 10:29", TIME_FORMAT)
 
-        await curr_session.post(`/user/operators/${operator1.username}/absences/`)
+        await curr_session.post(`/users/operators/${operator1.username}/absences/`)
             .set({ Authorization: `Bearer ${operator1.token}` })
             .send({ absence_time: { start: start_vacation, end: end_vacation } }).expect(400);
     });
@@ -66,25 +66,25 @@ describe("Inserimento di assenze", function () {
 
 describe("Ricerca di assenze", function () {
     test("Ricerca corretta", async function () {
-        const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+        const res = await curr_session.get(`/users/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(2);
     });
 });
 
 describe("Cancellazione assenza", function () {
     test("Cancellazione corretta", async function () {
-        await curr_session.delete(`/user/operators/${operator1.username}/absences/0`)
+        await curr_session.delete(`/users/operators/${operator1.username}/absences/0`)
             .set({ Authorization: `Bearer ${operator1.token}` }).expect(204);
         
-        const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+        const res = await curr_session.get(`/users/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(1);
     });
 
     test("Cancellazione errata - Indice inesistente", async function () {
-        await curr_session.delete(`/user/operators/${operator1.username}/absences/100`)
+        await curr_session.delete(`/users/operators/${operator1.username}/absences/100`)
             .set({ Authorization: `Bearer ${operator1.token}` }).expect(404);
 
-        const res = await curr_session.get(`/user/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
+        const res = await curr_session.get(`/users/operators/${operator1.username}/absences/`).set({ Authorization: `Bearer ${operator1.token}` }).expect(200);
         expect(res.body.length).toEqual(1);
     });
 });
@@ -92,7 +92,7 @@ describe("Cancellazione assenza", function () {
 
 describe("Inserimento/Aggiornamento orario lavorativo", function () {
     test("Aggiornamento corretto - Orario vuoto", async function () {
-        const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+        const res = await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
                 working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
@@ -104,7 +104,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
     });
 
     test("Aggiornamento corretto", async function () {
-        const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+        const res = await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
                 working_time: { 
@@ -130,7 +130,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
     });
 
     test("Aggiornamento vuoto", async function () {
-        const res = await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+        const res = await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({}).expect(200);
         
@@ -140,7 +140,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
     });
 
     test("Aggiornamento errato - Campo malformato (1)", async function () {
-        await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+        await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
                 working_time: { 
@@ -150,7 +150,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
     });
 
     test("Aggiornamento errato - Campo malformato (2)", async function () {
-        await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+        await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
                 working_time: { 
@@ -160,7 +160,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
     });
 
     test("Aggiornamento errato - Orario inconsistente", async function () {
-        await curr_session.put(`/user/operators/${operator2.username}/working-time/`)
+        await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` })
             .send({
                 working_time: { 
@@ -175,7 +175,7 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
 
 describe("Ricerca orario lavorativo", function () {
     test("Ricerca corretta", async function () {
-        const res = await curr_session.get(`/user/operators/${operator2.username}/working-time/`)
+        const res = await curr_session.get(`/users/operators/${operator2.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator2.token}` }).expect(200);
         
         const user = await UserModel.findOne({ username: operator2.username }).exec();
@@ -189,7 +189,7 @@ describe("Ricerca disponibilità operatore", function () {
     let to_delete_appointments = [];
     
     test("Inserimento orario", async function () {
-        await curr_session.put(`/user/operators/${operator3.username}/working-time/`)
+        await curr_session.put(`/users/operators/${operator3.username}/working-time/`)
             .set({ Authorization: `Bearer ${operator3.token}` })
             .send({
                 working_time: { 
@@ -205,7 +205,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Ricerca disponibilità", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 9:00", TIME_FORMAT).local().format());
         expect(res.body[0].time.end).toEqual(moment("08/08/2022 13:00", TIME_FORMAT).local().format());
@@ -219,13 +219,13 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Inserimento assenza", async function () {
-        await curr_session.post(`/user/operators/${operator3.username}/absences/`)
+        await curr_session.post(`/users/operators/${operator3.username}/absences/`)
             .set({ Authorization: `Bearer ${operator3.token}` })
             .send({ absence_time: { start: moment("08/08/2022 8:00", TIME_FORMAT), end: moment("08/08/2022 10:00", TIME_FORMAT) } }).expect(201);
     });
 
     test("Ricerca disponibilità", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
         expect(res.body[0].time.end).toEqual(moment("08/08/2022 13:00", TIME_FORMAT).local().format());
@@ -265,7 +265,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Ricerca disponibilità", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
         expect(res.body[0].time.end).toEqual(moment("08/08/2022 12:30", TIME_FORMAT).local().format());
@@ -279,13 +279,13 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Inserimento assenza", async function () {
-        await curr_session.post(`/user/operators/${operator3.username}/absences/`)
+        await curr_session.post(`/users/operators/${operator3.username}/absences/`)
             .set({ Authorization: `Bearer ${operator3.token}` })
             .send({ absence_time: { start: moment("08/08/2022 14:00", TIME_FORMAT), end: moment("08/08/2022 17:00", TIME_FORMAT) } }).expect(201);
     });
 
     test("Ricerca disponibilità", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format() }).expect(200);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
         expect(res.body[0].time.end).toEqual(moment("08/08/2022 12:30", TIME_FORMAT).local().format());
@@ -296,7 +296,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Ricerca disponibilità - Filtro per hub", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1" }).expect(200);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
         expect(res.body[0].time.end).toEqual(moment("08/08/2022 12:30", TIME_FORMAT).local().format());
@@ -305,7 +305,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Ricerca disponibilità - Divisione in slot temporali (1)", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1", slot_size: 30 }).expect(200);
         expect(res.body.length).toEqual(5);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
@@ -316,7 +316,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Ricerca disponibilità - Divisione in slot temporali (2)", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1", slot_size: 60 }).expect(200);
         expect(res.body.length).toEqual(2);
         expect(res.body[0].time.start).toEqual(moment("08/08/2022 10:00", TIME_FORMAT).local().format());
@@ -324,7 +324,7 @@ describe("Ricerca disponibilità operatore", function () {
     });
 
     test("Ricerca disponibilità - Divisione in slot temporali (3)", async function () {
-        let res = await curr_session.get(`/user/operators/${operator3.username}/availabilities/`).
+        let res = await curr_session.get(`/users/operators/${operator3.username}/availabilities/`).
             query({ start_date: moment("08/08/2022", "DD/MM/YYYY").format(), end_date: moment("11/08/2022", "DD/MM/YYYY").format(), hub: "MXP1", slot_size: 10000 }).expect(200);
         expect(res.body.length).toEqual(0);
     });

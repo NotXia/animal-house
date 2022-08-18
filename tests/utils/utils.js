@@ -28,7 +28,7 @@ module.exports.loginAsOperatorWithPermission = async function (session, permissi
     const admin_token = await module.exports.loginAsAdmin(session);
     const username = getUsername();
 
-    await session.post('/user/operators/').send({
+    await session.post('/users/operators/').send({
         username: username, password: "PasswordMoltoComplessa1!",
         email: `${username}@animalhouse.com`,
         name: getName(), surname: getSurname(),
@@ -51,7 +51,7 @@ module.exports.loginAsCustomer = async function (session) {
     const admin_token = await module.exports.loginAsAdmin(session);
     const username = getUsername();
 
-    await session.post('/user/customers/').send({
+    await session.post('/users/customers/').send({
         username: username, password: "PasswordMoltoComplessa1!",
         email: `${username}@mondo.com`,
         name: getName(), surname: getSurname(),
@@ -72,10 +72,10 @@ module.exports.cleanup = async function (session) {
     const admin_token = await module.exports.loginAsAdmin(session);
 
     for (operator of to_del_operators) {
-        await session.delete(`/user/operators/${operator}`).set({ Authorization: `Bearer ${admin_token}` });
+        await session.delete(`/users/operators/${operator}`).set({ Authorization: `Bearer ${admin_token}` });
     }
 
     for (customer of to_del_customers) {
-        await session.delete(`/user/customers/${customer}`).set({ Authorization: `Bearer ${admin_token}` });
+        await session.delete(`/users/customers/${customer}`).set({ Authorization: `Bearer ${admin_token}` });
     }
 }

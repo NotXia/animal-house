@@ -103,7 +103,7 @@ describe("Ricerca dei servizi", function() {
 describe("Ricerca per hub", function () {
     test("Creazione utenti", async function () {
         let operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [servizioTest._id, servizioTest2._id]);
-        await curr_session.put(`/user/operators/${operator1.username}/working-time`)
+        await curr_session.put(`/users/operators/${operator1.username}/working-time`)
             .send({ 
                 working_time: { 
                     monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
@@ -112,7 +112,7 @@ describe("Ricerca per hub", function () {
             }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         let operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [servizioTest3._id]);
-        await curr_session.put(`/user/operators/${operator2.username}/working-time`)
+        await curr_session.put(`/users/operators/${operator2.username}/working-time`)
             .send({ 
                 working_time: { 
                     monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
