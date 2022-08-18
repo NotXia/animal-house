@@ -262,10 +262,6 @@ paths:
             type: array
             items:
               $ref: "#/definitions/AnimalData"
-          headers:
-            location:
-              type : string
-              description: "Endpoint da cui è possibile accedere ai dati dell'animale"
         400:
           description: "Input malformato"
           schema:
