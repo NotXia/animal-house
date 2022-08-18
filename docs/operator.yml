@@ -6,7 +6,7 @@ info:
 basePath: "/user"
 
 paths:
-  /user/operators/{username}/absences/:
+  /users/operators/{username}/absences/:
     post:
       tags:
       - "Assenze"
@@ -101,7 +101,7 @@ paths:
         500:
           description: "Internal server error"
 
-  /user/operators/{username}/absences/{absence_time_index}:
+  /users/operators/{username}/absences/{absence_time_index}:
     post:
       tags:
       - "Assenze"
@@ -147,7 +147,7 @@ paths:
           description: "Internal server error"
 
 
-  /user/operators/{username}/working-time/:
+  /users/operators/{username}/working-time/:
     get:
       tags:
       - "Orario lavorativo"
@@ -238,7 +238,7 @@ paths:
           description: "Internal server error"
 
 
-  /user/operators/{username}/availabilities/:
+  /users/operators/{username}/availabilities/:
     get:
       tags:
       - "Disponibilità"
