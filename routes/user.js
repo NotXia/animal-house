@@ -7,6 +7,8 @@ const operator_middleware = require("../middleware/user.operator");
 const operator_controller = require("../controllers/user.operator");
 const animal_middleware = require("../middleware/animal");
 const animal_controller = require("../controllers/animal");
+const cart_middleware = require("../middleware/shop/cart");
+const cart_controller = require("../controllers/shop/cart");
 
 /* Operazioni sull'utenza dei clienti */
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
@@ -43,5 +45,10 @@ router.put("/customers/:username/animals/", [ auth_middleware([ ["customer"] ], 
 
 /* Operazioni sui permessi */
 router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), user_middleware.validateSearchPermissionByName ], user_controller.getPermissionByName);
+
+/* Operazioni sul carrello shop */
+router.post("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateAddToCart ], cart_controller.addToCart);
+router.get("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateGetCart ], cart_controller.getCart);
+router.put("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateUpdateCart ], cart_controller.updateCart);
 
 module.exports = router;
