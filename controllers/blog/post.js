@@ -104,8 +104,13 @@ async function updatePost(req, res) {
             await file_controller.utils.delete(images_changes.removed, process.env.BLOG_IMAGES_DIR_ABS_PATH);
         }
 
-        updated_post = await PostModel.findOneAndUpdate({ _id: req.params.post_id }, updated_fields, { new: true });
+        // Ricerca post
+        updated_post = await PostModel.findById(req.params.post_id).exec();
         if (!updated_post) { throw error.generate.NOT_FOUND("Post inesistente"); }
+
+        // Aggiornamento post
+        for (const [field, value] of Object.entries(updated_fields)) { updated_post[field] = value; }
+        await updated_post.save();
     } catch (err) {
         return error.response(err, res);
     }
@@ -192,7 +197,12 @@ async function updateComment(req, res) {
         if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
         if (!post.comments[parseInt(req.params.comment_index)]) { throw error.generate.NOT_FOUND("Commento inesistente"); }
 
-        const updated_post = await PostModel.findByIdAndUpdate(req.params.post_id, { [`comments.${req.params.comment_index}`]: newComment }, { new: true });
+        // Ricerca post
+        const updated_post = await PostModel.findById(req.params.post_id).exec();// { "$set": { [`comments.${req.params.comment_index}`]: newComment } }, { new: true });
+        
+        // Aggiornamento commento
+        updated_post.comments[parseInt(req.params.comment_index)] = newComment;
+        await updated_post.save();
         updated_comment = updated_post.getCommentByIndexData(parseInt(req.params.comment_index));
     } catch (err) {
         return error.response(err, res);
@@ -204,13 +214,13 @@ async function updateComment(req, res) {
 // Cancellazione di un commento dato un id di un post e la posizione del commento nell'array
 async function deleteComment(req, res) {
     try {
-        const post = await PostModel.findById(req.params.post_id, { comments: 1 }).exec();
+        const post = await PostModel.findById(req.params.post_id).exec();
         if (!post) { throw error.generate.NOT_FOUND("Post inesistente"); }
         if (!post.comments[parseInt(req.params.comment_index)]) { throw error.generate.NOT_FOUND("Commento inesistente"); }
 
-        // Rimozione del commento (workaround per eliminare un elemento per indice)
-        await PostModel.findByIdAndUpdate(req.params.post_id, { $unset: { [`comments.${req.params.comment_index}`]: 1 } });
-        await PostModel.findByIdAndUpdate(req.params.post_id, { $pull: { comments: null } });
+        // Cancellazione commento
+        post.comments.splice(parseInt(req.params.comment_index), 1);
+        await post.save();
     } catch (err) {
         return error.response(err, res);
     }
