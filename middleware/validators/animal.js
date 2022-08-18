@@ -25,3 +25,4 @@ module.exports.verifyAnimalOwnership = async function(animal_id, username) {
 
     if (!customer.animals_id.includes(animal_id)) { return error.generate.FORBIDDEN("Non sei il proprietario dell'animale"); }
 }
+
