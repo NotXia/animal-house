@@ -27,28 +27,28 @@ beforeAll(async function () {
     service2 = (await curr_session.post('/services/').send({ name: "Pranzo di Natale", description: "A", duration: 25, price: 1000 }).set({ Authorization: `Bearer ${admin_token}` })).body;
     
     operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id, service2.id]);
-    await curr_session.put(`/user/operators/${operator1.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator1.username}/working-time`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
     
     operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id]);
-    await curr_session.put(`/user/operators/${operator2.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator2.username}/working-time`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
     
     operator3 = await utils.loginAsOperatorWithPermission(curr_session, [], []);
-    await curr_session.put(`/user/operators/${operator3.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator3.username}/working-time`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
 
     operator4 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id, service2.id]);
-    await curr_session.put(`/user/operators/${operator4.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator4.username}/working-time`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("11:00", "HH:mm"), end: moment("16:59", "HH:mm")}, hub: "BLQ2" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 

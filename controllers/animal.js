@@ -132,7 +132,7 @@ async function updateUserAnimals(req, res) {
         if (!user || user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
         // Aggiornamento dati
-        const customer = await user.findType();
+        let customer = await user.findType();
         customer.animals_id = req.body.animals_id;
         await customer.save();
 

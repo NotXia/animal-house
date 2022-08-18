@@ -5,7 +5,7 @@ info:
   title: "User"
 
 paths:
-  /customers/:
+  /users/customers/:
     post:
       tags:
       - "Clienti"
@@ -62,7 +62,7 @@ paths:
         500:
           description: "Internal server error"
           
-  /customers/{username}:
+  /users/customers/{username}:
     get:
       tags:
       - "Clienti"
@@ -215,7 +215,7 @@ paths:
 ### INIZIO OPERATORI ###
 ########################
 
-  /operators/:
+  /users/operators/:
     post:
       tags:
       - "Operatori"
@@ -292,7 +292,7 @@ paths:
         500:
           description: "Internal server error"
           
-  /operators/{username}:
+  /users/operators/{username}:
     get:
       tags:
       - "Operatori"
@@ -444,7 +444,7 @@ paths:
         500:
           description: "Internal server error"
 
-  /profiles/{username}:
+  /users/profiles/{username}:
     get:
       tags:
       - "Profilo pubblico"
@@ -488,7 +488,7 @@ paths:
         500:
           description: "Internal server error"
 
-  /permissions/{permission_name}:
+  /users/permissions/{permission_name}:
     get:
       tags:
       - "Permessi"

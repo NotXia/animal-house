@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use("/", express.static("public"));
 app.use("/auth", auth);
 app.use("/files", file);
-app.use("/user", user);
+app.use("/users", user);
 app.use("/shop", shop);
 app.use("/blog", blog);
 app.use("/hubs", hub);
