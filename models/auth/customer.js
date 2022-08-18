@@ -11,7 +11,19 @@ const customerScheme = mongoose.Schema({
 
     animals_id: [{ type: ObjectId, ref: AnimalModel.collection.collectionName }],
 
-    cart: [{ type: ObjectId, ref: ProductModel.collection.collectionName }]
+    cart: [{ 
+        barcode: { type: String },
+        quantity: { type: Number },
+    }]
 });
+
+customerScheme.methods.getCartData = async function() {
+    return await Promise.all(
+        this.cart.map(async (cart_entry) => ({
+            product: (await ProductModel.findOne({ barcode: cart_entry.barcode }).exec()).getData(),
+            quantity: cart_entry.quantity
+        }))
+    );
+};
 
 module.exports = mongoose.model("customers", customerScheme);

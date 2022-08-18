@@ -55,7 +55,7 @@ module.exports.validateOrderStatus = (source, required=true, field_name="status"
 module.exports.validateOrderTrackingCode = (source, required=true, field_name="tracking") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
 module.exports.validateOrderProductsList = function (source, required=true, field_name="products") {
     return [
-        utils.handleRequired(validator[source](field_name), required).isArray({ min: 1 }).withMessage("Formato errato"),
+        utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato errato"),
         module.exports.validateProductBarcode(source, REQUIRED, `${field_name}.*.barcode`),
         module.exports.validateProductQuantity(source, REQUIRED, `${field_name}.*.quantity`)
     ];
