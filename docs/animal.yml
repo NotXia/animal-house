@@ -131,6 +131,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
   /user/customers/{username}/animals/:
     post:
       tags:
@@ -219,6 +220,62 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
         404:
           description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+        - "Animals"
+      summary: "Aggiornamento di animali posseduti"
+      description: | 
+        Gestisce l'aggiornamento di cui l'utente è (co-)proprietario
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username del cliente"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Animali aggiornati"
+        required: true
+        schema:
+          type: object
+          properties:
+            animals_id:
+              type: array
+              items:
+                type: string
+                format: ObjectId
+          required: [ animals_id ]
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AnimalData"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati dell'animale"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
