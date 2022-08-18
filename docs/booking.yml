@@ -72,10 +72,6 @@ paths:
           description: "Permessi mancanti"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        409:
-          description: "Servizio con lo stesso nome esistente"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
     get:
@@ -105,6 +101,14 @@ paths:
           description: "Input malformato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
   /appointments/availabilities/:
@@ -179,6 +183,14 @@ paths:
           description: "Input malformato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
     delete:
