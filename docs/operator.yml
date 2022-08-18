@@ -3,7 +3,7 @@ info:
   description: "Endpoint per le operazioni specifiche degli operatori"
   version: "1.0.0"
   title: "Operatori"
-basePath: "/user"
+basePath: "/users"
 
 paths:
   /users/operators/{username}/absences/:
