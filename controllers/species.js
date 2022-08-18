@@ -43,8 +43,10 @@ async function updateSpecies(req, res) {
         const to_change_species = req.params.name;
         const updated_data = matchedData(req, { locations: ["body"] });
 
-        let updated_species = await SpeciesModel.findOneAndUpdate({name: to_change_species}, updated_data, { new: true })
+        let updated_species = await SpeciesModel.findOne({name: to_change_species})
         if (!updated_species) { throw error.generate.NOT_FOUND("Specie inesistente"); }
+        for (const [field, value] of Object.entries(updated_data)) { updated_species[field] = value; }
+        await updated_species.save();
 
         return res.status(utils.http.OK).json(updated_species.getData());
     } catch (err) {
