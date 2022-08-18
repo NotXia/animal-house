@@ -884,6 +884,155 @@ paths:
         500:
           description: "Errore lato server"
 
+
+  /users/customers/{username}/cart/:
+    get:
+      tags:
+      - "Carrello"
+      summary: "Ricerca contenuto carrello"
+      description: |
+        Gestisce la ricerca del contenuto nel carrello dell'utente.
+
+        Nota: non controlla la presenza di inconsistenze tra quantità richiesta e quantità disponibile.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Carrello dell'utente"
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    post:
+      tags:
+      - "Carrello"
+      summary: "Inserimento in carrello"
+      description: |
+        Gestisce l'inserimento di un prodotto nel carrello. Se già presente, la quantità viene aggiornata.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            barcode:
+              type: string
+            quantity:
+              type: number
+          required: [ barcode, quantity ]
+      responses:
+        200:
+          description: "Inserito con successo"
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: "Parametri malformati, quantità insufficiente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente o prodotto inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    put:
+      tags:
+      - "Carrello"
+      summary: "Modifica carrello"
+      description: |
+        Gestisce la modifica del contenuto nel carrello
+
+        Richiede permessi [ ["customer"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              barcode:
+                type: string
+              quantity:
+                type: number
+            required: [ barcode, quantity ]
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: "Parametri malformati, quantità insufficiente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente o prodotto inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
 definitions:
 
   Category:
@@ -1003,3 +1152,15 @@ definitions:
         type: string
       postalcode:
         type: string
+
+  Cart:
+    type: array
+    items:
+      type: object
+      properties:
+        product:
+          $ref: "#/definitions/Product"
+        quantity:
+          type: number
+      required: [ product, quantity ]
+      
