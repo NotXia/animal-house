@@ -41,7 +41,7 @@ router.post("/customers/:username/animals/", [ auth_middleware([ ["customer"], [
 router.get("/customers/:username/animals/", animal_middleware.validateGetAnimals, animal_controller.getAnimals)
 router.put("/customers/:username/animals/", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator"] ]), animal_middleware.validateUpdateUserAnimals ], animal_controller.updateUserAnimals)
 
-/* Operazioni profilo degli utenti */
+/* Operazioni sui permessi */
 router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), user_middleware.validateSearchPermissionByName ], user_controller.getPermissionByName);
 
 module.exports = router;
