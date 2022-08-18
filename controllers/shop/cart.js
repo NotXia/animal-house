@@ -54,7 +54,7 @@ async function getCart(req, res) {
         if (!user || user.isOperator()) { throw error.generate.NOT_FOUND("Utente inesistente"); }
         let customer = await user.findType();
 
-        cart_data = customer.getCartData();
+        cart_data = await customer.getCartData();
     }
     catch (err) {
         return error.response(err, res);
@@ -82,7 +82,7 @@ async function updateCart(req, res) {
         customer.cart = req.body.cart;
         await customer.save();
 
-        cart_data = customer.getCartData();
+        cart_data = await customer.getCartData();
     }
     catch (err) {
         return error.response(err, res);
