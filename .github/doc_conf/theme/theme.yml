@@ -1,0 +1,15 @@
+extends: default
+font:
+  catalog:
+    merge: true 
+    "Computer Modern":
+      normal: cmt_regular.ttf
+      italic: cmt_italic.ttf
+      bold: cmt_bold.ttf
+      bold_italic: cmt_bolditalic.ttf
+
+base:
+  font-family: "Computer Modern"
+
+code:
+  font-family: "Courier"

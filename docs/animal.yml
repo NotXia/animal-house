@@ -1,0 +1,298 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sugli animali"
+  version: "1.0.0"
+  title: "Animal"
+
+paths:
+  /animals/{animal_id}:
+    get:
+      tags:
+        - "Animals"
+      summary: "Ricerca dato un id"
+      description: "Gestisce la ricerca di un animale dato il suo id"
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal_id
+        in: path
+        description: "Id dell'animale"
+        required: true
+        type: string      
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/AnimalData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+        - "Animals"
+      summary: "Modifica di un animale"
+      description: |
+        Gestisce la modifica di un animale di un cliente tramite id
+
+        Richiede permesso [ ["customer"] ], [ ["admin"], ["operator"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal_id
+        in: path
+        description: "Id dell'animale"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati dell'animale"
+        required: true
+        schema:
+          type: object
+          properties:
+            species:
+              type: string
+            name:
+              type: string
+            weight:
+              type: number
+              format: int
+            height:
+              type: number
+              format: int
+            image_patch:
+              type: string
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/AnimalData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+        - "Animals"
+      summary: "Cancellazione di un animale"
+      description:  |
+        Gestisce la cancellazione di un animale di un cliente tramite id
+
+        Richiede permesso [ ["customer"] ], [ ["admin"], ["operator"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal_id
+        in: path
+        description: "Id dell'animale"
+        required: true
+        type: string
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /users/customers/{username}/animals/:
+    post:
+      tags:
+        - "Animals"
+      summary: "Creazione di un nuovo animale"
+      description: | 
+        Gestisce l'inserimento di un animale a un dato cliente
+
+        Richiede permessi [ ["customer], ["operator"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username del cliente"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Dati dell'animale"
+        required: true
+        schema:
+          type: object
+          properties:
+            species:
+              type: string
+            name:
+              type: string
+            weight:
+              type: number
+              format: int
+            height:
+              type: number
+              format: int
+            image_patch:
+              type: string
+          required: [ species, name ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/AnimalData"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati dell'animale"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+        - "Animals"
+      summary: "Ricerca dato un utente"
+      description: "Gestisce la ricerca di tutti gli animali di un dato cliente"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username del cliente"
+        required: true
+        type: string      
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AnimalData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    put:
+      tags:
+        - "Animals"
+      summary: "Aggiornamento di animali posseduti"
+      description: | 
+        Gestisce l'aggiornamento di cui l'utente è (co-)proprietario
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        description: "Username del cliente"
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: "Animali aggiornati"
+        required: true
+        schema:
+          type: object
+          properties:
+            animals_id:
+              type: array
+              items:
+                type: string
+                format: ObjectId
+          required: [ animals_id ]
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AnimalData"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+definitions:
+  AnimalData:
+    type: object
+    properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      species:
+        type: string
+      name:
+        type: string
+      weight:
+        type: number
+        format: int
+      height:
+        type: number
+        format: int
+      image_path:
+        type: string
+    required: [ id, species, name, weight, height, image_path ]

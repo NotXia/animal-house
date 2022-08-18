@@ -1,0 +1,33 @@
+definitions:
+  ErrorMessage:
+    type: object
+    properties:
+      message:
+        type: string
+        description: "Informazioni sull'errore"
+    required:
+      - messsage
+  
+  FieldErrorMessage:
+    type: object
+    properties:
+      field:
+        type: string
+        description: "Il campo errato"
+      message:
+        type: string
+        description: "Informazioni sull'errore"
+    required:
+      - field
+      - messsage
+
+  ValidationErrorMessage:
+    type: array
+    items:
+      $ref: "#/definitions/FieldErrorMessage"
+
+
+  ObjectId:
+    type: string
+    format: ObjectId
+    example: "61338f5b47bfc65136b5de30"

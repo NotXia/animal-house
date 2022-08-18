@@ -1,0 +1,63 @@
+name: 🍿 Generazione documentazione in documentation
+
+on:
+  push:
+    paths:
+      - docs/**.yml
+      - .github/workflows/branch_documentation.yml
+      - .github/doc_conf/config.properties
+  repository_dispatch:
+
+jobs:  
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+
+    - name: Ruby
+      uses: actions/setup-ruby@v1
+
+    - name: Install dependencies
+      run: |
+        docker pull swagger2markup/swagger2markup
+        gem install asciidoctor-pdf
+
+    - name: Removing old pdf
+      run: rm -f ./docs/pdf/*.pdf
+
+    - name: Generating adoc
+      run: |
+        for f in ./docs/*.yml; do
+          echo "Processing $f"
+          file="$(basename -- $f)"
+          filename="${file%.*}"
+
+          docker run -v $(pwd):/opt swagger2markup/swagger2markup convert -i /opt/$f -f /opt/docs/pdf/$filename -c /opt/.github/doc_conf/config.properties
+        done
+
+    - name: Generating pdf
+      run: |
+        sudo chmod -R 777 ./docs/pdf
+        for f in ./docs/pdf/*.adoc; do
+          echo "Processing $f"
+
+          asciidoctor-pdf $f -a pdf-themesdir=./.github/doc_conf/theme -a pdf-theme=theme.yml -a pdf-fontsdir=./.github/doc_conf/theme/fonts
+          rm $f
+        done
+
+    - name: Moving to deploy directory
+      run: |
+        mkdir "/tmp/to_deploy/${GITHUB_REF##*/}" -p
+        mv ./docs/pdf/* "/tmp/to_deploy/${GITHUB_REF##*/}"
+
+    - name: Push
+      uses: s0/git-publish-subdir-action@develop
+      env:
+        REPO: self
+        BRANCH: documentation
+        FOLDER: "/tmp/to_deploy"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MESSAGE: "Ho generato da documentazione da ${{ github.ref_name }} 🍪"
+        CLEAR_GLOBS_FILE: ".github/.clear-target-files"

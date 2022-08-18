@@ -1,0 +1,109 @@
+swagger: "2.0"
+info:
+  description: "Descrizione degli endpoint di autenticazione"
+  version: "1.0.0"
+  title: "Autenticazione"
+basePath: "/auth"
+tags:
+- name: "Login"
+- name: "Refresh"
+- name: "Logout"
+
+paths:
+  /auth/login:
+    post:
+      tags:
+      - "Login"
+      summary: "Autenticazione dell'utente"
+      description: |
+        Autentica le credenziali dell'utente ed emette un access token. 
+        
+        Imposta nei cookie del client un refresh token.
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Credenziali dell'utente"
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+              format: password
+          required: [ username, password ]
+      responses:
+        200:
+          description: "Autenticazione effettuata"
+          schema:
+              $ref: "#/definitions/AccessTokenData"
+        401:
+          description: "Credenziali non valide"
+          schema:
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Utenza non abilitata"
+          schema:
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+      
+  /auth/refresh:
+    post:
+      tags:
+      - "Refresh"
+      summary: "Rinnovo dei token"
+      description: "Estrae il refresh token dai cookie."
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Token rinnovati"
+          schema:
+              $ref: "#/definitions/AccessTokenData"
+        401:
+          description: "Refresh token non valido"
+          schema:
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /auth/logout:
+    post:
+      tags:
+      - "Logout"
+      summary: "Disconnessione dell'utente"
+      description: |
+        Estrae il refresh token dai cookie.
+
+        In ogni caso, il token viene rimosso dai cookie dell'utente.
+      produces:
+      - "application/json"
+      responses:
+        204:
+          description: "Refresh token invalidato"
+        401:
+          description: "Refresh token non valido"
+          schema:
+              $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+    
+
+definitions:
+
+  AccessTokenData:
+    type: object
+    properties:
+      value:
+        type: string
+      expiration:
+        type: integer
+        format: timestamp
+    required: [ value, expiration ]

@@ -1,0 +1,832 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sui post"
+  version: "1.0.0"
+  title: "Post"
+
+paths:
+  ###################
+  ### INIZIO POST ###
+  ###################
+  /blog/posts/:
+    post:
+      tags:
+      - "Post"
+      summary: "Creazione di un nuovo post"
+      description: |
+        Gestisce l'inserimento  di un post.
+
+        Un utente per pubblicare un post deve avere fatto l'accesso.
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        description: "Dati del post"
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+            topic:
+              type: string
+            tag_users:
+              type: array
+              items:
+                type: string
+            tag_animals_id:
+              type: array
+              items:
+                $ref: "definitions/utils.yml#/definitions/ObjectId"
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path ]
+          required: [ content, topic ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            type: object
+            $ref: "#/definitions/Post"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere al post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Topic inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    get:
+      tags:
+      - "Post"
+      summary: "Ricerca dei post secondo determinati criteri"
+      description: |
+        Gestisce la ricerca dei post dati alcuni criteri. Gestisce la paginazione.
+        
+        Di default ordina in senso decrescente di data. 
+      produces:
+      - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di post per pagina"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+        format: int
+      - name: authors
+        in: query
+        description: "Username degli autori"
+        type: array
+        items:
+          type: string
+      - name: topic
+        in: query
+        description: "Topic del post"
+        type: string
+      - name: oldest
+        in: query
+        description: "Visualizzare prima i post più vecchi"
+        type: boolean
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /blog/posts/{post_id}:
+    get:
+      tags:
+      - "Post"
+      summary: "Ricerca di un post"
+      description: |
+        Gestisce la ricerca di un post tramite il suo id.
+
+        Un utente per ricercare un post deve avere fatto l'accesso.
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/Post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    put:
+      tags:
+      - "Post"
+      summary: "Modifica di un post"
+      description: |
+        Gestisce la modifica di un post tramite il suo id.
+
+        Un utente per modificare un post deve avere fatto l'accesso.
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post da modificare"
+        required: true
+        type: string
+        format: ObjectId
+      - name: body
+        in: body
+        required: true
+        description: "Dati del post"
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+            topic:
+              type: string
+            tag_users:
+              type: array
+              items:
+                type: string
+            tag_animals_id:
+              type: array
+              items:
+                $ref: "definitions/utils.yml#/definitions/ObjectId"
+            images:
+              description: Immagini aggiornate. Quelle non più presenti verranno cancellate.
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path ]
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Post"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Topic o post non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    delete:
+      tags:
+      - "Post"
+      summary: "Cancellazione di un post"
+      description: |
+        Gestisce la cancellazione di un post tramite il suo id.
+
+        Un utente per cancellare un post deve avere fatto l'accesso.
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post da cancellare"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /blog/posts/images/:
+    post:
+      tags:
+      - "Post"
+      summary: "Caricamento di immagini per post"
+      description: |
+        Gestisce il caricamento di immagini da utilizzare nei post.
+
+        Richiede permessi [ ["post_write"], ["admin"] ]
+      consumes:
+      - multipart/form-data
+      produces:
+      - "application/json"
+      parameters:
+      - name: files
+        in: formData
+        type: file
+        required: true
+      responses:
+        200:
+          description: "Nome delle immagini inserite"
+          schema:
+            type: array
+            items:
+              type: string
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+  
+  #######################
+  ### INIZIO COMMENTO ###
+  #######################
+  /blog/posts/{post_id}/comments/:
+    post:
+      tags:
+      - "Commento"
+      summary: "Creazione di un nuovo commento"
+      description: |
+        Gestisce l'inserimento di un commento sotto un post.
+
+        Un utente per pubblicare un commento deve avere fatto l'accesso.
+
+        Richiede permessi [ ["comment_write"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: body
+        in: body
+        required: true
+        description: "Dati del commento"
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+          required: [ content ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            type: object
+            $ref: "#/definitions/Comment"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere al commento"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Post inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    get:
+      tags:
+      - "Commento"
+      summary: "Ricerca dei commenti"
+      description: |
+        Gestisce la ricerca con paginazione dei commenti di un post tramite il suo id.
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: page_size
+        in: query
+        description: "Numero di commenti per pagina"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+        format: int
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Comment"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Post inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /blog/posts/{post_id}/comments/{comment_index}:
+    get:
+      tags:
+      - "Commento"
+      summary: "Ricerca di un commento"
+      description: |
+        Gestisce la ricerca di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: comment_index
+        in: path
+        description: "Indice del commento all'interno del post"
+        required: true
+        type: number
+        format: int
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/Comment"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    put:
+      tags:
+      - "Commento"
+      summary: "Modifica di un commento"
+      description: |
+        Gestisce la modifica di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+        
+        Un utente per modificare un commento deve avere fatto l'accesso.
+        
+        Richiede permessi [ ["comment_write"], ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: comment_index
+        in: path
+        description: "Indice del commento all'interno del post"
+        required: true
+        type: number
+        format: int
+      - name: body
+        in: body
+        required: true
+        description: "Dati del commento"
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Comment"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+    delete:
+      tags:
+      - "Commento"
+      summary: "Cancellazione di un commento"
+      description: |
+        Gestisce la cancellazione di un commento di un post tramite l'id del post e l'indice del commento nell'array.
+       
+        Un utente per cancellare un commento deve avere fatto l'accesso.
+        
+        Richiede permessi ["comment_write", "admin"]
+      parameters:
+      - name: post_id
+        in: path
+        description: "Id del post"
+        required: true
+        type: string
+        format: ObjectId
+      - name: comment_index
+        in: path
+        description: "Indice del commento all'interno del post"
+        required: true
+        type: number
+        format: int
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Non trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+#
+# Inizio topic
+#
+  /blog/posts/topics/:
+    get:
+      tags:
+      - "Topic"
+      summary: "Lista di tutti i topic"
+      description: |
+        Restituisce la lista di tutti i topic disponibili.
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Topic"
+        500:
+          description: "Internal server error"
+    post:
+      tags:
+      - "Topic"
+      summary: "Inserimento di topic"
+      description: |
+        Creazione di un nuovo topic.
+
+        Richiede permessi [ [], [["admin"] ]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        description: "Dati del topic"
+        schema:
+          $ref: "#/definitions/Topic"
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Topic"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        409:
+          description: "Topic con lo stesso nome già esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
+        500:
+          description: "Internal server error"
+  /blog/posts/topics/{topic}:
+    put:
+      tags:
+      - "Topic"
+      summary: "Aggiornamento di topic"
+      description: |
+        Aggiornamento di un topic.
+
+        Richiede permessi [ [], [["admin"] ]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: topic
+        in: path
+        type: string
+        required: true
+        description: "Nome del topic da aggiornare"
+      - name: body
+        in: body
+        required: true
+        description: "Dati da aggiornare del topic"
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            icon:
+              type: string
+              format: base64
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Topic"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Topic non esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+      - "Topic"
+      summary: "Cancellazione di topic"
+      description: |
+        Cancellazione di un topic.
+
+        Richiede permessi [ [], [["admin"] ]
+      consumes:
+      - "application/json"
+      parameters:
+      - name: topic
+        in: path
+        type: string
+        required: true
+        description: "Nome del topic da cancellare"
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Topic non esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+definitions:
+  Topic:
+    type: object
+    properties:
+      name:
+        type: string
+      icon:
+        type: string
+        format: base64
+    required: [ name ]
+
+  Post:
+    type: object
+    properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      author:
+        type: string
+        description: "Username dell'autore"
+      content:
+        type: string
+      topic:
+        type: string
+      tag_users:
+        type: array
+        items:
+          type: string
+      tag_animals_id:
+        type: array
+        items:
+          $ref: "definitions/utils.yml#/definitions/ObjectId"
+      images:
+        type: array
+        items:
+          type: object
+          properties:
+            path:
+              type: string
+            description:
+              type: string
+          required: [ path ]
+      creationDate:
+        type: string
+        format: date-time
+    required: [ id, author, content, topic, tag_users, tag_animals_id, creationDate ]
+
+  Comment:
+    type: object
+    properties:
+      index:
+        type: number
+        format: int
+        description: "Indice del commento rispetto al post a cui appartiene"
+      author:
+        type: string
+      content:
+        type: string
+      creationDate:
+        type: string
+        format: date-time
+      updateDate:
+        type: string
+        format: date-time
+    required: [ index, author, content, creationDate, updateDate ]

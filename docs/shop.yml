@@ -1,0 +1,1168 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per le operazioni sullo shop"
+  version: "1.2.0"
+  title: "Shop"
+basePath: "/shop"
+tags:
+- name: "Item e prodotti"
+
+paths:
+  /shop/items/:
+    post:
+      tags:
+      - "Item e prodotti"
+      summary: "Creazione di un nuovo item nello shop"
+      description: |
+        Gestisce l'inserimento di un nuovo item e i prodotti inclusi.
+        
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        description: "Dati dell'item"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            category:
+              type: string
+            relevance:
+              type: number
+              default: 0
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  barcode: 
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  price:
+                    type: number
+                  quantity:
+                    type: number
+                    default: 0
+                  target_species:
+                    type: array
+                    items:
+                      type: string
+                  images:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        description:
+                          type: string
+                      required: [ path, description ]
+                required: [ barcode, name, price, quantity ]
+          required:
+            - name
+            - category
+            - products
+      responses:
+        201:
+          description: "Inserito con successo"
+          schema:
+              $ref: "#/definitions/Item"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere all'item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        409:
+          description: "Il barcode di uno dei prodotti è già esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca degli item secondo alcuni criteri"
+      description: |
+        Ricerca tra gli item quelli che soddisfano i criteri richiesti
+      produces:
+      - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di item da restituire"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Offset per paginazione"
+        required: true
+        type: number
+        format: int
+      - name: category
+        in: query
+        description: "Categoria dell'item"
+        type: string
+      - name: name
+        in: query
+        description: "Stringa che l'item deve contenere nel nome"
+        type: string
+      - name: price_asc
+        in: query
+        description: "Ordina per prezzo crescente"
+        type: boolean
+      - name: price_desc
+        in: query
+        description: "Ordina per prezzo decrescente"
+        type: boolean
+      - name: name_asc
+        in: query
+        description: "Ordina per nome in ordine alfabetico"
+        type: boolean
+      - name: name_desc
+        in: query
+        description: "Ordina per nome in ordine alfabetico inverso"
+        type: boolean
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}:
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca di item"
+      description: |
+        Ricerca di un item dato il suo id.
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        description: "Id dell'item"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Item ricercato"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "#/definitions/ValidatorErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+    put:
+      tags:
+      - "Item e prodotti"
+      summary: "Modifica delle generalità di un item"
+      description: |
+        Gestisce la modifica dei dati generali di un item (non dei singoli prodotti).
+
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+        description: "Id dell'item da modificare"
+      - name: body
+        in: body
+        description: "Dati dell'item"
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            category:
+              type: string
+            relevance:
+              type: number
+              format: int
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+     
+    delete:
+      tags:
+      - "Item e prodotti"
+      summary: "Cancellazione di un item"
+      description: |
+        Gestisce la cancellazione di un item e di tutti i suoi prodotti associati.
+
+        Richiede permessi ["operator", "shop_write"]
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+        description: "Id dell'item da cancellare"
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/barcode/{barcode}:
+    get:
+      tags:
+      - "Item e prodotti"
+      summary: "Ricerca di un item per barcode di un prodotto"
+      description: |
+        Ricerca l'item che contiene un determinato prodotto ricercato per barcode.
+
+        Richiede permessi ["operator", "shop_read"]
+      produces:
+      - "application/json"
+      parameters:
+      - name: barcode
+        in: path
+        description: "Barcode del prodotto"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Item"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /shop/items/{item_id}/products/{product_index}:
+    put:
+      tags:
+      - "Item e prodotti"
+      summary: "Modifica i dati di un prodotto"
+      description: |
+        Gestisce la modifica dei dati di un prodotto ricercato a partire dall'item di appartenenza.
+
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: product_index
+        in: path
+        type: number
+        format: int
+        required: true
+      - name: body
+        in: body
+        description: "Dati da modificare del prodotto"
+        schema:
+          type: object
+          properties:
+            barcode:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            target_species:
+              type: array
+              items:
+                type: string
+            price:
+              type: number
+            quantity:
+              type: number
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path, description ]
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Product"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    delete:
+      tags:
+      - "Item e prodotti"
+      summary: "Cancellazione di un prodotto"
+      description: |
+        Gestisce la cancellazione di un prodotto ricercato a partire dall'item di appartenenza.
+
+        Richiede permessi ["operator", "shop_write"]
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: product_index
+        in: path
+        type: number
+        required: true
+      responses:
+        204:
+          description: "Cancellato con successo"
+        303:
+          description: |
+            Si sta tentando di cancellare un prodotto da un item che ne contiene uno solo.
+            Si suggerisce di cancellare l'intero item.
+          headers:
+            location:
+              type : string
+              description: "Endpoint a cui richiedere la cancellazione dell'item"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+
+  #
+  # Inizio categorie
+  #
+  /shop/categories/:
+    get:
+      tags:
+      - "Categorie"
+      summary: "Lista di tutte le categorie"
+      description: |
+        Restituisce la lista di tutte le categorie disponibili.
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Lista di tutte le categorie disponibili"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Category"
+        500:
+          description: "Internal server error"
+    post:
+      tags:
+      - "Categorie"
+      summary: "Inserimento di categorie"
+      description: |
+        Creazione di una nuova categoria.
+
+        Richiede permessi ["operator", "shop_write"]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        description: "Dati della categoria"
+        schema:
+          $ref: "#/definitions/Category"
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Category"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        409:
+          description: "Categoria con lo stesso nome già esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
+        500:
+          description: "Internal server error"
+  /shop/categories/{category}:
+    put:
+      tags:
+      - "Categorie"
+      summary: "Aggiornamento di categorie"
+      description: |
+        Aggiornamento di una categoria.
+
+        Richiede permessi ["operator", "shop_write"]
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: category
+        description: "Categoria da aggiornare"
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        description: "Dati da aggiornare della categoria"
+        schema:
+          $ref: "#/definitions/Category"
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Category"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Categoria non esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+    delete:
+      tags:
+      - "Categorie"
+      summary: "Cancellazione di categorie"
+      description: |
+        Cancellazione di una categoria.
+
+        Richiede permessi ["operator", "shop_write"]
+      parameters:
+      - name: category
+        description: "Categoria da cancellare"
+        in: path
+        type: string
+        required: true
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi mancanti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Categoria non esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+
+  /shop/orders/:
+    post:
+      tags:
+      - "Ordini"
+      summary: "Creazione di ordini"
+      description: |
+        Gestisce la creazione di un nuovo ordine associato al cliente.
+
+        Richiede permessi [ ["customer"] ] , [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  barcode:
+                    type: string
+                  quantity:
+                    type: number
+                required: [ barcode, quantity ]
+            pickup:
+              type: boolean
+              description: "true per ritiro in sede, false per consegna"
+            hub_code:
+              type: string
+              description: "Codice dell'hub di ritiro. Obbligatorio se si richiede il ritiro"
+            address:
+              $ref: "#/definitions/Address"
+              description: "Indirizzo di consegna. Obbligatorio se si richiede la consegna"
+          required: [ products, pickup ]
+      responses:
+        200:
+          description: "Inserito con successo"
+          schema:
+            $ref: "#/definitions/Order"
+          headers:
+            location:
+              type : string
+              description: "Endpoint da cui è possibile accedere ai dati dell'ordine"
+        400:
+          description: "Parametri malformati, quantità insufficiente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Parametri fanno riferimento a entità inesistenti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    get:
+      tags:
+      - "Ordini"
+      summary: "Ricerca di ordini"
+      description: |
+        Gestisce la ricerca degli ordini, ordinati in senso decrescente.
+
+        I clienti posso cercare solo i propri ordini, gli operatori tutti.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: page_size
+        in: query
+        description: "Numero di post per pagina"
+        required: true
+        type: number
+        format: int
+      - name: page_number
+        in: query
+        description: "Numero di pagina"
+        required: true
+        type: number
+        format: int
+      - name: status
+        in: query
+        description: "Stato dell'ordine"
+        required: false
+        type: string
+      - name: start_date
+        in: query
+        description: "Inizio intervallo temporale di ricerca"
+        required: false
+        type: string
+        format: date-time
+      - name: end_date
+        in: query
+        description: "Fine intervallo temporale di ricerca"
+        required: false
+        type: string
+        format: date-time
+      - name: customer
+        in: query
+        description: "Username dell'autore dell'ordine"
+        required: false
+        type: string
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Order"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+
+  /shop/orders/{order_id}:
+    get:
+      tags:
+      - "Ordini"
+      summary: "Ricerca ordine per id"
+      description: |
+        Gestisce la ricerca di uno specifico ordine per id.
+
+        I clienti possono ricercare solo i propri ordini, gli operatori tutti.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    put:
+      tags:
+      - "Ordini"
+      summary: "Aggiornamento ordine per id"
+      description: |
+        Gestisce l'aggiornamento di uno specifico ordine per id.
+
+        Richiede permessi [], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+      responses:
+        200:
+          description: "Aggiornato con successo"
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    delete:
+      tags:
+      - "Ordini"
+      summary: "Cancellazione ordine per id"
+      description: |
+        Gestisce la cancellazione di uno specifico ordine per id.
+
+        I clienti possono cancellare i propri ordini che non sono in lavorazione, gli operatori tutti.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        204:
+          description: "Cancellato con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+
+  /users/customers/{username}/cart/:
+    get:
+      tags:
+      - "Carrello"
+      summary: "Ricerca contenuto carrello"
+      description: |
+        Gestisce la ricerca del contenuto nel carrello dell'utente.
+
+        Nota: non controlla la presenza di inconsistenze tra quantità richiesta e quantità disponibile.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"] ]
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Carrello dell'utente"
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    post:
+      tags:
+      - "Carrello"
+      summary: "Inserimento in carrello"
+      description: |
+        Gestisce l'inserimento di un prodotto nel carrello. Se già presente, la quantità viene aggiornata.
+
+        Richiede permessi [ ["customer"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            barcode:
+              type: string
+            quantity:
+              type: number
+          required: [ barcode, quantity ]
+      responses:
+        200:
+          description: "Inserito con successo"
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: "Parametri malformati, quantità insufficiente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente o prodotto inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+    put:
+      tags:
+      - "Carrello"
+      summary: "Modifica carrello"
+      description: |
+        Gestisce la modifica del contenuto nel carrello
+
+        Richiede permessi [ ["customer"] ], [ ["admin"] ]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              barcode:
+                type: string
+              quantity:
+                type: number
+            required: [ barcode, quantity ]
+      responses:
+        200:
+          description: "Modificato con successo"
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: "Parametri malformati, quantità insufficiente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utente o prodotto inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+definitions:
+
+  Category:
+    type: object
+    properties:
+      name:
+        type: string
+      icon:
+        type: string
+        format: byte
+    required:
+      - name
+      - icon
+
+  Item:
+    type: object
+    properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      name:
+        type: string
+      description:
+        type: string
+      category:
+        type: string
+      relevance:
+        type: number
+      products:
+        type: array
+        items:
+            $ref: "#/definitions/Product"
+    required:
+      - id
+      - name
+      - description
+      - category
+      - relevance
+      - products
+
+  Product:
+    type: object
+    properties:
+      barcode: 
+        type: string
+      name:
+        type: string
+      description:
+        type: string
+      images:
+        type: array
+        items:
+          type: object
+          properties:
+            path:
+              type: string
+            description:
+              type: string
+          required: [ path, description ]
+      target_species:
+        type: array
+        items:
+          type: string
+      price:
+        type: number
+      quantity:
+        type: number
+    required: [ barcode, name, description, images, target_species, price, quantity ]
+
+  Order:
+    type: object
+    properties:
+      id:
+        $ref: "definitions/utils.yml#/definitions/ObjectId"
+      customer:
+        type: string
+        description: "Username del cliente"
+      products:
+        description: "Informazioni sui prodotti dell'ordine (snapshot di ciò che c'era al momento dell'ordine)"
+        type: array
+        items:
+          type: object
+          properties:
+            barcode:
+              type: string
+            name:
+              type: string
+            price:
+              type: number
+            quantity:
+              type: number
+          required: [ barcode, name, price, quantity ]
+      total:
+        type: number
+      pickup:
+        type: boolean
+        description: "true per ritiro in sede, false per consegna"
+      hub_code:
+        type: string
+        description: "Codice dell'hub in cui ritirare"
+      address:
+        type: string
+        description: "Indirizzo di consegna"
+      status:
+        type: string
+        description: "Stato dell'ordine"
+      creationDate:
+        type: string
+        format: date-time
+    required: [ id, customer, products, total, pickup, status, creationDate ]
+
+  Address:
+    type: object
+    properties:
+      city:
+        type: string
+      street:
+        type: string
+      number:
+        type: string
+      postalcode:
+        type: string
+
+  Cart:
+    type: array
+    items:
+      type: object
+      properties:
+        product:
+          $ref: "#/definitions/Product"
+        quantity:
+          type: number
+      required: [ product, quantity ]
+      

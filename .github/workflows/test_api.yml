@@ -1,0 +1,46 @@
+name: 🌮 API test
+
+on: 
+  push:
+    paths-ignore:
+      - docs/**
+
+env:
+  MONGODB_URL: mongodb://localhost:27017
+  MONGODB_DATABASE_NAME: AnimalHouse
+  SALT_ROUNDS: 1
+  JWT_ALGORITHM: HS256
+  ACCESS_TOKEN_KEY: ${{secrets.ACCESS_TOKEN_KEY}}
+  REFRESH_TOKEN_KEY: ${{secrets.REFRESH_TOKEN_KEY}}
+  ACCESS_TOKEN_EXP: 10m
+  REFRESH_TOKEN_EXP: 14d
+  IMAGES_NAME_LENGTH: 25
+  IMAGES_TMP_ABS_PATH: "./public/tmp"
+  SHOP_IMAGES_DIR_ABS_PATH: "./public/shop/images"
+  SHOP_IMAGES_BASE_URL: "/shop/images"
+  BLOG_IMAGES_DIR_ABS_PATH: "./public/posts/images"
+  BLOG_IMAGES_BASE_URL: "/posts/images"
+  CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH: "./public/animals/images"
+  CUSTOMER_ANIMAL_IMAGES_BASE_URL: "/animals/images"
+
+jobs:  
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v1
+
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 17.*
+
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.7.0
+      with:
+        mongodb-version: 5.0
+        mongodb-db: AnimalHouse
+
+    - run: npm install
+    - run: npm test
