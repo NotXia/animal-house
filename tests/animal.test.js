@@ -32,7 +32,7 @@ beforeAll(async function () {
 
 describe("Creazione degli animali", function () {
     test("Creazione corretta senza immagine", async function () {
-        const res = await curr_session.post(`/user/customers/${customer1.username}/animals/`).send({
+        const res = await curr_session.post(`/users/customers/${customer1.username}/animals/`).send({
             species: species1.name,
             name: "Ghepardo",
             weight: 65000,
@@ -49,7 +49,7 @@ describe("Creazione degli animali", function () {
         let res = await curr_session.post(`/files/images/`).set({ Authorization: `Bearer ${customer1.token}`, "content-type": "application/octet-stream" }).attach("file0", img1);
         const image_path = res.body[0];
 
-        res = await curr_session.post(`/user/customers/${customer1.username}/animals/`).send({
+        res = await curr_session.post(`/users/customers/${customer1.username}/animals/`).send({
             species: species2.name,
             name: "Topolino",
             weight: 200,
@@ -66,7 +66,7 @@ describe("Creazione degli animali", function () {
     });
 
     test("Creazione con parametri mancanti", async function () {
-        const res = await curr_session.post(`/user/customers/${customer1.username}/animals/`).send({
+        const res = await curr_session.post(`/users/customers/${customer1.username}/animals/`).send({
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(400);
     });
 });
@@ -80,7 +80,7 @@ describe("Ricerca degli animali", function() {
     });
 
     test("Ricerca animali di un cliente", async function () {
-        const animals = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        const animals = await curr_session.get(`/users/customers/${customer1.username}/animals/`).expect(200);
         expect(animals).toBeDefined();
         expect(animals.body.length).toEqual(2);
         expect(animals.body[0].name).toEqual("Ghepardo");
@@ -135,36 +135,36 @@ describe("Modifica degli animali", function () {
 
 describe("Modifica animali di un utente", function() {
     test("Condivisione di animali", async function () {
-        let res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        let res = await curr_session.get(`/users/customers/${customer2.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(0);
-        res = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        res = await curr_session.get(`/users/customers/${customer1.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(2);
 
-        res = await curr_session.put(`/user/customers/${customer2.username}/animals/`)
+        res = await curr_session.put(`/users/customers/${customer2.username}/animals/`)
             .set({ Authorization: `Bearer ${customer2.token}` })
             .send({ animals_id: [ animal1.id, animal2.id ] }).expect(200);
 
-        res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        res = await curr_session.get(`/users/customers/${customer2.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(2);
-        res = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        res = await curr_session.get(`/users/customers/${customer1.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(2);
     });
 
     test("Condivisione di animali errata - Animale inesistente", async function () {
-        let res = await curr_session.put(`/user/customers/${customer2.username}/animals/`)
+        let res = await curr_session.put(`/users/customers/${customer2.username}/animals/`)
             .set({ Authorization: `Bearer ${customer2.token}` })
             .send({ animals_id: [ WRONG_MONGOID ] }).expect(404);
         
-        res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        res = await curr_session.get(`/users/customers/${customer2.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(2);
     });
 
     test("Rimozione di animali posseduti", async function () {
-        let res = await curr_session.put(`/user/customers/${customer2.username}/animals/`)
+        let res = await curr_session.put(`/users/customers/${customer2.username}/animals/`)
         .set({ Authorization: `Bearer ${customer2.token}` })
         .send({ animals_id: [ animal2.id ] }).expect(200);
 
-        res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        res = await curr_session.get(`/users/customers/${customer2.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(1);
     });
 });
@@ -181,7 +181,7 @@ describe("Cancellazione degli animali", function () {
         expect(animal).toBeNull();
 
         // Controllo se l'utente ha ancora l'id dell'animale
-        let user = await curr_session.get(`/user/customers/${customer1.username}/animals/`).set({ Authorization: `Bearer ${admin_token}` });
+        let user = await curr_session.get(`/users/customers/${customer1.username}/animals/`).set({ Authorization: `Bearer ${admin_token}` });
         expect(user.body.length).toEqual(1);        // Anziché 2
         expect(user.body[0].id).toEqual(animal2.id);
 
@@ -197,9 +197,9 @@ describe("Cancellazione degli animali", function () {
         expect(animal).toBeNull();
         expect( fs.existsSync(path.join(process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, path.basename(animal2.image_path))) ).toBeFalsy();
         
-        let res = await curr_session.get(`/user/customers/${customer2.username}/animals/`).expect(200);
+        let res = await curr_session.get(`/users/customers/${customer2.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(0);
-        res = await curr_session.get(`/user/customers/${customer1.username}/animals/`).expect(200);
+        res = await curr_session.get(`/users/customers/${customer1.username}/animals/`).expect(200);
         expect(res.body.length).toEqual(0);
     });
 
