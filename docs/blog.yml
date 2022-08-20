@@ -617,7 +617,7 @@ paths:
 #
 # Inizio topic
 #
-  /blog/posts/topics/:
+  /blog/topics/:
     get:
       tags:
       - "Topic"
@@ -677,7 +677,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
-  /blog/posts/topics/{topic}:
+  /blog/topics/{topic}:
     put:
       tags:
       - "Topic"
