@@ -45,6 +45,7 @@ async function searchPosts(req, res) {
         // Composizione query di ricerca
         if (req.query.authors) { query.author = { "$in": req.query.authors }; }
         if (req.query.topic) { query.topic = req.query.topic; }
+        if (req.query.title) { query.title = {"$regex" : `.*${req.query.title}.*`, "$options" : "i"}; }
 
         // Composizione criterio di
         let sort_criteria = { creationDate: "desc" };

@@ -21,6 +21,7 @@ const validateSearchPosts = [
     query("oldest").optional().isBoolean().withMessage("Formato non valido"),
     user_validator.validateUsername("query", OPTIONAL, "authors.*"),
     blog_validator.validateTopicName("query", OPTIONAL, "topic"),
+    blog_validator.validateTitle("query", OPTIONAL, "title"),
     utils.validatorErrorHandler
 ];
 

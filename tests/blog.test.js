@@ -54,7 +54,7 @@ describe("Pubblicazione post", function () {
         const res = await curr_session.post('/blog/posts/').send({ 
             title: "Buongiorno",
             content: "Ciao",
-            topic: "Animali"
+            topic: "Scoperte"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
         blog_posts.push(res.body);
     });
@@ -76,7 +76,7 @@ describe("Pubblicazione post errate", function () {
     });
 });
 
-describe("Ricerca di un post di un dato utente", function () {
+describe("Ricerca di un post", function () {
     test("Ricerca di tutti i post di un dato utente", async function () {
         const res = await curr_session.get('/blog/posts/')
             .query({ page_size: 5, page_number: 0, authors: [operator1.username] })
@@ -97,6 +97,25 @@ describe("Ricerca di un post di un dato utente", function () {
             .query({ page_size: 5, page_number: 0, authors: [operator1.username, operator2.username] })
             .expect(200);
         expect(res.body.length).toEqual(4);
+    });
+
+    test("Ricerca di post per titolo", async function () {
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 10, page_number: 0, title: "post bello" })
+            .expect(200);
+        expect(res.body.length).toEqual(3);
+    });
+
+    test("Ricerca di post per topic", async function () {
+        let res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 10, page_number: 0, topic: "Scoperte" })
+            .expect(200);
+        expect(res.body.length).toEqual(1);
+
+        res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 10, page_number: 0, topic: "Animali" })
+            .expect(200);
+        expect(res.body.length).toEqual(3);
     });
 });
 
