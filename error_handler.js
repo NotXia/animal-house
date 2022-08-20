@@ -74,6 +74,7 @@ function errorResponse(err, res) {
         case http.CONFLICT:
             return res.status(err.code).json(JSON.parse(err.message));
         default:
+            console.error(err);
             return res.status(http.INTERNAL_SERVER_ERROR).json(formatErrorMessage("Problema interno"));
     }
 }
