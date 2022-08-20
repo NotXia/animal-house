@@ -1,10 +1,12 @@
 require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const { middlewareErrorHandler } = require("./error_handler");
 const fs = require("fs");
+const db_init = require("./db_init");
 
 const auth = require("./routes/auth");
 const file = require("./routes/file");
@@ -35,19 +37,25 @@ app.use("/appointments", booking);
 
 app.use(middlewareErrorHandler);
 
+async function start() {
+    await db_init();
+
+    // Crea la connessione al database prima di avviare il server
+    if (process.env.PROTECTED_DB) { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}?authSource=admin`); }
+    else { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`); }
+    
+    app.listen(process.env.NODE_PORT, function () {
+        console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
+    });
+}
+
 // Creazione cartelle
 for (const dir of [process.env.IMAGES_TMP_ABS_PATH, process.env.SHOP_IMAGES_DIR_ABS_PATH, process.env.BLOG_IMAGES_DIR_ABS_PATH, process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH]) {
     if ( !fs.existsSync(dir) ){  fs.mkdirSync(dir, { recursive: true }); }
 }
 
 if (!process.env.TESTING) {
-    // Crea la connessione al database prima di avviare il server
-    mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`).then(function () {
-        app.listen(process.env.NODE_PORT, function () {
-            console.log(`Server started at http://localhost:${process.env.NODE_PORT}`);
-        });
-    })
-
+    start();
 }
 else {
     module.exports = app;
