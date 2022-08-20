@@ -38,6 +38,7 @@ describe("Pubblicazione post", function () {
     for (let i=0; i<text.length; i++) {
         test(`Pubblicazione post ${i+1}`, async function () {
             const res = await curr_session.post('/blog/posts/').send({ 
+                title: `Post bello ${i}`,
                 content: text[i],
                 topic: "Animali"
             }).set({ Authorization: `Bearer ${operator1.token}` }).expect(201);
@@ -51,6 +52,7 @@ describe("Pubblicazione post", function () {
 
     test(`Pubblicazione altro post`, async function () {
         const res = await curr_session.post('/blog/posts/').send({ 
+            title: "Buongiorno",
             content: "Ciao",
             topic: "Animali"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
@@ -61,14 +63,14 @@ describe("Pubblicazione post", function () {
 describe("Pubblicazione post errate", function () {
     test("Pubblicazione post senza accesso", async function () {
         const res = await curr_session.post('/blog/posts/').send({ 
-            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
+            title: "Post interessantissimo", content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
         }).expect(401);
         expect(res.body.message).toBeDefined();
     });
 
     test("Pubblicazione post senza permesso di scrittura", async function () {
         const res = await curr_session.post('/blog/posts/').send({ 
-            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
+            title: "Post interessantissimo", content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
         }).set({ Authorization: `Bearer ${operator_no_permission.token}` }).expect(403);
         expect(res.body.message).toBeDefined();
     });
@@ -267,6 +269,7 @@ describe("Inserimento post con immagini", function () {
         const images_path = res.body;
 
         res = await curr_session.post('/blog/posts/').send({ 
+            title: "Cavallo",
             content: "Guardate che bei cavalli!!!!!!",
             topic: "Animali",
             images: [
@@ -285,6 +288,7 @@ describe("Inserimento post con immagini", function () {
 
     test("Inserimento con immagini inesistenti", async function () {
         await curr_session.post('/blog/posts/').send({ 
+            title: "White-bellied go-away-bird",
             content: "Guardate che bei White-bellied go-away-bird ho fotografato questa mattina",
             topic: "Animali",
             images: [

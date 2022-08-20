@@ -6,6 +6,7 @@ const user_validator = require("./user");
 
 module.exports.validatePostId =       (source, required=true, field_name="post_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateAuthor =       (source, required=true, field_name="author") => { return user_validator.validateUsername(source, required, field_name); }
+module.exports.validateTitle =        (source, required=true, field_name="title") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
 module.exports.validateContent =      (source, required=true, field_name="content") => { return utils.handleRequired(validator[source](field_name), required).escape(); }
 module.exports.validateTagUsers =     (source, required=true, field_name="tag_users.*") => { return user_validator.validateUsername(source, required, field_name); }
 module.exports.validateTagAnimalsId = (source, required=true, field_name="tag_animals_id.*") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }

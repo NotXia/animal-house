@@ -6,6 +6,7 @@ const utils = require("../utils");
 
 const validateInsertPost = [
     // L'autore lo prendo da auth.
+    blog_validator.validateTitle("body", REQUIRED),
     blog_validator.validateContent("body", REQUIRED),
     blog_validator.validateTopicName("body", REQUIRED, "topic"),
     blog_validator.validateTagUsers("body", OPTIONAL),
@@ -31,6 +32,7 @@ const validateSearchPostById = [
 const validateUpdatePost = [
     // L'autore lo prendo da auth.
     blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateTitle("body", OPTIONAL),
     blog_validator.validateContent("body", OPTIONAL),
     blog_validator.validateTopicName("body", OPTIONAL, "topic"),
     blog_validator.validateTagUsers("body", OPTIONAL),
