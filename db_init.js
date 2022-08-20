@@ -28,8 +28,9 @@ async function init() {
                 sunday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
             }
         }).save();
+    } catch(err) {}
 
-    
+    try {
         if (!(await UserModel.findOne({ username: "admin" }).exec())) {
             const admin_user = await new OperatorModel({
                 role: "Admin",
@@ -43,6 +44,7 @@ async function init() {
                     sunday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }]
                 }
             }).save();
+
             await new UserModel({
                 username: "admin",
                 password: await bcrypt.hash("admin", parseInt(process.env.SALT_ROUNDS)),
@@ -54,11 +56,8 @@ async function init() {
                 type_id: admin_user._id,
                 type_name: "operator"
             }).save();
-        
         }
-    }
-    catch(err) {}
-
+    } catch(err) {}
     await mongoose.connection.close();
 };
 
