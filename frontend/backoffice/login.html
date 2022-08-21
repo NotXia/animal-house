@@ -18,9 +18,7 @@
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="text-center">
             <h1>LOGIN</h1>
-            <div id="error_alert" class="alert alert-danger p-2" role="alert">
-                Credenziali errate
-            </div>
+            <div id="error_alert-container"></div>
 
             <form id="login_form">
                 <div class="mb-3">
@@ -40,9 +38,6 @@
 <script>
     
     $(document).ready(function() {
-        $("#error_alert").hide();
-        $("#error_alert").on("click", function() { $("#error_alert").hide(); })
-        
         $("#login_form").submit(async function(e) {
             e.preventDefault();
             
@@ -50,7 +45,15 @@
                 window.location.href = "/admin/";
             }
             else {
-                $("#error_alert").show();
+                // Rimuove l'eventuale alert vecchio e crea un nuovo alert
+                $("#error_alert-container").html("");
+                $("#error_alert-container").append(`
+                    <div id="error_alert" class="alert alert-danger p-2" role="alert">
+                        Credenziali errate
+                    </div>
+                `);
+                // Il popup si può chiudere cliccandoci
+                $("#error_alert").on("click", function() { new bootstrap.Alert("#error_alert").close(); })
             }
         });
     });
