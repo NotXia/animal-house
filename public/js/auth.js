@@ -24,7 +24,7 @@ async function _requestNewToken() {
         }).done(function (data, textStatus, jqXHR) {
             _setAccessToken(data.access_token.value, data.access_token.expiration);
         }).catch((err) => {
-            console.log(err.responseJSON);
+            _current_refresh_request = null;
         }).always(() => {
             _current_refresh_request = null;
         });
@@ -58,7 +58,7 @@ function _removeAccessToken() {
  * @returns {boolean} true se l'utente è autenticato, false altrimenti
 */
 async function isAuthenticated() {
-    return (await _getAccessToken() != undefined);
+    return ((await _getAccessToken()) != null);
 }
 
 /** 
@@ -78,10 +78,9 @@ async function api_request(ajax_request) {
  * Gestisce l'autenticazione dell'utente.
  * @param {string} username 
  * @param {string} password 
- * @param {boolean} operator se true richiede l'autenticazione per un dipendente, se false per un cliente
  * @returns {boolean} true se l'autenticazione ha avuto successo, false altrimenti
  */ 
-async function login(username, password, operator=false) {
+async function login(username, password) {
     let logged = false;
 
     await $.ajax({
