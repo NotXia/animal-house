@@ -76,7 +76,7 @@ async function loginController(req, res) {
     const user = req.user; // I dati dell'utente elaborati da Passport
     const tokens = createTokens({ id: user.id, username: user.username, is_operator: user.is_operator });
 
-    if (req.body.remember_me != false && req.body.remember_me != true) { req.body.remember_me = false }
+    req.body.remember_me = req.body.remember_me === "true";
 
     try {
         // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
