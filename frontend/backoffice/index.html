@@ -9,7 +9,10 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="/js/auth.js"></script>
     <script>
-        !isAuthenticated().then((is_auth) => { if (!is_auth) { window.location.href = "/admin/login.html"; } })
+        isAuthenticated().then(async function (is_auth) { 
+            if (!is_auth) { window.location.href = "/admin/login.html"; } 
+            if (!await isOperator()) { window.location.href = "/"; } 
+        });
     </script>
     
     <title>Dashboard</title>
