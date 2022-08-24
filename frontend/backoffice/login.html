@@ -11,8 +11,8 @@
     <script>
         isAuthenticated().then(async function (is_auth) { 
             if (is_auth) { 
-                if (!await isOperator()) { window.location.href = "/"; } 
-                window.location.href = "/admin/"; 
+                if (await isOperator()) { window.location.href = "/admin/"; } 
+                else { window.location.href = "/"; } 
             } 
         });
     </script>
@@ -41,13 +41,17 @@
 </body>
 
 <script>
-    
     $(document).ready(function() {
         $("#login_form").submit(async function(e) {
             e.preventDefault();
             
             if (await login(this.username.value, this.password.value, remember_me=false)) {
-                window.location.href = "/admin/";
+                if (await isOperator()) {
+                    window.location.href = "/admin/";
+                }
+                else {
+                    window.location.href = "/";
+                }
             }
             else {
                 // Rimuove l'eventuale alert vecchio e crea un nuovo alert
