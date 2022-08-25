@@ -44,6 +44,7 @@ router.get("/customers/:username/animals/", animal_middleware.validateGetAnimals
 router.put("/customers/:username/animals/", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator"] ]), animal_middleware.validateUpdateUserAnimals ], animal_controller.updateUserAnimals)
 
 /* Operazioni sui permessi */
+router.get("/permissions/", [ auth_middleware() ], user_controller.getPermissions);
 router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), user_middleware.validateSearchPermissionByName ], user_controller.getPermissionByName);
 
 /* Operazioni sul carrello shop */

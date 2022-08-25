@@ -155,7 +155,6 @@ const validateSearchPermissionByName = [
 ];
 
 
-
 module.exports = {
     validateInsertCustomer : validateInsertCustomer,
     validateInsertOperator : validateInsertOperator,
