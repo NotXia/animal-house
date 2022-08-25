@@ -19,8 +19,8 @@
     <title>Gestione operatori</title>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-center">
+    <header>
+        <div class="d-flex justify-content-center mb-2">
             <div>
                 <form id="search_user_form" class="d-flex mt-2 mb-2" role="search">
                     <input class="form-control" type="input" name="username" placeholder="Cerca utente">
@@ -30,12 +30,122 @@
                 </form>
             </div>
         </div>
-    </div>
+    </header>
+
+    <main>
+        <form>
+            <div class="container">
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="d-flex justify-content-center mb-2">
+                            <div class="w-75">
+                                <label for="data-username">Username</label>
+                                <input id="data-username" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <div class="d-flex justify-content-center mb-2">
+                            <div class="w-75">
+                                <label for="data-email">Email</label>
+                                <input id="data-email" type="text" class="form-control">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <label for="data-name">Nome</label>
+                        <input id="data-name" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <label for="data-surname">Cognome</label>
+                        <input id="data-surname" type="text" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-12">
+                        <fieldset>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <legend class="w-auto mb-0">Genere:</legend>
+                                <input class="form-check-input ms-3" type="radio" id="data-gender-M" name="data-gender" value="M">
+                                <label class="form-check-label ms-1" for="data-gender-M">Maschio</label>
+                                <input class="form-check-input ms-3" type="radio" id="data-gender-F" name="data-gender" value="F">
+                                <label class="form-check-label ms-1" for="data-gender-F">Femmina</label>
+                                <input class="form-check-input ms-3" type="radio" id="data-gender-Non-Binary" name="data-gender" value="Non-Binary">
+                                <label class="form-check-label ms-1" for="data-gender-Non-Binary">Non-binario</label>
+                                <input class="form-check-input ms-3" type="radio" id="data-gender-Altro" name="data-gender" value="Altro">
+                                <label class="form-check-label ms-1" for="data-gender-Altro">Altro</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <label for="data-phone">Telefono</label>
+                        <input id="data-phone" type="text" class="form-control">
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <label for="data-role">Ruolo</label>
+                        <input id="data-role" type="text" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <label class="form-check-label" for="data-enabled">Abilitato:</label>
+                        <input class="form-check-input" type="checkbox" id="data-enabled" name="data-enabled" value="Abilitato">
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <fieldset>
+                            <legend>Permessi:</legend>
+                        
+                            <div>
+                              <input class="form-check-input" type="checkbox" id="scales" name="scales"checked>
+                              <label for="scales">Scales</label>
+                            </div>
+                        
+                            <div>
+                              <input type="checkbox" id="horns" name="horns">
+                              <label for="horns">Horns</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <label class="form-check-label" for="data-services">Servizi:</label>
+                        <input class="form-check-input" type="checkbox" id="data-services" name="data-services" value="Servizi">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
 </body>
 
 <script>
     $(document).ready(function() {
-        $("#search_user_form").submit(async function(e) {
+        api_request({
+            type: "GET",
+            url: `/users/operators/${this.username.value}`
+        }).then(
+            function (res) {
+                console.log(res);
+
+            },
+            function (err) {
+                console.log(err);
+            }
+        );
+
+        $("#search_user_form").submit(function(e) {
             e.preventDefault();
             
             api_request({
@@ -44,6 +154,14 @@
             }).then(
                 function (res) {
                     console.log(res);
+                    $("#data-username").val(res.username);
+                    $("#data-email").val(res.email);
+                    $("#data-name").val(res.name);
+                    $("#data-surname").val(res.surname);
+                    $("#data-phone").val(res.phone);
+                    $("#data-role").val(res.role);
+                    $("input:radio[name=data-gender]").filter(`[value=${res.gender}]`).prop("checked", true);
+                    $("input:checkbox[name=data-enabled]").prop("checked", res.enabled);
                 },
                 function (err) {
                     console.log(err);
