@@ -6,11 +6,22 @@ const mongoose = require("mongoose");
 const UserModel = require("./models/auth/user");
 const OperatorModel = require("./models/auth/operator");
 const HubModel = require("./models/services/hub");
+const PermissionModel = require("./models/auth/permission");
 
 
 async function init() {
     if (process.env.PROTECTED_DB) { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}?authSource=admin`); }
     else { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`); }
+
+    try {
+        await new PermissionModel({ name: "admin", urls: [""] }).save();
+        await new PermissionModel({ name: "operator", urls: [""] }).save();
+        await new PermissionModel({ name: "customer", urls: [""] }).save();
+        await new PermissionModel({ name: "post_write", urls: [""] }).save();
+        await new PermissionModel({ name: "comment_write", urls: [""] }).save();
+        await new PermissionModel({ name: "warehouse", urls: [""] }).save();
+        await new PermissionModel({ name: "shop_write", urls: [""] }).save();
+    } catch(err) {}
 
     try {
         const hq = await new HubModel({
