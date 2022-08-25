@@ -488,6 +488,38 @@ paths:
         500:
           description: "Internal server error"
 
+  /users/permissions/:
+    get:
+      tags:
+      - "Permessi"
+      summary: "Ricerca dei dati di tutti i permessi"
+      description: |
+        Restituisce i dati associati a tutti i permessi.
+
+        Richiede autenticazione
+      produces:
+      - "application/json"
+      parameters:
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                url:
+                  type: string
+              required: [ name ]
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
   /users/permissions/{permission_name}:
     get:
       tags:

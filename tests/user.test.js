@@ -275,6 +275,11 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
 
 describe("Ricerca di permessi", function () {
     test("Ricerca corretta", async function () {
+        const res = await curr_session.get('/users/permissions/').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        expect(res.body.length).toBeGreaterThanOrEqual(0);
+    });
+
+    test("Ricerca corretta", async function () {
         await new PermissionModel({ name: "test_permission", urls: ["/admin/control_panel"] }).save();
 
         const res = await curr_session.get('/users/permissions/test_permission').set({ Authorization: `Bearer ${admin_token}` }).expect(200);

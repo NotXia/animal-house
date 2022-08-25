@@ -152,6 +152,18 @@ function deleteUser(is_operator) {
     }
 }
 
+// Ricerca di tutti i permessi
+async function getPermissions(req, res) {
+    try {
+        let permissions = await PermissionModel.find().exec();
+        permissions = permissions.map((permission) => permission.getData());
+        
+        return res.status(utils.http.OK).json(permissions);
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 // Ricerca dei dati di un permesso
 async function searchPermissionByName(req, res) {
     try {
@@ -172,5 +184,6 @@ module.exports = {
     searchUserProfile: searchUserProfile,
     updateUser: updateUser,
     deleteUser: deleteUser,
+    getPermissions: getPermissions,
     getPermissionByName: searchPermissionByName
 }
