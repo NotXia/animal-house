@@ -31,6 +31,8 @@ paths:
         schema:
           type: object
           properties:
+            title:
+              type: string
             content:
               type: string
             topic:
@@ -53,7 +55,7 @@ paths:
                   description:
                     type: string
                 required: [ path ]
-          required: [ content, topic ]
+          required: [ title, content, topic ]
       responses:
         201:
           description: "Creato con successo"
@@ -214,6 +216,8 @@ paths:
         schema:
           type: object
           properties:
+            title:
+              type: string
             content:
               type: string
             topic:
@@ -613,7 +617,7 @@ paths:
 #
 # Inizio topic
 #
-  /blog/posts/topics/:
+  /blog/topics/:
     get:
       tags:
       - "Topic"
@@ -673,7 +677,7 @@ paths:
             $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
         500:
           description: "Internal server error"
-  /blog/posts/topics/{topic}:
+  /blog/topics/{topic}:
     put:
       tags:
       - "Topic"
@@ -785,6 +789,8 @@ definitions:
       author:
         type: string
         description: "Username dell'autore"
+      title:
+        type: string
       content:
         type: string
       topic:
@@ -810,7 +816,7 @@ definitions:
       creationDate:
         type: string
         format: date-time
-    required: [ id, author, content, topic, tag_users, tag_animals_id, creationDate ]
+    required: [ id, author, title, content, topic, tag_users, tag_animals_id, creationDate ]
 
   Comment:
     type: object

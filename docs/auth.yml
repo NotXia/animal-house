@@ -36,6 +36,9 @@ paths:
             password:
               type: string
               format: password
+            remember_me:
+              type: boolean
+              default: false
           required: [ username, password ]
       responses:
         200:

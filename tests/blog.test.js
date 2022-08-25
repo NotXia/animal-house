@@ -38,6 +38,7 @@ describe("Pubblicazione post", function () {
     for (let i=0; i<text.length; i++) {
         test(`Pubblicazione post ${i+1}`, async function () {
             const res = await curr_session.post('/blog/posts/').send({ 
+                title: `Post bello ${i}`,
                 content: text[i],
                 topic: "Animali"
             }).set({ Authorization: `Bearer ${operator1.token}` }).expect(201);
@@ -51,8 +52,9 @@ describe("Pubblicazione post", function () {
 
     test(`Pubblicazione altro post`, async function () {
         const res = await curr_session.post('/blog/posts/').send({ 
+            title: "Buongiorno",
             content: "Ciao",
-            topic: "Animali"
+            topic: "Scoperte"
         }).set({ Authorization: `Bearer ${operator2.token}` }).expect(201);
         blog_posts.push(res.body);
     });
@@ -61,20 +63,20 @@ describe("Pubblicazione post", function () {
 describe("Pubblicazione post errate", function () {
     test("Pubblicazione post senza accesso", async function () {
         const res = await curr_session.post('/blog/posts/').send({ 
-            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
+            title: "Post interessantissimo", content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
         }).expect(401);
         expect(res.body.message).toBeDefined();
     });
 
     test("Pubblicazione post senza permesso di scrittura", async function () {
         const res = await curr_session.post('/blog/posts/').send({ 
-            content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
+            title: "Post interessantissimo", content: "Ciao, non dovrei poter pubblicare questo interessantissimo post."
         }).set({ Authorization: `Bearer ${operator_no_permission.token}` }).expect(403);
         expect(res.body.message).toBeDefined();
     });
 });
 
-describe("Ricerca di un post di un dato utente", function () {
+describe("Ricerca di un post", function () {
     test("Ricerca di tutti i post di un dato utente", async function () {
         const res = await curr_session.get('/blog/posts/')
             .query({ page_size: 5, page_number: 0, authors: [operator1.username] })
@@ -95,6 +97,25 @@ describe("Ricerca di un post di un dato utente", function () {
             .query({ page_size: 5, page_number: 0, authors: [operator1.username, operator2.username] })
             .expect(200);
         expect(res.body.length).toEqual(4);
+    });
+
+    test("Ricerca di post per titolo", async function () {
+        const res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 10, page_number: 0, title: "post bello" })
+            .expect(200);
+        expect(res.body.length).toEqual(3);
+    });
+
+    test("Ricerca di post per topic", async function () {
+        let res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 10, page_number: 0, topic: "Scoperte" })
+            .expect(200);
+        expect(res.body.length).toEqual(1);
+
+        res = await curr_session.get('/blog/posts/')
+            .query({ page_size: 10, page_number: 0, topic: "Animali" })
+            .expect(200);
+        expect(res.body.length).toEqual(3);
     });
 });
 
@@ -267,6 +288,7 @@ describe("Inserimento post con immagini", function () {
         const images_path = res.body;
 
         res = await curr_session.post('/blog/posts/').send({ 
+            title: "Cavallo",
             content: "Guardate che bei cavalli!!!!!!",
             topic: "Animali",
             images: [
@@ -285,6 +307,7 @@ describe("Inserimento post con immagini", function () {
 
     test("Inserimento con immagini inesistenti", async function () {
         await curr_session.post('/blog/posts/').send({ 
+            title: "White-bellied go-away-bird",
             content: "Guardate che bei White-bellied go-away-bird ho fotografato questa mattina",
             topic: "Animali",
             images: [
