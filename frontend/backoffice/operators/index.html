@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="/css/style.css" rel="stylesheet">
     <script src="/js/auth.js"></script>
     <script>
@@ -25,7 +26,7 @@
                 <form id="search_user_form" class="d-flex mt-2 mb-2" role="search">
                     <input class="form-control" type="input" name="username" placeholder="Cerca utente">
                     <button class="ps-2 pe-2 btn btn-link" type="submit">
-                        <img src="/img/search_icon.png" alt="Cerca" style="height: 1.5rem;">
+                        <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
                     </button>
                 </form>
             </div>
@@ -133,6 +134,16 @@
                         </fieldset>
                     </div>
                 </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6 offset-md-3">
+                        <legend>Orario lavorativo</legend>
+
+                        <div class="accordion" id="working_time-accordion">
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </form>
     </main>
@@ -140,6 +151,43 @@
 </body>
 
 <script>
+    let week_index = { "monday": 0, "tuesday": 0, "wednesday": 0, "thursday": 0, "friday": 0, "saturday": 0, "sunday": 0 };
+
+    function addTimeSlotTo(day_of_week, start_time, end_time, hub_code) {
+        const index = week_index[day_of_week];
+        week_index[day_of_week]++;
+
+        $(`#${day_of_week}-accordion`).append(`
+            <div class="row mb-3" id="working_time-${day_of_week}-${index}">
+                <div class="col-6">
+                    <div class="d-flex justify-content-center">
+                        <div>
+                            <label for="${day_of_week}-${index}-time-start">Inizio</label>
+                            <input type="time" class="form-control" name="working_time.${day_of_week}.${index}.time.start" id="${day_of_week}-${index}-time-start" value="${moment(start_time).format("HH:mm")}">
+                        </div>
+                        <div>
+                            <label for="${day_of_week}-${index}-time-end">Fine</label>
+                            <input type="time" class="form-control" name="working_time.${day_of_week}.${index}.time.end" id="${day_of_week}-${index}-time-end" value="${moment(end_time).format("HH:mm")}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div>
+                        <label for="${day_of_week}-${index}-hub">Hub</label>
+                        <input type="text" class="form-control" name="working_time.${day_of_week}.${index}.hub" id="${day_of_week}-${index}-hub" value="${hub_code}">
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <button type="button" class="btn-close" aria-label="Cancella riga" id="working_time-${day_of_week}-${index}-delete"></button>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        $(`#working_time-${day_of_week}-${index}-delete`).on("click", function (e) { $(`#working_time-${day_of_week}-${index}`).remove(); });
+    }
+
     $(document).ready(function() {
         // Creazione checkbox permessi
         api_request({
@@ -181,6 +229,32 @@
             }
         );
 
+        // Creazione input orario lavorativo
+        const translate = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
+        for (const day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
+            $("#working_time-accordion").append(`
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="-heading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${day}-collapse" aria-expanded="false" aria-controls="${day}-collapse">
+                            ${translate[day]}
+                        </button>
+                    </h2>
+                    <div id="${day}-collapse" class="accordion-collapse collapse" aria-labelledby="${day}-heading" data-bs-parent="#working_time-accordion">
+                        <div class="accordion-body">
+                            <div id="${day}-accordion"></div>
+                            <div class="d-flex justify-content-center mb-2">
+                                <button type="button" class="btn btn-outline-success" id="${day}-add_slot"><span class="button-icon">+</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            $(`#${day}-add_slot`).on("click", function (e) {
+                addTimeSlotTo(day, "", "", "");
+            });
+        }
+
         $("#search_user_form").submit(function(e) {
             e.preventDefault();
             
@@ -189,7 +263,6 @@
                 url: `/users/operators/${this.username.value}`
             }).then(
                 function (res) {
-                    console.log(res);
                     $("#data-username").val(res.username);
                     $("#data-email").val(res.email);
                     $("#data-name").val(res.name);
@@ -200,6 +273,23 @@
                     $("input:checkbox[name=data-enabled]").prop("checked", res.enabled);
                     for (const permission of res.permissions) { $("input:checkbox[name=data-permissions]").filter(`[value=${permission}]`).prop("checked", true); }
                     for (const service_id of res.services_id) { $("input:checkbox[name=data-services]").filter(`[value=${service_id}]`).prop("checked", true); }
+                },
+                function (err) {
+                    console.log(err);
+                }
+            );
+            
+            // Orario lavorativo dell'operatore
+            api_request({
+                type: "GET",
+                url: `/users/operators/${this.username.value}/working-time/`
+            }).then(
+                function (res) {
+                    for (const day of Object.keys(res)) {
+                        for (const working_slot of res[day]) {
+                            addTimeSlotTo(day, working_slot.time.start, working_slot.time.end, working_slot.hub);
+                        }
+                    }
                 },
                 function (err) {
                     console.log(err);
