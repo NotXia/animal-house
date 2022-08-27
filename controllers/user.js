@@ -6,6 +6,7 @@ const PermissionModel = require("../models/auth/permission");
 const bcrypt = require("bcrypt");
 const utils = require("../utilities");
 const error = require("../error_handler");
+const email = require("./utils.email");
 
 async function insertOperator(req, res) {
     let data = res.locals; // Estrae i dati validati
@@ -43,10 +44,12 @@ async function insertCustomer(req, res) {
     try {
         new_customer = await new CustomerModel(data.customer).save();
 
-        data.user.permissions = data.user.permissions.concat(["customer"]);
+        data.user.permissions = ["to_activate_user"];
         data.user.type_id = new_customer._id;
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
+
+        email.sendVerificationEmail(new_user.username);
 
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
@@ -176,6 +179,23 @@ async function searchPermissionByName(req, res) {
     }
 }
 
+// Gestisce l'attivazione dell'account di un cliente
+async function enableCustomer(req, res) {
+    let user;
+
+    try {
+        user = await UserModel.findOne({ username: req.auth.username });
+        user.enabled = true;
+        user.permissions = ["customer", "post_write", "comment_write"];
+        await user.save();
+
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json(await user.getAllData());
+}
+
 
 module.exports = {
     insertOperator: insertOperator,
@@ -185,5 +205,6 @@ module.exports = {
     updateUser: updateUser,
     deleteUser: deleteUser,
     getPermissions: getPermissions,
-    getPermissionByName: searchPermissionByName
+    getPermissionByName: searchPermissionByName,
+    enableCustomer: enableCustomer
 }

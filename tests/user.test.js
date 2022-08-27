@@ -78,7 +78,7 @@ describe("Ricerca di un cliente", function () {
 describe("Modifica della password di un cliente", function () {
     test("Modifica password come admin", async function () {
         await curr_session.put('/users/customers/Marcolino23').send({ 
-            password: "MarcoBologna17!"
+            password: "MarcoBologna17!", enabled: false
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         const user = await UserModel.findOne({ username: "Marcolino23" }, { password: 1 }).exec();

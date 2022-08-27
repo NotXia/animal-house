@@ -142,12 +142,14 @@ paths:
               type: string
             address:
               $ref: "#/definitions/Address"
-            permission:
+            enabled:
+              type: boolean
+              description: Account abilitato (modificabile solo dagli amministratori)
+            permissions:
               description: Permessi dell'utente (modificabile solo dagli amministratori)
-              type: object
-              properties:
-                permesso:
-                  type: boolean
+              type: array
+              items:
+                type: string
       responses:
         200:
           description: "Modificato con successo"
@@ -252,11 +254,10 @@ paths:
               enum: ["m", "f", "altro"]
             phone:
               type: string
-            permission:
-              type: object
-              properties:
-                permesso:
-                  type: boolean
+            permissions:
+              type: array
+              items:
+                type: string
             role:
               type: string
             services_id:
@@ -376,12 +377,13 @@ paths:
               type: array
               items:
                 $ref: "definitions/utils.yml#/definitions/ObjectId"
-            permission:
+            enabled:
+              type: boolean
+            permissions:
               description: Permessi dell'utente (modificabile solo dagli amministratori)
-              type: object
-              properties:
-                permesso:
-                  type: boolean
+              type: array
+              items:
+                type: string
       responses:
         200:
           description: "Modificato con successo"
@@ -566,6 +568,33 @@ paths:
         500:
           description: "Internal server error"
 
+  /users/customers/enable-me:
+    get:
+      tags:
+      - "Operatori"
+      summary: "Ricerca di un operatore"
+      description: |
+        Gestisce l'attivazione dell'utenza di un cliente.
+
+        Richiede permessi [ ["to_activate_user"] ], []
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Attivato con successo"
+          schema:
+              $ref: "#/definitions/CustomerUserAll"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Utenza già attiva"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
 
 definitions:
 
@@ -584,7 +613,7 @@ definitions:
         type: string
       phone:
         type: string
-      permission:
+      permissions:
         type: array
         items:
           type: string
@@ -592,7 +621,7 @@ definitions:
         type: boolean
       address:
         $ref: "#/definitions/Address"
-    required: [ username, email, name, surname, permission, enabled ]
+    required: [ username, email, name, surname, permissions, enabled ]
 
   CustomerUserProfile:
     type: object
@@ -620,7 +649,7 @@ definitions:
         type: string
       phone:
         type: string
-      permission:
+      permissions:
         type: array
         items:
           type: string
@@ -632,7 +661,7 @@ definitions:
         type: array
         items:
           $ref: "definitions/utils.yml#/definitions/ObjectId"
-    required: [ username, email, phone, name, surname, permission, enabled, role, services_id ]
+    required: [ username, email, phone, name, surname, permissions, enabled, role, services_id ]
 
   OperatorUserProfile:
     type: object
