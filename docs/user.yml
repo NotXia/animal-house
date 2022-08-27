@@ -571,7 +571,7 @@ paths:
   /users/customers/enable-me:
     get:
       tags:
-      - "Operatori"
+      - "Clienti"
       summary: "Ricerca di un operatore"
       description: |
         Gestisce l'attivazione dell'utenza di un cliente.
