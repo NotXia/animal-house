@@ -130,7 +130,6 @@
                     <div class="col-sm-12 col-md-12">
                         <fieldset id="services-fieldset">
                             <legend>Servizi:</legend>
-
                         </fieldset>
                     </div>
                 </div>
@@ -138,9 +137,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-6 offset-md-3">
                         <legend>Orario lavorativo</legend>
-
-                        <div class="accordion" id="working_time-accordion">
-                        </div>
+                        <div class="accordion" id="working_time-accordion"></div>
                     </div>
                 </div>
 
@@ -151,97 +148,105 @@
 </body>
 
 <script>
-    let week_index = { "monday": 0, "tuesday": 0, "wednesday": 0, "thursday": 0, "friday": 0, "saturday": 0, "sunday": 0 };
+    const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+    const TRANSLATE = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
 
-    function addTimeSlotTo(day_of_week, start_time, end_time, hub_code) {
-        const index = week_index[day_of_week];
-        week_index[day_of_week]++;
+    $(document).ready(async function() {
+        try {
+            const [permissions, services] = await Promise.all([
+                api_request({ type: "GET", url: `/users/permissions/` }),
+                api_request({ type: "GET", url: `/services/` })
+            ]);
 
-        $(`#${day_of_week}-accordion`).append(`
-            <div class="row mb-3" id="working_time-${day_of_week}-${index}">
-                <div class="col-6">
-                    <div class="d-flex justify-content-center">
-                        <div>
-                            <label for="${day_of_week}-${index}-time-start">Inizio</label>
-                            <input type="time" class="form-control" name="working_time.${day_of_week}.${index}.time.start" id="${day_of_week}-${index}-time-start" value="${moment(start_time).format("HH:mm")}">
-                        </div>
-                        <div>
-                            <label for="${day_of_week}-${index}-time-end">Fine</label>
-                            <input type="time" class="form-control" name="working_time.${day_of_week}.${index}.time.end" id="${day_of_week}-${index}-time-end" value="${moment(end_time).format("HH:mm")}">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-5">
-                    <div>
-                        <label for="${day_of_week}-${index}-hub">Hub</label>
-                        <input type="text" class="form-control" name="working_time.${day_of_week}.${index}.hub" id="${day_of_week}-${index}-hub" value="${hub_code}">
-                    </div>
-                </div>
-                <div class="col-1">
-                    <div class="d-flex justify-content-center align-items-center h-100">
-                        <button type="button" class="btn-close" aria-label="Cancella riga" id="working_time-${day_of_week}-${index}-delete"></button>
-                    </div>
-                </div>
-            </div>
-        `);
+            createPermissionsCheckbox(permissions);
+            createServicesCheckbox(services);
+            createWorkingTimeForm();
+        }
+        catch (err) {
+            console.log(err);
+        }
 
-        $(`#working_time-${day_of_week}-${index}-delete`).on("click", function (e) { $(`#working_time-${day_of_week}-${index}`).remove(); });
+        $("#search_user_form").submit(async function(e) {
+            e.preventDefault();
+
+            try {
+                const [operator_data, operator_working_time] = await Promise.all([
+                    api_request({ type: "GET", url: `/users/operators/${this.username.value}` }),
+                    api_request({ type: "GET", url: `/users/operators/${this.username.value}/working-time/`})
+                ]);
+    
+                loadOperatorData(operator_data);
+                loadOperatorWorkingTime(operator_working_time);
+            }
+            catch (err) {
+                console.log(err);
+            }
+        });
+    });
+    
+
+    /* Crea i checkbox per i permessi */
+    function createPermissionsCheckbox(permissions) {
+        for (const permission of permissions) {
+            $("#permissions-fieldset").append(`
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="data-permissions-${permission.name}" name="data-permissions" value="${permission.name}">
+                    <label for="data-permissions-${permission.name}">${permission.name}</label>
+                </div>
+            `);
+        }
     }
 
-    $(document).ready(function() {
-        // Creazione checkbox permessi
-        api_request({
-            type: "GET",
-            url: `/users/permissions/`
-        }).then(
-            function (res) {
-                for (const permission of res) {
-                    $("#permissions-fieldset").append(`
-                        <div class="form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="data-permissions-${permission.name}" name="data-permissions" value="${permission.name}">
-                            <label for="data-permissions-${permission.name}">${permission.name}</label>
-                        </div>
-                    `);
-                }
-            },
-            function (err) {
-                console.log(err);
-            }
-        );
+    /* Crea i checkbox per i servizi */
+    function createServicesCheckbox(services) {
+        for (const service of services) {
+            $("#services-fieldset").append(`
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="data-services-${service.id}" name="data-services" value="${service.id}">
+                    <label for="data-services-${service.id}">${service.name}</label>
+                </div>
+            `);
+        }           
+    }
 
-        // Creazione checkbox servizi
-        api_request({
-            type: "GET",
-            url: `/services/`
-        }).then(
-            function (res) {
-                for (const service of res) {
-                    $("#services-fieldset").append(`
-                        <div class="form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="data-services-${service.id}" name="data-services" value="${service.id}">
-                            <label for="data-services-${service.id}">${service.name}</label>
-                        </div>
-                    `);
-                }
-            },
-            function (err) {
-                console.log(err);
-            }
-        );
+    /* Carica i dati di un operatore */
+    function loadOperatorData(data) {
+        $("#data-username").val(data.username);
+        $("#data-email").val(data.email);
+        $("#data-name").val(data.name);
+        $("#data-surname").val(data.surname);
+        $("#data-phone").val(data.phone);
+        $("#data-role").val(data.role);
+        $("input:radio[name=data-gender]").filter(`[value=${data.gender}]`).prop("checked", true);
+        $("input:checkbox[name=data-enabled]").prop("checked", data.enabled);
+        for (const permission of data.permissions) { $("input:checkbox[name=data-permissions]").filter(`[value=${permission}]`).prop("checked", true); }
+        for (const service_id of data.services_id) { $("input:checkbox[name=data-services]").filter(`[value=${service_id}]`).prop("checked", true); }
+    }
 
-        // Creazione input orario lavorativo
-        const translate = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
-        for (const day of ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]) {
+    /* Carica l'orario lavorativo di un operatore */
+    function loadOperatorWorkingTime(working_time) {
+        emptyTimeSlots();
+
+        for (const day of WEEKS) {
+            for (const working_slot of working_time[day]) {
+                addTimeSlotTo(day, working_slot.time.start, working_slot.time.end, working_slot.hub);
+            }
+        }
+    }
+
+    /* Crea il form per l'orario lavorativo */
+    function createWorkingTimeForm() {
+        for (const day of WEEKS) {
             $("#working_time-accordion").append(`
                 <div class="accordion-item">
-                    <h2 class="accordion-header" id="-heading">
+                    <h2 class="accordion-header" id="${day}-heading">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${day}-collapse" aria-expanded="false" aria-controls="${day}-collapse">
-                            ${translate[day]}
+                            ${TRANSLATE[day]}
                         </button>
                     </h2>
                     <div id="${day}-collapse" class="accordion-collapse collapse" aria-labelledby="${day}-heading" data-bs-parent="#working_time-accordion">
                         <div class="accordion-body">
-                            <div id="${day}-accordion"></div>
+                            <div id="${day}-accordion-container"></div>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-outline-success" id="${day}-add_slot"><span class="button-icon">+</span></button>
                             </div>
@@ -254,49 +259,55 @@
                 addTimeSlotTo(day, "", "", "");
             });
         }
+    }
 
-        $("#search_user_form").submit(function(e) {
-            e.preventDefault();
-            
-            api_request({
-                type: "GET",
-                url: `/users/operators/${this.username.value}`
-            }).then(
-                function (res) {
-                    $("#data-username").val(res.username);
-                    $("#data-email").val(res.email);
-                    $("#data-name").val(res.name);
-                    $("#data-surname").val(res.surname);
-                    $("#data-phone").val(res.phone);
-                    $("#data-role").val(res.role);
-                    $("input:radio[name=data-gender]").filter(`[value=${res.gender}]`).prop("checked", true);
-                    $("input:checkbox[name=data-enabled]").prop("checked", res.enabled);
-                    for (const permission of res.permissions) { $("input:checkbox[name=data-permissions]").filter(`[value=${permission}]`).prop("checked", true); }
-                    for (const service_id of res.services_id) { $("input:checkbox[name=data-services]").filter(`[value=${service_id}]`).prop("checked", true); }
-                },
-                function (err) {
-                    console.log(err);
-                }
-            );
-            
-            // Orario lavorativo dell'operatore
-            api_request({
-                type: "GET",
-                url: `/users/operators/${this.username.value}/working-time/`
-            }).then(
-                function (res) {
-                    for (const day of Object.keys(res)) {
-                        for (const working_slot of res[day]) {
-                            addTimeSlotTo(day, working_slot.time.start, working_slot.time.end, working_slot.hub);
-                        }
-                    }
-                },
-                function (err) {
-                    console.log(err);
-                }
-            );
+    let time_slot_index = 0; // Per differenziare i vari slot
+    /* Crea un nuovo slot lavorativo per un giorno della settimana */
+    function addTimeSlotTo(day_of_week, start_time, end_time, hub_code) {
+        const index = time_slot_index;
+        time_slot_index++;
+
+        $(`#${day_of_week}-accordion-container`).append(`
+            <div class="row mb-3" id="working_time-${day_of_week}-${index}">
+                <div class="col-6">
+                    <div class="d-flex justify-content-center">
+                        <div>
+                            <label for="data-${day_of_week}-${index}-time-start">Inizio</label>
+                            <input type="time" class="form-control" name="data-working_time-${day_of_week}-time-start" id="data-${day_of_week}-${index}-time-start" value="${start_time ? moment(start_time).format("HH:mm") : ""}">
+                        </div>
+                        <div>
+                            <label for="data-${day_of_week}-${index}-time-end">Fine</label>
+                            <input type="time" class="form-control" name="data-working_time-${day_of_week}-time-end" id="data-${day_of_week}-${index}-time-end" value="${end_time ? moment(end_time).format("HH:mm") : ""}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div>
+                        <label for="data-${day_of_week}-${index}-hub">Hub</label>
+                        <input type="text" class="form-control" name="data-working_time-${day_of_week}-hub" id="data-${day_of_week}-${index}-hub" value="${hub_code}">
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <button type="button" class="btn-close" aria-label="Cancella riga" id="working_time-${day_of_week}-${index}-delete"></button>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        $(`#working_time-${day_of_week}-${index}-delete`).on("click", function (e) { 
+            $(`#working_time-${day_of_week}-${index}`).remove(); 
         });
-    });
+    }
+
+    /* Svuota il form degli slot lavorativi */
+    function emptyTimeSlots() {
+        time_slot_index = 0;
+
+        for (const day of WEEKS) {
+            $(`#${day}-accordion-container`).html("");
+        }
+    }
 </script>
 
 </html>
