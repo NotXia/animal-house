@@ -17,7 +17,8 @@ function _getUserData(source) {
             surname: source.surname,
             gender: source.gender,
             phone: source.phone,
-            permissions: source.permissions
+            permissions: source.permissions,
+            enabled: source.enabled
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -112,6 +113,7 @@ function validateUpdateUserData(source) {
         user_validator.validateGender(source, OPTIONAL),
         user_validator.validatePhone(source, OPTIONAL),
         user_validator.validatePermissions(source, OPTIONAL),
+        user_validator.validateEnabled(source, OPTIONAL),
     ];
 }
 
@@ -122,7 +124,10 @@ const validateUpdateCustomer = [
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params"),
     function (req, _, next) {
-        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
+        // Solo uno superuser può modificare i permessi / flag enabled
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); }
+        if (req.body.enabled && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi abilitare/disabilitare la tua utenza"); }
+        
         next();
     },
     groupCustomerData("body")
@@ -136,7 +141,10 @@ const validateUpdateOperator = [
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params"),
     function (req, _, next) {
-        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
+        // Solo uno superuser può modificare i permessi / flag enabled
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } 
+        if (req.body.enabled && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi abilitare/disabilitare la tua utenza"); }
+        
         next();
     },
     groupOperatorData("body")

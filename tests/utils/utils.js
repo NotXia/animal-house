@@ -57,7 +57,7 @@ module.exports.loginAsCustomer = async function (session) {
         name: getName(), surname: getSurname(),
         address: { city: "BoloTown", street: "Via da qua", number: 42, postal_code: "40100" }
     }).set({ Authorization: `Bearer ${admin_token}`});
-    await UserModel.findOneAndUpdate({ username: username }, { enabled: true });
+    await UserModel.findOneAndUpdate({ username: username }, {"$set": { enabled: true, permissions: ["customer", "post_write", "comment_write"] }});
     to_del_customers.push(username);
 
     const res_login = await session.post('/auth/login').send({ username: username, password: "PasswordMoltoComplessa1!" });
