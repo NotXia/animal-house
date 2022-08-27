@@ -37,7 +37,7 @@
         <form>
             <div class="container">
                 <div class="row mb-2">
-                    <div class="col-sm-12 col-md-6">
+                    <div class="col-sm-12 col-md-4">
                         <div class="d-flex justify-content-start mb-2">
                             <div class="w-100">
                                 <label for="data-username">Username</label>
@@ -45,7 +45,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-12 col-md-6">
+                    <div class="col-sm-12 col-md-4">
+                        <div class="d-flex justify-content-start mb-2">
+                            <div class="w-100">
+                                <label for="data-password">Password</label>
+                                <input id="data-password" type="password" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-4">
                         <div class="d-flex justify-content-end mb-2">
                             <div class="w-100">
                                 <label for="data-email">Email</label>
@@ -142,6 +150,17 @@
                 </div>
 
             </div>
+            
+            <div class="d-flex justify-content-center align-items-center mb-4 mt-5">
+                <div id="modify-container">
+                    <button type="button" id="modify-btn" class="btn btn-outline-dark">Abilita modifiche</button>
+                </div>
+                <div id="save-container">
+                    <button type="button" id="revert-btn" class="btn btn-outline-danger">Annulla</button>
+                    <button type="button" id="save-btn" class="btn btn-outline-success">Salva</button>
+                </div>
+                
+            </div>
         </form>
     </main>
 
@@ -161,11 +180,16 @@
             createPermissionsCheckbox(permissions);
             createServicesCheckbox(services);
             createWorkingTimeForm();
+
+            disableForm();
+            $("#modify-container").hide();
+            $("#save-container").hide();
         }
         catch (err) {
             console.log(err);
         }
 
+        let operator_cache = {};
         $("#search_user_form").submit(async function(e) {
             e.preventDefault();
 
@@ -177,13 +201,96 @@
     
                 loadOperatorData(operator_data);
                 loadOperatorWorkingTime(operator_working_time);
+                disableForm();
+                $("#modify-container").show();
+
+                operator_cache = { data: operator_data, working_time: operator_working_time };
             }
             catch (err) {
                 console.log(err);
             }
         });
+
+        $("#modify-btn").on("click", function (e) {
+            $("#modify-container").hide();
+            $("#save-container").show();
+            enableForm();
+        });
+
+        $("#revert-btn").on("click", function (e) {
+            loadOperatorData(operator_cache.data);
+            loadOperatorWorkingTime(operator_cache.working_time);
+            $("#modify-container").show();
+            $("#save-container").hide();
+            disableForm();
+        });
+
+        $("#save-btn").on("click", async function (e) {
+            try {
+                await Promise.all([
+                    api_request({ 
+                        type: "PUT", url: `/users/operators/${operator_cache.data.username}`,
+                        data: getFormOperatorData()
+                    }),
+                    api_request({ 
+                        type: "PUT", url: `/users/operators/${operator_cache.data.username}/working-time/`,
+                        processData: false, contentType: "application/json",
+                        data: JSON.stringify({ working_time: getFormOperatorWorkingTime() })
+                    })
+                ]);
+            }
+            catch (err) {
+                console.log(err);
+            }
+
+            $("#modify-container").show();
+            $("#save-container").hide();
+            disableForm();
+        });
     });
-    
+
+
+    function getFormOperatorData() {
+        let form_data = {
+            password: $("#data-password").val().length === 0 ? undefined : $("#data-password").val(),
+            email: $("#data-email").val(),
+            name: $("#data-name").val(),
+            surname: $("#data-surname").val(),
+            gender: $("#data-gender").val(),
+            phone: $("#data-phone").val(),
+            role: $("#data-role").val(),
+            services_id: $.map($("input:checkbox[name=data-services]:checked"), (checked, _) => checked.value),
+            permissions: $.map($("input:checkbox[name=data-permissions]:checked"), (checked, _) => checked.value)
+        };
+
+        Object.keys(form_data).forEach((key) => { if (form_data[key] === undefined) delete form_data[key] }); // Rimuove le chiavi associate a valori undefined
+        return form_data;
+    }
+
+    function getFormOperatorWorkingTime() {
+        let form_working_time = {};
+
+        for (const day of WEEKS) {
+            let working_slots = []
+            let input_time_start = $(`input[name=data-working_time-${day}-time-start]`);
+            let input_time_end = $(`input[name=data-working_time-${day}-time-end]`);
+            let input_hub = $(`input:text[name=data-working_time-${day}-hub]`);
+
+            for (let i=0; i<input_hub.length; i++) {
+                working_slots.push({
+                    time: {
+                        start: moment(input_time_start[i].value, "HH:mm").format(),
+                        end: moment(input_time_end[i].value, "HH:mm").format(),
+                    },
+                    hub: input_hub[i].value
+                });
+            }
+
+            form_working_time[day] = working_slots;
+        }
+
+        return form_working_time;
+    }
 
     /* Crea i checkbox per i permessi */
     function createPermissionsCheckbox(permissions) {
@@ -289,7 +396,7 @@
                 </div>
                 <div class="col-1">
                     <div class="d-flex justify-content-center align-items-center h-100">
-                        <button type="button" class="btn-close" aria-label="Cancella riga" id="working_time-${day_of_week}-${index}-delete"></button>
+                        <button type="button" class="btn-close" aria-label="Cancella riga" id="working_time-${day_of_week}-${index}-delete" name="working_time-delete"></button>
                     </div>
                 </div>
             </div>
@@ -307,6 +414,25 @@
         for (const day of WEEKS) {
             $(`#${day}-accordion-container`).html("");
         }
+    }
+
+    // Memorizza il selettore per tutti gli input nel form
+    let all_inputs = [
+        "#data-username", "#data-password", "#data-email", "#data-name", "#data-surname", "#data-phone", "#data-role", 
+        "input:radio[name=data-gender]", "input:checkbox[name=data-enabled]", "input:checkbox[name=data-permissions]", "input:checkbox[name=data-services]",
+        "button[name=working_time-delete]"
+    ];
+    for (const day of WEEKS) { 
+        all_inputs = all_inputs.concat([
+            `input[name=data-working_time-${day}-time-start]`, `input[name=data-working_time-${day}-time-end]`, `input:text[name=data-working_time-${day}-hub]`,
+            `#${day}-add_slot`
+        ]);
+    }
+    function disableForm() {
+        for (const selector of all_inputs) { $(selector).prop("disabled", true); }
+    }
+    function enableForm() {
+        for (const selector of all_inputs) { $(selector).prop("disabled", false); }
     }
 </script>
 
