@@ -54,7 +54,9 @@ const userScheme = mongoose.Schema({
     permissions: [{ type: String }],
     type_id: { type: ObjectId, required: true },
     type_name: { type: String, required: true, enum: ['customer', 'operator'] }
-}, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
+}, { toJSON: { virtuals: true }, toObject: { virtuals: true }, collation: {locale: "en", strength: 2} });
+
+userScheme.index({ "username": 1});
 
 userScheme.virtual("customer", {
     ref: CustomerModel.collection.collectionName,
