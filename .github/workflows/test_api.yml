@@ -24,6 +24,9 @@ env:
   BLOG_IMAGES_BASE_URL: "/posts/images"
   CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH: "./public/animals/images"
   CUSTOMER_ANIMAL_IMAGES_BASE_URL: "/animals/images"
+  PROFILE_PICTURE_IMAGES_DIR_ABS_PATH: "./public/profiles/images"
+  PROFILE_PICTURE_IMAGES_BASE_URL: "/profiles/images"
+  PROFILE_PICTURE_DEFAULT_URL: "/profiles/images/default.png"
 
 jobs:  
   build:

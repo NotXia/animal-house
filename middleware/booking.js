@@ -15,7 +15,18 @@ const validateInsertAppointment = [
     animal_validator.validateAnimalId("body", REQUIRED, "animal_id"),
     user_validator.validateUsername("body", REQUIRED, "operator"),
     hub_validator.validateCode("body", REQUIRED, "hub"),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        if ((req.body.customer != req.auth.username) && (req.body.operator != req.auth.username)) {
+            return next(error.generate.FORBIDDEN("Non puoi prenotare per gli altri utenti"));
+        }
+        let err = await animal_validator.verifyAnimalOwnership(req.body.animal_id, req.body.customer)
+        if (err) { return next(err); }
+
+        return next();
+    }
 ]
 
 const validateSearchAvailabilities = [

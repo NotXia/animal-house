@@ -4,6 +4,8 @@ const utils = require("./utils/utils");
 const session = require('supertest-session');
 const { createTime } = require("../utilities");
 const bcrypt = require("bcrypt");
+const path = require("path");
+const fs = require("fs");
 
 const HubModel = require("../models/services/hub");
 const UserModel = require("../models/auth/user");
@@ -13,6 +15,9 @@ const PermissionModel = require("../models/auth/permission");
 let curr_session = session(app);
 let admin_token;
 
+const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
+const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
+
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 });
@@ -20,10 +25,16 @@ beforeAll(async function () {
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione corretta", async function () {
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .expect(200);
+        const image_path = res.body[0];
+
         await curr_session.post('/users/customers/').send({
             username: "Marcolino23", password: "MarcobelloNapoli32!",
             email: "marconi17@gmail.com", phone: "3212345678",
-            name: "Luigi", surname: "Pirandello",
+            name: "Luigi", surname: "Pirandello", picture: image_path,
             address:{ city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100" }
         }).expect(201);
 
@@ -33,6 +44,7 @@ describe("Registrazione di un cliente", function () {
         expect(user.email).toEqual("marconi17@gmail.com");
         expect(user.customer).toBeDefined();
         expect(user.customer.address.city).toEqual("Salò");
+        expect( fs.existsSync(path.join(process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH, image_path)) ).toBeTruthy();
     });
 
     test("Registrazione errata - username esistente", async function () {
@@ -78,7 +90,7 @@ describe("Ricerca di un cliente", function () {
 describe("Modifica della password di un cliente", function () {
     test("Modifica password come admin", async function () {
         await curr_session.put('/users/customers/Marcolino23').send({ 
-            password: "MarcoBologna17!"
+            password: "MarcoBologna17!", enabled: false
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         const user = await UserModel.findOne({ username: "Marcolino23" }, { password: 1 }).exec();
@@ -94,11 +106,39 @@ describe("Modifica della password di un cliente", function () {
     });
 });
 
+describe("Modifica immagine di profilo", function () {
+    test("Modifica corretta", async function () {
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img2)
+            .expect(200);
+        const image_path = res.body[0];
+
+        await curr_session.put('/users/customers/Marcolino23').send({ 
+            picture: image_path
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        expect( fs.existsSync(path.join(process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH, image_path)) ).toBeTruthy();
+    });
+
+    test("Modifica password non soddisfacendo i requisiti minimi", async function () {
+        let res = await curr_session.put('/users/customers/Marcolino23').send({ 
+            password: "12345"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+        expect(res.body[0].field).toEqual("password");
+        expect(res.body[0].message).toBeDefined();
+    });
+});
+
 describe("Cancellazione di un cliente", function () {
     test("Cancellazione come admin", async function () {
+        const to_delete_user = await UserModel.findOne({ username: "Marcolino23" }).exec();
+
         await curr_session.delete('/users/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
         
         expect(await UserModel.findOne({ username: "Marcolino23" }).exec()).toBeNull();
+        expect( fs.existsSync(path.join(process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH, to_delete_user.picture)) ).toBeFalsy();
+
     });
 });
 

@@ -34,7 +34,7 @@ function auth_middleware(required_permissions=[], superuser_permissions=[]) {
             // Estrazione permessi
             const user = await UserModel.findById(req.auth.id, { permissions: 1 });
             const user_permissions = user.permissions;
-
+            req.auth.permissions = user.permissions;
 
             // Verifica se uno dei gruppi di permessi da superuser è soddisfatto
             for (const permissions of superuser_permissions) {
