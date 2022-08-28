@@ -20,7 +20,7 @@ function getSurname()   { return `${surnames[randomInt(0, surnames.length - 1)]}
 
 
 module.exports.loginAsAdmin = async function (session) {
-    const res = await session.post('/auth/login').send({ username: "admin", password: "admin" });
+    const res = await session.post('/auth/login').send({ username: "aDMiN", password: "admin" });
     return res.body.access_token.value;
 }
 
