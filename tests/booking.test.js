@@ -7,6 +7,7 @@ const moment = require("moment");
 const BookingModel = require("../models/services/booking");
 const SpeciesModel = require("../models/animals/species");
 const AnimalModel = require("../models/animals/animal");
+const CustomerModel = require("../models/auth/customer");
 
 let curr_session = session(app);
 
@@ -54,9 +55,7 @@ beforeAll(async function () {
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
 
-    customer1 = await utils.loginAsCustomer(curr_session);
-    customer2 = await utils.loginAsCustomer(curr_session);
-
+    
     species1 = await new SpeciesModel(
         {
             name: "Felino"
@@ -69,6 +68,11 @@ beforeAll(async function () {
             name: "Ghepardonono",
         }
     ).save();
+    
+    customer1 = await utils.loginAsCustomer(curr_session);
+    await CustomerModel.updateOne({ username: customer1.username }, { "$push": { animals_id: animal1._id } }).exec();
+
+    customer2 = await utils.loginAsCustomer(curr_session);
 });
 
 describe("Ricerca disponibilità", function () {
@@ -200,6 +204,42 @@ describe("Creazione degli appuntamenti", function () {
     test("Creazione con parametri mancanti", async function () {
         const res = await curr_session.post('/appointments/').send({
         }).set({ Authorization: `Bearer ${customer1.token}` }).expect(400);
+    });
+
+    test("Creazione errata - Creazione per altri", async function () {
+        let availabilities = (await curr_session.get(`/appointments/availabilities/`)
+            .query({ 
+                start_date: moment("09/08/2100", "DD/MM/YYYY").format(), 
+                end_date: moment("09/08/2100", "DD/MM/YYYY").format(),
+                hub_code: "BLQ1", service_id: service2.id
+            }).expect(200)).body;
+
+        await curr_session.post('/appointments/').send({
+            time_slot: availabilities[0].time,
+            service_id: service2.id,
+            customer: customer1.username,
+            animal_id: animal1._id,
+            operator: availabilities[0].operator_username,
+            hub: availabilities[0].hub
+        }).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
+    });
+
+    test("Creazione errata - Animale altrui", async function () {
+        let availabilities = (await curr_session.get(`/appointments/availabilities/`)
+            .query({ 
+                start_date: moment("09/08/2100", "DD/MM/YYYY").format(), 
+                end_date: moment("09/08/2100", "DD/MM/YYYY").format(),
+                hub_code: "BLQ1", service_id: service2.id
+            }).expect(200)).body;
+
+        await curr_session.post('/appointments/').send({
+            time_slot: availabilities[0].time,
+            service_id: service2.id,
+            customer: customer2.username,
+            animal_id: animal1._id,
+            operator: availabilities[0].operator_username,
+            hub: availabilities[0].hub
+        }).set({ Authorization: `Bearer ${customer2.token}` }).expect(403);
     });
 });
 
