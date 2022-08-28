@@ -37,48 +37,63 @@
         <form>
             <div class="container">
                 <div class="row mb-2">
-                    <div class="col-sm-12 col-md-4">
-                        <div class="d-flex justify-content-start mb-2">
-                            <div class="w-100">
-                                <label for="data-username">Username</label>
-                                <input id="data-username" type="text" class="form-control">
+                    <div class="col-sm-12 col-md-2">
+                        <div class="d-flex justify-content-center mb-2">
+                            <div class="w-75" style="border-radius: 50%; overflow: hidden;">
+                                <img src="/profiles/images/default.png" alt="Immagine di profilo dell'operatore" id="data-picture" style="width: 100%;">
                             </div>
                         </div>
+                        <label for="picture-upload" class="form-label">Carica immagine</label>
+                        <input class="form-control" type="file" id="picture-upload" accept="image/png, image/jpeg">
                     </div>
-                    <div class="col-sm-12 col-md-4">
-                        <div class="d-flex justify-content-start mb-2">
-                            <div class="w-100">
-                                <label for="data-password">Password</label>
-                                <input id="data-password" type="password" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-4">
-                        <div class="d-flex justify-content-end mb-2">
-                            <div class="w-100">
-                                <label for="data-email">Email</label>
-                                <input id="data-email" type="text" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="row mb-2">
-                    <div class="col-sm-12 col-md-6">
-                        <div class="d-flex justify-content-start mb-2">
-                            <div class="w-100">
-                                <label for="data-name">Nome</label>
-                                <input id="data-name" type="text" class="form-control">
+                    <div class="col-sm-12 col-md-10">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-username">Username</label>
+                                        <input id="data-username" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-password">Password</label>
+                                        <input id="data-password" type="password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <div class="w-100">
+                                        <label for="data-email">Email</label>
+                                        <input id="data-email" type="text" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6">
-                        <div class="d-flex justify-content-end mb-2">
-                            <div class="w-100">
-                                <label for="data-surname">Cognome</label>
-                                <input id="data-surname" type="text" class="form-control">
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-name">Nome</label>
+                                        <input id="data-name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <div class="w-100">
+                                        <label for="data-surname">Cognome</label>
+                                        <input id="data-surname" type="text" class="form-control">
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -189,6 +204,12 @@
             console.log(err);
         }
 
+        $('#picture-upload').on("change", function (e) { 
+            let reader = new FileReader();
+            reader.onload = function (e) { $("#data-picture").attr('src', e.target.result); }
+            reader.readAsDataURL(this.files[0]);
+        });
+
         let operator_cache = {};
         $("#search_user_form").submit(async function(e) {
             e.preventDefault();
@@ -230,7 +251,7 @@
                 await Promise.all([
                     api_request({ 
                         type: "PUT", url: `/users/operators/${operator_cache.data.username}`,
-                        data: getFormOperatorData()
+                        data: await getFormOperatorData()
                     }),
                     api_request({ 
                         type: "PUT", url: `/users/operators/${operator_cache.data.username}/working-time/`,
@@ -249,8 +270,32 @@
         });
     });
 
+    async function uploadProfilePicture() {
+        let uploaded_image = undefined;
 
-    function getFormOperatorData() {
+        if ($("#picture-upload")[0].files.length === 1) {
+            let upload_data = new FormData();
+            upload_data.append("file0", $("#picture-upload")[0].files[0]);
+    
+            try {
+                let upload_res = await api_request({
+                    method: "POST",
+                    url: "/files/images/",
+                    data: upload_data,
+                    cache: false, contentType: false, processData: false
+                });
+
+                uploaded_image = upload_res[0];
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+
+        return uploaded_image;
+    }
+
+    async function getFormOperatorData() {
         let form_data = {
             password: $("#data-password").val().length === 0 ? undefined : $("#data-password").val(),
             email: $("#data-email").val(),
@@ -260,10 +305,12 @@
             phone: $("#data-phone").val(),
             role: $("#data-role").val(),
             services_id: $.map($("input:checkbox[name=data-services]:checked"), (checked, _) => checked.value),
-            permissions: $.map($("input:checkbox[name=data-permissions]:checked"), (checked, _) => checked.value)
+            permissions: $.map($("input:checkbox[name=data-permissions]:checked"), (checked, _) => checked.value),
+            picture: await uploadProfilePicture()
         };
 
         Object.keys(form_data).forEach((key) => { if (form_data[key] === undefined) delete form_data[key] }); // Rimuove le chiavi associate a valori undefined
+
         return form_data;
     }
 
@@ -318,6 +365,7 @@
 
     /* Carica i dati di un operatore */
     function loadOperatorData(data) {
+        $("#data-picture").attr("src", data.picture);
         $("#data-username").val(data.username);
         $("#data-email").val(data.email);
         $("#data-name").val(data.name);
@@ -418,7 +466,7 @@
 
     // Memorizza il selettore per tutti gli input nel form
     let all_inputs = [
-        "#data-username", "#data-password", "#data-email", "#data-name", "#data-surname", "#data-phone", "#data-role", 
+        "#data-username", "#data-password", "#data-email", "#data-name", "#data-surname", "#data-phone", "#data-role", "#picture-upload",
         "input:radio[name=data-gender]", "input:checkbox[name=data-enabled]", "input:checkbox[name=data-permissions]", "input:checkbox[name=data-services]",
         "button[name=working_time-delete]"
     ];
