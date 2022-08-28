@@ -7,6 +7,24 @@ const bcrypt = require("bcrypt");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const email = require("./utils.email");
+const file_controller = require("./file.js");
+const path = require('path');
+
+
+async function saveProfilePicture(image_name) {
+    const picture = path.basename(image_name); // Normalizzazione percorso
+    await file_controller.utils.claim([picture], process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH);
+}
+
+async function deleteProfilePicture(image_name) {
+    const picture = path.basename(image_name); // Normalizzazione percorso
+
+    // Non si può cancellare l'immagine di default
+    if (picture == path.basename(process.env.PROFILE_PICTURE_DEFAULT_URL)) { return; }
+
+    await file_controller.utils.delete([picture], process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH);
+}
+
 
 async function insertOperator(req, res) {
     let data = res.locals; // Estrae i dati validati
@@ -18,6 +36,8 @@ async function insertOperator(req, res) {
     try {
         new_operator = await new OperatorModel(data.operator).save();
         
+        if (data.user.picture) { await saveProfilePicture(data.user.picture); } 
+
         data.user.enabled = true;
         data.user.permissions.push("operator");
         data.user.type_id = new_operator._id;
@@ -43,6 +63,8 @@ async function insertCustomer(req, res) {
 
     try {
         new_customer = await new CustomerModel(data.customer).save();
+
+        if (data.user.picture) { await saveProfilePicture(data.user.picture); } 
 
         data.user.permissions = ["to_activate_user"];
         data.user.type_id = new_customer._id;
@@ -99,12 +121,19 @@ function updateUser(is_operator) {
         try {
             // Aggiornamento dei dati generici dell'utente
             if (data.user) { 
-                if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
                 user = await UserModel.findOne({ username: req.params.username });
+
+                // Aggiornamento immagine di profilo
+                if (data.user.picture && data.user.picture != user.picture) {
+                    await saveProfilePicture(data.user.picture);
+                    if (user.picture) { await deleteProfilePicture(user.picture); }
+                    user.picture = path.basename(data.user.picture);
+                }
+
+                if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
                 if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
                 for (const [field, value] of Object.entries(data.user)) { user[field] = value; }
                 await user.save();
-        
             }
 
             // Aggiornamento dei dati specifici
@@ -138,7 +167,9 @@ function deleteUser(is_operator) {
             if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
             
             // Cancellazione utenza
-            await UserModel.findByIdAndDelete(user._id);
+            const deleted_user = await UserModel.findByIdAndDelete(user._id);
+
+            if (deleted_user.picture != "") { await deleteProfilePicture(deleted_user.picture); }
 
             // Cancellazione dati specifici
             if (is_operator) {

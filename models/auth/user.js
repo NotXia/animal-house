@@ -1,7 +1,9 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const CustomerModel = require("./customer");
 const OperatorModel = require("./operator");
+const path = require('path');
 
 const permissionSchema = mongoose.Schema({
     operator: { type: Boolean, default: false },
@@ -33,6 +35,10 @@ const userScheme = mongoose.Schema({
         required: true,
         unique: true,
         match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    },
+
+    picture: {
+        type: String, default: ""
     },
 
     name: { type: String, required: true },
@@ -85,6 +91,7 @@ userScheme.methods.getAllData = async function() {
         phone: data.phone,
         permissions: data.permissions,
         enabled: data.enabled,
+        picture: data.picture ? path.join(process.env.PROFILE_PICTURE_IMAGES_BASE_URL, data.picture) : process.env.PROFILE_PICTURE_DEFAULT_URL
     };
 
     if (this.isOperator()) {
@@ -105,6 +112,7 @@ userScheme.methods.getPublicData = async function() {
         username: data.username,
         name: data.name,
         surname: data.surname,
+        picture: data.picture != "" ? path.join(process.env.PROFILE_PICTURE_IMAGES_BASE_URL, data.picture) : process.env.PROFILE_PICTURE_DEFAULT_URL
     };
 
     if (this.isOperator()) {
