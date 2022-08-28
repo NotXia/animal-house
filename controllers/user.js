@@ -169,7 +169,7 @@ function deleteUser(is_operator) {
             // Cancellazione utenza
             const deleted_user = await UserModel.findByIdAndDelete(user._id);
 
-            if (deleted_user.picture != "") { await deleteProfilePicture(deleted_user.picture); }
+            if (deleted_user.picture) { await deleteProfilePicture(deleted_user.picture); }
 
             // Cancellazione dati specifici
             if (is_operator) {
