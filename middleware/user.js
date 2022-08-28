@@ -18,7 +18,8 @@ function _getUserData(source) {
             gender: source.gender,
             phone: source.phone,
             permissions: source.permissions,
-            enabled: source.enabled
+            enabled: source.enabled,
+            picture: source.picture
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -72,6 +73,7 @@ function validateNewUserData(source) {
         user_validator.validateSurname(source, REQUIRED),
         user_validator.validateGender(source, OPTIONAL),
         user_validator.validatePhone(source, OPTIONAL),
+        user_validator.validateProfilePicture(source, OPTIONAL),
     ];
 }
 
@@ -114,6 +116,7 @@ function validateUpdateUserData(source) {
         user_validator.validatePhone(source, OPTIONAL),
         user_validator.validatePermissions(source, OPTIONAL),
         user_validator.validateEnabled(source, OPTIONAL),
+        user_validator.validateProfilePicture(source, OPTIONAL),
     ];
 }
 

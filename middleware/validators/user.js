@@ -17,6 +17,7 @@ module.exports.validatePermissions = function (source, required=true, field_name
         module.exports.validatePermissionName(source, required, `${field_name}.*`)
     ];
 }
+module.exports.validateProfilePicture = (source, required=true, field_name="picture") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim() }
 
 /**
  * Verifica i permessi per effettuare operazioni sull'oggetto
