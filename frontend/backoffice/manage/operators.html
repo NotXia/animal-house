@@ -154,7 +154,7 @@
                             <legend>Permessi:</legend>
 
                             <div class="form-check-inline">
-                                <input class="form-check-input" type="checkbox" id="data-enabled" name="data-enabled" value="enabled">
+                                <input class="form-check-input" type="checkbox" id="data-enabled" name="data-enabled">
                                 <label class="form-check-label" for="data-enabled">abilitato</label>
                             </div>
                         </fieldset>
@@ -441,6 +441,7 @@
             phone: $("#data-phone").val(),
             role: $("#data-role").val(),
             services_id: $.map($("input:checkbox[name=data-services]:checked"), (checked, _) => checked.value),
+            enabled: $("#data-enabled").is(":checked"),
             permissions: $.map($("input:checkbox[name=data-permissions]:checked"), (checked, _) => checked.value),
             picture: await uploadProfilePicture()
         };
