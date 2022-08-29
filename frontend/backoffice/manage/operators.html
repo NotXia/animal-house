@@ -26,19 +26,20 @@
         <div id="navbar-placeholder"></div>
 
         <div class="d-flex justify-content-center mt-2 mb-2">
-            <div class="container w-50">
+            <div class="container">
                 <div class="row">
-                    <div class="col-12 col-md-8 mb-2">
-                        <form id="search_user_form" class="d-flex" role="search">
-                            <input class="form-control" type="input" name="username" placeholder="Cerca utente">
-                            <button class="ps-2 pe-2 btn btn-link" type="submit">
-                                <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
-                            </button>
-                        </form>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div id="start_create-container" class="ms-3">
-                            <button type="button" id="start_create-btn" class="btn btn-outline-dark">Crea nuovo</button>
+                    <div class="col-12 col-md-4 offset-md-4 mb-2">
+                        <div class="d-flex">
+                            <form id="search_user_form" class="d-flex" role="search">
+                                <input class="form-control" type="input" name="username" placeholder="Cerca utente">
+                                <button class="ps-2 pe-2 btn btn-link" type="submit">
+                                    <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
+                                </button>
+                            </form>
+
+                            <div id="start_create-container" class="ms-3">
+                                <button type="button" id="start_create-btn" class="btn btn-outline-dark text-truncate">Crea nuovo</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -478,30 +479,6 @@
         return form_working_time;
     }
 
-    /* Crea i checkbox per i permessi */
-    function createPermissionsCheckbox(permissions) {
-        for (const permission of permissions) {
-            $("#permissions-fieldset").append(`
-                <div class="form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="data-permissions-${permission.name}" name="data-permissions" value="${permission.name}">
-                    <label for="data-permissions-${permission.name}">${he.decode(permission.name)}</label>
-                </div>
-            `);
-        }
-    }
-
-    /* Crea i checkbox per i servizi */
-    function createServicesCheckbox(services) {
-        for (const service of services) {
-            $("#services-fieldset").append(`
-                <div class="form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="data-services-${service.id}" name="data-services" value="${service.id}">
-                    <label for="data-services-${service.id}">${he.decode(service.name)}</label>
-                </div>
-            `);
-        }           
-    }
-
     /* Carica i dati di un operatore */
     function loadOperatorData(data) {
         $("#data-picture").attr("src", data.picture);
@@ -528,6 +505,31 @@
         }
     }
 
+    
+    /* Crea i checkbox per i permessi */
+    function createPermissionsCheckbox(permissions) {
+        for (const permission of permissions) {
+            $("#permissions-fieldset").append(`
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="data-permissions-${permission.name}" name="data-permissions" value="${permission.name}">
+                    <label for="data-permissions-${permission.name}">${he.decode(permission.name)}</label>
+                </div>
+            `);
+        }
+    }
+
+    /* Crea i checkbox per i servizi */
+    function createServicesCheckbox(services) {
+        for (const service of services) {
+            $("#services-fieldset").append(`
+                <div class="form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="data-services-${service.id}" name="data-services" value="${service.id}">
+                    <label for="data-services-${service.id}">${he.decode(service.name)}</label>
+                </div>
+            `);
+        }           
+    }
+
     /* Crea il form per l'orario lavorativo */
     function createWorkingTimeForm() {
         for (const day of WEEKS) {
@@ -540,7 +542,7 @@
                     </h2>
                     <div id="${day}-collapse" class="accordion-collapse collapse" aria-labelledby="${day}-heading" data-bs-parent="#working_time-accordion">
                         <div class="accordion-body">
-                            <div id="${day}-accordion-container"></div>
+                            <div id="${day}-accordion-container" class="container"></div>
                             <div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-outline-success" id="${day}-add_slot"><span class="button-icon">+</span></button>
                             </div>
@@ -563,19 +565,19 @@
 
         $(`#${day_of_week}-accordion-container`).append(`
             <div class="row mb-3" id="working_time-${day_of_week}-${index}">
-                <div class="col-6">
+                <div class="col-7 col-lg-5 offset-lg-1">
                     <div class="d-flex justify-content-center">
-                        <div>
+                        <div class="w-50">
                             <label for="data-${day_of_week}-${index}-time-start">Inizio</label>
                             <input type="time" class="form-control" name="data-working_time-${day_of_week}-time-start" id="data-${day_of_week}-${index}-time-start" value="${start_time ? moment(start_time).format("HH:mm") : ""}">
                         </div>
-                        <div>
+                        <div class="w-50">
                             <label for="data-${day_of_week}-${index}-time-end">Fine</label>
                             <input type="time" class="form-control" name="data-working_time-${day_of_week}-time-end" id="data-${day_of_week}-${index}-time-end" value="${end_time ? moment(end_time).format("HH:mm") : ""}">
                         </div>
                     </div>
                 </div>
-                <div class="col-5">
+                <div class="col-4 col-lg-4">
                     <div>
                         <label for="data-${day_of_week}-${index}-hub">Hub</label>
                         <input type="text" class="form-control" name="data-working_time-${day_of_week}-hub" id="data-${day_of_week}-${index}-hub" value="${hub_code}">
