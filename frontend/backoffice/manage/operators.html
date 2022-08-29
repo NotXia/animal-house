@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/profile.css" rel="stylesheet">
     <script src="/js/auth.js"></script>
     <script>
         isAuthenticated().then(async function (is_auth) { 
@@ -41,9 +42,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="d-flex justify-content-center mb-2">
-        </div>
     </header>
 
     <main>
@@ -52,9 +50,10 @@
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-2">
                         <div class="d-flex justify-content-center mb-2">
-                            <div style="width: 6rem; height: 6rem; border-radius: 50%; overflow: hidden;">
-                            <!-- <div class="w-50" style="border-radius: 50%; overflow: hidden;"> -->
-                                <img src="/profiles/images/default.png" alt="Immagine di profilo dell'operatore" id="data-picture" class="w-100">
+                            <div class="w-75">
+                                <div class="profile_picture-container">
+                                    <img src="/profiles/images/default.png" alt="Immagine di profilo dell'operatore" id="data-picture" class="profile_picture">
+                                </div>
                             </div>
                         </div>
                         <label for="picture-upload" class="form-label">Carica immagine</label>
@@ -108,26 +107,25 @@
                             </div>
                         </div>
 
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <div class="col-sm-12 col-md-12">
-                        <fieldset name="data-gender">
-                            <div class="d-flex justify-content-center align-items-center">
-                                <div>
-                                    <legend class="">Genere:</legend>
-                                    <input class="form-check-input ms-2" type="radio" id="data-gender-M" name="data-gender" value="M">
-                                    <label class="form-check-label" for="data-gender-M">Maschio</label>
-                                    <input class="form-check-input ms-2" type="radio" id="data-gender-F" name="data-gender" value="F">
-                                    <label class="form-check-label" for="data-gender-F">Femmina</label>
-                                    <input class="form-check-input ms-2" type="radio" id="data-gender-Non-Binary" name="data-gender" value="Non-binary">
-                                    <label class="form-check-label" for="data-gender-Non-Binary">Non-binario</label>
-                                    <input class="form-check-input ms-2" type="radio" id="data-gender-Altro" name="data-gender" value="Altro">
-                                    <label class="form-check-label" for="data-gender-Altro">Altro</label>
-                                </div>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12">
+                                <fieldset name="data-gender">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <div>
+                                            <legend class="">Genere:</legend>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-M" name="data-gender" value="M">
+                                            <label class="form-check-label" for="data-gender-M">Maschio</label>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-F" name="data-gender" value="F">
+                                            <label class="form-check-label" for="data-gender-F">Femmina</label>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Non-Binary" name="data-gender" value="Non-binary">
+                                            <label class="form-check-label" for="data-gender-Non-Binary">Non-binario</label>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Altro" name="data-gender" value="Altro">
+                                            <label class="form-check-label" for="data-gender-Altro">Altro</label>
+                                        </div>
+                                    </div>
+                                </fieldset>
                             </div>
-                        </fieldset>
+                        </div>
                     </div>
                 </div>
 

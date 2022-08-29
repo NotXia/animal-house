@@ -1,0 +1,15 @@
+.profile_picture-container {
+    width: 100%;
+    padding-bottom: 100%;
+    border-radius: 50%; 
+    overflow: hidden;
+    position: relative;
+}
+
+.profile_picture {
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
