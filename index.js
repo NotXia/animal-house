@@ -51,7 +51,7 @@ async function start() {
 }
 
 // Creazione cartelle
-for (const dir of [process.env.IMAGES_TMP_ABS_PATH, process.env.SHOP_IMAGES_DIR_ABS_PATH, process.env.BLOG_IMAGES_DIR_ABS_PATH, process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH]) {
+for (const dir of [process.env.IMAGES_TMP_ABS_PATH, process.env.SHOP_IMAGES_DIR_ABS_PATH, process.env.BLOG_IMAGES_DIR_ABS_PATH, process.env.CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH, process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH]) {
     if ( !fs.existsSync(dir) ){  fs.mkdirSync(dir, { recursive: true }); }
 }
 
