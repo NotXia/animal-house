@@ -23,6 +23,8 @@
 </head>
 <body>
     <header>
+        <div id="navbar-placeholder"></div>
+
         <div class="d-flex justify-content-center mt-2 mb-2">
             <div class="container w-50">
                 <div class="row">
@@ -50,10 +52,8 @@
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-2">
                         <div class="d-flex justify-content-center mb-2">
-                            <div class="w-75">
-                                <div class="profile_picture-container">
-                                    <img src="/profiles/images/default.png" alt="Immagine di profilo dell'operatore" id="data-picture" class="profile_picture">
-                                </div>
+                            <div class="profile_picture-lg">
+                                <img src="/profiles/images/default.png" alt="Immagine di profilo dell'operatore" id="data-picture" class="profile_picture">
                             </div>
                         </div>
                         <label for="picture-upload" class="form-label">Carica immagine</label>
@@ -209,7 +209,8 @@
             </div>
         </div>
     </div>
-
+    
+    <div id="loading-container"></div>
 </body>
 
 <script>
@@ -217,6 +218,9 @@
     const TRANSLATE = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
 
     $(document).ready(async function() {
+        $("#navbar-placeholder").load("/admin/navbar.html");
+        $("#loading-container").load("/admin/loading.html");
+        showLoading();
         startMode();
         
         try {
@@ -249,17 +253,19 @@
             $("#operator-form").show(); 
 
             try {
+                showLoading();
+
                 const [operator_data, operator_working_time] = await Promise.all([
                     api_request({ type: "GET", url: `/users/operators/${this.username.value}` }),
                     api_request({ type: "GET", url: `/users/operators/${this.username.value}/working-time/`})
                 ]);
+                operator_cache = { data: operator_data, working_time: operator_working_time };
                 
                 resetForm();
                 loadOperatorData(operator_data);
                 loadOperatorWorkingTime(operator_working_time);
                 viewMode();
-
-                operator_cache = { data: operator_data, working_time: operator_working_time };
+                hideLoading();
             }
             catch (err) {
                 console.log(err);
@@ -279,6 +285,8 @@
 
         $("#save-btn").on("click", async function (e) {
             try {
+                showLoading();
+                
                 const [operator_data, operator_working_time] = await Promise.all([
                     api_request({ 
                         type: "PUT", url: `/users/operators/${operator_cache.data.username}`,
@@ -290,9 +298,11 @@
                         data: JSON.stringify({ working_time: getFormOperatorWorkingTime() })
                     })
                 ]);
-
                 operator_cache = { data: operator_data, working_time: operator_working_time };
+
+                $("#navbar-placeholder").load("/admin/navbar.html");
                 viewMode();
+                hideLoading();
             }
             catch (err) {
                 console.log(err);
@@ -301,9 +311,13 @@
 
         $("#delete-btn").on("click", async function (e) {
             try {
+                showLoading();
+                
                 await api_request({
                     type: "DELETE", url: `/users/operators/${operator_cache.data.username}`
                 });
+
+                hideLoading();
             } catch (err) {
                 console.log(err);
             }
@@ -318,6 +332,8 @@
 
         $("#create-btn").on("click", async function (e) {
             try {
+                showLoading();
+
                 let operator_data = await getFormOperatorData();
                 operator_data.username = $("#data-username").val();
                 
@@ -333,10 +349,13 @@
                 
                 operator_cache = { data: operator, working_time: working_time };
                 viewMode();
+                hideLoading();
             } catch (err) {
                 console.log(err);
             }
-        }); 
+        });
+
+        hideLoading();
     });
 
     function startMode() {
@@ -369,6 +388,14 @@
         $("#enable_modify-container").hide();
         $("#modify-container").show();
         $("#create-container").hide();
+    }
+
+    function showLoading() {
+        $("#loading-container").show();
+    }
+
+    function hideLoading() {
+        $("#loading-container").hide();
     }
 
     function resetForm() {
