@@ -12,19 +12,24 @@
                     <a class="nav-link" aria-current="page" href="/admin/">Dashboard</a>
                 </li>
             </ul>
-        </div>
-
-        <div class="dropdown">
-            <button class="btn btn-outline-light dropdown-toggle text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <span id="navbar-user" class="align-top"></span>
-                <div class="profile_picture-sm">
-                    <img id="navbar-profile_picture" src="/profiles/images/default.png" alt="Immagine di profilo" class="profile_picture">
-                </div>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#">Profilo</a></li>
-                <li><a class="dropdown-item" href="/admin/logout.html">Logout</a></li>
-            </ul>
+            
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-outline-light dropdown-toggle text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="d-inline-block">
+                        <div class="d-flex align-items-center">
+                            <span id="navbar-user" class="align-top"></span>
+                            <div class="profile_picture-container-sm mx-1 ms-2">
+                                <img id="navbar-profile_picture" src="/profiles/images/default.png" alt="Immagine di profilo" class="profile_picture">
+                            </div>
+                        </div>
+                    </div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">Profilo</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="/admin/logout.html">Logout</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>
