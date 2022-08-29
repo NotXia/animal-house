@@ -265,11 +265,11 @@
                 loadOperatorData(operator_data);
                 loadOperatorWorkingTime(operator_working_time);
                 viewMode();
-                hideLoading();
             }
             catch (err) {
                 console.log(err);
             }
+            hideLoading();
         });
 
         $("#modify-btn").on("click", function (e) {
@@ -302,11 +302,11 @@
 
                 $("#navbar-placeholder").load("/admin/navbar.html");
                 viewMode();
-                hideLoading();
             }
             catch (err) {
                 console.log(err);
             }
+            hideLoading();
         });
 
         $("#delete-btn").on("click", async function (e) {
@@ -317,11 +317,11 @@
                     type: "DELETE", url: `/users/operators/${operator_cache.data.username}`
                 });
 
-                hideLoading();
             } catch (err) {
                 console.log(err);
             }
-
+            
+            hideLoading();
             resetForm();
         });
 
@@ -349,10 +349,11 @@
                 
                 operator_cache = { data: operator, working_time: working_time };
                 viewMode();
-                hideLoading();
             } catch (err) {
                 console.log(err);
             }
+            
+            hideLoading();
         });
 
         hideLoading();
