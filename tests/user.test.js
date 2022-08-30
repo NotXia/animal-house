@@ -6,6 +6,7 @@ const { createTime } = require("../utilities");
 const bcrypt = require("bcrypt");
 const path = require("path");
 const fs = require("fs");
+const moment = require("moment");
 
 const HubModel = require("../models/services/hub");
 const UserModel = require("../models/auth/user");
@@ -154,7 +155,8 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
             username: "Luigino23", password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            role: "Pissicologo"
+            role: "Pissicologo",
+            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).expect(401);
 
         expect(await UserModel.findOne({ username: "Luigino23" }).exec()).toBeNull();
@@ -179,13 +181,21 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Luigino234", password: "LuiginoVerona33!",
             email: "luigino444@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role: "Quoco"
+            permission: { operator: true }, role: "Quoco",
+            working_time: { 
+                monday: [
+                    { time: {start: moment("9:00", "HH:mm").format(), end: moment("10:00", "HH:mm").format()}, hub: "MPX1" }
+                ], 
+                tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] 
+            }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
 
         const user = await UserModel.findOne({ username: "Luigino234" }).populate("operator").exec();
         expect(user).toBeDefined();
         expect(await bcrypt.compare("LuiginoVerona33!", user.password)).toBeTruthy();
         expect(user.operator).toBeDefined();
+        expect(user.operator.working_time.monday.length).toEqual(1);
+        expect(user.operator.working_time.tuesday.length).toEqual(0);
     });
 
     test("Creazione di un cliente", async function () {
@@ -202,6 +212,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
             permission: { operator: true },
+            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
         const user = await UserModel.findOne({ username: "Marcolino23" }).populate("operator").exec();
@@ -215,12 +226,22 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "marconi17@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
             permission: { operator: true },
+            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
         expect(await UserModel.findOne({ username: "NonSonoMarcolino23" }).exec()).toBeNull();
         const user = await UserModel.findOne({ email: "marconi17@gmail.com" }).populate("operator").exec();
         expect(user.operator).toBeNull();
         expect(res.body.message).toBeDefined();
+    }),
+
+    test("Registrazione errata di un operatore - orario lavorativo mancante", async function () {
+        await curr_session.post('/users/operators/').send({
+            username: "Luigino2345", password: "LuiginoVerona33!",
+            email: "luigino4444@gmail.com",
+            name: "Gabriele", surname: "D'Annunzio",
+            permission: { operator: true }, role: "Quoco",
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
     }),
 
     test("Cancellazione cliente", async function () {

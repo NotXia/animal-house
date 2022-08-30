@@ -37,6 +37,7 @@ function _getOperatorData(source) {
         {
             role: source.role,
             services_id: source.services_id,
+            working_time: source.working_time
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -89,6 +90,7 @@ const validateInsertOperator = [
     user_validator.validatePermissions("body", OPTIONAL),
     operator_validator.validateRole("body", OPTIONAL),
     operator_validator.validateListOfServicesId("body", OPTIONAL),
+    operator_validator.validateWorkingTime("body", REQUIRED),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
@@ -141,6 +143,7 @@ const validateUpdateOperator = [
     validateUpdateUserData("body"),
     operator_validator.validateRole("body", OPTIONAL),
     operator_validator.validateListOfServicesId("body", OPTIONAL),
+    operator_validator.validateWorkingTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params"),
     function (req, _, next) {

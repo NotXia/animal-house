@@ -149,6 +149,7 @@ paths:
 
   /users/operators/{username}/working-time/:
     get:
+      deprecated: true
       tags:
       - "Orario lavorativo"
       summary: "Ricerca orario lavorativo"
@@ -188,6 +189,7 @@ paths:
         500:
           description: "Internal server error"
     put:
+      deprecated: true
       tags:
       - "Orario lavorativo"
       summary: "Modifica orario lavorativo"
