@@ -69,7 +69,9 @@ async function init() {
             }).save();
         }
     } catch(err) {}
+    
     await mongoose.connection.close();
+    await mongoose.disconnect();
 };
 
 
