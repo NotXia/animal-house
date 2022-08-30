@@ -69,7 +69,8 @@
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
                                         <label for="data-username">Username</label>
-                                        <input id="data-username" type="text" class="form-control">
+                                        <input id="data-username" type="text" class="form-control" required>
+                                        <div id="data-username-feedback" class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
@@ -78,6 +79,7 @@
                                     <div class="w-100">
                                         <label for="data-password">Password</label>
                                         <input id="data-password" type="password" class="form-control">
+                                        <div id="data-password-feedback" class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
@@ -86,6 +88,7 @@
                                     <div class="w-100">
                                         <label for="data-email">Email</label>
                                         <input id="data-email" type="text" class="form-control">
+                                        <div id="data-email-feedback" class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
@@ -97,6 +100,7 @@
                                     <div class="w-100">
                                         <label for="data-name">Nome</label>
                                         <input id="data-name" type="text" class="form-control">
+                                        <div id="data-name-feedback" class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
@@ -105,6 +109,7 @@
                                     <div class="w-100">
                                         <label for="data-surname">Cognome</label>
                                         <input id="data-surname" type="text" class="form-control">
+                                        <div id="data-surname-feedback" class="invalid-feedback"></div>
                                     </div>
                                 </div>
                             </div>
@@ -126,6 +131,7 @@
                                             <label class="form-check-label" for="data-gender-Altro">Altro</label>
                                         </div>
                                     </div>
+                                    <div id="data-gender-feedback" class="invalid-feedback text-center"></div>
                                 </fieldset>
                             </div>
                         </div>
@@ -138,6 +144,7 @@
                             <div class="w-100">
                                 <label for="data-phone">Telefono</label>
                                 <input id="data-phone" type="text" class="form-control">
+                                <div id="data-phone-feedback" class="invalid-feedback"></div>
                             </div>
                         </div>
                     </div>
@@ -146,6 +153,7 @@
                             <div class="w-100">
                                 <label for="data-role">Ruolo</label>
                                 <input id="data-role" type="text" class="form-control">
+                                <div id="data-role-feedback" class="invalid-feedback"></div>
                             </div>
                         </div>
                     </div>
@@ -159,6 +167,7 @@
                             <div class="form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="data-enabled" name="data-enabled">
                                 <label class="form-check-label" for="data-enabled">abilitato</label>
+                                <div id="data-enabled-feedback" class="invalid-feedback"></div>
                             </div>
                         </fieldset>
                     </div>
@@ -169,12 +178,15 @@
                         <fieldset id="services-fieldset">
                             <legend>Servizi:</legend>
                         </fieldset>
+                        <div id="data-services-feedback" class="invalid-feedback"></div>
                     </div>
                 </div>
 
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-                        <legend>Orario lavorativo</legend>
+                        <label class="form-check-label">Orario lavorativo</label>
+                        <div id="data-working_time-feedback" class="invalid-feedback"></div>
+                        
                         <div class="accordion" id="working_time-accordion"></div>
                     </div>
                 </div>
@@ -307,7 +319,10 @@
                 viewMode();
             }
             catch (err) {
-                console.log(err);
+                if (err.status === 400) {
+                    console.log(err.responseJSON);
+                    showErrors(err.responseJSON);
+                }
             }
             hideLoading();
         });
@@ -353,7 +368,9 @@
                 operator_cache = { data: operator, working_time: working_time };
                 viewMode();
             } catch (err) {
-                console.log(err);
+                if (err.status === 400) {
+                    showErrors(err.responseJSON);
+                }
             }
             
             hideLoading();
@@ -368,6 +385,7 @@
         $("#enable_modify-container").hide();
         $("#modify-container").hide();
         $("#create-container").hide();
+        clearErrors();
     }
 
     function creationMode() {
@@ -376,6 +394,7 @@
         $("#enable_modify-container").hide();
         $("#modify-container").hide();
         $("#create-container").show();
+        clearErrors();
     }
 
     function viewMode() {
@@ -384,6 +403,7 @@
         $("#enable_modify-container").show();
         $("#modify-container").hide();
         $("#create-container").hide();
+        clearErrors();
     }
 
     function modifyMode() {
@@ -392,6 +412,7 @@
         $("#enable_modify-container").hide();
         $("#modify-container").show();
         $("#create-container").hide();
+        clearErrors();
     }
 
     function showLoading() {
@@ -406,6 +427,31 @@
         $("#operator-form").trigger("reset");
         emptyTimeSlots();
         $("#data-picture").attr("src", "/profiles/images/default.png");
+        clearErrors();
+    }
+
+    function showError(field, message) {
+        $(`#data-${field}-feedback`).html(message);
+        $(`#data-${field}-feedback`).show();
+    }
+
+    function showErrors(errors) {
+        clearErrors();
+        for (const error of errors) {
+            showError(error.field, error.message);
+        }
+    }
+
+    function clearError(field) {
+        $(`#data-${field}-feedback`).html("");
+        $(`#data-${field}-feedback`).hide();
+    }
+
+    function clearErrors() {
+        for (const error of $(`div[id*="-feedback"]`)) {
+            $(error).html("");
+            $(error).hide();
+        }
     }
 
     async function uploadProfilePicture() {
@@ -513,6 +559,7 @@
                 <div class="form-check-inline">
                     <input class="form-check-input" type="checkbox" id="data-permissions-${permission.name}" name="data-permissions" value="${permission.name}">
                     <label for="data-permissions-${permission.name}">${he.decode(permission.name)}</label>
+                    
                 </div>
             `);
         }
@@ -564,7 +611,7 @@
         time_slot_index++;
 
         $(`#${day_of_week}-accordion-container`).append(`
-            <div class="row mb-3" id="working_time-${day_of_week}-${index}">
+            <div class="row mb-1" id="working_time-${day_of_week}-${index}">
                 <div class="col-7 col-lg-5 offset-lg-1">
                     <div class="d-flex justify-content-center">
                         <div class="w-50">
@@ -589,7 +636,27 @@
                     </div>
                 </div>
             </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div id="data-${day_of_week}-${index}-feedback" class="invalid-feedback text-center"></div>
+                </div>
+            </div>
         `);
+
+        // Verifica che l'intervallo sia valido ad ogni modifica
+        $(`#data-${day_of_week}-${index}-time-start, #data-${day_of_week}-${index}-time-end`).on("change", function (e) { 
+            const start_time = $(`#data-${day_of_week}-${index}-time-start`).val();
+            const end_time = $(`#data-${day_of_week}-${index}-time-end`).val();
+            
+            if (start_time !== "" && end_time !== "") {
+                if ( moment(start_time, "HH:mm").isSameOrAfter(moment(end_time, "HH:mm")) ) {
+                    showError(`${day_of_week}-${index}`, "Intervallo di tempo non valido");
+                }
+                else {
+                    clearError(`${day_of_week}-${index}`);
+                }
+            }
+        });
 
         $(`#working_time-${day_of_week}-${index}-delete`).on("click", function (e) { 
             $(`#working_time-${day_of_week}-${index}`).remove(); 
