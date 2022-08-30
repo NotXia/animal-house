@@ -99,6 +99,7 @@ userScheme.methods.getAllData = async function() {
     if (this.isOperator()) {
         out.role = data.operator.role;
         out.services_id = data.operator.services_id;
+        out.working_time = (await this.findType()).getWorkingTimeData()
     }
     else {
         out.address = data.customer.address;

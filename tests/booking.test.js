@@ -8,6 +8,7 @@ const BookingModel = require("../models/services/booking");
 const SpeciesModel = require("../models/animals/species");
 const AnimalModel = require("../models/animals/animal");
 const CustomerModel = require("../models/auth/customer");
+const UserModel = require("../models/auth/user");
 
 let curr_session = session(app);
 
@@ -28,28 +29,28 @@ beforeAll(async function () {
     service2 = (await curr_session.post('/services/').send({ name: "Pranzo di Natale", description: "A", duration: 25, price: 1000 }).set({ Authorization: `Bearer ${admin_token}` })).body;
     
     operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id, service2.id]);
-    await curr_session.put(`/users/operators/${operator1.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator1.username}`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
     
     operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id]);
-    await curr_session.put(`/users/operators/${operator2.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator2.username}`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
     
     operator3 = await utils.loginAsOperatorWithPermission(curr_session, [], []);
-    await curr_session.put(`/users/operators/${operator3.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator3.username}`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
     } }).set({ Authorization: `Bearer ${admin_token}` });
 
     operator4 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id, service2.id]);
-    await curr_session.put(`/users/operators/${operator4.username}/working-time`)
+    await curr_session.put(`/users/operators/${operator4.username}`)
     .send({ working_time: { 
         monday: [{ time: {start: moment("11:00", "HH:mm"), end: moment("16:59", "HH:mm")}, hub: "BLQ2" }], 
         tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
@@ -70,7 +71,9 @@ beforeAll(async function () {
     ).save();
     
     customer1 = await utils.loginAsCustomer(curr_session);
-    await CustomerModel.updateOne({ username: customer1.username }, { "$push": { animals_id: animal1._id } }).exec();
+    const user1 = await UserModel.findOne({ username: customer1.username }).exec();
+    const customer1_db = await user1.findType();
+    await CustomerModel.findByIdAndUpdate(customer1_db._id, { "$push": { animals_id: animal1._id } }).exec();
 
     customer2 = await utils.loginAsCustomer(curr_session);
 });

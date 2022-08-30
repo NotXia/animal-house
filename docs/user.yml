@@ -270,7 +270,9 @@ paths:
               type: array
               items:
                 $ref: "definitions/utils.yml#/definitions/ObjectId"
-          required: [ username, password, email, name, surname ]
+            working_time:
+              $ref: "#/definitions/WorkingTime"
+          required: [ username, password, email, name, surname, working_time ]
       responses:
         201:
           description: "Creato con successo"
@@ -392,6 +394,8 @@ paths:
               type: array
               items:
                 type: string
+            working_time:
+              $ref: "#/definitions/WorkingTime"
       responses:
         200:
           description: "Modificato con successo"
@@ -675,7 +679,9 @@ definitions:
         type: array
         items:
           $ref: "definitions/utils.yml#/definitions/ObjectId"
-    required: [ username, email, phone, name, surname, permissions, enabled, role, services_id ]
+      working_time:
+        $ref: "#/definitions/WorkingTime"
+    required: [ username, email, phone, name, surname, permissions, enabled, role, services_id, working_time ]
 
   OperatorUserProfile:
     type: object
@@ -711,3 +717,54 @@ definitions:
         type: string
       postal_code:
         type: string
+
+  WorkingSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+    required: [ time, hub ]
+
+  WorkingTime:
+    type: object
+    properties:
+      monday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      tuesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      wednesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      thursday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      friday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      saturday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      sunday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+    required: [ monday, tuesday, wednesday, thursday, friday, saturday, sunday ]
