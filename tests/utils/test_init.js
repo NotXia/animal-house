@@ -11,4 +11,5 @@ beforeAll(async function () {
 
 afterAll(async function () {
     await mongoose.connection.close();
+    await mongoose.disconnect();
 });
