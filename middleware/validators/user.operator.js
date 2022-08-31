@@ -24,7 +24,7 @@ module.exports.validateWorkingTime = function (source, required=true, field_name
         out.push(validator[source](`${field_name}.${week}`).if((_, { req }) => { return req[source][field_name]; }).exists().withMessage(`Valore di ${week} mancante`));
         out.push(validator[source](`${field_name}.${week}.*.time.start`).exists().isISO8601().withMessage("Formato non valido").toDate());
         out.push(validator[source](`${field_name}.${week}.*.time.end`).exists().isISO8601().withMessage("Formato non valido").toDate());
-        hub_validator.validateCode(source, required=true, `${field_name}.${week}.*.hub`);
+        out.push(hub_validator.validateCode(source, required=true, `${field_name}.${week}.*.hub`));
     }
 
     out.push(
