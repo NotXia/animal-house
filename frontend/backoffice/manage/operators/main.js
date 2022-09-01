@@ -179,6 +179,7 @@ function creationMode() {
     $("#create-btn").attr("type", "submit");
     $("#data-enabled").prop("checked", true);
     setReadOnly("#data-enabled");
+    $("#data-username").focus();
 }
 
 function viewMode() {
@@ -190,6 +191,7 @@ function viewMode() {
     disableForm();
     clearErrors();
     resetButtons();
+    $("#data-username").focus();
 }
 
 function modifyMode() {
@@ -203,6 +205,7 @@ function modifyMode() {
     resetButtons();
     $("#data-username").prop("readonly", true);
     $("#save-btn").attr("type", "submit");
+    $("#data-username").focus();
 }
 
 function errorMode(message) {
@@ -436,14 +439,21 @@ function emptyTimeSlots() {
 }
 
 function disableForm() {
-    for (const selector of $("[id^=data-]")) { $(selector).prop("readonly", true); }
+    for (const selector of $("[id^=data-]")) { 
+        $(selector).prop("readonly", true); 
+        $(selector).attr("aria-readonly", true);
+        console.log("A");
+    }
     $("#data-picture").prop("disabled", true);
     $("button[name=working_time-delete]").prop("disabled", true);
     $("button[id^=data-]").prop("disabled", true);
     setReadOnly("#operator-form > * input:radio, #operator-form > * input:checkbox");
 }
 function enableForm() {
-    for (const selector of $("[id^=data-]")) { $(selector).prop("readonly", false); }
+    for (const selector of $("[id^=data-]")) { 
+        $(selector).prop("readonly", false); 
+        $(selector).attr("aria-readonly", false);
+    }
     $("#data-picture").prop("disabled", false);
     $("button[name=working_time-delete]").prop("disabled", false);
     $("button[id^=data-]").prop("disabled", false);
