@@ -34,12 +34,6 @@ $(document).ready(async function() {
                 required: true
             },
         },
-        messages: {
-            username: { required: "Inserire uno username" },
-            email: {
-                email: "Email non valida"
-            }
-        },
         errorPlacement: function(error, element) {
             showError(element.attr("name"), error);
         },
@@ -84,6 +78,9 @@ $(document).ready(async function() {
                 if (err.status === 400) {
                     showErrors(err.responseJSON);
                 }
+                else {
+                    errorMode(err.responseJSON.message);
+                }
             }
 
             hideLoading();
@@ -106,7 +103,7 @@ $(document).ready(async function() {
             viewMode();
         }
         catch (err) {
-            console.log(err);
+            errorMode(err.responseJSON ? err.responseJSON.message : "Utente inesistente");
         }
         hideLoading();
     });
@@ -145,7 +142,7 @@ $(document).ready(async function() {
                 type: "DELETE", url: `/users/operators/${operator_cache.username}`
             });
         } catch (err) {
-            console.log(err);
+            errorMode(err.responseJSON.message);
         }
         
         hideLoading();
@@ -208,6 +205,12 @@ function modifyMode() {
     $("#save-btn").attr("type", "submit");
 }
 
+function errorMode(message) {
+    curr_mode = "error";
+    startMode();
+    $("#global-feedback").html(message);
+}
+
 
 /*
     Operazioni sulla barra caricamento
@@ -241,7 +244,7 @@ async function uploadProfilePicture() {
             $("#data-picture").val("");
         }
         catch (err) {
-            console.log(err);
+            errorMode(err.responseJSON.message);
         }
     }
 
@@ -405,11 +408,17 @@ function addTimeSlotTo(day_of_week, start_time, end_time, hub_code) {
     `);
 
     // Validazione intervalli
-    $(`#data-${day_of_week}-${index}-time-start`).rules("add", { beforeTime: `#data-${day_of_week}-${index}-time-end` });
+    $(`#data-${day_of_week}-${index}-time-start`).rules("add", { 
+        beforeTime: `#data-${day_of_week}-${index}-time-end`,
+        required: { depends: (_) => $(`#data-${day_of_week}-${index}-time-end`).val() || $(`#data-${day_of_week}-${index}-hub`).val() }
+    });
     $(`#data-${day_of_week}-${index}-time-end`).on("change", function () {
         $(`#data-${day_of_week}-${index}-time-start`).valid();
     });
-    $(`#data-${day_of_week}-${index}-hub`).rules("add", { hubCode: true });
+    $(`#data-${day_of_week}-${index}-hub`).rules("add", { 
+        hubCode: true,
+        required: { depends: (_) => $(`#data-${day_of_week}-${index}-time-start`).val() || $(`#data-${day_of_week}-${index}-time-end`).val() }
+    });
 
     // Bottone per eliminare la riga
     $(`#data-working_time-${day_of_week}-${index}-delete`).on("click", function (e) { 
@@ -426,18 +435,6 @@ function emptyTimeSlots() {
     }
 }
 
-// Memorizza il selettore per tutti gli input nel form
-// let all_inputs = [
-//     "#data-username", "#data-password", "#data-email", "#data-name", "#data-surname", "#data-phone", "#data-role", "#data-picture",
-//     "input:radio[name=gender]", "input:checkbox[name=enabled]", "input:checkbox[name=permissions]", "input:checkbox[name=services]",
-//     "button[name=working_time-delete]"
-// ];
-// for (const day of WEEKS) { 
-//     all_inputs = all_inputs.concat([
-//         `input[name*=-time-start]`, `input[name*=-time-end]`, `input:text[name*=-hub]`,
-//         `#${day}-add_slot`
-//     ]);
-// }
 function disableForm() {
     for (const selector of $("[id^=data-]")) { $(selector).prop("readonly", true); }
     $("#data-picture").prop("disabled", true);
