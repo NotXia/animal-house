@@ -204,6 +204,7 @@ function modifyMode() {
     clearErrors();
     resetButtons();
     $("#data-username").prop("readonly", true);
+    $("#data-username").attr("aria-readonly", true);
     $("#save-btn").attr("type", "submit");
     $("#data-username").focus();
 }
@@ -371,7 +372,7 @@ function clearErrors() {
 
 let time_slot_index = 0; // Per differenziare i vari slot
 /* Crea un nuovo slot lavorativo per un giorno della settimana */
-function addTimeSlotTo(day_of_week, start_time, end_time, hub_code) {
+function addTimeSlotTo(day_of_week, start_time, end_time, hub_code, focus=false) {
     const index = time_slot_index;
     time_slot_index++;
 
@@ -427,6 +428,8 @@ function addTimeSlotTo(day_of_week, start_time, end_time, hub_code) {
     $(`#data-working_time-${day_of_week}-${index}-delete`).on("click", function (e) { 
         $(`#working_time-${day_of_week}-${index}`).remove(); 
     });
+
+    if (focus) { $(`#data-${day_of_week}-${index}-time-start`).focus(); }
 }
 
 /* Svuota il form degli slot lavorativi */
@@ -442,7 +445,6 @@ function disableForm() {
     for (const selector of $("[id^=data-]")) { 
         $(selector).prop("readonly", true); 
         $(selector).attr("aria-readonly", true);
-        console.log("A");
     }
     $("#data-picture").prop("disabled", true);
     $("button[name=working_time-delete]").prop("disabled", true);

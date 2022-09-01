@@ -52,7 +52,7 @@
 
                     <div class="col-12">
                         <div class="d-flex justify-content-center">
-                            <div id="global-feedback" class="invalid-feedback d-block w-100 text-center"></div>
+                            <div id="global-feedback" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></div>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                                     <div class="w-100">
                                         <label for="data-username" class="fs-6 fw-semibold">Username</label>
                                         <input id="data-username" type="text" class="form-control" name="username" required>
-                                        <div id="data-username-feedback" class="invalid-feedback d-block"></div>
+                                        <div id="data-username-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
                             </div>
@@ -80,7 +80,7 @@
                                     <div class="w-100">
                                         <label for="data-password" class="fs-6 fw-semibold">Password</label>
                                         <input id="data-password" type="password" class="form-control" name="password" required>
-                                        <div id="data-password-feedback" class="invalid-feedback d-block"></div>
+                                        <div id="data-password-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
                             </div>
@@ -89,7 +89,7 @@
                                     <div class="w-100">
                                         <label for="data-email" class="fs-6 fw-semibold">Email</label>
                                         <input id="data-email" type="email" class="form-control" name="email" required>
-                                        <div id="data-email-feedback" class="invalid-feedback d-block"></div>
+                                        <div id="data-email-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
                             </div>
@@ -101,7 +101,7 @@
                                     <div class="w-100">
                                         <label for="data-name" class="fs-6 fw-semibold">Nome</label>
                                         <input id="data-name" type="text" class="form-control" name="name" required>
-                                        <div id="data-name-feedback" class="invalid-feedback d-block"></div>
+                                        <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
                             </div>
@@ -110,7 +110,7 @@
                                     <div class="w-100">
                                         <label for="data-surname" class="fs-6 fw-semibold">Cognome</label>
                                         <input id="data-surname" type="text" class="form-control" name="surname" required>
-                                        <div id="data-surname-feedback" class="invalid-feedback d-block"></div>
+                                        <div id="data-surname-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
                             </div>
@@ -132,7 +132,7 @@
                                             <label class="form-check-label" for="data-gender-Altro">Altro</label>
                                         </div>
                                     </div>
-                                    <div id="data-gender-feedback" class="invalid-feedback d-block text-center"></div>
+                                    <div id="data-gender-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
                                 </fieldset>
                             </div>
                         </div>
@@ -157,7 +157,7 @@
                             <div class="w-100">
                                 <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
                                 <input id="data-phone" type="tel" class="form-control" name="phone" required>
-                                <div id="data-phone-feedback" class="invalid-feedback d-block"></div>
+                                <div id="data-phone-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                             </div>
                         </div>
                     </div>
@@ -166,7 +166,7 @@
                             <div class="w-100">
                                 <label for="data-role" class="fs-6 fw-semibold">Ruolo</label>
                                 <input id="data-role" type="text" class="form-control" name="role" required>
-                                <div id="data-role-feedback" class="invalid-feedback d-block"></div>
+                                <div id="data-role-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                             </div>
                         </div>
                     </div>
@@ -180,7 +180,7 @@
                             <div class="form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="data-enabled" name="enabled">
                                 <label class="form-check-label" for="data-enabled">abilitato</label>
-                                <div id="data-enabled-feedback" class="invalid-feedback d-block"></div>
+                                <div id="data-enabled-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                             </div>
                         </fieldset>
                     </div>
@@ -191,14 +191,14 @@
                         <fieldset id="services-fieldset">
                             <legend class="fs-6 fw-semibold">Servizi:</legend>
                         </fieldset>
-                        <div id="data-services-feedback" class="invalid-feedback d-block"></div>
+                        <div id="data-services-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                     </div>
                 </div>
 
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-                        <label class="form-check-label fs-6 fw-semibold">Orario lavorativo</label>
-                        <div id="data-working_time-feedback" class="invalid-feedback d-block"></div>
+                        <h2 class="form-check-label fs-6 fw-semibold">Orario lavorativo</h2>
+                        <div id="data-working_time-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                         
                         <div class="accordion" id="working_time-accordion"></div>
                     </div>
@@ -296,11 +296,11 @@
         for (const day of WEEKS) {
             $("#working_time-accordion").append(`
                 <div class="accordion-item">
-                    <h2 class="accordion-header" id="${day}-heading">
+                    <h3 class="accordion-header" id="${day}-heading">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${day}-collapse" aria-expanded="false" aria-controls="${day}-collapse">
                             ${TRANSLATE[day]}
                         </button>
-                    </h2>
+                    </h3>
                     <div id="${day}-collapse" class="accordion-collapse collapse" aria-labelledby="${day}-heading" data-bs-parent="#working_time-accordion">
                         <div class="accordion-body">
                             <div id="${day}-accordion-container" class="container"></div>
@@ -313,7 +313,7 @@
             `);
 
             $(`#data-${day}-add_slot`).on("click", function (e) {
-                addTimeSlotTo(day, "", "", "");
+                addTimeSlotTo(day, "", "", "", focus=true);
             });
         }
     }
