@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="/js/auth.js"></script>
+    <title>Verifica account</title>
+</head>
+<body>
+    <div id="result">
+
+    </div>    
+</body>
+
+<script>
+    $(document).ready(async function () {
+        // Estrazione parametri da URL
+        const query = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+
+        try {
+            if (query.t) {
+                await $.ajax({
+                    method: "PUT", url: "/users/customers/enable-me",
+                    headers: { Authorization: `Bearer ${query.t}` }
+                });
+    
+                $("#result").html("Verificato");
+            }
+        }
+        catch (err) {
+            console.log(err);
+            switch (err.status) {
+                case 401:
+                    $("#result").html("Non attivato");
+                    break;
+
+                case 403:
+                    $("#result").html("Utente già attivo");
+                    break;
+
+                default:
+                    $("#result").html("Errore");
+                    break;
+            }
+        }
+    })
+</script>
+
+</html>
