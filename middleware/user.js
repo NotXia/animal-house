@@ -168,6 +168,11 @@ const validateSearchPermissionByName = [
     utils.validatorErrorHandler
 ];
 
+const validateSendVerificationMail = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+];
+
 
 module.exports = {
     validateInsertCustomer : validateInsertCustomer,
@@ -177,5 +182,6 @@ module.exports = {
     validateUpdateOperator : validateUpdateOperator,
     validateDeleteUser : validateDeleteUser,
     validateSearchUserProfile : validateSearchUserProfile,
-    validateSearchPermissionByName: validateSearchPermissionByName
+    validateSearchPermissionByName: validateSearchPermissionByName,
+    validateSendVerificationMail: validateSendVerificationMail
 }

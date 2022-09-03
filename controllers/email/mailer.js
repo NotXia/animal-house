@@ -45,13 +45,13 @@ async function formatHTML(template_name, placeholders) {
     return html;
 }
 
-module.exports.sendVerificationEmail = async function (user) {
+module.exports.sendWelcomeEmail = async function (user) {
     if (process.env.TESTING) { return true; }
 
     try {
         const token = auth_controller.createTokens({ username: user.username }).access.value;
 
-        let verification_html = await formatHTML("welcome.html", {
+        let welcome_html = await formatHTML("welcome.html", {
             name: user.name, 
             verification_url: `${process.env.DOMAIN}/verificate.html?t=${token}`
         });
@@ -59,6 +59,31 @@ module.exports.sendVerificationEmail = async function (user) {
         await mailTo(
             destination = user.email, 
             subject = "Benvenuto in Animal House", 
+            html = welcome_html, 
+        );
+    }
+    catch (err) {
+        console.log(err);
+        return false;
+    }
+
+    return true;
+}
+
+module.exports.sendVerificationEmail = async function (user) {
+    if (process.env.TESTING) { return true; }
+
+    try {
+        const token = auth_controller.createTokens({ username: user.username }).access.value;
+
+        let verification_html = await formatHTML("verify.html", {
+            name: user.name, 
+            verification_url: `${process.env.DOMAIN}/verificate.html?t=${token}`
+        });
+    
+        await mailTo(
+            destination = user.email, 
+            subject = "Verifica account - Animal House", 
             html = verification_html, 
         );
     }

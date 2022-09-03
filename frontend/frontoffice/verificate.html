@@ -9,22 +9,24 @@
 </head>
 <body>
     <div id="result">
+    </div>
 
-    </div>    
+    <button id="resend">Invia nuova mail</button>
 </body>
 
 <script>
-    $(document).ready(async function () {
-        // Estrazione parametri da URL
-        const query = new Proxy(new URLSearchParams(window.location.search), {
-            get: (searchParams, prop) => searchParams.get(prop),
-        });
+    // Estrazione parametri da URL
+    const query = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+    const token = query.t
 
+    $(document).ready(async function () {
         try {
-            if (query.t) {
+            if (token) {
                 await $.ajax({
                     method: "PUT", url: "/users/customers/enable-me",
-                    headers: { Authorization: `Bearer ${query.t}` }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
     
                 $("#result").html("Verificato");
@@ -46,7 +48,23 @@
                     break;
             }
         }
-    })
+
+        $("#resend").on("click", async function () {
+            const username = _parseJwt(token).username;
+
+            try {
+                await $.ajax({
+                    method: "GET", 
+                    url: `/users/customers/${username}/verification-mail`
+                });
+                alert("Inviato");
+                $("#resend").attr("disabled", true);
+            }
+            catch (err) {
+                alert("Non inviato");
+            }
+        });
+    });
 </script>
 
 </html>

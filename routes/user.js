@@ -12,6 +12,7 @@ const cart_controller = require("../controllers/shop/cart");
 
 /* Operazioni sull'utenza dei clienti */
 router.put("/customers/enable-me", auth_middleware([ ["to_activate_user"] ], []), user_controller.enableCustomer);
+router.get("/customers/:username/verification-mail", user_middleware.validateSendVerificationMail, user_controller.sendVerificationMail);
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
 router.get("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(is_operator=false));
 router.put("/customers/:username", [ auth_middleware([ ["user"] ] , [ ["admin"] ]), user_middleware.validateUpdateCustomer ], user_controller.updateUser(is_operator=false));
