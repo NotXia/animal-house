@@ -6,7 +6,7 @@ const PermissionModel = require("../models/auth/permission");
 const bcrypt = require("bcrypt");
 const utils = require("../utilities");
 const error = require("../error_handler");
-const email = require("./utils.email");
+const mailer = require("./email/mailer");
 const file_controller = require("./file.js");
 const path = require('path');
 
@@ -71,7 +71,7 @@ async function insertCustomer(req, res) {
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
-        email.sendVerificationEmail(new_user.username);
+        mailer.sendVerificationEmail(new_user);
 
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
@@ -215,11 +215,13 @@ async function enableCustomer(req, res) {
     let user;
 
     try {
-        user = await UserModel.findOne({ username: req.auth.username });
+        user = await UserModel.findOne({ username: req.auth.username, type_name: "customer" });
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (user.enabled) { throw error.generate.FORBIDDEN("Utente già abilitato"); }
+
         user.enabled = true;
         user.permissions = ["customer", "post_write", "comment_write"];
         await user.save();
-
     } catch (err) {
         return error.response(err, res);
     }

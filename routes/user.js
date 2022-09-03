@@ -11,11 +11,11 @@ const cart_middleware = require("../middleware/shop/cart");
 const cart_controller = require("../controllers/shop/cart");
 
 /* Operazioni sull'utenza dei clienti */
+router.put("/customers/enable-me", auth_middleware([ ["to_activate_user"] ], []), user_controller.enableCustomer);
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
 router.get("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(is_operator=false));
 router.put("/customers/:username", [ auth_middleware([ ["user"] ] , [ ["admin"] ]), user_middleware.validateUpdateCustomer ], user_controller.updateUser(is_operator=false));
 router.delete("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(is_operator=false));
-router.put("/customers/enable-me", auth_middleware([ ["to_activate_user"] ], []), user_controller.enableCustomer);
 
 /* Operazioni sull'utenza degli operatori */
 router.post("/operators/", [ auth_middleware([], [ ["admin"] ]), user_middleware.validateInsertOperator ], user_controller.insertOperator);
