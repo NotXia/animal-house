@@ -53,7 +53,7 @@ module.exports.sendWelcomeEmail = async function (user) {
 
         let welcome_html = await formatHTML("welcome.html", {
             name: user.name, 
-            verification_url: `${process.env.DOMAIN}/verificate.html?t=${token}`
+            verification_url: `${process.env.DOMAIN}/verify.html?t=${token}`
         });
     
         await mailTo(
@@ -78,7 +78,7 @@ module.exports.sendVerificationEmail = async function (user) {
 
         let verification_html = await formatHTML("verify.html", {
             name: user.name, 
-            verification_url: `${process.env.DOMAIN}/verificate.html?t=${token}`
+            verification_url: `${process.env.DOMAIN}/verify.html?t=${token}`
         });
     
         await mailTo(
