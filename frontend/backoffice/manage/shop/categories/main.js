@@ -66,7 +66,6 @@ $(document).ready(async function() {
             }
             else {
                 const categories = categories_cache.filter((category) => category.name.toLowerCase().includes(query.toLowerCase()));
-                console.log(categories);
                 displayCategories(categories);
             }
         }, 100);
@@ -87,9 +86,12 @@ async function getFormCategoryData() {
 
 async function fetchCategories() {
     try {
-        return await api_request({ 
+        let categories = await api_request({ 
             type: "GET", url: `/shop/categories/`
         });
+        categories.sort((c1, c2) => (c1.name > c2.name) ? 1 : ((c2.name > c1.name) ? -1 : 0)); // Ordinamento alfabetico
+
+        return categories;
     }
     catch (err) {
         error(err.responseJSON.message);
