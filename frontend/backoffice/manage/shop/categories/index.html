@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/lib/bootstrap.min.css" rel="stylesheet">
+    <script src="/lib/bootstrap.bundle.min.js"></script>
+    <script src="/lib/jquery-3.6.0.min.js"></script>
+    <script src="/lib/jquery.validate.min.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script src="/lib/he.min.js"></script>
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="/js/auth.js"></script>
+    <script src="/js/utilities.js"></script>
+    <script src="/admin/templates/loader.js"></script>
+    <script src="./main.js"></script>
+    <script>
+        isAuthenticated().then(async function (is_auth) {
+            if (!is_auth) { window.location.href = "/admin/login.html"; }
+            if (!await isOperator()) { window.location.href = "/"; }
+        });
+    </script>
+
+    <title>Gestione categorie (shop)</title>
+</head>
+
+<body>
+    <header>
+        <div id="navbar-placeholder"></div>
+    </header>
+
+    <main>
+        <div class="d-flex justify-content-center mt-2 mb-2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
+                        <div class="d-flex justify-content-center">
+                            <input id="search-category" class="form-control" type="input" placeholder="Cerca categoria">
+
+                            <div id="start_create-container" class="ms-3">
+                                <button type="button" id="btn-start_create" class="btn btn-outline-dark text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Crea una nuova categoria">Crea nuova</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center">
+                            <div id="global-feedback" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                    <div class="d-flex justify-content-center">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 20%" class="text-center">Icona</th>
+                                    <th scope="col" style="width: 40%">Nome</th>
+                                    <th scope="col" style="width: 40%" class="text-center">Operazioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-container">
+            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- Creazione nuova categoria -->
+    <div class="modal fade" id="modal-create-category" tabindex="-1" aria-labelledby="modal-create-category-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="modal-create-category-label">Nuova categoria</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
+                </div>
+                <form id="form-category-insert">
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-8 offset-md-2">
+                                    <label for="data-name" class="fs-6 fw-semibold">Nome</label>
+                                    <input id="data-name" type="text" class="form-control" name="name" aria-label="Nome della categoria">
+                                    <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 col-md-2 offset-md-2 col-md-2">
+                                    <div class="d-flex justify-content-center align-items-center h-100 w-100">
+                                        <img id="icon-preview" src="" alt="Anteprima icona" class="category-icon" style="display: none;">
+                                    </div>
+                                </div>
+                                <div class="col-9 col-md-6">
+                                    <label for="data-icon" class="form-label fs-6 fw-semibold">Carica immagine</label>
+                                    <input class="form-control form-control-sm" type="file" id="data-icon" accept="image/png, image/jpeg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button type="submit" class="btn btn-outline-success">Crea</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-container"></div>
+</body>
+
+<script>
+    $(document).ready(async function () {
+        // Caricamento delle componenti esterne
+        await Promise.all([loadLoading($("#loading-container")), loadNavbar($("#navbar-placeholder"))]);
+
+        hideLoading();
+    });
+</script>
+
+</html>
