@@ -39,13 +39,13 @@
                         <div class="d-flex justify-content-center">
                             <form id="search_user_form" class="d-flex" role="search">
                                 <input class="form-control" type="input" name="username" placeholder="Cerca utente">
-                                <button class="ps-2 pe-2 btn btn-link" type="submit">
+                                <button class="ps-2 pe-2 btn btn-link" type="submit" aria-label="Cerca">
                                     <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
                                 </button>
                             </form>
 
                             <div id="start_create-container" class="ms-3">
-                                <button type="button" id="start_create-btn" class="btn btn-outline-dark text-truncate">Crea nuovo</button>
+                                <button type="button" id="start_create-btn" class="btn btn-outline-dark text-truncate" aria-label="Crea un nuovo operatore">Crea nuovo</button>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
                                         <label for="data-username" class="fs-6 fw-semibold">Username</label>
-                                        <input id="data-username" type="text" class="form-control" name="username" required>
+                                        <input id="data-username" type="text" class="form-control" name="username">
                                         <div id="data-username-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
@@ -79,7 +79,7 @@
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
                                         <label for="data-password" class="fs-6 fw-semibold">Password</label>
-                                        <input id="data-password" type="password" class="form-control" name="password" required>
+                                        <input id="data-password" type="password" class="form-control" name="password">
                                         <div id="data-password-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@
                                 <div class="d-flex justify-content-end mb-2">
                                     <div class="w-100">
                                         <label for="data-email" class="fs-6 fw-semibold">Email</label>
-                                        <input id="data-email" type="email" class="form-control" name="email" required>
+                                        <input id="data-email" type="email" class="form-control" name="email">
                                         <div id="data-email-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
@@ -100,7 +100,7 @@
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
                                         <label for="data-name" class="fs-6 fw-semibold">Nome</label>
-                                        <input id="data-name" type="text" class="form-control" name="name" required>
+                                        <input id="data-name" type="text" class="form-control" name="name">
                                         <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
@@ -109,7 +109,7 @@
                                 <div class="d-flex justify-content-end mb-2">
                                     <div class="w-100">
                                         <label for="data-surname" class="fs-6 fw-semibold">Cognome</label>
-                                        <input id="data-surname" type="text" class="form-control" name="surname" required>
+                                        <input id="data-surname" type="text" class="form-control" name="surname">
                                         <div id="data-surname-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                     </div>
                                 </div>
@@ -122,13 +122,13 @@
                                     <div class="d-flex justify-content-center align-items-center">
                                         <div>
                                             <legend class="fs-6 fw-semibold">Genere:</legend>
-                                            <input class="form-check-input ms-2" type="radio" id="data-gender-M" name="gender" value="M" required>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-M" name="gender" value="M">
                                             <label class="form-check-label" for="data-gender-M">Maschio</label>
-                                            <input class="form-check-input ms-2" type="radio" id="data-gender-F" name="gender" value="F" required>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-F" name="gender" value="F">
                                             <label class="form-check-label" for="data-gender-F">Femmina</label>
-                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Non-Binary" name="gender" value="Non-binary" required>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Non-Binary" name="gender" value="Non-binary">
                                             <label class="form-check-label" for="data-gender-Non-Binary">Non-binario</label>
-                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Altro" name="gender" value="Altro" required>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Altro" name="gender" value="Altro">
                                             <label class="form-check-label" for="data-gender-Altro">Altro</label>
                                         </div>
                                     </div>
@@ -156,7 +156,7 @@
                         <div class="d-flex justify-content-start mb-2">
                             <div class="w-100">
                                 <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
-                                <input id="data-phone" type="tel" class="form-control" name="phone" required>
+                                <input id="data-phone" type="tel" class="form-control" name="phone">
                                 <div id="data-phone-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                             </div>
                         </div>
@@ -165,7 +165,7 @@
                         <div class="d-flex justify-content-end mb-2">
                             <div class="w-100">
                                 <label for="data-role" class="fs-6 fw-semibold">Ruolo</label>
-                                <input id="data-role" type="text" class="form-control" name="role" required>
+                                <input id="data-role" type="text" class="form-control" name="role">
                                 <div id="data-role-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                             </div>
                         </div>
@@ -175,7 +175,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-12">
                         <fieldset id="permissions-fieldset">
-                            <legend class="fs-6 fw-semibold">Permessi:</legend>
+                            <legend class="fs-6 fw-semibold">Permessi</legend>
 
                             <div class="form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="data-enabled" name="enabled">
@@ -189,7 +189,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-12">
                         <fieldset id="services-fieldset">
-                            <legend class="fs-6 fw-semibold">Servizi:</legend>
+                            <legend class="fs-6 fw-semibold">Servizi</legend>
                         </fieldset>
                         <div id="data-services-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                     </div>
@@ -305,14 +305,14 @@
                         <div class="accordion-body">
                             <div id="${day}-accordion-container" class="container"></div>
                             <div class="d-flex justify-content-center mb-2">
-                                <button type="button" class="btn btn-outline-success" id="data-${day}-add_slot" aria-label="Aggiungi slot lavorativo per ${TRANSLATE[day]}"><span class="button-icon">+</span></button>
+                                <button type="button" class="btn btn-outline-success" id="data-working_time-${day}-add_slot" aria-label="Aggiungi slot lavorativo per ${TRANSLATE[day]}"><span class="button-icon">+</span></button>
                             </div>
                         </div>
                     </div>
                 </div>
             `);
 
-            $(`#data-${day}-add_slot`).on("click", function (e) {
+            $(`#data-working_time-${day}-add_slot`).on("click", function (e) {
                 addTimeSlotTo(day, "", "", "", focus=true);
             });
         }

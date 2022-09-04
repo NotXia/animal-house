@@ -71,7 +71,7 @@ $(document).ready(async function() {
                 }
 
                 operator_cache = res_operator;
-
+                loadOperatorData(res_operator);
                 viewMode();
             }
             catch (err) {
@@ -162,7 +162,7 @@ function startMode() {
     $("#enable_modify-container").hide();
     $("#modify-container").hide();
     $("#create-container").hide();
-    disableForm();
+    readOnlyForm();
     clearErrors();
     resetButtons();
 }
@@ -188,7 +188,7 @@ function viewMode() {
     $("#enable_modify-container").show();
     $("#modify-container").hide();
     $("#create-container").hide();
-    disableForm();
+    readOnlyForm();
     clearErrors();
     resetButtons();
     $("#data-username").focus();
@@ -404,9 +404,9 @@ function addTimeSlotTo(day_of_week, start_time, end_time, hub_code, focus=false)
         </div>
         <div class="row mb-3">
             <div class="col-12">
-                <div id="data-working_time-${day_of_week}-${index}-time-start-feedback" class="invalid-feedback d-block text-center"></div>
-                <div id="data-working_time-${day_of_week}-${index}-time-end-feedback" class="invalid-feedback d-block text-center"></div>
-                <div id="data-working_time-${day_of_week}-${index}-hub-feedback" class="invalid-feedback d-block text-center"></div>
+                <div id="data-working_time-${day_of_week}-${index}-time-start-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
+                <div id="data-working_time-${day_of_week}-${index}-time-end-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
+                <div id="data-working_time-${day_of_week}-${index}-hub-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
             </div>
         </div>
     `);
@@ -441,24 +441,38 @@ function emptyTimeSlots() {
     }
 }
 
-function disableForm() {
+
+function readOnlyForm() {
     for (const selector of $("[id^=data-]")) { 
         $(selector).prop("readonly", true); 
         $(selector).attr("aria-readonly", true);
     }
     $("#data-picture").prop("disabled", true);
-    $("button[name=working_time-delete]").prop("disabled", true);
-    $("button[id^=data-]").prop("disabled", true);
+    $("#data-password").prop("disabled", true);
     setReadOnly("#operator-form > * input:radio, #operator-form > * input:checkbox");
+    
+    // Bottoni slot orari
+    $("button[name=working_time-delete]").prop("disabled", true);
+    $("button[id^=data-working_time]").prop("disabled", true);
+    
+    // Disattiva i radio selezione genere (tranne quello selezionato)
+    $("input[id^=data-gender]:not(:checked)").prop("disabled", true)
+    $("input[id^=data-gender]:checked").prop("disabled", false)
 }
+
 function enableForm() {
     for (const selector of $("[id^=data-]")) { 
         $(selector).prop("readonly", false); 
         $(selector).attr("aria-readonly", false);
     }
     $("#data-picture").prop("disabled", false);
-    $("button[name=working_time-delete]").prop("disabled", false);
-    $("button[id^=data-]").prop("disabled", false);
+    $("#data-password").prop("disabled", false);
     removeReadOnly("#operator-form > * input:radio, #operator-form > * input:checkbox");
 
+    // Bottoni slot orari
+    $("button[name=working_time-delete]").prop("disabled", false);
+    $("button[id^=data-]").prop("disabled", false);
+
+    // Radio selezione genere
+    $("input[id^=data-gender]").prop("disabled", false)
 }
