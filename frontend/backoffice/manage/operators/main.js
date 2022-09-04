@@ -215,19 +215,6 @@ function errorMode(message) {
     $("#global-feedback").html(message);
 }
 
-
-/*
-    Operazioni sulla barra caricamento
-*/
-
-function showLoading() {
-    $("#loading-container").show();
-}
-
-function hideLoading() {
-    $("#loading-container").hide();
-}
-
 /* Carica un'immagine sul server */
 async function uploadProfilePicture() {
     let uploaded_image = undefined;
