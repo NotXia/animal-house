@@ -1,4 +1,5 @@
 let categories_cache; 
+let curr_mode;
 
 $(document).ready(async function() {
     $("#form-category-insert").validate({
@@ -15,10 +16,20 @@ $(document).ready(async function() {
             try {
                 let category_data = await getFormCategoryData();
 
-                res_operator = await api_request({ 
-                    type: "POST", url: `/shop/categories/`,
-                    data: category_data
-                });
+                switch (curr_mode) {
+                    case "create":
+                        await api_request({ 
+                            type: "POST", url: `/shop/categories/`,
+                            data: category_data
+                        });
+                        break;
+                    case "modify":
+                        await api_request({ 
+                            type: "PUT", url: `/shop/categories/${$("#data-old_name").val()}`,
+                            data: category_data
+                        });
+                        break;
+                }
 
                 $("#modal-create-category").modal("hide");
                 categories_cache = await fetchCategories();
@@ -36,7 +47,7 @@ $(document).ready(async function() {
         }
     });
 
-    $("#modal-create-category").on("shown.bs.modal hidden.bs.modal", function (e) {
+    $("#modal-create-category").on("hidden.bs.modal", function (e) {
         clearErrors();
         $("#icon-preview").hide();
         $("#form-category-insert").trigger("reset");
@@ -47,7 +58,7 @@ $(document).ready(async function() {
         let reader = new FileReader();
         reader.onload = function (e) {
             $("#icon-preview").show();
-            $("#icon-preview").attr("src", e.target.result); 
+            $("#icon-preview").attr("src", e.target.result);
         }
         if (this.files[0]) { reader.readAsDataURL(this.files[0]); }
         else { $("#icon-preview").hide(); }
@@ -71,10 +82,32 @@ $(document).ready(async function() {
         }, 100);
     });
 
+    $("#btn-start_create").on("click", function() {
+        createMode();
+    });
+
     // Caricamento delle categorie
     categories_cache = await fetchCategories();
     displayCategories(categories_cache);
 });
+
+function createMode() {
+    curr_mode = "create";
+    $("#modal-category-title").html("Crea categoria");
+    $("#create-submit-container").show();
+    $("#modify-submit-container").hide();
+    $("#create-submit-btn").attr("type", "submit");
+    $("#modify-submit-btn").attr("type", "button");
+}
+
+function modifyMode() {
+    curr_mode = "modify";
+    $("#modal-category-title").html("Modifica categoria");
+    $("#modify-submit-container").show();
+    $("#create-submit-container").hide();
+    $("#modify-submit-btn").attr("type", "submit");
+    $("#create-submit-btn").attr("type", "button");
+}
 
 
 async function getFormCategoryData() {
@@ -100,6 +133,7 @@ async function fetchCategories() {
 
 function displayCategories(categories) {
     $("#category-container").html("");
+    let index = 0;
 
     for (const category of categories) {
         let image = `<img src="data:image/*;base64,${category.icon}" alt="Icona per ${category.name}" class="category-icon" />`;
@@ -110,11 +144,25 @@ function displayCategories(categories) {
                 <td class="text-center align-middle"> ${image} </td>
                 <td class="align-middle">${category.name}</td>
                 <td class="text-center align-middle">
-                    <button class="btn btn-outline-secondary text-truncate">Modifica</button>
+                    <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica dati della categoria ${category.name}">Modifica</button>
                     <button class="btn btn-outline-danger text-truncate">Elimina</button>
                 </td>
             </tr>
         `);
+
+        $(`#modify-btn-${index}`).on("click", function () {
+            modifyMode();
+
+            // Inserisce i dati della riga nel modal
+            $("#data-name").val(category.name);
+            $("#data-old_name").val(category.name);
+            if (category.icon) { 
+                $("#icon-preview").show();
+                $("#icon-preview").attr("src", `data:image/*;base64,${category.icon}`);
+            }
+        });
+
+        index++;
     }
 }
 
