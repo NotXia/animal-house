@@ -15,6 +15,7 @@
     <link href="/css/style.css" rel="stylesheet">
     <link href="/css/profile.css" rel="stylesheet">
     <script src="/js/auth.js"></script>
+    <script src="/admin/templates/loader.js"></script>
     <script src="./main.js"></script>
     <script>
         isAuthenticated().then(async function (is_auth) { 
@@ -28,9 +29,6 @@
 <body>
     <header>
         <div id="navbar-placeholder"></div>
-        <script>
-            $(document).ready(function() { $("#navbar-placeholder").load("/admin/navbar.html"); });
-        </script>
 
         <div class="d-flex justify-content-center mt-2 mb-2">
             <div class="container">
@@ -239,12 +237,13 @@
     </div>
     
     <div id="loading-container"></div>
-    <script src="/js/loading.js"></script>
-    <script> $(document).ready(function() { $("#loading-container").load("/admin/loading.html"); }); </script>
 </body>
 
 <script>
     $(document).ready(async function() {
+        // Caricamento delle componenti esterne
+        await Promise.all([ loadLoading($("#loading-container")), loadNavbar($("#navbar-placeholder")) ]);
+
         showLoading();
         startMode();
         
@@ -259,7 +258,7 @@
             createWorkingTimeForm();
         }
         catch (err) {
-            console.log(err);
+            errorMode("Non è stato possibile caricare la pagina");
         }
 
         hideLoading();
