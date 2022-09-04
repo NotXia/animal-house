@@ -47,6 +47,10 @@ $(document).ready(async function() {
         }
     });
 
+    $("#btn-start_create").on("click", function() {
+        createMode();
+    });
+    
     $("#modal-create-category").on("hidden.bs.modal", function (e) {
         clearErrors();
         $("#icon-preview").hide();
@@ -82,8 +86,28 @@ $(document).ready(async function() {
         }, 100);
     });
 
-    $("#btn-start_create").on("click", function() {
-        createMode();
+    /* Cancellazione di categoria */
+    $("#form-category-delete").on("submit", async function (e) {
+        e.preventDefault();
+        showLoading();
+
+        try {
+            await api_request({ 
+                type: "DELETE", url: `/shop/categories/${$("#data-delete-name").val()}`
+            });
+
+            categories_cache = await fetchCategories();
+            displayCategories(categories_cache);
+        }
+        catch (err) {
+            switch (err.status) {
+                case 400: showErrors(err.responseJSON); break;
+                case 409: showError(err.responseJSON.field, err.responseJSON.message); break;
+                default: error(err.responseJSON.message); break;
+            }
+        }
+
+        hideLoading();
     });
 
     // Caricamento delle categorie
@@ -144,8 +168,8 @@ function displayCategories(categories) {
                 <td class="text-center align-middle"> ${image} </td>
                 <td class="align-middle">${category.name}</td>
                 <td class="text-center align-middle">
-                    <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica dati della categoria ${category.name}">Modifica</button>
-                    <button class="btn btn-outline-danger text-truncate">Elimina</button>
+                    <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica i dati della categoria ${category.name}">Modifica</button>
+                    <button id="delete-btn-${index}" class="btn btn-outline-danger text-truncate" data-bs-toggle="modal" data-bs-target="#modal-delete-category" aria-label="Elimina la categoria ${category.name}">Elimina</button>
                 </td>
             </tr>
         `);
@@ -160,6 +184,11 @@ function displayCategories(categories) {
                 $("#icon-preview").show();
                 $("#icon-preview").attr("src", `data:image/*;base64,${category.icon}`);
             }
+        });
+
+        $(`#delete-btn-${index}`).on("click", function () {
+            $("#data-delete-name").val(category.name);
+            $("#delete-category-name").html(category.name);
         });
 
         index++;

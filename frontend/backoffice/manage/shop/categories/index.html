@@ -123,6 +123,28 @@
         </div>
     </div>
 
+    <!-- Conferma cancellazione -->
+    <div class="modal fade" id="modal-delete-category" tabindex="-1" aria-labelledby="modal-delete-category-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="modal-delete-category-label">Conferma cancellazione</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
+                </div>
+                <form id="form-category-delete">
+                    <input id="data-delete-name" type="hidden" name="name">
+                    <div class="modal-body">
+                        Stai cancellando la categoria <span id="delete-category-name"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button id="delete-submit-btn" type="submit" class="btn btn-outline-danger" data-bs-dismiss="modal">Elimina</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-container"></div>
 </body>
 
