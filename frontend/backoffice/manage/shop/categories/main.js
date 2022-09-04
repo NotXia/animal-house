@@ -27,7 +27,7 @@ $(document).ready(async function() {
             catch (err) {
                 switch (err.status) {
                     case 400: showErrors(err.responseJSON); break;
-                    case 409: showError(err.responseJSON); break;
+                    case 409: showError(err.responseJSON.field, err.responseJSON.message); break;
                     default: error(err.responseJSON.message); break;
                 }
             }
@@ -102,9 +102,12 @@ function displayCategories(categories) {
     $("#category-container").html("");
 
     for (const category of categories) {
+        let image = `<img src="data:image/*;base64,${category.icon}" alt="Icona per ${category.name}" class="category-icon" />`;
+        if (!category.icon) { image = ""; }
+
         $("#category-container").append(`
             <tr>
-                <td class="text-center align-middle"> <img src="data:image/*;base64,${category.icon}" alt="Icona per ${category.name}" class="category-icon" /> </td>
+                <td class="text-center align-middle"> ${image} </td>
                 <td class="align-middle">${category.name}</td>
                 <td class="text-center align-middle">
                     <button class="btn btn-outline-secondary text-truncate">Modifica</button>
