@@ -178,8 +178,16 @@ function displayCategories(categories) {
                 <td class="text-center align-middle"> ${image} </td>
                 <td class="align-middle">${category.name}</td>
                 <td class="text-center align-middle">
-                    <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica i dati della categoria ${category.name}">Modifica</button>
-                    <button id="delete-btn-${index}" class="btn btn-outline-danger text-truncate" data-bs-toggle="modal" data-bs-target="#modal-delete-category" aria-label="Elimina la categoria ${category.name}">Elimina</button>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12 col-lg-6 mb-2 mb-lg-0 p-0">
+                                <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica i dati della categoria ${category.name}">Modifica</button>
+                            </div>
+                            <div class="col-sm-12 col-lg-6 p-0">
+                                <button id="delete-btn-${index}" class="btn btn-outline-danger text-truncate" data-bs-toggle="modal" data-bs-target="#modal-delete-category" aria-label="Elimina la categoria ${category.name}">Elimina</button>
+                            </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
         `);
