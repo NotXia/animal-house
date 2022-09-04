@@ -64,6 +64,7 @@ async function init() {
                 surname: "Admin",
                 enabled: true,
                 permissions: ["admin"],
+                gender: "Altro",
                 type_id: admin_user._id,
                 type_name: "operator"
             }).save();
