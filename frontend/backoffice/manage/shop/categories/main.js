@@ -32,8 +32,10 @@ $(document).ready(async function() {
                 }
 
                 $("#modal-create-category").modal("hide");
-                categories_cache = await fetchCategories();
-                displayCategories(categories_cache);
+
+                categories_cache = await fetchCategories(); // Aggiorna i dati locali
+                if (curr_mode == "create") { clearFilter(); }
+                else { filterCategories($("#search-category").val()); }
             }
             catch (err) {
                 switch (err.status) {
@@ -74,15 +76,7 @@ $(document).ready(async function() {
         clearTimeout(search_delay); // Annulla il timer precedente
         
         search_delay = setTimeout(async function() {
-            const query = $("#search-category").val();
-
-            if (query === "") {
-                displayCategories(categories_cache)
-            }
-            else {
-                const categories = categories_cache.filter((category) => category.name.toLowerCase().includes(query.toLowerCase()));
-                displayCategories(categories);
-            }
+            filterCategories($("#search-category").val());
         }, 100);
     });
 
@@ -97,7 +91,7 @@ $(document).ready(async function() {
             });
 
             categories_cache = await fetchCategories();
-            displayCategories(categories_cache);
+            filterCategories($("#search-category").val());
         }
         catch (err) {
             switch (err.status) {
@@ -141,6 +135,7 @@ async function getFormCategoryData() {
     }
 }
 
+
 async function fetchCategories() {
     try {
         let categories = await api_request({ 
@@ -153,6 +148,21 @@ async function fetchCategories() {
     catch (err) {
         error(err.responseJSON.message);
     }
+}
+
+function filterCategories(query) {
+    if (query === "") {
+        displayCategories(categories_cache);
+    }
+    else {
+        const categories = categories_cache.filter((category) => category.name.toLowerCase().includes(query.toLowerCase()));
+        displayCategories(categories);
+    }
+}
+
+function clearFilter() {
+    displayCategories(categories_cache);
+    $("#search-category").val("");
 }
 
 function displayCategories(categories) {
