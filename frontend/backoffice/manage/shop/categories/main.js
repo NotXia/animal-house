@@ -80,7 +80,7 @@ $(document).ready(async function() {
 async function getFormCategoryData() {
     return {
         name: $("#data-name").val(),
-        icon: $("#data-icon").prop('files')[0] ? await base64($("#data-icon").prop('files')[0], header=false) : ""
+        icon: $("#data-icon").prop('files')[0] ? await base64($("#data-icon").prop('files')[0], header=false) : undefined
     }
 }
 
@@ -89,7 +89,7 @@ async function fetchCategories() {
         let categories = await api_request({ 
             type: "GET", url: `/shop/categories/`
         });
-        categories.sort((c1, c2) => (c1.name > c2.name) ? 1 : ((c2.name > c1.name) ? -1 : 0)); // Ordinamento alfabetico
+        categories.sort((c1, c2) => (c1.name.toLowerCase() > c2.name.toLowerCase()) ? 1 : ((c2.name.toLowerCase() > c1.name.toLowerCase()) ? -1 : 0)); // Ordinamento alfabetico
 
         return categories;
     }
