@@ -36,6 +36,7 @@ $(document).ready(async function() {
                 categories_cache = await fetchCategories(); // Aggiorna i dati locali
                 if (curr_mode == "create") { clearFilter(); }
                 else { filterCategories($("#search-category").val()); }
+                $("#search-category").focus();
             }
             catch (err) {
                 switch (err.status) {
@@ -92,6 +93,7 @@ $(document).ready(async function() {
 
             categories_cache = await fetchCategories();
             filterCategories($("#search-category").val());
+            $("#search-category").focus();
         }
         catch (err) {
             switch (err.status) {
@@ -171,7 +173,7 @@ function displayCategories(categories) {
 
     for (const category of categories) {
         let image = `<img src="data:image/*;base64,${category.icon}" alt="Icona per ${category.name}" class="category-icon" />`;
-        if (!category.icon) { image = ""; }
+        if (!category.icon) { image = `<p class="visually-hidden">Nessuna icona per ${category.name}</p>`; }
 
         $("#category-container").append(`
             <tr>
