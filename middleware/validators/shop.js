@@ -5,24 +5,24 @@ const error = require("../../error_handler");
 const OrderModel = require("../../models/shop/order");
 
 /* Item */
-module.exports.validateItemName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
-module.exports.validateItemDescription = (source, required=true, field_name="description") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
+module.exports.validateItemName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
+module.exports.validateItemDescription = (source, required=true, field_name="description") => { return utils.handleRequired(validator[source](field_name), required).trim(); }
 module.exports.validateItemRelevance = (source, required=true, field_name="relevance") => { return utils.handleRequired(validator[source](field_name), required, 0).isInt().withMessage("Formato non valido"); }
 module.exports.validateItemId = (source, required=true, field_name="item_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 
 /* Prodotti */
 module.exports.validateProductName = module.exports.validateItemName;
 module.exports.validateProductDescription = module.exports.validateItemDescription;
-module.exports.validateProductBarcode = (source, required=true, field_name="barcode") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
+module.exports.validateProductBarcode = (source, required=true, field_name="barcode") => { return utils.handleRequired(validator[source](field_name), required).trim(); }
 module.exports.validateProductIndex = (source, required=true, field_name="product_index") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Formato non valido"); }
 module.exports.validateProductPrice = (source, required=true, field_name="price") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Formato non valido"); }
 module.exports.validateProductQuantity = (source, required=true, field_name="quantity") => { return utils.handleRequired(validator[source](field_name), required, 0).isInt({ min: 0 }).withMessage("Formato non valido"); }
-module.exports.validateProductTargetSpecies = (source, required = true, field_name = "target_species.*") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateProductTargetSpecies = (source, required = true, field_name = "target_species.*") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateProductImages = function (source, required=true, field_name="images") { 
     return [
         utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato non valido"),
         utils.handleRequired(validator[source](`${field_name}.*.path`), required=true).notEmpty().withMessage("Valore mancante").trim(),
-        utils.handleRequired(validator[source](`${field_name}.*.description`), required=true).notEmpty().withMessage("Valore mancante").trim().escape()
+        utils.handleRequired(validator[source](`${field_name}.*.description`), required=true).notEmpty().withMessage("Valore mancante").trim()
     ]; 
 }
 
@@ -45,14 +45,14 @@ module.exports.validateListOfProducts = function (source, required=true, field_n
 }
 
 /* Categorie */
-module.exports.validateCategoryName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateCategoryName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateCategoryIcon = (source, required=true, field_name="icon") => { return utils.handleRequired(validator[source](field_name), required).isBase64().withMessage("Formato non valido"); }
 
 /* Ordini */
 module.exports.validateOrderId = (source, required=true, field_name="order_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateOrderPickupFlag = (source, required=true, field_name="pickup") => { return utils.handleRequired(validator[source](field_name), required).isBoolean().withMessage("Valore mancante"); }
-module.exports.validateOrderStatus = (source, required=true, field_name="status") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape().isIn(OrderModel.STATUSES).withMessage("Valore invalido"); }
-module.exports.validateOrderTrackingCode = (source, required=true, field_name="tracking") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateOrderStatus = (source, required=true, field_name="status") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().isIn(OrderModel.STATUSES).withMessage("Valore invalido"); }
+module.exports.validateOrderTrackingCode = (source, required=true, field_name="tracking") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateOrderProductsList = function (source, required=true, field_name="products") {
     return [
         utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato errato"),

@@ -8,7 +8,7 @@ const Moment = require("moment");
 const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
 
-module.exports.validateRole = (source, required=true, field_name="role") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateRole = (source, required=true, field_name="role") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 
 module.exports.validateListOfServicesId = function (source, required=true, field_name="services_id") {
     return [
