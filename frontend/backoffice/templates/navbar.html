@@ -41,7 +41,7 @@
     $(document).ready(async function() {
         try {
             const user = await api_request({ 
-                type: "GET", url: `/users/profiles/${await getUsername()}` 
+                type: "GET", url: `/users/profiles/${encodeURIComponent(await getUsername())}` 
             });
 
             $("#navbar-user").text(`${user.name} ${user.surname}`);

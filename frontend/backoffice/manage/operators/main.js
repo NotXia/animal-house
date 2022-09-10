@@ -50,7 +50,7 @@ $(document).ready(async function() {
                 switch (curr_mode) {
                     case "modify":
                         res_operator = await api_request({ 
-                            type: "PUT", url: `/users/operators/${operator_cache.username}`,
+                            type: "PUT", url: `/users/operators/${encodeURIComponent(operator_cache.username)}`,
                             processData: false, contentType: "application/json",
                             data: JSON.stringify(operator_data)
                         });
@@ -95,7 +95,7 @@ $(document).ready(async function() {
         try {
             showLoading();
 
-            const operator_data = await api_request({ type: "GET", url: `/users/operators/${this.username.value}` });
+            const operator_data = await api_request({ type: "GET", url: `/users/operators/${encodeURIComponent(this.username.value)}` });
             operator_cache = operator_data;
             
             resetForm();
@@ -139,7 +139,7 @@ $(document).ready(async function() {
 
         try {
             await api_request({
-                type: "DELETE", url: `/users/operators/${operator_cache.username}`
+                type: "DELETE", url: `/users/operators/${encodeURIComponent(operator_cache.username)}`
             });
         } catch (err) {
             errorMode(err.responseJSON.message);
