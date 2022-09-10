@@ -6,7 +6,7 @@ const error = require("../../error_handler");
 
 module.exports.validateAnimalId =           (source, required=true, field_name="animal_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateAnimalSpecies =      (source, required=true, field_name="species") => { return speciesValidator.validateSpeciesName(source, required, field_name); }
-module.exports.validateAnimalName =         (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateAnimalName =         (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateAnimalWeight =       (source, required=true, field_name="weight") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
 module.exports.validateAnimalHeight =       (source, required=true, field_name="height") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
 module.exports.validateAnimalImagePath =    (source, required=true, field_name="image_path") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
