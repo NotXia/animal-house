@@ -25,7 +25,7 @@ $(document).ready(async function() {
                         break;
                     case "modify":
                         await api_request({ 
-                            type: "PUT", url: `/shop/categories/${$("#data-old_name").val()}`,
+                            type: "PUT", url: `/shop/categories/${encodeURIComponent($("#data-old_name").val())}`,
                             data: category_data
                         });
                         break;
@@ -88,7 +88,7 @@ $(document).ready(async function() {
 
         try {
             await api_request({ 
-                type: "DELETE", url: `/shop/categories/${$("#data-delete-name").val()}`
+                type: "DELETE", url: `/shop/categories/${encodeURIComponent($("#data-delete-name").val())}`
             });
 
             categories_cache = await fetchCategories();
@@ -113,7 +113,7 @@ $(document).ready(async function() {
 
 function createMode() {
     curr_mode = "create";
-    $("#modal-category-title").html("Crea categoria");
+    $("#modal-category-title").text("Crea categoria");
     $("#create-submit-container").show();
     $("#modify-submit-container").hide();
     $("#create-submit-btn").attr("type", "submit");
@@ -122,7 +122,7 @@ function createMode() {
 
 function modifyMode() {
     curr_mode = "modify";
-    $("#modal-category-title").html("Modifica categoria");
+    $("#modal-category-title").text("Modifica categoria");
     $("#modify-submit-container").show();
     $("#create-submit-container").hide();
     $("#modify-submit-btn").attr("type", "submit");
@@ -172,21 +172,23 @@ function displayCategories(categories) {
     let index = 0;
 
     for (const category of categories) {
-        let image = `<img src="data:image/*;base64,${category.icon}" alt="Icona per ${category.name}" class="category-icon" />`;
-        if (!category.icon) { image = `<p class="visually-hidden">Nessuna icona per ${category.name}</p>`; }
+        let escaped_name = he.escape(category.name);
+
+        let image = `<img src="data:image/*;base64,${category.icon}" alt="Icona per ${escaped_name}" class="category-icon" />`;
+        if (!category.icon) { image = `<span class="visually-hidden">Nessuna icona per ${escaped_name}</span>`; }
 
         $("#category-container").append(`
             <tr>
                 <td class="text-center align-middle"> ${image} </td>
-                <td class="align-middle">${category.name}</td>
+                <td class="align-middle">${escaped_name}</td>
                 <td class="text-center align-middle">
                     <div class="container">
                         <div class="row">
                             <div class="col-sm-12 col-lg-6 mb-2 mb-lg-0 p-0">
-                                <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica i dati della categoria ${category.name}">Modifica</button>
+                                <button id="modify-btn-${index}" class="btn btn-outline-secondary text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Modifica i dati della categoria ${escaped_name}">Modifica</button>
                             </div>
                             <div class="col-sm-12 col-lg-6 p-0">
-                                <button id="delete-btn-${index}" class="btn btn-outline-danger text-truncate" data-bs-toggle="modal" data-bs-target="#modal-delete-category" aria-label="Elimina la categoria ${category.name}">Elimina</button>
+                                <button id="delete-btn-${index}" class="btn btn-outline-danger text-truncate" data-bs-toggle="modal" data-bs-target="#modal-delete-category" aria-label="Elimina la categoria ${escaped_name}">Elimina</button>
                             </div>
                         </div>
                     </div>
@@ -208,7 +210,7 @@ function displayCategories(categories) {
 
         $(`#delete-btn-${index}`).on("click", function () {
             $("#data-delete-name").val(category.name);
-            $("#delete-category-name").html(category.name);
+            $("#delete-category-name").text(category.name);
         });
 
         index++;
