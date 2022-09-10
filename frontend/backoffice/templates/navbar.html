@@ -1,0 +1,55 @@
+<link href="/css/profile.css" rel="stylesheet">
+
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <a id="navbar-logo" class="navbar-brand" href="#">
+            <img src="/img/logo.png" alt="Logo" width="30" height="24">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="/admin/">Dashboard</a>
+                </li>
+            </ul>
+            
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-outline-light dropdown-toggle text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="d-inline-block">
+                        <div class="d-flex align-items-center">
+                            <span id="navbar-user" class="align-top"></span>
+                            <div class="profile_picture-container-sm mx-1 ms-2">
+                                <img id="navbar-profile_picture" src="/profiles/images/default.png" alt="Immagine di profilo" class="profile_picture">
+                            </div>
+                        </div>
+                    </div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><span class="dropdown-item-text fw-bold" id="navbar-username" aria-label="Username corrente"></span></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#">Profilo</a></li>
+                    <li><a class="dropdown-item" href="/admin/logout.html">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    $(document).ready(async function() {
+        try {
+            const user = await api_request({ 
+                type: "GET", url: `/users/profiles/${await getUsername()}` 
+            });
+
+            $("#navbar-user").html(`${user.name} ${user.surname}`);
+            $("#navbar-username").html(user.username);
+            $("#navbar-profile_picture").attr("src", user.picture);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+</script>

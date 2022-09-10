@@ -141,3 +141,10 @@ async function getTokenData() {
 async function isOperator() {
     return (await getTokenData()).is_operator;
 }
+
+/**
+ * Indica se l'utente è un operatore
+ */
+ async function getUsername() {
+    return (await getTokenData()).username;
+}
