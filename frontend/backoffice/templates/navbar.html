@@ -44,8 +44,8 @@
                 type: "GET", url: `/users/profiles/${await getUsername()}` 
             });
 
-            $("#navbar-user").html(`${user.name} ${user.surname}`);
-            $("#navbar-username").html(user.username);
+            $("#navbar-user").text(`${user.name} ${user.surname}`);
+            $("#navbar-username").text(user.username);
             $("#navbar-profile_picture").attr("src", user.picture);
         }
         catch (err) {
