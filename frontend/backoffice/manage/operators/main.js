@@ -50,13 +50,13 @@ $(document).ready(async function() {
                 switch (curr_mode) {
                     case "modify":
                         res_operator = await api_request({ 
-                            type: "PUT", url: `/users/operators/${operator_cache.username}`,
+                            type: "PUT", url: `/users/operators/${encodeURIComponent(operator_cache.username)}`,
                             processData: false, contentType: "application/json",
                             data: JSON.stringify(operator_data)
                         });
 
                         // Aggiornamento della navbar se si aggiorna sé stessi
-                        if (operator_cache.username === await getUsername()) { $("#navbar-placeholder").load("/admin/navbar.html"); }
+                        if (operator_cache.username === await getUsername()) { await loadNavbar($("#navbar-placeholder")); }
                         break;
 
                     case "creation":
@@ -95,7 +95,7 @@ $(document).ready(async function() {
         try {
             showLoading();
 
-            const operator_data = await api_request({ type: "GET", url: `/users/operators/${this.username.value}` });
+            const operator_data = await api_request({ type: "GET", url: `/users/operators/${encodeURIComponent(this.username.value)}` });
             operator_cache = operator_data;
             
             resetForm();
@@ -139,7 +139,7 @@ $(document).ready(async function() {
 
         try {
             await api_request({
-                type: "DELETE", url: `/users/operators/${operator_cache.username}`
+                type: "DELETE", url: `/users/operators/${encodeURIComponent(operator_cache.username)}`
             });
         } catch (err) {
             errorMode(err.responseJSON.message);
@@ -212,7 +212,7 @@ function modifyMode() {
 function errorMode(message) {
     curr_mode = "error";
     startMode();
-    $("#global-feedback").html(message);
+    $("#global-feedback").text(message);
 }
 
 /* Carica un'immagine sul server */
@@ -301,12 +301,12 @@ function getFormOperatorWorkingTime() {
 /* Carica i dati di un operatore */
 function loadOperatorData(data) {
     $("#profile-picture").attr("src", data.picture);
-    $("#data-username").val(he.decode(data.username));
+    $("#data-username").val(data.username);
     $("#data-email").val(data.email);
-    $("#data-name").val(he.decode(data.name));
-    $("#data-surname").val(he.decode(data.surname));
+    $("#data-name").val(data.name);
+    $("#data-surname").val(data.surname);
     $("#data-phone").val(data.phone);
-    $("#data-role").val(he.decode(data.role));
+    $("#data-role").val(data.role);
     $("input:radio[name=gender]").filter(`[value=${data.gender}]`).prop("checked", true);
     $("input:checkbox[name=enabled]").prop("checked", data.enabled);
     for (const permission of data.permissions) { $("input:checkbox[name=permissions]").filter(`[value=${permission}]`).prop("checked", true); }

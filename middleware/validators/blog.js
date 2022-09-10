@@ -6,8 +6,8 @@ const user_validator = require("./user");
 
 module.exports.validatePostId =       (source, required=true, field_name="post_id") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateAuthor =       (source, required=true, field_name="author") => { return user_validator.validateUsername(source, required, field_name); }
-module.exports.validateTitle =        (source, required=true, field_name="title") => { return utils.handleRequired(validator[source](field_name), required).trim().escape(); }
-module.exports.validateContent =      (source, required=true, field_name="content") => { return utils.handleRequired(validator[source](field_name), required).escape(); }
+module.exports.validateTitle =        (source, required=true, field_name="title") => { return utils.handleRequired(validator[source](field_name), required).trim(); }
+module.exports.validateContent =      (source, required=true, field_name="content") => { return utils.handleRequired(validator[source](field_name), required); }
 module.exports.validateTagUsers =     (source, required=true, field_name="tag_users.*") => { return user_validator.validateUsername(source, required, field_name); }
 module.exports.validateTagAnimalsId = (source, required=true, field_name="tag_animals_id.*") => { return utils.handleRequired(validator[source](field_name), required).isMongoId().withMessage("Formato non valido"); }
 module.exports.validateCommentIndex = (source, required=true, field_name="comment_index") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Il valore deve essere un intero che inizia da 0"); }
@@ -15,12 +15,12 @@ module.exports.validateImages = function (source, required=true, field_name="ima
     return [
         utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato errato"),
         validator[source](`${field_name}.*.path`).if((_, { req }) => { return req[source][field_name]; }).exists().withMessage("Valore mancante").notEmpty().withMessage("Valore mancante").trim(),
-        validator[source](`${field_name}.*.description`).if((_, { req }) => { return req[source][field_name]; }).notEmpty().withMessage("Valore mancante").trim().escape()
+        validator[source](`${field_name}.*.description`).if((_, { req }) => { return req[source][field_name]; }).notEmpty().withMessage("Valore mancante").trim()
     ];
 }
 
 
-module.exports.validateTopicName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateTopicName = (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateTopicIcon = (source, required=true, field_name="icon") => { return utils.handleRequired(validator[source](field_name), required).isBase64().withMessage("Formato non valido"); }
 
 
