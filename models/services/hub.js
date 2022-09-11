@@ -62,7 +62,7 @@ hubSchema.methods.getData = function() {
         code: this.code,
         name: this.name,
         address: this.address,
-        position: this.coordinates,
+        position: this.position,
         opening_time: this.convertTime(),
         phone: this.phone,
         email: this.email
