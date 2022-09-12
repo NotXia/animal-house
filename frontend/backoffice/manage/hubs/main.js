@@ -217,7 +217,7 @@ function getHubData() {
 }
 
 function loadHubData(hub) {
-    selected_hub = $("#data-code").val();
+    selected_hub = hub.code;
 
     $("#data-code").val(hub.code);
     $("#data-name").val(hub.name);
