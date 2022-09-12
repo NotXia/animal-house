@@ -1,21 +1,13 @@
+const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+const TRANSLATE = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
+
 let map_address_search, form_address_search;
 let map;
 let marker = {};
-const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-const TRANSLATE = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
-let curr_mode = "";
-let hub_cache = {}
 
-const HUB_MARKER_ICON = new L.Icon({
-    iconUrl: "/img/sandrone.jfif",
-    iconSize: [25, 25],
-    // iconAnchor: [12, 41],
-});
-const MODIFY_HUB_MARKER_ICON = new L.Icon({
-    iconUrl: "/img/santandrea.png",
-    iconSize: [25, 25],
-    // iconAnchor: [12, 41],
-});
+let hub_cache = {}
+let curr_mode = "";
+let selected_hub = undefined;
 
 $(document).ready(async function() {
     /* Inizializzazione barra di ricerca indirizzi */
@@ -62,7 +54,7 @@ $(document).ready(async function() {
                 switch (curr_mode) {
                     case "modify":
                         res_hub = await api_request({ 
-                            type: "PUT", url: `/hubs/${encodeURIComponent(hub_data.code)}`,
+                            type: "PUT", url: `/hubs/${encodeURIComponent(selected_hub)}`,
                             data: hub_data
                         });
                         break;
@@ -100,9 +92,7 @@ $(document).ready(async function() {
 
         if (curr_mode == "modify") {
             const hub_code = $("#data-code").val();
-            map.removeLayer(marker[hub_code]);
-            marker[hub_code] = new L.Marker(coord, { draggable:true, icon: MODIFY_HUB_MARKER_ICON });
-            map.addLayer(marker[hub_code]);
+            addMarkerAt(coord.lat, coord.lng, hub_code, mode="modify");
         }
         
         if (!$("#data-code").val()) {
@@ -159,9 +149,9 @@ function viewMode() {
     $("#modify-button-container").hide();
     $("#modify-button").attr("type", "button");
     disableForm();
-    if (marker[$("#data-code").val()]) {
-        marker[$("#data-code").val()].dragging.disable();
-        marker[$("#data-code").val()].setIcon(HUB_MARKER_ICON);
+    if (selected_hub) {
+        marker[selected_hub].dragging.disable();
+        marker[selected_hub].setIcon(HUB_MARKER_ICON);
     }
 }
 
@@ -173,8 +163,8 @@ function modifyMode() {
     $("#modify-button").attr("type", "submit");
     enableForm();
     $("#data-code").attr("readonly", true);
-    marker[$("#data-code").val()].dragging.enable();
-    marker[$("#data-code").val()].setIcon(MODIFY_HUB_MARKER_ICON);
+    marker[selected_hub].dragging.enable();
+    marker[selected_hub].setIcon(MODIFY_HUB_MARKER_ICON);
 }
 
 function disableForm() {
@@ -227,7 +217,8 @@ function getHubData() {
 }
 
 function loadHubData(hub) {
-    $("#data-old-code").val(hub.code);
+    selected_hub = $("#data-code").val();
+
     $("#data-code").val(hub.code);
     $("#data-name").val(hub.name);
     $("#data-phone").val(hub.phone);
@@ -236,17 +227,13 @@ function loadHubData(hub) {
     $("#data-address-street").val(hub.address.street);
     $("#data-address-number").val(hub.address.number);
     $("#data-address-postalcode").val(hub.address.postal_code);
-
     for (const day of WEEKS) {
         for (const slot of hub.opening_time[day]) {
             addTimeSlotTo(day, slot.start, slot.end);
         }
     }
 
-    if (marker[hub.code]) {
-        map.removeLayer(marker[hub.code]);
-        addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
-    }
+    addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
 }
 
 function clearFormData() {
@@ -261,11 +248,28 @@ function focusMapOn(lat, lon) {
     map.flyTo([lat, lon], 16, {animate: true, duration: 0.5});
 }
 
-function addMarkerAt(lat, lon, code) {
+
+const HUB_MARKER_ICON = new L.Icon({
+    iconUrl: "/img/sandrone.jfif",
+    iconSize: [25, 25],
+    // iconAnchor: [12, 41],
+});
+const MODIFY_HUB_MARKER_ICON = new L.Icon({
+    iconUrl: "/img/santandrea.png",
+    iconSize: [25, 25],
+    // iconAnchor: [12, 41],
+});
+
+function addMarkerAt(lat, lon, hub_code, mode="") {
     let coord = new L.LatLng(lat, lon);
     
-    marker[code] = new L.Marker(coord, { icon: HUB_MARKER_ICON });
-    map.addLayer(marker[code]);
+    if (marker[hub_code]) { map.removeLayer(marker[hub_code]); } // Rimozione vecchio marker
+
+    switch (mode) {
+        case "modify": marker[hub_code] = new L.Marker(coord, { icon: MODIFY_HUB_MARKER_ICON, draggable: true }); break;
+        default: marker[hub_code] = new L.Marker(coord, { icon: HUB_MARKER_ICON }); break;
+    }
+    map.addLayer(marker[hub_code]);
 }
 
 
