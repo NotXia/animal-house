@@ -1,15 +1,20 @@
 let map_address_search, form_address_search;
 let map;
-let marker;
+let marker = {};
 const WEEKS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const TRANSLATE = { "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica" };
+let curr_mode = "";
+let hub_cache = {}
 
-const green_icon = new L.Icon({
+const HUB_MARKER_ICON = new L.Icon({
     iconUrl: "/img/sandrone.jfif",
     iconSize: [25, 25],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+    // iconAnchor: [12, 41],
+});
+const MODIFY_HUB_MARKER_ICON = new L.Icon({
+    iconUrl: "/img/santandrea.png",
+    iconSize: [25, 25],
+    // iconAnchor: [12, 41],
 });
 
 $(document).ready(async function() {
@@ -29,6 +34,59 @@ $(document).ready(async function() {
         focusMapOn(location.properties.lat, location.properties.lon);
     });
 
+
+    $("#hub-form").validate({
+        rules: {
+            code: { required: true, hubCode: true },
+            name: { required: true },
+            phone: { required: false, phoneNumber: true },
+            email: { required: false, email: true },
+            street: { required: true },
+            number: { required: true },
+            city: { required: true },
+            postalcode: { required: true }
+        },
+        errorPlacement: function(error, element) {
+            showError(element.attr("name"), error);
+        },
+        submitHandler: async function(form, event) {
+            event.preventDefault();
+
+            showLoading();
+
+            try {
+                let hub_data = getHubData();
+                let res_hub;
+
+                // Aggiornamento o creazione
+                switch (curr_mode) {
+                    case "modify":
+                        res_hub = await api_request({ 
+                            type: "PUT", url: `/hubs/${encodeURIComponent(hub_data.code)}`,
+                            data: hub_data
+                        });
+                        break;
+                }
+
+                hub_cache[res_hub.code] = res_hub;
+                loadHubData(hub_cache[res_hub.code]);
+                viewMode();
+            }
+            catch (err) {
+                if (err.status === 400) {
+                    showErrors(err.responseJSON);
+                }
+                else {
+                    console.log(err);
+                    // errorMode(err.responseJSON.message);
+                }
+            }
+
+            hideLoading();
+        }
+    });
+
+
     /* Barra di ricerca per autocompletamento indirizzo */
     form_address_search.on("select", async function (location) {
         let coord = new L.LatLng(location.properties.lat, location.properties.lon);
@@ -40,9 +98,12 @@ $(document).ready(async function() {
         $("#data-address-number").val(location.properties.housenumber ? location.properties.housenumber : "");
         $("#data-address-postalcode").val(location.properties.postcode ? location.properties.postcode : "");
 
-        if (marker) { map.removeLayer(marker); }
-        marker = new L.Marker(coord, { draggable:true, icon: green_icon});
-        map.addLayer(marker);
+        if (curr_mode == "modify") {
+            const hub_code = $("#data-code").val();
+            map.removeLayer(marker[hub_code]);
+            marker[hub_code] = new L.Marker(coord, { draggable:true, icon: MODIFY_HUB_MARKER_ICON });
+            map.addLayer(marker[hub_code]);
+        }
         
         if (!$("#data-code").val()) {
             $("#search-airport-spinner").show();
@@ -58,6 +119,13 @@ $(document).ready(async function() {
     })
 
 
+    $("#cancel-modify-button").on("click", function () {
+        const hub_code = $("#data-code").val();
+        viewMode();
+        clearFormData();
+        loadHubData(hub_cache[hub_code]);
+    })
+
     startMode();
 
     try {
@@ -67,8 +135,9 @@ $(document).ready(async function() {
         });
         
         for (const hub of hubs) {
+            hub_cache[hub.code] = hub;
             addHubToMenu(hub);
-            AddMarkerOn(hub.position.coordinates[0], hub.position.coordinates[1]);
+            addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
         }
         focusMapOn(hubs[0].position.coordinates[0], hubs[0].position.coordinates[1]);
     }
@@ -79,23 +148,33 @@ $(document).ready(async function() {
 
 
 function startMode() {
+    curr_mode = "start";
     $("#hub-form").hide();
 }
 
 function viewMode() {
+    curr_mode = "view";
     $("#hub-form").show();
     $("#enable-modify-button-container").show();
     $("#modify-button-container").hide();
     $("#modify-button").attr("type", "button");
     disableForm();
+    if (marker[$("#data-code").val()]) {
+        marker[$("#data-code").val()].dragging.disable();
+        marker[$("#data-code").val()].setIcon(HUB_MARKER_ICON);
+    }
 }
 
 function modifyMode() {
+    curr_mode = "modify";
     $("#hub-form").show();
     $("#enable-modify-button-container").hide();
     $("#modify-button-container").show();
     $("#modify-button").attr("type", "submit");
     enableForm();
+    $("#data-code").attr("readonly", true);
+    marker[$("#data-code").val()].dragging.enable();
+    marker[$("#data-code").val()].setIcon(MODIFY_HUB_MARKER_ICON);
 }
 
 function disableForm() {
@@ -111,7 +190,44 @@ function enableForm() {
 }
 
 
+function getHubData() {
+    let hub_data = {
+        code: $("#data-code").val(),
+        name: $("#data-name").val(),
+        phone: $("#data-phone").val() === "" ? undefined : $("#data-phone").val(),
+        email: $("#data-email").val() === "" ? undefined : $("#data-email").val(),
+        address: {
+            city: $("#data-address-city").val(),
+            street: $("#data-address-street").val(),
+            number: $("#data-address-number").val(),
+            postal_code: $("#data-address-postalcode").val()
+        },
+        position: {
+            type: "Point",
+            coordinates: [marker[$("#data-code").val()].getLatLng().lat, marker[$("#data-code").val()].getLatLng().lng]
+        },
+        opening_time: {}
+    };
+
+    for (const day of WEEKS) {
+        let opening_slots = []
+        let input_time_start = $(`#${day}-accordion-container > * input[name*=-time-start]`);
+        let input_time_end = $(`#${day}-accordion-container > * input[name*=-time-end]`);
+
+        for (let i=0; i<input_time_start.length; i++) {
+            opening_slots.push({
+                start: moment(input_time_start[i].value, "HH:mm").format(),
+                end: moment(input_time_end[i].value, "HH:mm").format(),
+            });
+        }
+        hub_data.opening_time[day] = opening_slots;
+    }
+
+    return hub_data;
+}
+
 function loadHubData(hub) {
+    $("#data-old-code").val(hub.code);
     $("#data-code").val(hub.code);
     $("#data-name").val(hub.name);
     $("#data-phone").val(hub.phone);
@@ -126,11 +242,17 @@ function loadHubData(hub) {
             addTimeSlotTo(day, slot.start, slot.end);
         }
     }
+
+    if (marker[hub.code]) {
+        map.removeLayer(marker[hub.code]);
+        addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
+    }
 }
 
-function clearHubData() {
+function clearFormData() {
     $("#hub-form").trigger("reset");
     emptyTimeSlots();
+    clearErrors();
 }
 
 
@@ -139,11 +261,11 @@ function focusMapOn(lat, lon) {
     map.flyTo([lat, lon], 16, {animate: true, duration: 0.5});
 }
 
-function AddMarkerOn(lat, lon) {
+function addMarkerAt(lat, lon, code) {
     let coord = new L.LatLng(lat, lon);
     
-    marker = new L.Marker(coord, { icon: green_icon});
-    map.addLayer(marker);
+    marker[code] = new L.Marker(coord, { icon: HUB_MARKER_ICON });
+    map.addLayer(marker[code]);
 }
 
 
@@ -197,10 +319,10 @@ function addHubToMenu(hub) {
     `);
 
     $(`#show-hub-${hub.code}`).on("click", function () {
-        clearHubData();
-        loadHubData(hub);
-        focusMapOn(hub.position.coordinates[0], hub.position.coordinates[1]);
         viewMode();
+        clearFormData();
+        loadHubData(hub_cache[hub.code]);
+        focusMapOn(hub_cache[hub.code].position.coordinates[0], hub_cache[hub.code].position.coordinates[1]);
     });
 }
 
@@ -240,14 +362,14 @@ function addTimeSlotTo(day_of_week, start_time, end_time, focus=false) {
         </div>
     `);
 
-    // Validazione intervalli
-    // $(`#data-${day_of_week}-${index}-time-start`).rules("add", { 
-    //     beforeTime: `#data-${day_of_week}-${index}-time-end`,
-    //     required: { depends: (_) => $(`#data-${day_of_week}-${index}-time-end`).val() || $(`#data-${day_of_week}-${index}-hub`).val() }
-    // });
-    // $(`#data-${day_of_week}-${index}-time-end`).on("change", function () {
-    //     $(`#data-${day_of_week}-${index}-time-start`).valid();
-    // });
+    //Validazione intervalli
+    $(`#data-${day_of_week}-${index}-time-start`).rules("add", { 
+        beforeTime: `#data-${day_of_week}-${index}-time-end`,
+        required: { depends: (_) => $(`#data-${day_of_week}-${index}-time-end`).val() || $(`#data-${day_of_week}-${index}-hub`).val() }
+    });
+    $(`#data-${day_of_week}-${index}-time-end`).on("change", function () {
+        $(`#data-${day_of_week}-${index}-time-start`).valid();
+    });
 
     // Bottone per eliminare la riga
     $(`#data-opening_time-${day_of_week}-${index}-delete`).on("click", function (e) { 
@@ -259,9 +381,32 @@ function addTimeSlotTo(day_of_week, start_time, end_time, focus=false) {
 
 /* Svuota il form degli slot lavorativi */
 function emptyTimeSlots() {
-    // time_slot_index = 0;
-
     for (const day of WEEKS) {
         $(`#${day}-accordion-container`).html("");
+    }
+}
+
+
+function showError(field, message) {
+    $(`#data-${field}-feedback`).html(message);
+    $(`#data-${field}-feedback`).show();
+}
+
+function showErrors(errors) {
+    clearErrors();
+    for (const error of errors) {
+        showError(error.field, error.message);
+    }
+}
+
+function clearError(field) {
+    $(`#data-${field}-feedback`).html("");
+    $(`#data-${field}-feedback`).hide();
+}
+
+function clearErrors() {
+    for (const error of $(`div[id*="-feedback"]`)) {
+        $(error).html("");
+        $(error).hide();
     }
 }

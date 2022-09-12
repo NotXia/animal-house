@@ -58,6 +58,7 @@
                             </div>
                                 
                             <form id="hub-form">
+                                <input type="hidden" name="data-old-code">
                                 <div class="container-fluid my-4">
                                     <div class="row">
                                         <div class="col-3">
@@ -113,29 +114,29 @@
                                         <div class="col-4">
                                             <div class="w-100">
                                                 <label for="data-address-street" class="fs-6 fw-semibold">Via</label>
-                                                <input id="data-address-street" type="text" class="form-control" name="address.street">
-                                                <div id="data-address-street-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <input id="data-address-street" type="text" class="form-control" name="street">
+                                                <div id="data-street-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                             </div>
                                         </div>
                                         <div class="col-2">
                                             <div class="w-100">
                                                 <label for="data-address-number" class="fs-6 fw-semibold">Numero</label>
-                                                <input id="data-address-number" type="text" class="form-control" name="address.number">
-                                                <div id="data-address-number-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <input id="data-address-number" type="text" class="form-control" name="number">
+                                                <div id="data-number-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                             </div>
                                         </div>
                                         <div class="col-4">
                                             <div class="w-100">
                                                 <label for="data-address-city" class="fs-6 fw-semibold">Città</label>
-                                                <input id="data-address-city" type="text" class="form-control" name="address.city">
-                                                <div id="data-address-city-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <input id="data-address-city" type="text" class="form-control" name="city">
+                                                <div id="data-city-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                             </div>
                                         </div>
                                         <div class="col-2">
                                             <div class="w-100">
                                                 <label for="data-address-postalcode" class="fs-6 fw-semibold">CAP</label>
                                                 <input id="data-address-postalcode" type="text" class="form-control" name="postalcode">
-                                                <div id="data-address-postalcode-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <div id="data-postalcode-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -158,11 +159,12 @@
                                                 <div id="modify-button-container">
                                                     <button id="modify-button" type="button" class="btn btn-outline-success">Salva modifica</button>
                                                     <button id="delete-button" type="button" class="btn btn-outline-danger">Elimina hub</button>
-                                                    <button id="cancel-button" type="button" class="btn btn-outline-secondary">Annulla modifiche</button>
+                                                    <button id="cancel-modify-button" type="button" class="btn btn-outline-secondary">Annulla modifiche</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </form>
                         </div>
