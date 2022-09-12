@@ -15,7 +15,7 @@ const green_icon = new L.Icon({
 $(document).ready(async function() {
     /* Inizializzazione barra di ricerca indirizzi */
     let map_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("map-search"), GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca indirizzo", bias: "it" });
-    let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Autocompleta  indirizzo", bias: "it" });
+    let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Autocompleta indirizzo", bias: "it" });
 
     /* Inizializzazione mappa */
     map = L.map('map').setView([0, 0], 13);
@@ -53,6 +53,13 @@ $(document).ready(async function() {
         }
     });
 
+    $("#enable-modify-button").on("click", function () {
+        modifyMode();
+    })
+
+
+    startMode();
+
     try {
         const hubs = await api_request({
             method: "GET", url: "/hubs/",
@@ -64,12 +71,44 @@ $(document).ready(async function() {
             AddMarkerOn(hub.position.coordinates[0], hub.position.coordinates[1]);
         }
         focusMapOn(hubs[0].position.coordinates[0], hubs[0].position.coordinates[1]);
-
     }
     catch (err) {
         console.error(err);
     }
 });
+
+
+function startMode() {
+    $("#hub-form").hide();
+}
+
+function viewMode() {
+    $("#hub-form").show();
+    $("#enable-modify-button-container").show();
+    $("#modify-button-container").hide();
+    $("#modify-button").attr("type", "button");
+    disableForm();
+}
+
+function modifyMode() {
+    $("#hub-form").show();
+    $("#enable-modify-button-container").hide();
+    $("#modify-button-container").show();
+    $("#modify-button").attr("type", "submit");
+    enableForm();
+}
+
+function disableForm() {
+    $("#hub-form input[type='text']").attr("readonly", true);
+    $("#hub-form input[type='time']").attr("readonly", true);
+    $("#hub-form button[id*='data-opening_time']").prop("disabled", true);
+}
+
+function enableForm() {
+    $("#hub-form input[type='text']").attr("readonly", false);
+    $("#hub-form input[type='time']").attr("readonly", false);
+    $("#hub-form button[id*='data-opening_time']").prop("disabled", false);
+}
 
 
 function loadHubData(hub) {
@@ -161,6 +200,7 @@ function addHubToMenu(hub) {
         clearHubData();
         loadHubData(hub);
         focusMapOn(hub.position.coordinates[0], hub.position.coordinates[1]);
+        viewMode();
     });
 }
 
@@ -195,7 +235,6 @@ function addTimeSlotTo(day_of_week, start_time, end_time, focus=false) {
                 <div class="col-12">
                     <div id="data-opening_time-${day_of_week}-${index}-time-start-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
                     <div id="data-opening_time-${day_of_week}-${index}-time-end-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
-                    <div id="data-opening_time-${day_of_week}-${index}-hub-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
                 </div>
             </div>
         </div>

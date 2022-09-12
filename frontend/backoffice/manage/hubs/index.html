@@ -46,120 +46,131 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-12 col-lg-8">
-
-                        <form id="hub-form">
-                            <div class="d-flex justify-content-center">
-
-                                <div class="w-100">
-                                    <div style="height: 18rem;" class="position-relative w-100 text-end">
-                                        <div class="position-absolute top-0 end-0 w-75 mt-1 me-1">
-                                            <div id="map-search" class="position-relative w-100" style="z-index: 1;"></div>
-                                        </div>
-                                        <div id="map" class="w-100 h-100 position-absolute top-0 start-0" style="z-index: 0;"></div>
-                                    </div>
-
-                                    <div class="container-fluid mt-4">
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <div class="w-100">
-                                                    <label for="data-code" class="fs-6 fw-semibold">
-                                                        Codice
-                                                        <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Ricercando il codice dell'aeroporto più vicino" aria-labelledby="arialabel-searching-airport">
-                                                            <div id="arialabel-searching-airport" class="visually-hidden">
-                                                                <p>Ricercando il codice dell'aeroporto più vicino.</p>
-                                                                <p>Verrà automaticamente compilato il codice dell'hub se non lo hai ancora fatto</p>
-                                                            </div>
-                                                            <span id="search-airport-spinner" style="display: none" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                        </span>
-                                                    </label>
-                                                    <input id="data-code" type="text" class="form-control" name="code">
-                                                    <div id="data-code-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-9">
-                                                <div class="w-100">
-                                                    <label for="data-name" class="fs-6 fw-semibold">Nome</label>
-                                                    <input id="data-name" type="text" class="form-control" name="name">
-                                                    <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="w-100">
-                                                    <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
-                                                    <input id="data-phone" type="text" class="form-control" name="phone">
-                                                    <div id="data-phone-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="w-100">
-                                                    <label for="data-email" class="fs-6 fw-semibold">Email</label>
-                                                    <input id="data-email" type="text" class="form-control" name="email">
-                                                    <div id="data-email-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mt-3">
-                                            <div class="col-12">
-                                                <div class="d-flex justify-content-center w-100">
-                                                    <div id="data-address" class="position-relative w-50"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <div class="w-100">
-                                                    <label for="data-address-street" class="fs-6 fw-semibold">Via</label>
-                                                    <input id="data-address-street" type="text" class="form-control" name="address.street">
-                                                    <div id="data-address-street-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-2">
-                                                <div class="w-100">
-                                                    <label for="data-address-number" class="fs-6 fw-semibold">Numero</label>
-                                                    <input id="data-address-number" type="text" class="form-control" name="address.number">
-                                                    <div id="data-address-number-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="w-100">
-                                                    <label for="data-address-city" class="fs-6 fw-semibold">Città</label>
-                                                    <input id="data-address-city" type="text" class="form-control" name="address.city">
-                                                    <div id="data-address-city-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                            <div class="col-2">
-                                                <div class="w-100">
-                                                    <label for="data-address-postalcode" class="fs-6 fw-semibold">CAP</label>
-                                                    <input id="data-address-postalcode" type="text" class="form-control" name="postalcode">
-                                                    <div id="data-address-postalcode-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mt-3">
-                                            <div class="col-12 col-lg-8 offset-lg-2">
-                                                <h2 class="form-check-label fs-6 fw-semibold">Orario lavorativo</h2>
-                                                <div id="data-opening_time-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
-                                                
-                                                <div class="accordion" id="opening_time-accordion"></div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
+                        <div class="d-flex justify-content-center">
+                            <div class="w-100">
+                            <div style="height: 18rem;" class="position-relative w-100 text-end">
+                                <div class="position-absolute top-0 end-0 w-75 mt-1 me-1">
+                                    <div id="map-search" class="position-relative w-100" style="z-index: 1;"></div>
                                 </div>
+                                <div id="map" class="w-100 h-100 position-absolute top-0 start-0" style="z-index: 0;"></div>
                             </div>
-                        </form>
-                        
+                                
+                            <form id="hub-form">
+                                <div class="container-fluid my-4">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <div class="w-100">
+                                                <label for="data-code" class="fs-6 fw-semibold">
+                                                    Codice
+                                                    <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Ricercando il codice più adatto" aria-labelledby="arialabel-searching-airport">
+                                                        <div id="arialabel-searching-airport" class="visually-hidden">
+                                                            <p>Ricercando il codice dell'aeroporto più vicino.</p>
+                                                            <p>Verrà automaticamente compilato il codice dell'hub se non lo hai ancora fatto</p>
+                                                        </div>
+                                                        <span id="search-airport-spinner" style="display: none" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    </span>
+                                                </label>
+                                                <input id="data-code" type="text" class="form-control" name="code">
+                                                <div id="data-code-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-9">
+                                            <div class="w-100">
+                                                <label for="data-name" class="fs-6 fw-semibold">Nome</label>
+                                                <input id="data-name" type="text" class="form-control" name="name">
+                                                <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="w-100">
+                                                <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
+                                                <input id="data-phone" type="text" class="form-control" name="phone">
+                                                <div id="data-phone-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="w-100">
+                                                <label for="data-email" class="fs-6 fw-semibold">Email</label>
+                                                <input id="data-email" type="text" class="form-control" name="email">
+                                                <div id="data-email-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-center w-100">
+                                                <div id="data-address" class="position-relative w-50"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="w-100">
+                                                <label for="data-address-street" class="fs-6 fw-semibold">Via</label>
+                                                <input id="data-address-street" type="text" class="form-control" name="address.street">
+                                                <div id="data-address-street-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="w-100">
+                                                <label for="data-address-number" class="fs-6 fw-semibold">Numero</label>
+                                                <input id="data-address-number" type="text" class="form-control" name="address.number">
+                                                <div id="data-address-number-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="w-100">
+                                                <label for="data-address-city" class="fs-6 fw-semibold">Città</label>
+                                                <input id="data-address-city" type="text" class="form-control" name="address.city">
+                                                <div id="data-address-city-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="w-100">
+                                                <label for="data-address-postalcode" class="fs-6 fw-semibold">CAP</label>
+                                                <input id="data-address-postalcode" type="text" class="form-control" name="postalcode">
+                                                <div id="data-address-postalcode-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-12 col-lg-8 offset-lg-2">
+                                            <h2 class="form-check-label fs-6 fw-semibold">Orario lavorativo</h2>
+                                            <div id="data-opening_time-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                            
+                                            <div class="accordion" id="opening_time-accordion"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-center">
+                                                <div id="enable-modify-button-container">
+                                                    <button id="enable-modify-button" type="button" class="btn btn-outline-dark">Abilita modifiche</button>
+                                                </div>
+                                                <div id="modify-button-container">
+                                                    <button id="modify-button" type="button" class="btn btn-outline-success">Salva modifica</button>
+                                                    <button id="delete-button" type="button" class="btn btn-outline-danger">Elimina hub</button>
+                                                    <button id="cancel-button" type="button" class="btn btn-outline-secondary">Annulla modifiche</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
+
     </div>
     
     <div id="loading-container"></div>
