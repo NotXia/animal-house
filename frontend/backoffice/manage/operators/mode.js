@@ -1,5 +1,6 @@
 import * as Form from "./form.js";
 import * as Error from "./error.js";
+import * as Utils from "/js/utilities.js";
 
 export let current;
 export const START = 0,
@@ -31,7 +32,7 @@ export function creation() {
     Form.resetButtons();
     $("#create-btn").attr("type", "submit");
     $("#data-enabled").prop("checked", true);
-    setReadOnly("#data-enabled");
+    Utils.setReadOnly("#data-enabled");
     $("#data-username").focus();
 }
 

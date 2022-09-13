@@ -42,7 +42,7 @@ $(document).ready(async function() {
             rules: {
                 username: { required: true },
                 password: {
-                    required: { depends: (_) => (Mode.current == "creation") },
+                    required: { depends: (_) => (Mode.current == Mode.CREATE) },
                     securePassword: true
                 },
                 email: { required: true, email: true },
