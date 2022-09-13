@@ -55,6 +55,9 @@ export function resetButtons() {
     }
 }
 
+/**
+ * Svuota tutti i campi del form
+ */
 export function resetForm() {
     $("#operator-form").trigger("reset");
     WorkingTimeHandler.emptyTimeSlots();
@@ -63,11 +66,15 @@ export function resetForm() {
 }
 
 
-/* Carica l'immagine di profilo sul server */
+/**
+ * Gestisce l'upload dell'immagine di profilo
+ * @returns Nome dell'immagine caricata
+ */
 async function uploadProfilePicture() {
     let uploaded_image = undefined;
 
     if ($("#data-picture")[0].files.length === 1) {
+        // Preparazione del payload della richiesta
         let upload_data = new FormData();
         upload_data.append("file0", $("#data-picture")[0].files[0]);
 
@@ -83,6 +90,10 @@ async function uploadProfilePicture() {
     return uploaded_image;
 }
 
+/**
+ * Aggrega i dati del form
+ * @returns Dati del form
+ */
 export async function getOperatorData() {
     let form_data = {
         username: $("#data-username").val(),
@@ -103,6 +114,10 @@ export async function getOperatorData() {
     return form_data;
 }
 
+/**
+ * Aggrega i dati dell'orario di lavoro
+ * @returns Dati dell'orario lavorativo
+ */
 function getFormOperatorWorkingTime() {
     let form_working_time = {};
 
@@ -129,7 +144,9 @@ function getFormOperatorWorkingTime() {
 }
 
 
-/* Carica i dati di un operatore */
+/**
+ * Carica i dati di un operatore nel form
+ */
 export function loadOperatorData(data) {
     resetForm();
 

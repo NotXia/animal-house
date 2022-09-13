@@ -1,4 +1,9 @@
 export class FileUpload {
+    /**
+     * Gestisce il caricamento di file sul server
+     * @param {FormData} files  File da caricare
+     * @returns Nome dei file caricati
+     */
     static async upload(files) {
         let uploaded_files = await api_request({
             method: "POST",

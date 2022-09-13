@@ -1,4 +1,6 @@
-/* Crea i checkbox per i servizi */
+/**
+ * Crea i checkbox per i servizi 
+ */
 export function createServicesCheckbox(services) {
     for (const service of services) {
         $("#services-fieldset").append(`

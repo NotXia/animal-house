@@ -1,6 +1,8 @@
 import { WEEKS, TRANSLATE } from "/js/utilities.js";
 
-/* Crea il form per l'orario lavorativo */
+/**
+ * Crea il form per l'orario lavorativo 
+ */
 export function createWorkingTimeForm() {
     for (const day of WEEKS) {
         $("#working_time-accordion").append(`
@@ -27,8 +29,10 @@ export function createWorkingTimeForm() {
     }
 }
 
+/**
+ * Crea un nuovo slot lavorativo per un giorno della settimana 
+ */
 let time_slot_index = 0; // Per differenziare i vari slot
-/* Crea un nuovo slot lavorativo per un giorno della settimana */
 export function addTimeSlotTo(day_of_week, start_time, end_time, hub_code, focus=false) {
     const index = time_slot_index;
     time_slot_index++;
@@ -88,10 +92,13 @@ export function addTimeSlotTo(day_of_week, start_time, end_time, hub_code, focus
         $(`#working_time-${day_of_week}-${index}`).remove(); 
     });
 
+    // Gestione eventuale focus sul form
     if (focus) { $(`#data-${day_of_week}-${index}-time-start`).focus(); }
 }
 
-/* Svuota il form degli slot lavorativi */
+/**
+ * Svuota il form degli slot lavorativi
+ * */ 
 export function emptyTimeSlots() {
     for (const day of WEEKS) {
         $(`#${day}-accordion-container`).html("");

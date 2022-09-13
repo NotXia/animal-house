@@ -1,7 +1,7 @@
 /**
  * Carica un HTML all'interno di un dato elemento
- * @param {*} destination   Elemento in cui caricare il file HTML
- * @param {*} source        File HTML
+ * @param {String/Jquery} destination   Elemento in cui caricare il file HTML
+ * @param {String}        source        File HTML
  * @returns {Promise}
  */
 export async function loader(destination, source) {

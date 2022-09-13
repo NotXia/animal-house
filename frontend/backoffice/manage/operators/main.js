@@ -12,7 +12,7 @@ import { api_request, getUsername } from "/js/auth.js";
 let NavbarHandler;
 let LoadingHandler;
 
-let operator_cache = {};
+let operator_cache = {}; // Mantiene i dati dell'operatore attualmente visualizzato
 
 // Estrazione valori dalla query dell'url
 const url_query = new Proxy(new URLSearchParams(window.location.search), {
@@ -29,7 +29,7 @@ $(document).ready(async function() {
         await NavbarHandler.render();
         Mode.start();
         
-        // Inizializza gli elementi mancanti del form
+        // Inizializza gli elementi del form
         try {
             const [permissions, services] = await Promise.all([
                 api_request({ type: "GET", url: `/users/permissions/` }),
@@ -44,6 +44,7 @@ $(document).ready(async function() {
             Mode.error("Non è stato possibile caricare la pagina");
         }
     
+
         $("#operator-form").validate({
             rules: {
                 username: { required: true },
@@ -89,7 +90,8 @@ $(document).ready(async function() {
                     catch (err) {
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
-                            default: Mode.error(err.responseJSON ? err.responseJSON.message : ""); break;
+                            case 409: Error.showErrors("Username già in uso"); break;
+                            default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
                         }
                     }
                 });
@@ -99,17 +101,16 @@ $(document).ready(async function() {
         /* Ricerca di un operatore */
         $("#search_user_form").submit(async function(e) {
             e.preventDefault();
-            $("#operator-form").show();
             const to_search_username = this.username.value;
             
             await LoadingHandler.wrap(async function() {
                 try {
-                    // Aggiornamento URL con query
-                    const new_url = new URL(window.location.href);
-                    new_url.searchParams.set("username", to_search_username);
-                    window.history.pushState("", "", new_url);
+                    // Aggiornamento query dell'URL
+                    const updated_url = new URL(window.location.href);
+                    updated_url.searchParams.set("username", to_search_username);
+                    window.history.pushState("", "", updated_url);
 
-                    // Ricerca e salvataggio operatore
+                    // Ricerca e caching operatore
                     const operator_data = await OperatorAPI.search(to_search_username);
                     operator_cache = operator_data;
                     
@@ -154,7 +155,7 @@ $(document).ready(async function() {
                 try {
                     await OperatorAPI.remove(operator_cache.username);
                 } catch (err) {
-                    Mode.error(err.responseJSON.message);
+                    Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore");
                 }
                 
                 Form.resetForm();
