@@ -7,6 +7,7 @@ import * as Form from "./form.js";
 import * as OperatorAPI from "./operatorAPI.js";
 import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
+import { api_request, getUsername } from "/js/auth.js";
 
 let NavbarHandler;
 let LoadingHandler;
@@ -88,7 +89,7 @@ $(document).ready(async function() {
                     catch (err) {
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
-                            default: Mode.error(err.responseJSON.message); break;
+                            default: Mode.error(err.responseJSON ? err.responseJSON.message : ""); break;
                         }
                     }
                 });

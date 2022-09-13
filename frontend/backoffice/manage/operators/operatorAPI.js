@@ -1,3 +1,5 @@
+import { api_request } from "/js/auth.js";
+
 export async function update(username, operator_data) {
     return await api_request({ 
         type: "PUT", url: `/users/operators/${encodeURIComponent(username)}`,
