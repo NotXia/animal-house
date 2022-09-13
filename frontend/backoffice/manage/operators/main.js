@@ -13,6 +13,11 @@ let LoadingHandler;
 
 let operator_cache = {};
 
+// Estrazione valori dalla query dell'url
+const url_query = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop)
+});
+
 $(document).ready(async function() {
     // Caricamento delle componenti esterne
     NavbarHandler = new Navbar("navbar-placeholder");
@@ -93,20 +98,27 @@ $(document).ready(async function() {
         /* Ricerca di un operatore */
         $("#search_user_form").submit(async function(e) {
             e.preventDefault();
-            $("#operator-form").show(); 
+            $("#operator-form").show();
             const to_search_username = this.username.value;
             
             await LoadingHandler.wrap(async function() {
                 try {
+                    // Aggiornamento URL con query
+                    const new_url = new URL(window.location.href);
+                    new_url.searchParams.set("username", to_search_username);
+                    window.history.pushState("", "", new_url);
+
+                    // Ricerca e salvataggio operatore
                     const operator_data = await OperatorAPI.search(to_search_username);
                     operator_cache = operator_data;
                     
+                    // Visualizzazione dati
                     Form.loadOperatorData(operator_data);
                     Mode.view();
                 }
                 catch (err) {
-                    console.log(err);
-                    Mode.error(err.responseJSON ? err.responseJSON.message : "Utente inesistente");
+                    if (err.status === 400) { Mode.error("Utente inesistente"); }
+                    else { Mode.error("Si è verificato un errore"); }
                 }
             });
         });
@@ -148,5 +160,11 @@ $(document).ready(async function() {
                 Mode.start();
             });
         });
+
+        // Ricerca eventuale utente richiesto dalla query
+        if (url_query.username) {
+            $("#search-user-input").val(url_query.username);
+            $("#search_user_form").submit();
+        }
     });
 });
