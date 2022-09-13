@@ -48,7 +48,7 @@
     
                     <div class="col-12">
                         <div class="d-flex justify-content-center">
-                            <div id="global-feedback" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></div>
+                            <label data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></label>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                                     <div class="w-100">
                                         <label for="data-username" class="fs-6 fw-semibold">Username</label>
                                         <input id="data-username" type="text" class="form-control" name="username">
-                                        <div id="data-username-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                        <label for="data-username" data-feedback-for="username" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                                     <div class="w-100">
                                         <label for="data-password" class="fs-6 fw-semibold">Password</label>
                                         <input id="data-password" type="password" class="form-control" name="password">
-                                        <div id="data-password-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                        <label for="data-password" data-feedback-for="password" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@
                                     <div class="w-100">
                                         <label for="data-email" class="fs-6 fw-semibold">Email</label>
                                         <input id="data-email" type="email" class="form-control" name="email">
-                                        <div id="data-email-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                        <label for="data-email" data-feedback-for="email" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -95,7 +95,7 @@
                                     <div class="w-100">
                                         <label for="data-name" class="fs-6 fw-semibold">Nome</label>
                                         <input id="data-name" type="text" class="form-control" name="name">
-                                        <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                        <label for="data-name" data-feedback-for="name" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -104,7 +104,7 @@
                                     <div class="w-100">
                                         <label for="data-surname" class="fs-6 fw-semibold">Cognome</label>
                                         <input id="data-surname" type="text" class="form-control" name="surname">
-                                        <div id="data-surname-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                        <label for="data-surname" data-feedback-for="surname" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +126,7 @@
                                             <label class="form-check-label" for="data-gender-Altro">Altro</label>
                                         </div>
                                     </div>
-                                    <div id="data-gender-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
+                                    <label for="data-gender" data-feedback-for="gender" class="invalid-feedback d-block text-center" aria-live="polite"></label>
                                 </fieldset>
                             </div>
                         </div>
@@ -151,7 +151,7 @@
                             <div class="w-100">
                                 <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
                                 <input id="data-phone" type="tel" class="form-control" name="phone">
-                                <div id="data-phone-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                <label for="data-phone" data-feedback-for="phone" class="invalid-feedback d-block" aria-live="polite"></label>
                             </div>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                             <div class="w-100">
                                 <label for="data-role" class="fs-6 fw-semibold">Ruolo</label>
                                 <input id="data-role" type="text" class="form-control" name="role">
-                                <div id="data-role-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                <label for="data-role" data-feedback-for="role" class="invalid-feedback d-block" aria-live="polite"></label>
                             </div>
                         </div>
                     </div>
@@ -174,7 +174,6 @@
                             <div class="form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="data-enabled" name="enabled">
                                 <label class="form-check-label" for="data-enabled">abilitato</label>
-                                <div id="data-enabled-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                             </div>
                         </fieldset>
                     </div>
@@ -185,14 +184,13 @@
                         <fieldset id="services-fieldset">
                             <legend class="fs-6 fw-semibold">Servizi</legend>
                         </fieldset>
-                        <div id="data-services-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
                     </div>
                 </div>
 
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
                         <h2 class="form-check-label fs-6 fw-semibold">Orario lavorativo</h2>
-                        <div id="data-working_time-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                        <label data-feedback-for="working_time" class="invalid-feedback d-block" aria-live="polite"></label>
                         
                         <div class="accordion" id="working_time-accordion"></div>
                     </div>

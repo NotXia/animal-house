@@ -1,5 +1,5 @@
 import * as WorkingTimeHandler from "./view/working_time.js";
-import * as Error from "./error.js";
+import {Error} from "../../import/Error.js";
 import { setReadOnly, removeReadOnly } from "/js/utilities.js";
 import * as Mode from "./mode.js";
 import { FileUpload } from "/admin/import/FileUpload.js";

@@ -34,36 +34,38 @@ export function addTimeSlotTo(day_of_week, start_time, end_time, hub_code, focus
     time_slot_index++;
 
     $(`#${day_of_week}-accordion-container`).append(`
-        <div class="row mb-1" id="working_time-${day_of_week}-${index}">
-            <div class="col-7 col-lg-5 offset-lg-1">
-                <div class="d-flex justify-content-center">
-                    <div class="w-50">
-                        <label for="data-${day_of_week}-${index}-time-start">Inizio</label>
-                        <input type="time" class="form-control" name="working_time-${day_of_week}-${index}-time-start" id="data-${day_of_week}-${index}-time-start" value="${start_time ? moment(start_time).format("HH:mm") : ""}">
+        <div id="working_time-${day_of_week}-${index}">
+            <div class="row mb-1">
+                <div class="col-7 col-lg-5 offset-lg-1">
+                    <div class="d-flex justify-content-center">
+                        <div class="w-50">
+                            <label for="data-${day_of_week}-${index}-time-start">Inizio</label>
+                            <input type="time" class="form-control" name="working_time-${day_of_week}-${index}-time-start" id="data-${day_of_week}-${index}-time-start" value="${start_time ? moment(start_time).format("HH:mm") : ""}">
+                        </div>
+                        <div class="w-50">
+                            <label for="data-${day_of_week}-${index}-time-end">Fine</label>
+                            <input type="time" class="form-control" name="working_time-${day_of_week}-${index}-time-end" id="data-${day_of_week}-${index}-time-end" value="${end_time ? moment(end_time).format("HH:mm") : ""}">
+                        </div>
                     </div>
-                    <div class="w-50">
-                        <label for="data-${day_of_week}-${index}-time-end">Fine</label>
-                        <input type="time" class="form-control" name="working_time-${day_of_week}-${index}-time-end" id="data-${day_of_week}-${index}-time-end" value="${end_time ? moment(end_time).format("HH:mm") : ""}">
+                </div>
+                <div class="col-4 col-lg-4">
+                    <div>
+                        <label for="data-${day_of_week}-${index}-hub">Hub</label>
+                        <input type="text" class="form-control" name="working_time-${day_of_week}-${index}-hub" id="data-${day_of_week}-${index}-hub" value="${hub_code}">
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <button type="button" class="btn-close" aria-label="Cancella riga" id="data-working_time-${day_of_week}-${index}-delete" name="working_time-delete"></button>
                     </div>
                 </div>
             </div>
-            <div class="col-4 col-lg-4">
-                <div>
-                    <label for="data-${day_of_week}-${index}-hub">Hub</label>
-                    <input type="text" class="form-control" name="working_time-${day_of_week}-${index}-hub" id="data-${day_of_week}-${index}-hub" value="${hub_code}">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label for="data-${day_of_week}-${index}-time-start" data-feedback-for="working_time-${day_of_week}-${index}-time-start" class="invalid-feedback d-block text-center" aria-live="polite"></label>
+                    <label for="data-${day_of_week}-${index}-time-end" data-feedback-for="working_time-${day_of_week}-${index}-time-end" class="invalid-feedback d-block text-center" aria-live="polite"></label>
+                    <label for="data-${day_of_week}-${index}-hub" data-feedback-for="working_time-${day_of_week}-${index}-hub" class="invalid-feedback d-block text-center" aria-live="polite"></label>
                 </div>
-            </div>
-            <div class="col-1">
-                <div class="d-flex justify-content-center align-items-center h-100">
-                    <button type="button" class="btn-close" aria-label="Cancella riga" id="data-working_time-${day_of_week}-${index}-delete" name="working_time-delete"></button>
-                </div>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-12">
-                <div id="data-working_time-${day_of_week}-${index}-time-start-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
-                <div id="data-working_time-${day_of_week}-${index}-time-end-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
-                <div id="data-working_time-${day_of_week}-${index}-hub-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
             </div>
         </div>
     `);

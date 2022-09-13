@@ -1,5 +1,5 @@
 import * as Form from "./form.js";
-import * as Error from "./error.js";
+import {Error} from "../../import/Error.js";
 import * as Utils from "/js/utilities.js";
 
 export let current;
@@ -66,5 +66,5 @@ export function modify() {
 export function error(message) {
     current = ERROR;
     start();
-    $("#global-feedback").text(message);
+    Error.showError("global", message);
 }

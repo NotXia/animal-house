@@ -2,7 +2,7 @@ import * as WorkingTimeHandler from "./view/working_time.js";
 import * as PermissionsHandler from "./view/permissions.js";
 import * as ServicesHandler from "./view/services.js";
 import * as Mode from "./mode.js";
-import * as Error from "./error.js";
+import {Error} from "../../import/Error.js";
 import * as Form from "./form.js";
 import * as OperatorAPI from "./operatorAPI.js";
 import { Navbar } from "/admin/import/Navbar.js";
