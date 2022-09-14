@@ -1,0 +1,23 @@
+<div style="width: 100%; text-align: center; font-family: Arial; padding: 2rem 0 2rem 0;">
+    <div>
+        <img style="height: 8rem;" src="https://site212209.tw.cs.unibo.it/profiles/images/logo.png" alt="Logo Animal House"/>
+    </div>
+
+    <h1 style="font-size: 2rem">VERIFICA ACCOUNT</h1>
+    <div style="text-align: left; font-size: 1rem">
+        <p style="margin-bottom: 1rem">Ciao {{name}}, ecco il nuovo link per verificare il tuo indirizzo email.</p>
+    </div>
+
+    <div>
+        <a href="{{verification_url}}" style="text-decoration: none;">
+            <div style="margin: auto; width: fit-content; padding: 0.5rem 2rem 0.5rem 2rem; background-color: #f83131; border: 1px solid #da0303; border-radius: 2rem; color: white; font-size: 1rem;">
+                Verifica email
+            </div>
+        </a>
+
+        <div style="margin-top: 1rem;">
+            <p style="margin: 0;">Oppure utilizza questo link</p>
+            <a href="{{verification_url}}" style="text-decoration: none;">{{verification_url}}</a>
+        </div>
+    </div>
+</div>

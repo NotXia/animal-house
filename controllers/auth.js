@@ -155,5 +155,6 @@ function logoutController(req, res) {
 module.exports = { 
     login: loginController,
     refresh: refreshController,
-    logout: logoutController
+    logout: logoutController,
+    createTokens: createTokens,
 }

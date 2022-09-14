@@ -581,10 +581,10 @@ paths:
           description: "Internal server error"
 
   /users/customers/enable-me:
-    get:
+    put:
       tags:
       - "Clienti"
-      summary: "Ricerca di un operatore"
+      summary: "Attivazione utenza cliente"
       description: |
         Gestisce l'attivazione dell'utenza di un cliente.
 
@@ -604,9 +604,33 @@ paths:
           description: "Utenza già attiva"
           schema:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utenza inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
 
+  /users/customers/{username}/verification-mail:
+    get:
+      tags:
+      - "Clienti"
+      summary: "Invio email verifica account"
+      description: |
+        Gestisce il (ri)invio della mail di verifica dell'account del cliente.
+      responses:
+        204:
+          description: "Inviato con successo"
+        403:
+          description: "Utenza già attiva"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utenza inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
 
 definitions:
 
