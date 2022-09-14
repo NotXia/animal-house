@@ -37,7 +37,9 @@
     </div>
 </nav>
 
-<script>
+<script type="module">
+    import {api_request, getUsername} from "/js/auth.js";
+
     $(document).ready(async function() {
         try {
             const user = await api_request({ 
