@@ -11,7 +11,7 @@ export function removeReadOnly(selector) {
     $(selector).attr("aria-readonly", false);
 }
 
-function base64(file, header=true) { 
+export function base64(file, header=false) { 
     return new Promise(function (resolve, reject) {
         const reader = new FileReader();
         reader.readAsDataURL(file);

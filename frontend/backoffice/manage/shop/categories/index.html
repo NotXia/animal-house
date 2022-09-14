@@ -9,14 +9,10 @@
     <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
     <script src="/js/form-validation.js"></script>
-    <script src="/js/utilities.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link href="/css/style.css" rel="stylesheet">
-    <script src="/js/auth.js"></script>
-    <script src="/js/utilities.js"></script>
-    <script src="/admin/templates/loader.js"></script>
-    <script src="./main.js"></script>
-    <script>
+    <script type="module">
+        import {isAuthenticated, isOperator} from "/js/auth.js";
         isAuthenticated().then(async function (is_auth) {
             if (!is_auth) { window.location.href = "/admin/login.html"; }
             if (!await isOperator()) { window.location.href = "/"; }
@@ -94,7 +90,7 @@
                                 <div class="col-12 col-md-8 offset-md-2">
                                     <label for="data-name" class="fs-6 fw-semibold">Nome</label>
                                     <input id="data-name" type="text" class="form-control" name="name" aria-label="Nome della categoria">
-                                    <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                    <label for="data-name" data-feedback-for="name" class="invalid-feedback d-block" aria-live="polite"></label>
                                 </div>
                             </div>
                             <div class="row">
@@ -149,13 +145,6 @@
     <div id="loading-container"></div>
 </body>
 
-<script>
-    $(document).ready(async function () {
-        // Caricamento delle componenti esterne
-        await Promise.all([loadLoading($("#loading-container")), loadNavbar($("#navbar-placeholder"))]);
-
-        hideLoading();
-    });
-</script>
+<script type="module" src="./main.js"></script>
 
 </html>
