@@ -122,28 +122,28 @@
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-8 col-md-8">
+                                            <div class="col-8 col-md-4">
                                                 <div class="w-100">
                                                     <label for="data-address-street" class="fs-6 fw-semibold">Via</label>
                                                     <input id="data-address-street" type="text" class="form-control" name="street">
                                                     <label for="data-address-street" data-feedback-for="street" class="invalid-feedback d-block" aria-live="polite"></label>
                                                 </div>
                                             </div>
-                                            <div class="col-4 col-md-4">
+                                            <div class="col-4 col-md-2">
                                                 <div class="w-100">
                                                     <label for="data-address-number" class="fs-6 fw-semibold">Numero</label>
                                                     <input id="data-address-number" type="text" class="form-control" name="number">
                                                     <label for="data-address-number" data-feedback-for="number" class="invalid-feedback d-block" aria-live="polite"></label>
                                                 </div>
                                             </div>
-                                            <div class="col-6 col-md-6">
+                                            <div class="col-6 col-md-4">
                                                 <div class="w-100">
                                                     <label for="data-address-city" class="fs-6 fw-semibold">Città</label>
                                                     <input id="data-address-city" type="text" class="form-control" name="city">
                                                     <label for="data-address-city" data-feedback-for="city" class="invalid-feedback d-block" aria-live="polite"></label>
                                                 </div>
                                             </div>
-                                            <div class="col-6 col-md-6">
+                                            <div class="col-6 col-md-2">
                                                 <div class="w-100">
                                                     <label for="data-address-postalcode" class="fs-6 fw-semibold">CAP</label>
                                                     <input id="data-address-postalcode" type="text" class="form-control" name="postalcode">
@@ -172,7 +172,7 @@
                                                     </div>
                                                     <div id="modify-button-container">
                                                         <button id="modify-button" type="button" class="btn btn-outline-success">Salva modifica</button>
-                                                        <button id="delete-button" type="button" class="btn btn-outline-danger">Elimina hub</button>
+                                                        <button id="start-delete-button" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-hub">Elimina hub</button>
                                                         <button id="cancel-modify-button" type="button" class="btn btn-outline-secondary">Annulla modifiche</button>
                                                     </div>
                                                 </div>
@@ -183,7 +183,6 @@
                                     </div>
                                 </div>
                                 
-                                
                             </div>
                         </div>
                     </div>
@@ -192,6 +191,23 @@
         </main>
 
     </div>
+
+    <div class="modal fade" id="modal-delete-hub" tabindex="-1" aria-labelledby="modal-delete-hub-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modal-delete-hub-label">Conferma cancellazione</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-delete-hub-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+              <button id="delete-button" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancella hub</button>
+            </div>
+          </div>
+        </div>
+      </div>
     
     <div id="loading-container"></div>
 </body>

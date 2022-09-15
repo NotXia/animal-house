@@ -3,6 +3,7 @@ import * as Mode from "./mode.js"
 let map;
 let marker = {}; // Associa hub con il suo marker
 let tmp_marker = null;
+export const CENTER = [42.74378309880694, 12.733855832349574];
 
 const HUB_MARKER_ICON = new L.Icon({
     iconUrl: "/img/sandrone.jfif",
@@ -37,6 +38,10 @@ export function init() {
  */
 export function focusAt(lat, lon, zoom=16) {
     map.flyTo([lat, lon], zoom, {animate: true, duration: 0.5});
+}
+
+export function focusCenter() {
+    focusAt(CENTER[0], CENTER[1], 5);
 }
 
 /**

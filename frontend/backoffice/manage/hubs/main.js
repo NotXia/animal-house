@@ -140,6 +140,31 @@ $(document).ready(async function() {
             showHub(hub_code);
         });
 
+        $("#start-delete-button").on("click", function () {
+            $("#modal-delete-hub-body").text(`Stai cancellando l'hub ${selected_hub}.`);
+        });
+
+        $("#delete-button").on("click", async function () {
+            try {
+                await HubAPI.remove(selected_hub);
+
+                // Aggiornamento mappa
+                Map.removeMarker(selected_hub);
+                Map.focusCenter();
+
+                // Aggiornamento menu
+                delete hub_cache[selected_hub];
+                HubMenuHandler.render(Object.values(hub_cache));
+
+                Mode.start();
+            } catch (err) {
+                switch (err.status) {
+                    case 400: Error.showErrors(err.responseJSON); break;
+                    default: console.log(err); break;
+                }
+            }
+        });
+
         $("#start-create-button").on("click", function () {
             // Deseleziona l'hub corrente
             if (selected_hub) {
@@ -149,8 +174,8 @@ $(document).ready(async function() {
 
             Form.clearFormData();
             Mode.create();
-            Map.addTempMarkerAt(42.74378309880694, 12.733855832349574);
-            Map.focusAt(42.74378309880694, 12.733855832349574, 5); // Centra sull'Italia
+            Map.addTempMarkerAt(Map.CENTER[0], Map.CENTER[1]);
+            Map.focusCenter();
         });
 
 

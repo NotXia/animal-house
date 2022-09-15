@@ -22,3 +22,9 @@ export async function create(hub_data) {
         data: JSON.stringify(hub_data)
     });
 }
+
+export async function remove(hub_code) {
+    await api_request({
+        type: "DELETE", url: `/hubs/${hub_code}`
+    });
+}
