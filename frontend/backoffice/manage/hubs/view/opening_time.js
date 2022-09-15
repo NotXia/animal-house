@@ -36,7 +36,7 @@ export function addTimeSlotTo(day_of_week, start_time, end_time, focus=false) {
     $(`#${day_of_week}-accordion-container`).append(`
         <div id="opening_time-${day_of_week}-${index}">
             <div class="row mb-1">
-                <div class="col-12 col-lg-8 offset-lg-2">
+                <div class="col-11 col-lg-8 offset-lg-2">
                     <div class="d-flex justify-content-center">
                         <div class="w-50">
                             <label for="data-${day_of_week}-${index}-time-start">Inizio</label>

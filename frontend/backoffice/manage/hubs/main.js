@@ -83,6 +83,7 @@ $(document).ready(async function() {
 
         /* Barra di ricerca per autocompletamento indirizzo */
         form_address_search.on("select", async function (location) {
+            if (!location) { return; }
             let coord = new L.LatLng(location.properties.lat, location.properties.lon);
 
             // Autocompletamento indirizzo
