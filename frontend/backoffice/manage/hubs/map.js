@@ -6,19 +6,16 @@ let tmp_marker = null;
 export const CENTER = {lat: 42.744388161339, lon: 12.0809380292276}
 
 const HUB_MARKER_ICON = new L.Icon({
-    iconUrl: "/img/sandrone.jfif",
-    iconSize: [25, 25],
-    // iconAnchor: [12, 41],
+    iconUrl: "/img/markers/shop.png",
+    iconSize: [25, 25]
 });
 const MODIFY_HUB_MARKER_ICON = new L.Icon({
-    iconUrl: "/img/santandrea.png",
-    iconSize: [25, 25],
-    // iconAnchor: [12, 41],
+    iconUrl: "/img/markers/shop_orange.png",
+    iconSize: [25, 25]
 });
 const CREATE_HUB_MARKER_ICON = new L.Icon({
-    iconUrl: "/img/lisa.jpg",
-    iconSize: [25, 25],
-    // iconAnchor: [12, 41],
+    iconUrl: "/img/markers/building.png",
+    iconSize: [25, 25]
 });
 
 
