@@ -16,18 +16,15 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    <script src="/js/utilities.js"></script>
-    <script src="/js/auth.js"></script>
-    <script src="/js/keys.js"></script>
-    <script src="/admin/templates/loader.js"></script>
-    <script>
+    <script type="module">
+        import {isAuthenticated, isOperator} from "/js/auth.js";
         isAuthenticated().then(async function (is_auth) { 
             if (!is_auth) { window.location.href = "/admin/login.html"; } 
             if (!await isOperator()) { window.location.href = "/"; } 
         });
     </script>
     
-    <title></title>
+    <title>Gestione hub</title>
 </head>
 <body>
     <div class="d-lg-flex flex-column vh-100">
@@ -73,14 +70,14 @@
                                                     </span>
                                                 </label>
                                                 <input id="data-code" type="text" class="form-control" name="code">
-                                                <div id="data-code-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-code" data-feedback-for="code" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                         <div class="col-9">
                                             <div class="w-100">
                                                 <label for="data-name" class="fs-6 fw-semibold">Nome</label>
                                                 <input id="data-name" type="text" class="form-control" name="name">
-                                                <div id="data-name-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-name" data-feedback-for="name" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                     </div>
@@ -90,14 +87,14 @@
                                             <div class="w-100">
                                                 <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
                                                 <input id="data-phone" type="text" class="form-control" name="phone">
-                                                <div id="data-phone-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-phone" data-feedback-for="phone" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="w-100">
                                                 <label for="data-email" class="fs-6 fw-semibold">Email</label>
                                                 <input id="data-email" type="text" class="form-control" name="email">
-                                                <div id="data-email-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-email" data-feedback-for="email" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                     </div>
@@ -114,28 +111,28 @@
                                             <div class="w-100">
                                                 <label for="data-address-street" class="fs-6 fw-semibold">Via</label>
                                                 <input id="data-address-street" type="text" class="form-control" name="street">
-                                                <div id="data-street-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-address-street" data-feedback-for="street" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                         <div class="col-2">
                                             <div class="w-100">
                                                 <label for="data-address-number" class="fs-6 fw-semibold">Numero</label>
                                                 <input id="data-address-number" type="text" class="form-control" name="number">
-                                                <div id="data-number-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-address-number" data-feedback-for="number" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                         <div class="col-4">
                                             <div class="w-100">
                                                 <label for="data-address-city" class="fs-6 fw-semibold">Città</label>
                                                 <input id="data-address-city" type="text" class="form-control" name="city">
-                                                <div id="data-city-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-address-city" data-feedback-for="city" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                         <div class="col-2">
                                             <div class="w-100">
                                                 <label for="data-address-postalcode" class="fs-6 fw-semibold">CAP</label>
                                                 <input id="data-address-postalcode" type="text" class="form-control" name="postalcode">
-                                                <div id="data-postalcode-feedback" class="invalid-feedback d-block" aria-live="polite"></div>
+                                                <label for="data-address-postalcode" data-feedback-for="postalcode" class="invalid-feedback d-block" aria-live="polite"></label>
                                             </div>
                                         </div>
                                     </div>
@@ -177,45 +174,6 @@
     <div id="loading-container"></div>
 </body>
 
-<script src="./main.js"></script>
-<script>
-    $(document).ready(async function() {
-        // Caricamento delle componenti esterne
-        await Promise.all([ loadLoading($("#loading-container")), loadNavbar($("#navbar-placeholder")) ]);
-
-        // Inizializza tooltip
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-
-        createWorkingTimeForm();
-    });
-
-        /* Crea il form per l'orario lavorativo */
-    function createWorkingTimeForm() {
-        for (const day of WEEKS) {
-            $("#opening_time-accordion").append(`
-                <div class="accordion-item">
-                    <h3 class="accordion-header" id="${day}-heading">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${day}-collapse" aria-expanded="false" aria-controls="${day}-collapse">
-                            ${TRANSLATE[day]}
-                        </button>
-                    </h3>
-                    <div id="${day}-collapse" class="accordion-collapse collapse" aria-labelledby="${day}-heading" data-bs-parent="#opening_time-accordion">
-                        <div class="accordion-body">
-                            <div id="${day}-accordion-container" class="container"></div>
-                            <div class="d-flex justify-content-center mb-2">
-                                <button type="button" class="btn btn-outline-success" id="data-opening_time-${day}-add_slot" aria-label="Aggiungi slot lavorativo per ${TRANSLATE[day]}"><span class="button-icon">+</span></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `);
-
-            $(`#data-opening_time-${day}-add_slot`).on("click", function (e) {
-                addTimeSlotTo(day, "", "", "", focus=true);
-            });
-        }
-    }
-</script>
+<script type="module" src="./main.js"></script>
 
 </html>
