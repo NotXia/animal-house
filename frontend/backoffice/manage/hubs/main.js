@@ -121,13 +121,23 @@ $(document).ready(async function() {
                 // Autocompletamento IATA in modalità creazione
                 if (!$("#data-code").val()) {
                     $("#search-airport-spinner").show();
+                    $("#search-airport-error").hide();
                     Airport.getNearestAirportIATA(coord.lat, coord.lng, location.properties.country).then(function (iata) {
-                        if (!$("#data-code").val()) { $("#data-code").val(iata) }
+                        if (!$("#data-code").val()) { 
+                            if (!iata) { $("#search-airport-error").show(); }
+                            else { $("#data-code").val(iata); }
+                        }
                         $("#search-airport-spinner").hide();
                     });
                 }
             }
         });
+
+        $("#data-code").on("input", function () {
+            // Nasconde gli elementi dell'autocompletamento IATA
+            $("#search-airport-error").hide();
+            $("#search-airport-spinner").hide();
+        })
 
 
         $("#enable-modify-button").on("click", function () {
@@ -233,6 +243,7 @@ function showHub(hub_code) {
 
     Form.clearFormData();
     Form.loadHubData(hub);
+    $("#search-airport-error").hide();
 
     Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
     Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]);
