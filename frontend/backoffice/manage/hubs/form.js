@@ -2,18 +2,6 @@ import {Error} from "/admin/import/Error.js";
 import * as OpeningTime from "./view/opening_time.js";
 import {WEEKS} from "/js/utilities.js";
 
-export function disableForm() {
-    $("#hub-form input[type='text']").attr("readonly", true);
-    $("#hub-form input[type='time']").attr("readonly", true);
-    $("#hub-form button[id*='data-opening_time']").prop("disabled", true);
-}
-
-export function enableForm() {
-    $("#hub-form input[type='text']").attr("readonly", false);
-    $("#hub-form input[type='time']").attr("readonly", false);
-    $("#hub-form button[id*='data-opening_time']").prop("disabled", false);
-}
-
 
 /**
  * Estrae i dati dell'hub inseriti nel form
@@ -72,6 +60,32 @@ export function fillAddress(address) {
     $("#data-address-street").val(address.street);
     $("#data-address-number").val(address.number);
     $("#data-address-postalcode").val(address.postal_code);
+}
+
+export function disableForm() {
+    $("#hub-form input[type='text']").attr("readonly", true);
+    $("#hub-form input[type='time']").attr("readonly", true);
+    $("#hub-form button[id*='data-opening_time']").prop("disabled", true);
+}
+
+export function enableForm() {
+    $("#hub-form input[type='text']").attr("readonly", false);
+    $("#hub-form input[type='time']").attr("readonly", false);
+    $("#hub-form button[id*='data-opening_time']").prop("disabled", false);
+}
+
+export function disableAddressInput() {
+    $("#data-address-city").prop("disabled", true);
+    $("#data-address-street").prop("disabled", true);
+    $("#data-address-number").prop("disabled", true);
+    $("#data-address-postalcode").prop("disabled", true);
+}
+
+export function enableAddressInput() {
+    $("#data-address-city").prop("disabled", false);
+    $("#data-address-street").prop("disabled", false);
+    $("#data-address-number").prop("disabled", false);
+    $("#data-address-postalcode").prop("disabled", false);
 }
 
 export function clearFormData() {

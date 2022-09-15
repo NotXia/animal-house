@@ -24,7 +24,7 @@ $(document).ready(async function() {
 
         /* Inizializzazione barra di ricerca indirizzi */
         let map_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("map-search"), GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca indirizzo", bias: "it" });
-        let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Autocompleta indirizzo", bias: "it" });
+        let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Indirizzo", bias: "it" });
 
         // Inizializzazione mappa
         Map.init();
@@ -92,6 +92,7 @@ $(document).ready(async function() {
                 number: location.properties.housenumber ? location.properties.housenumber : "",
                 postal_code: location.properties.postcode ? location.properties.postcode : ""
             });
+            Form.enableAddressInput();
 
             Map.focusAt(location.properties.lat, location.properties.lon);
             
