@@ -1,7 +1,8 @@
 import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
 import { Error } from "/admin/import/Error.js";
-import * as OpeningTime from "./view/opening_time.js";
+import * as OpeningTime from "./view/openingTime.js";
+import * as HubMenuHandler from "./view/hubMenu.js";
 import * as Map from "./map.js";
 import * as Airport from "./iataCode.js";
 import * as Form from "./form.js";
@@ -40,6 +41,8 @@ $(document).ready(async function() {
 
         OpeningTime.createOpeningTimeForm();
 
+        HubMenuHandler.init(showHub)
+
         $("#hub-form").validate({
             rules: {
                 code: { required: true, hubCode: true },
@@ -63,16 +66,24 @@ $(document).ready(async function() {
                         let res_hub;
 
                         switch (Mode.current) {
-                            case Mode.MODIFY: res_hub = await HubAPI.modify(selected_hub, hub_data); break;
+                            case Mode.MODIFY: 
+                                res_hub = await HubAPI.modify(selected_hub, hub_data);
+                                hub_cache[res_hub.code] = res_hub;
+                                HubMenuHandler.updateHubMenu(res_hub);
+                                break;
+                            case Mode.CREATE: 
+                                res_hub = await HubAPI.create(hub_data);
+                                hub_cache[res_hub.code] = res_hub;
+                                HubMenuHandler.render(Object.values(hub_cache));
+                                break;
                         }
-
-                        hub_cache[res_hub.code] = res_hub;
-                        updateHubMenu(res_hub);
-                        showHub(hub_cache[res_hub.code]);
+                        
+                        showHub(res_hub.code);
                     }
                     catch (err) {
                         switch (err.status) {
-                            case 400: showErrors(err.responseJSON); break;
+                            case 400: Error.showErrors(err.responseJSON); break;
+                            case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
                             default: console.log(err); break;
                         }
                     }
@@ -97,14 +108,17 @@ $(document).ready(async function() {
 
             Map.focusAt(location.properties.lat, location.properties.lon);
             
-            // Spostamento marker in modalità modifica
             if (Mode.current == Mode.MODIFY) {
+                // Spostamento marker
                 const hub_code = $("#data-code").val();
                 Map.addMarkerAt(coord.lat, coord.lng, hub_code, Mode.MODIFY);
             }
         
-            // Autocompletamento IATA in modalità creazione
             if (Mode.current == Mode.CREATE) {
+                Map.removeTempMarker();
+                Map.addTempMarkerAt(coord.lat, coord.lng);
+
+                // Autocompletamento IATA in modalità creazione
                 if (!$("#data-code").val()) {
                     $("#search-airport-spinner").show();
                     Airport.getNearestAirportIATA(coord.lat, coord.lng, location.properties.country).then(function (iata) {
@@ -118,13 +132,25 @@ $(document).ready(async function() {
 
         $("#enable-modify-button").on("click", function () {
             Mode.modify(Map, selected_hub);
-        })
+        });
 
         $("#cancel-modify-button").on("click", function () {
             const hub_code = $("#data-code").val();
             Form.clearFormData();
-            showHub(hub_cache[hub_code]);
-        })
+            showHub(hub_code);
+        });
+
+        $("#start-create-button").on("click", function () {
+            // Deseleziona l'hub corrente
+            if (selected_hub) {
+                $("#cancel-modify-button").trigger("click"); 
+                selected_hub = null; 
+            }
+
+            Form.clearFormData();
+            Mode.create();
+            Map.focusAt(42.74378309880694, 12.733855832349574, 5); // Centra sull'Italia
+        });
 
 
         // Inizializzazione lista hub
@@ -132,9 +158,9 @@ $(document).ready(async function() {
             Mode.start();
             const hubs = await HubAPI.get();
             
+            HubMenuHandler.render(hubs);
             for (const hub of hubs) {
                 hub_cache[hub.code] = hub;
-                addHubToMenu(hub);
                 Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
             }
             Map.focusAt(hubs[0].position.coordinates[0], hubs[0].position.coordinates[1]);
@@ -147,14 +173,21 @@ $(document).ready(async function() {
 
 
 function getHubData() {
-    let hub_data = Form.getHubData()
-    hub_data.position = Map.getMarkerCoordinatesOf($("#data-code").val());
+    let hub_data = Form.getHubData();
+
+    if (Mode.current === Mode.CREATE) {
+        hub_data.position = Map.getTempMarkerCoordinates();
+    }
+    else {
+        hub_data.position = Map.getMarkerCoordinatesOf($("#data-code").val());
+    }
 
     return hub_data;
 }
 
-function showHub(hub) {
-    selected_hub = hub.code;
+function showHub(hub_code) {
+    selected_hub = hub_code;
+    let hub = hub_cache[hub_code];
 
     Form.clearFormData();
     Form.loadHubData(hub);
@@ -162,32 +195,4 @@ function showHub(hub) {
     Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
     Map.focusAt(hub.position.coordinates[0], hub.position.coordinates[1]);
     Mode.view(Map, selected_hub);
-}
-
-
-function addHubToMenu(hub) {
-    const code = he.encode(hub.code);
-    const name = he.encode(hub.name);
-    const address = `${he.encode(hub.address.street)} ${he.encode(hub.address.number)}, ${he.encode(hub.address.city)}`;
-
-    $("#hub-menu-container").append(`
-        <li class="nav-item mb-2">
-            <button id="show-hub-${hub.code}" class="w-100 btn btn-outline-dark">
-                <div class="w-100 p-1 text-start">
-                    <p class="my-0"><span class="fw-bold" id="menu-hub-code-${hub.code}">${code}</span> <span id="menu-hub-name-${hub.code}">${name}</span></p>
-                    <p class="my-0" id="menu-hub-address-${hub.code}">${address}</p>
-                </div>
-            </button>
-        </li>
-    `);
-
-    $(`#show-hub-${hub.code}`).on("click", function () {
-        showHub(hub_cache[hub.code]);
-    });
-}
-
-function updateHubMenu(hub) {
-    $(`#menu-hub-code-${hub.code}`).text(hub.code);
-    $(`#menu-hub-name-${hub.code}`).text(hub.name);
-    $(`#menu-hub-address-${hub.code}`).text(`${hub.address.street} ${hub.address.number}, ${hub.address.city}`);
 }

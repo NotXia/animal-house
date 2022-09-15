@@ -9,16 +9,12 @@ export let current;
 
 export function start() {
     current = START;
-    $("#hub-form").hide();
+    Form.hide();
 }
 
 export function view(Map, selected_hub) {
     current = VIEW;
-    $("#hub-form").show();
-    $("#enable-modify-button-container").show();
-    $("#modify-button-container").hide();
-    $("#modify-button").attr("type", "button");
-    Form.disableForm();
+    Form.viewMode();
     if (selected_hub) {
         Map.changeMarkerMode(selected_hub, VIEW);
     }
@@ -26,11 +22,11 @@ export function view(Map, selected_hub) {
 
 export function modify(Map, selected_hub) {
     current = MODIFY;
-    $("#hub-form").show();
-    $("#enable-modify-button-container").hide();
-    $("#modify-button-container").show();
-    $("#modify-button").attr("type", "submit");
-    Form.enableForm();
-    $("#data-code").attr("readonly", true);
+    Form.modifyMode();
     Map.changeMarkerMode(selected_hub, MODIFY);
+}
+
+export function create() {
+    current = CREATE;
+    Form.createMode();
 }

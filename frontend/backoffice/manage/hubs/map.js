@@ -2,6 +2,7 @@ import * as Mode from "./mode.js"
 
 let map;
 let marker = {}; // Associa hub con il suo marker
+let tmp_marker = null;
 
 const HUB_MARKER_ICON = new L.Icon({
     iconUrl: "/img/sandrone.jfif",
@@ -10,6 +11,11 @@ const HUB_MARKER_ICON = new L.Icon({
 });
 const MODIFY_HUB_MARKER_ICON = new L.Icon({
     iconUrl: "/img/santandrea.png",
+    iconSize: [25, 25],
+    // iconAnchor: [12, 41],
+});
+const CREATE_HUB_MARKER_ICON = new L.Icon({
+    iconUrl: "/img/lisa.jpg",
     iconSize: [25, 25],
     // iconAnchor: [12, 41],
 });
@@ -29,8 +35,8 @@ export function init() {
  * @param {float} lat   Latitudine
  * @param {float} lon   Longitudine
  */
-export function focusAt(lat, lon) {
-    map.flyTo([lat, lon], 16, {animate: true, duration: 0.5});
+export function focusAt(lat, lon, zoom=16) {
+    map.flyTo([lat, lon], zoom, {animate: true, duration: 0.5});
 }
 
 /**
@@ -84,6 +90,10 @@ export function addMarkerAt(lat, lon, hub_code, mode=0) {
     changeMarkerMode(hub_code, mode);
 }
 
+function _getMarkerCoordinates(marker) {
+    return marker.getLatLng();
+}
+
 /**
  * Restituisce le coordinate puntate dal marker di un dato hub
  * @param {String} hub_code  Codice dell'hub
@@ -92,8 +102,34 @@ export function addMarkerAt(lat, lon, hub_code, mode=0) {
 export function getMarkerCoordinatesOf(hub_code) {
     if (!marker[hub_code]) { return undefined; }
 
+    const coord = _getMarkerCoordinates(marker[hub_code]);
     return {
         type: "Point",
-        coordinates: [marker[hub_code].getLatLng().lat, marker[hub_code].getLatLng().lng]
+        coordinates: [coord.lat, coord.lng]
+    }
+}
+
+
+export function addTempMarkerAt(lat, lon) {
+    let coord = new L.LatLng(lat, lon);
+
+    removeTempMarker();
+    tmp_marker = new L.Marker(coord, { icon: CREATE_HUB_MARKER_ICON, draggable: true });
+    map.addLayer(tmp_marker);
+}
+
+export function removeTempMarker() {
+    if (tmp_marker) { 
+        map.removeLayer(marker[hub_code]); 
+    }
+}
+
+export function getTempMarkerCoordinates() {
+    if (!tmp_marker) { return undefined; }
+
+    const coord = _getMarkerCoordinates(tmp_marker);
+    return {
+        type: "Point",
+        coordinates: [coord.lat, coord.lng]
     }
 }

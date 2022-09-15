@@ -56,8 +56,8 @@ export function addTimeSlotTo(day_of_week, start_time, end_time, focus=false) {
             </div>
             <div class="row mb-3">
                 <div class="col-12">
-                    <div id="data-opening_time-${day_of_week}-${index}-time-start-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
-                    <div id="data-opening_time-${day_of_week}-${index}-time-end-feedback" class="invalid-feedback d-block text-center" aria-live="polite"></div>
+                    <label for="data-${day_of_week}-${index}-time-start" data-feedback-for="opening_time-${day_of_week}-${index}-time-start" class="invalid-feedback d-block text-center" aria-live="polite"></label>
+                    <label for="data-${day_of_week}-${index}-time-end" data-feedback-for="opening_time-${day_of_week}-${index}-time-end" class="invalid-feedback d-block text-center" aria-live="polite"></label>
                 </div>
             </div>
         </div>

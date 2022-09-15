@@ -10,6 +10,15 @@ export async function get(page_size=20, page_number=0) {
 export async function modify(hub_code, updated_data) {
     return await api_request({ 
         type: "PUT", url: `/hubs/${encodeURIComponent(hub_code)}`,
-        data: updated_data
+        processData: false, contentType: "application/json",
+        data: JSON.stringify(updated_data)
+    });
+}
+
+export async function create(hub_data) {
+    return await api_request({
+        type: "POST", url: `/hubs/`,
+        processData: false, contentType: "application/json",
+        data: JSON.stringify(hub_data)
     });
 }

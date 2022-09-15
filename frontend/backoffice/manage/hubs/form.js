@@ -1,5 +1,5 @@
 import {Error} from "/admin/import/Error.js";
-import * as OpeningTime from "./view/opening_time.js";
+import * as OpeningTime from "./view/openingTime.js";
 import {WEEKS} from "/js/utilities.js";
 
 
@@ -92,4 +92,42 @@ export function clearFormData() {
     $("#hub-form").trigger("reset");
     OpeningTime.emptyTimeSlots();
     Error.clearErrors();
+}
+
+export function show() {
+    $("#hub-form").show();
+}
+export function hide() {
+    $("#hub-form").hide();
+}
+
+
+function _resetSubmitButtons() {
+    $("#form-submits-container > div").hide();
+    $("#form-submits-container button").attr("type", "button");
+}
+
+export function createMode() {
+    show();
+    _resetSubmitButtons();
+    $("#create-button-container").show();
+    $("#create-button").attr("type", "submit");
+    enableForm();
+}
+
+export function viewMode() {
+    show();
+    _resetSubmitButtons();
+    $("#enable-modify-button-container").show();
+    disableForm();
+}
+
+export function modifyMode() {
+    show();
+    _resetSubmitButtons();
+    $("#modify-button-container").show();
+    $("#modify-button").attr("type", "submit");
+    enableForm();
+
+    $("#data-code").attr("readonly", true);
 }
