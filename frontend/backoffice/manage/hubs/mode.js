@@ -1,9 +1,11 @@
 import * as Form from "./form.js";
+import { Error } from "/admin/import/Error.js";
 
 export const START = 0,
              VIEW = 1,
              CREATE = 2,
-             MODIFY = 3;
+             MODIFY = 3,
+             ERROR = -1;
 
 export let current;
 
@@ -31,4 +33,9 @@ export function modify(Map, selected_hub) {
 export function create() {
     current = CREATE;
     Form.createMode();
+}
+
+export function error(message) {
+    current = ERROR;
+    Error.showError("global", message)
 }

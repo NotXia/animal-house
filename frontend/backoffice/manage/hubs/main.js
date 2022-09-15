@@ -84,7 +84,7 @@ $(document).ready(async function() {
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
                             case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
-                            default: console.log(err); break;
+                            default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
                         }
                     }
                 });
@@ -160,7 +160,7 @@ $(document).ready(async function() {
             } catch (err) {
                 switch (err.status) {
                     case 400: Error.showErrors(err.responseJSON); break;
-                    default: console.log(err); break;
+                    default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
                 }
             }
         });
@@ -208,7 +208,7 @@ $(document).ready(async function() {
             Map.focusCenter();
         }
         catch (err) {
-            console.error(err);
+            Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore");
         }
     });
 });
