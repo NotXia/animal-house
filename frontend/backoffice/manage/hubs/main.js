@@ -112,7 +112,7 @@ $(document).ready(async function() {
             if (Mode.current == Mode.MODIFY) {
                 // Spostamento marker
                 const hub_code = $("#data-code").val();
-                Map.addMarkerAt(coord.lat, coord.lng, hub_code, Mode.MODIFY);
+                Map.addMarkerAt(coord.lat, coord.lng, hub_code, showHub, Mode.MODIFY);
             }
         
             if (Mode.current == Mode.CREATE) {
@@ -188,7 +188,7 @@ $(document).ready(async function() {
             HubMenuHandler.render(hubs);
             for (const hub of hubs) {
                 hub_cache[hub.code] = hub;
-                Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
+                Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code, showHub);
             }
             Map.focusAt(hubs[0].position.coordinates[0], hubs[0].position.coordinates[1]);
         }
@@ -219,7 +219,7 @@ function showHub(hub_code) {
     Form.clearFormData();
     Form.loadHubData(hub);
 
-    Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code);
+    Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code, showHub);
     Map.focusAt(hub.position.coordinates[0], hub.position.coordinates[1]);
     Mode.view(Map, selected_hub);
 }

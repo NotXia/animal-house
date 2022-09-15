@@ -85,13 +85,14 @@ export function changeMarkerMode(hub_code, mode) {
  * @param {String} hub_code     Codice hub
  * @param {int}    mode         Modalità marker
  */
-export function addMarkerAt(lat, lon, hub_code, mode=0) {
+export function addMarkerAt(lat, lon, hub_code, marker_onclick=()=>{}, mode=0) {
     let coord = new L.LatLng(lat, lon);
     
     removeMarker(hub_code);
     
     marker[hub_code] = new L.Marker(coord, { icon: HUB_MARKER_ICON });
     map.addLayer(marker[hub_code]);
+    marker[hub_code].on('click', function() { marker_onclick(hub_code); });
     changeMarkerMode(hub_code, mode);
 }
 
