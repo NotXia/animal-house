@@ -21,8 +21,8 @@ export function addHubToMenu(hub) {
         <li class="nav-item mb-2">
             <button id="show-hub-${hub.code}" class="w-100 btn btn-outline-dark">
                 <div class="w-100 p-1 text-start">
-                    <p class="my-0"><span class="fw-bold" id="menu-hub-code-${hub.code}">${code}</span> <span id="menu-hub-name-${hub.code}">${name}</span></p>
-                    <p class="my-0" id="menu-hub-address-${hub.code}">${address}</p>
+                    <p class="my-0 text-truncate"><span class="fw-bold" id="menu-hub-code-${hub.code}">${code}</span> <span id="menu-hub-name-${hub.code}">${name}</span></p>
+                    <p class="my-0 text-truncate" id="menu-hub-address-${hub.code}">${address}</p>
                 </div>
             </button>
         </li>
