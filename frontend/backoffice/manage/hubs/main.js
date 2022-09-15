@@ -49,10 +49,10 @@ $(document).ready(async function() {
                 name: { required: true },
                 phone: { required: false, phoneNumber: true },
                 email: { required: false, email: true },
-                street: { required: true },
-                number: { required: true },
-                city: { required: true },
-                postalcode: { required: true }
+                "address.street": { required: true },
+                "address.number": { required: true },
+                "address.city": { required: true },
+                "address.postal_code": { required: true }
             },
             errorPlacement: function(error, element) {
                 Error.showError(element.attr("name"), error);
@@ -81,6 +81,7 @@ $(document).ready(async function() {
                         showHub(res_hub.code);
                     }
                     catch (err) {
+                        console.log(err);
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
                             case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
