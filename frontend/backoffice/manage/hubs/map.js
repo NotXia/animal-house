@@ -3,7 +3,7 @@ import * as Mode from "./mode.js"
 export let map;
 let marker = {}; // Associa hub con il suo marker
 let tmp_marker = null;
-export const CENTER = [42.74378309880694, 12.733855832349574];
+export const CENTER = {lat: 42.744388161339, lon: 12.0809380292276}
 
 const HUB_MARKER_ICON = new L.Icon({
     iconUrl: "/img/sandrone.jfif",
@@ -41,7 +41,7 @@ export function focusAt(lat, lon, zoom=16) {
 }
 
 export function focusCenter() {
-    focusAt(CENTER[0], CENTER[1], 5);
+    focusAt(CENTER.lat, CENTER.lon, 5);
 }
 
 /**
@@ -111,7 +111,7 @@ export function getMarkerCoordinatesOf(hub_code) {
     const coord = _getMarkerCoordinates(marker[hub_code]);
     return {
         type: "Point",
-        coordinates: [coord.lat, coord.lng]
+        coordinates: [coord.lng, coord.lat]
     }
 }
 
@@ -136,6 +136,6 @@ export function getTempMarkerCoordinates() {
     const coord = _getMarkerCoordinates(tmp_marker);
     return {
         type: "Point",
-        coordinates: [coord.lat, coord.lng]
+        coordinates: [coord.lng, coord.lat]
     }
 }

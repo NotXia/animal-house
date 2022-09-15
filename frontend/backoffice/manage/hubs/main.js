@@ -174,7 +174,7 @@ $(document).ready(async function() {
 
             Form.clearFormData();
             Mode.create();
-            Map.addTempMarkerAt(Map.CENTER[0], Map.CENTER[1]);
+            Map.addTempMarkerAt(Map.CENTER.lat, Map.CENTER.lon);
             Map.focusCenter();
         });
 
@@ -184,8 +184,8 @@ $(document).ready(async function() {
     
                 let hubs = Object.values(hub_cache);
                 hubs.sort((h1, h2) => {
-                    const coord1 = new L.LatLng(h1.position.coordinates[0], h1.position.coordinates[1]);
-                    const coord2 = new L.LatLng(h2.position.coordinates[0], h2.position.coordinates[1]);
+                    const coord1 = new L.LatLng(h1.position.coordinates[1], h1.position.coordinates[0]);
+                    const coord2 = new L.LatLng(h2.position.coordinates[1], h2.position.coordinates[0]);
                     return center.distanceTo(coord1) - center.distanceTo(coord2);
                 });
     
@@ -203,7 +203,7 @@ $(document).ready(async function() {
             HubMenuHandler.render(hubs);
             for (const hub of hubs) {
                 hub_cache[hub.code] = hub;
-                Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code, showHub);
+                Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
             }
             Map.focusCenter();
         }
@@ -234,7 +234,7 @@ function showHub(hub_code) {
     Form.clearFormData();
     Form.loadHubData(hub);
 
-    Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code, showHub);
-    Map.focusAt(hub.position.coordinates[0], hub.position.coordinates[1]);
+    Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
+    Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]);
     Mode.view(Map, selected_hub);
 }
