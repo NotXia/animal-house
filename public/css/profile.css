@@ -1,0 +1,53 @@
+/* 
+
+    Gestione dell'immagine di profilo
+
+    profile_picture-container      Contenitore del tag <img>. Non ha una dimensione fissata e si adatta a quella del contenitore genitore
+    profile_picture-container-*    Contenitore del tag <img>. Ha una dimensione fissata.
+    profile_picture                Da applicare al tag <img>. Posizione l'immagine centrata nel contenitore.
+
+    Esempi:
+        <div style="width: 2rem; height: 2rem">
+            <div class="profile_picture-container">
+                <img class="profile_picture" src="/profiles/images/default.png" alt="">
+            </div>
+        </div>
+
+        <div class="profile_picture-container-sm">
+            <img class="profile_picture" src="/profiles/images/default.png" alt="">
+        </div>
+
+*/
+
+div[class*="profile_picture-container"] {
+    position: relative;
+    border-radius: 50%; 
+    overflow: hidden;
+}
+
+/* Prende le dimensioni del contenitore genitore */
+div.profile_picture-container {
+    width: 100%;
+    padding-bottom: 100%;
+}
+
+div.profile_picture-container-sm {
+    width: 2rem;
+    height: 2rem;
+}
+div.profile_picture-container-md {
+    width: 6rem;
+    height: 6rem;
+}
+div.profile_picture-container-lg {
+    width: 10rem;
+    height: 10rem;
+}
+
+div[class*="profile_picture-container"] > img.profile_picture {
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
