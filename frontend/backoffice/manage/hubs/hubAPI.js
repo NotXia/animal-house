@@ -1,6 +1,6 @@
 import {api_request} from "/js/auth.js";
 
-export async function get(page_size=20, page_number=0) {
+export async function get(page_size=1000, page_number=0) {
     return await api_request({
         method: "GET", url: "/hubs/",
         data: { page_size: page_size, page_number: page_number }

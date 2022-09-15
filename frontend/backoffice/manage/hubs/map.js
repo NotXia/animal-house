@@ -1,6 +1,6 @@
 import * as Mode from "./mode.js"
 
-let map;
+export let map;
 let marker = {}; // Associa hub con il suo marker
 let tmp_marker = null;
 export const CENTER = [42.74378309880694, 12.733855832349574];
@@ -80,10 +80,10 @@ export function changeMarkerMode(hub_code, mode) {
 
 /**
  * Aggiunge un marker per un hub ad una data posizione
- * @param {float}  lat          Latitudine
- * @param {float}  lon          Longitudine
- * @param {String} hub_code     Codice hub
- * @param {int}    mode         Modalità marker
+ * @param {float}   lat          Latitudine
+ * @param {float}   lon          Longitudine
+ * @param {String}  hub_code     Codice hub
+ * @param {integer} mode         Modalità marker
  */
 export function addMarkerAt(lat, lon, hub_code, marker_onclick=()=>{}, mode=0) {
     let coord = new L.LatLng(lat, lon);

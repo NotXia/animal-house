@@ -81,7 +81,6 @@ $(document).ready(async function() {
                         showHub(res_hub.code);
                     }
                     catch (err) {
-                        console.log(err);
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
                             case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
@@ -179,18 +178,34 @@ $(document).ready(async function() {
             Map.focusCenter();
         });
 
+        Map.map.on("moveend", function () {
+            if (Map.map.getZoom() >= 7) { // Ordinare gli hub solo quando lo zoom della mappa è sufficientemente grande
+                const center = Map.map.getCenter();
+    
+                let hubs = Object.values(hub_cache);
+                hubs.sort((h1, h2) => {
+                    const coord1 = new L.LatLng(h1.position.coordinates[0], h1.position.coordinates[1]);
+                    const coord2 = new L.LatLng(h2.position.coordinates[0], h2.position.coordinates[1]);
+                    return center.distanceTo(coord1) - center.distanceTo(coord2);
+                });
+    
+                HubMenuHandler.render(hubs);
+            }
+        });
+
 
         // Inizializzazione lista hub
         try {
             Mode.start();
-            const hubs = await HubAPI.get();
+            let hubs = await HubAPI.get();
+            hubs.sort((h1, h2) => h1.code.localeCompare(h2.code));
             
             HubMenuHandler.render(hubs);
             for (const hub of hubs) {
                 hub_cache[hub.code] = hub;
                 Map.addMarkerAt(hub.position.coordinates[0], hub.position.coordinates[1], hub.code, showHub);
             }
-            Map.focusAt(hubs[0].position.coordinates[0], hubs[0].position.coordinates[1]);
+            Map.focusCenter();
         }
         catch (err) {
             console.error(err);

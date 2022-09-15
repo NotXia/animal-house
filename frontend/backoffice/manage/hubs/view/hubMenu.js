@@ -7,8 +7,6 @@ export function init(item_callback) {
 export function render(hubs) {
     $("#hub-menu-container").html("");
 
-    hubs = hubs.sort((h1, h2) => h1.code.localeCompare(h2.code));
-
     for (const hub of hubs) {
         addHubToMenu(hub);
     }
