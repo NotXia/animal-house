@@ -18,12 +18,14 @@ export function view(Map, selected_hub) {
     if (selected_hub) {
         Map.changeMarkerMode(selected_hub, VIEW);
     }
+    Map.removeTempMarker();
 }
 
 export function modify(Map, selected_hub) {
     current = MODIFY;
     Form.modifyMode();
     Map.changeMarkerMode(selected_hub, MODIFY);
+    Map.removeTempMarker();
 }
 
 export function create() {

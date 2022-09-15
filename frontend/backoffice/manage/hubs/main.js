@@ -149,6 +149,7 @@ $(document).ready(async function() {
 
             Form.clearFormData();
             Mode.create();
+            Map.addTempMarkerAt(42.74378309880694, 12.733855832349574);
             Map.focusAt(42.74378309880694, 12.733855832349574, 5); // Centra sull'Italia
         });
 

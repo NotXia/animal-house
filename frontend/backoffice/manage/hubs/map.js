@@ -23,10 +23,10 @@ const CREATE_HUB_MARKER_ICON = new L.Icon({
 
 export function init() {
     /* Inizializzazione mappa */
-    map = L.map('map').setView([0, 0], 13);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    map = L.map("map-container").setView([0, 0], 13);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
-        attribution: '© OpenStreetMap'
+        attribution: "© OpenStreetMap"
     }).addTo(map);
 }
 
@@ -120,7 +120,7 @@ export function addTempMarkerAt(lat, lon) {
 
 export function removeTempMarker() {
     if (tmp_marker) { 
-        map.removeLayer(marker[hub_code]); 
+        map.removeLayer(tmp_marker); 
     }
 }
 
