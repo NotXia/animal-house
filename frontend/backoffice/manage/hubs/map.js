@@ -65,12 +65,14 @@ export function changeMarkerMode(hub_code, mode) {
         case Mode.MODIFY: 
             marker[hub_code].dragging.enable();
             marker[hub_code].setIcon(MODIFY_HUB_MARKER_ICON);
+            marker[hub_code].setZIndexOffset(1000);
             break;
 
         case Mode.VIEW: 
         default:        
             marker[hub_code].dragging.disable();
             marker[hub_code].setIcon(HUB_MARKER_ICON);
+            marker[hub_code].setZIndexOffset(0);
             break;
     }
 }
@@ -93,10 +95,6 @@ export function addMarkerAt(lat, lon, hub_code, marker_onclick=()=>{}, mode=0) {
     changeMarkerMode(hub_code, mode);
 }
 
-function _getMarkerCoordinates(marker) {
-    return marker.getLatLng();
-}
-
 /**
  * Restituisce le coordinate puntate dal marker di un dato hub
  * @param {String} hub_code  Codice dell'hub
@@ -105,11 +103,7 @@ function _getMarkerCoordinates(marker) {
 export function getMarkerCoordinatesOf(hub_code) {
     if (!marker[hub_code]) { return undefined; }
 
-    const coord = _getMarkerCoordinates(marker[hub_code]);
-    return {
-        type: "Point",
-        coordinates: [coord.lng, coord.lat]
-    }
+    return marker[hub_code].toGeoJSON().geometry;
 }
 
 
@@ -129,10 +123,5 @@ export function removeTempMarker() {
 
 export function getTempMarkerCoordinates() {
     if (!tmp_marker) { return undefined; }
-
-    const coord = _getMarkerCoordinates(tmp_marker);
-    return {
-        type: "Point",
-        coordinates: [coord.lng, coord.lat]
-    }
+    return tmp_marker.toGeoJSON().geometry;
 }
