@@ -20,7 +20,7 @@ $(document).ready(async function() {
     await LoadingHandler.wrap(async function() {
         await NavbarHandler.render();
 
-        $("#form-category-insert").validate({
+        $("#form-category").validate({
             rules: {
                 name: { required: true }
             },
@@ -69,8 +69,7 @@ $(document).ready(async function() {
         /* Pulizia modal alla chiusura */
         $("#modal-create-category").on("hidden.bs.modal", function (e) {
             Error.clearErrors();
-            $("#icon-preview").hide();
-            $("#form-category-insert").trigger("reset");
+            Form.reset()
         });
 
         /* Anteprima icona durante upload */
@@ -97,22 +96,23 @@ $(document).ready(async function() {
         /* Cancellazione di categoria */
         $("#form-category-delete").on("submit", async function (e) {
             e.preventDefault();
-            showLoading();
+            
+            await LoadingHandler.wrap(async function() {
+                try {
+                    await CategoryAPI.remove($("#data-delete-name").val());
 
-            try {
-                await CategoryAPI.remove($("#data-delete-name").val());
-
-                categories_cache = await fetchCategories();
-                filterCategories($("#search-category").val());
-                $("#search-category").focus();
-            }
-            catch (err) {
-                switch (err.status) {
-                    case 400: Error.showErrors(err.responseJSON); break;
-                    case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
-                    default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
+                    categories_cache = await fetchCategories();
+                    filterCategories($("#search-category").val());
+                    $("#search-category").focus();
                 }
-            }
+                catch (err) {
+                    switch (err.status) {
+                        case 400: Error.showErrors(err.responseJSON); break;
+                        case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
+                        default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
+                    }
+                }
+            });
         });
 
         // Caricamento delle categorie
