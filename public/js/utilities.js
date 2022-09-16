@@ -10,3 +10,17 @@ export function removeReadOnly(selector) {
     $(selector).off("click.readonly");
     $(selector).attr("aria-readonly", false);
 }
+
+export function base64(file, header=false) { 
+    return new Promise(function (resolve, reject) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = function () {
+            let base64 = reader.result;
+            if (!header) { base64 = base64.split(",")[1] } // Rimozione header
+            resolve(base64);
+        }
+        reader.onerror = error => reject(error);
+    });
+}

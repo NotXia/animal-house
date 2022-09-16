@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="/css/style.css" rel="stylesheet">
+    <script type="module">
+        import {isAuthenticated, isOperator} from "/js/auth.js";
+        isAuthenticated().then(async function (is_auth) {
+            if (!is_auth) { window.location.href = "/admin/login.html"; }
+            if (!await isOperator()) { window.location.href = "/"; }
+        });
+    </script>
+
+    <title>Gestione categorie (shop)</title>
+</head>
+
+<body>
+    <header>
+        <div id="navbar-placeholder"></div>
+    </header>
+
+    <main>
+        <div class="d-flex justify-content-center mt-2 mb-2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
+                        <div class="d-flex justify-content-center">
+                            <input role="search" id="search-category" class="form-control" type="input" placeholder="Cerca categoria">
+
+                            <div id="start_create-container" class="ms-3">
+                                <button type="button" id="btn-start_create" class="btn btn-outline-dark text-truncate" data-bs-toggle="modal" data-bs-target="#modal-create-category" aria-label="Crea una nuova categoria">Crea nuova</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center">
+                            <div id="global-feedback" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                    <div class="d-flex justify-content-center">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 20%" class="text-center">Icona</th>
+                                    <th scope="col" style="width: 40%">Nome</th>
+                                    <th scope="col" style="width: 40%" class="text-center">Operazioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-container">
+            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- Creazione/Modifica categoria -->
+    <div class="modal fade" id="modal-create-category" tabindex="-1" aria-labelledby="modal-create-category-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-category-title" class="modal-title fs-5" id="modal-create-category-label">Nuova categoria</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
+                </div>
+                <form id="form-category">
+
+                    <input id="data-old_name" type="hidden" name="name">
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-8 offset-md-2">
+                                    <label for="data-name" class="fs-6 fw-semibold">Nome</label>
+                                    <input id="data-name" type="text" class="form-control" name="name" aria-label="Nome della categoria">
+                                    <label for="data-name" data-feedback-for="name" class="invalid-feedback d-block" aria-live="polite"></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-3 col-md-2 offset-md-2 col-md-2">
+                                    <div class="d-flex justify-content-center align-items-center h-100 w-100">
+                                        <img id="icon-preview" src="" alt="Anteprima icona" class="category-icon" style="display: none;">
+                                    </div>
+                                </div>
+                                <div class="col-9 col-md-6">
+                                    <label for="data-icon" class="form-label fs-6 fw-semibold">Carica immagine</label>
+                                    <input class="form-control form-control-sm" type="file" id="data-icon" accept="image/png, image/jpeg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" id="form-category-submit-container">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <div id="create-submit-container">
+                            <button id="create-submit-btn" type="submit" class="btn btn-outline-success">Crea</button>
+                        </div>
+                        <div id="modify-submit-container">
+                            <button id="modify-submit-btn" type="submit" class="btn btn-outline-success">Modifica</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conferma cancellazione -->
+    <div class="modal fade" id="modal-delete-category" tabindex="-1" aria-labelledby="modal-delete-category-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="modal-delete-category-label">Conferma cancellazione</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
+                </div>
+                <form id="form-category-delete">
+                    <input id="data-delete-name" type="hidden" name="name">
+                    <div class="modal-body">
+                        Stai cancellando la categoria <span id="delete-category-name"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button id="delete-submit-btn" type="submit" class="btn btn-outline-danger" data-bs-dismiss="modal">Elimina</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-container"></div>
+</body>
+
+<script type="module" src="./main.js"></script>
+
+</html>
