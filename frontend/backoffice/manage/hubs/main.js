@@ -25,7 +25,7 @@ $(document).ready(async function() {
 
         /* Inizializzazione barra di ricerca indirizzi */
         let map_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("map-search"), GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca indirizzo", bias: "it" });
-        let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Indirizzo", bias: "it" });
+        let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca indirizzo", bias: "it" });
 
         // Inizializzazione mappa
         Map.init();
@@ -41,7 +41,8 @@ $(document).ready(async function() {
 
         OpeningTime.createOpeningTimeForm();
 
-        HubMenuHandler.init(showHub)
+        HubMenuHandler.init(showHub);
+        Mode.init(Map);
 
         $("#hub-form").validate({
             rules: {
@@ -141,7 +142,7 @@ $(document).ready(async function() {
 
 
         $("#enable-modify-button").on("click", function () {
-            Mode.modify(Map, selected_hub);
+            Mode.modify(selected_hub);
         });
 
         $("#cancel-modify-button").on("click", function () {
@@ -238,7 +239,7 @@ function getHubData() {
 }
 
 function showHub(hub_code, focus=true) {
-    Mode.view(Map, selected_hub); // Per annullare altre eventuali operazioni in corso
+    Mode.view(selected_hub); // Per annullare altre eventuali operazioni in corso
 
     selected_hub = hub_code;
     let hub = hub_cache[hub_code];
@@ -249,5 +250,5 @@ function showHub(hub_code, focus=true) {
 
     Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
     if (focus) { Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]); } 
-    Mode.view(Map, selected_hub);
+    Mode.view(selected_hub);
 }

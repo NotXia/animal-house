@@ -74,11 +74,17 @@
                                 
                                 <div class="row h-100">
                                     <div class="col-12 col-lg-12">
-                                        <div style="min-height: 18rem;" class="position-relative w-100 h-100 text-end">
-                                            <div class="position-absolute top-0 end-0 w-75 mt-1 me-1">
-                                                <div id="map-search" class="position-relative w-100" style="z-index: 1;"></div>
+                                        <div>
+                                            <div style="min-height: 18rem;" class="position-relative w-100 h-100 text-end">
+                                                <div class="position-absolute top-0 end-0 w-75 mt-1 me-1">
+                                                    <div id="map-search" class="position-relative w-100" style="z-index: 1;"></div>
+                                                </div>
+                                                <div id="map-container" class="w-100 h-100 position-absolute top-0 start-0" style="z-index: 0;"></div>
                                             </div>
-                                            <div id="map-container" class="w-100 h-100 position-absolute top-0 start-0" style="z-index: 0;"></div>
+                                            <div class="mb-2" style="display: none;" id="map-suggestion">
+                                                Il marker <img style="height: 1.3rem;" id="map-suggestion-marker-icon" src="" alt="Icona marker"> si sposterà automaticamente se cerchi un indirizzo dalla barra di ricerca.</br>
+                                                Se necessario puoi spostarlo manualmente trascinandolo.
+                                            </div>
                                         </div>
                                     </div>
                                     

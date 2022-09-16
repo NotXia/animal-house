@@ -125,3 +125,23 @@ export function getTempMarkerCoordinates() {
     if (!tmp_marker) { return undefined; }
     return tmp_marker.toGeoJSON().geometry;
 }
+
+export function showMarkerTips(mode) {
+    $("#map-suggestion").show();
+
+    switch (mode) {
+        case Mode.MODIFY: 
+            $("#map-suggestion-marker-icon").attr("src", MODIFY_HUB_MARKER_ICON.options.iconUrl); 
+            $("#map-suggestion-marker-icon").attr("alt", "Marker di modifica"); 
+            break;
+        case Mode.CREATE: 
+            $("#map-suggestion-marker-icon").attr("src", CREATE_HUB_MARKER_ICON.options.iconUrl); 
+            $("#map-suggestion-marker-icon").attr("alt", "Marker di creazione"); 
+            break;
+        default:  $("#map-suggestion").hide(); break;
+    }
+}
+
+export function hideMarkerTips() {
+    $("#map-suggestion").hide();
+}
