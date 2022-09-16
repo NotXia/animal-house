@@ -189,6 +189,12 @@ $(document).ready(async function() {
             Map.focusCenter();
         });
 
+        $("#cancel-create-button").on("click", function () {
+            Form.clearFormData();
+            Mode.start();
+            Map.focusCenter();
+        });
+
         Map.map.on("moveend", function () {
             if (Map.map.getZoom() >= 7) { // Ordinare gli hub solo quando lo zoom della mappa è sufficientemente grande
                 const center = Map.map.getCenter();
