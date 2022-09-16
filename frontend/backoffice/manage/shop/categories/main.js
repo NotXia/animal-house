@@ -36,18 +36,20 @@ $(document).ready(async function() {
 
                         switch (Mode.current) {
                             case Mode.CREATE:
-                                await CategoryAPI.create(category_data);
-                                categories_cache = await fetchCategories();
-                                clearFilter();
+                                const category = await CategoryAPI.create(category_data);
+                                $("#search-category").val(category.name);
                                 break;
 
                             case Mode.MODIFY:
                                 await CategoryAPI.update($("#data-old_name").val(), category_data); 
-                                categories_cache = await fetchCategories();
-                                filterCategories($("#search-category").val());
                                 break;
                         }
-
+                        
+                        // Se in modifica, mantiene la ricerca corrente
+                        // Se in creazione, ricerca la categoria appena creata
+                        categories_cache = await fetchCategories();
+                        filterCategories($("#search-category").val());
+                        
                         $("#modal-create-category").modal("hide");
                         $("#search-category").focus();
                     }
@@ -62,6 +64,7 @@ $(document).ready(async function() {
             }
         });
 
+        /* Inizio creazione categoria */
         $("#btn-start_create").on("click", function() {
             Mode.create();
         });
@@ -134,7 +137,7 @@ async function fetchCategories() {
 
 /* Filtra le categorie visibili per nome */
 function filterCategories(query) {
-    if (query === "") {
+    if (!query) {
         displayCategories(categories_cache);
     }
     else {
@@ -143,19 +146,13 @@ function filterCategories(query) {
     }
 }
 
-/* Resetta il filtro delle categorie */
-function clearFilter() {
-    displayCategories(categories_cache);
-    $("#search-category").val("");
-}
-
 /**
- * Mostra a schermo le categorie richieste
+ * Mostra a schermo delle date categorie
  * @param categories    Categorie da visualizzare
  */
 function displayCategories(categories) {
     $("#category-container").html("");
-    let index = 0;
+    let index = 0; // Per distinguere ciascuna riga
 
     for (const category of categories) {
         $("#category-container").append(CategoryRow.render(category, index));

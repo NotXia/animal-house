@@ -1,14 +1,20 @@
+/**
+ * Restituisce il contenuto HTML di una riga della tabella delle categorie
+ * @param {Category} category   Dati della categoria
+ * @param {integer}  index      Indice della riga
+ * @returns HTML della riga
+ */
 export function render(category, index) {
     let escaped_name = he.escape(category.name);
+    let image;
 
     // Gestione icona
-    let image;
     if (category.icon) { image = `<img src="data:image/*;base64,${category.icon}" alt="Icona per ${escaped_name}" class="category-icon" />`; }
     else               { image = `<span class="visually-hidden">Nessuna icona per ${escaped_name}</span>`; }
 
     return `
         <tr>
-            <td class="text-center align-middle"> ${image} </td>
+            <td class="text-center align-middle">${image}</td>
             <td class="align-middle">${escaped_name}</td>
             <td class="text-center align-middle">
                 <div class="container">
