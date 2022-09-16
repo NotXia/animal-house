@@ -33,22 +33,25 @@ $(document).ready(async function() {
                 await LoadingHandler.wrap(async function() {
                     try {
                         let category_data = await Form.getCategoryData();
+                        let search_query;
 
                         switch (Mode.current) {
                             case Mode.CREATE:
-                                const category = await CategoryAPI.create(category_data);
-                                $("#search-category").val(category.name);
+                                await CategoryAPI.create(category_data);
+                                search_query = "";
                                 break;
 
                             case Mode.MODIFY:
                                 await CategoryAPI.update($("#data-old_name").val(), category_data); 
+                                search_query = $("#search-category").val();
                                 break;
                         }
                         
+                        // Se in creazione, rimuove la ricerca
                         // Se in modifica, mantiene la ricerca corrente
-                        // Se in creazione, ricerca la categoria appena creata
                         categories_cache = await fetchCategories();
-                        filterCategories($("#search-category").val());
+                        $("#search-category").val(search_query);
+                        filterCategories(search_query);
                         
                         $("#modal-create-category").modal("hide");
                         $("#search-category").focus();
