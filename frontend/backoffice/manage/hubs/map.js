@@ -26,6 +26,8 @@ export function init() {
         maxZoom: 19,
         attribution: "© OpenStreetMap"
     }).addTo(map);
+
+    $("#map-container, #map-container *").attr("tabindex", -1); // La mappa non è raggiungibile tramite tab
 }
 
 /**
