@@ -6,7 +6,7 @@ export async function getAll() {
     });
 
     // Ordinamento alfabetico
-    categories.sort((c1, c2) => (c1.name.toLowerCase() > c2.name.toLowerCase()) ? 1 : ((c2.name.toLowerCase() > c1.name.toLowerCase()) ? -1 : 0));
+    categories.sort((c1, c2) => c1.name.toLowerCase().localeCompare(c2.name.toLowerCase()));
 
     return categories;
 }
