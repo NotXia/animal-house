@@ -4,11 +4,22 @@ export function init(item_callback) {
     menu_item_callback = item_callback;
 }
 
-export function render(hubs) {
+export function render(hubs, selected, focus_on_selected=true) {
     $("#hub-menu-container").html("");
 
     for (const hub of hubs) {
         addHubToMenu(hub);
+    }
+
+    if (selected) {
+        if (focus_on_selected) {
+            bootstrap.Tab.getInstance($(`#hub-menu-container button[id*=${selected}]`)).show();
+        }
+        else {
+            $(`#show-hub-${selected}`).addClass("active");
+            $(`#show-hub-${selected}`).attr("aria-selected", true);
+            $(`#show-hub-${selected}`).attr("tabindex", 0);
+        }
     }
 }
 
@@ -18,15 +29,18 @@ export function addHubToMenu(hub) {
     const address = `${he.encode(hub.address.street)} ${he.encode(hub.address.number)}, ${he.encode(hub.address.city)}`;
 
     $("#hub-menu-container").append(`
-        <li class="nav-item mb-2">
-            <button id="show-hub-${hub.code}" class="w-100 btn btn-outline-dark">
-                <div class="w-100 p-1 text-start">
+        <li class="nav-item mb-2 w-100" role="presentation">
+            <button id="show-hub-${hub.code}" class="w-100 btn btn-outline-dark" data-bs-toggle="tab" role="tab" aria-labelledby="hub-menu-${hub.code}-label">
+                <div class="w-100 p-1 text-start" id="hub-menu-${hub.code}-label">
+                    <p class="visually-hidden">Premi per visualizzare i dati di:</p>
                     <p class="my-0 text-truncate"><span class="fw-bold" id="menu-hub-code-${hub.code}">${code}</span> <span id="menu-hub-name-${hub.code}">${name}</span></p>
                     <p class="my-0 text-truncate" id="menu-hub-address-${hub.code}">${address}</p>
                 </div>
             </button>
         </li>
     `);
+
+    new bootstrap.Tab($(`#show-hub-${hub.code}`));
 
     $(`#show-hub-${hub.code}`).on("click", function () {
         menu_item_callback(hub.code);

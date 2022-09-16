@@ -50,15 +50,63 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="row" style="height: 80%;" id="hub-menu-row">
                             <div class="position-relative top-0 start-0 w-100 h-100">
                                 <div class="overflow-auto position-absolute top-0 start-0 h-100 w-100 p-2 p-lg-0">
-                                    <ul class="navbar-nav" id="hub-menu-container"></ul>
+                                    <button role="none" id="hub-menu-first-selector" class="visually-hidden"></button>
+                                    <script>
+                                        /*
+                                            -- Gestione della tab-list degli hub --
+                                            Poiché nessun elemento è selezionato all'inizio, bisogna manualmente selezionare un elemento della tab-list (dato che viene raggiunto premendo tab se non c'è nulla selezionato)
+                                            Un bottone fittizio cattura il tasto tab e in base alla direzione da cui si arriva, riporta sull'area soprastante oppure seleziona un elemento della tab-list
+                                        */
+                                        $(document).ready(function() {
+                                            let previous_focus;
+
+                                            $("#start-create-button").on("focus", function (mutationList, observer) { previous_focus = "up"; });
+                                            new MutationObserver(function () {
+                                                $("#hub-menu-container button").on("focus", function () { previous_focus = "down"; });
+                                            }).observe(document.getElementById("hub-menu-container"), {childList: true});
+
+                                            $("#hub-menu-first-selector").on("focus", function () {
+                                                switch (previous_focus) {
+                                                    case "down":
+                                                        $("#start-create-button").focus();
+                                                        break;
+                                                        
+                                                    case "up":
+                                                        if ($("#hub-menu-container button.active").length === 0) { // Se nessun hub è selezionato dalla lista, seleziona il primo 
+                                                            bootstrap.Tab.getInstance($("#hub-menu-container li:first-child button")).show(); 
+                                                        }
+                                                        else {
+                                                            $("#hub-menu-container button.active").focus();
+                                                        }
+                                                        break;
+                                                }
+                                            })
+                                        });
+                                    </script>
+                                    <div class="visually-hidden" id="hub-menu-label">
+                                        <p>Lista degli hub.</p>
+                                        <p>Nota: la lista viene mantenuta ordinata in base alla distanza rispetto all'hub attualmente selezionato.</p>
+                                        <script> 
+                                        $(document).ready(function() { 
+                                            // Rimuove la nota del label della lista di hub (per non leggerlo ogni volta)
+                                            $("#hub-menu-container").on("focusout", () => $("#hub-menu-label").html("Lista degli hub")); 
+                                        }); 
+                                        </script>
+                                    </div>
+                                    <ul class="nav nav-pills" id="hub-menu-container" role="tablist" aria-labelledby="hub-menu-label">
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                         <script>
                             $(document).ready(function() {
+                                /*
+                                    -- Gestione dimensione menù hub --
+                                */
                                 $("#hub-menu-row").height($("#hub-menu-row").height());
                                 $(window).resize(function() {
                                     $("#hub-menu-row").height("80%");
@@ -79,9 +127,11 @@
                                                 <div class="position-absolute top-0 end-0 w-75 mt-1 me-1">
                                                     <div id="map-search" class="position-relative w-100" style="z-index: 1;"></div>
                                                 </div>
-                                                <div id="map-container" class="w-100 h-100 position-absolute top-0 start-0" style="z-index: 0;"></div>
+                                                <div tabindex="-1">
+                                                    <div id="map-container" class="w-100 h-100 position-absolute top-0 start-0" style="z-index: 0;"></div>
+                                                </div>
                                             </div>
-                                            <div class="mb-2" style="display: none;" id="map-suggestion">
+                                            <div class="mb-2" style="display: none;" id="map-suggestion" aria-hidden="true">
                                                 Il marker <img style="height: 1.3rem;" id="map-suggestion-marker-icon" src="" alt="Icona marker"> si sposterà automaticamente se cerchi un indirizzo dalla barra di ricerca.</br>
                                                 Se necessario puoi spostarlo manualmente trascinandolo.
                                             </div>

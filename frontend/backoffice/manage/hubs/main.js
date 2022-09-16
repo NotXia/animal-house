@@ -75,7 +75,7 @@ $(document).ready(async function() {
                             case Mode.CREATE: 
                                 res_hub = await HubAPI.create(hub_data);
                                 hub_cache[res_hub.code] = res_hub;
-                                HubMenuHandler.render(Object.values(hub_cache));
+                                HubMenuHandler.render(Object.values(hub_cache), selected_hub);
                                 break;
                         }
                         
@@ -165,7 +165,7 @@ $(document).ready(async function() {
 
                 // Aggiornamento menu
                 delete hub_cache[selected_hub];
-                HubMenuHandler.render(Object.values(hub_cache));
+                HubMenuHandler.render(Object.values(hub_cache), null);
 
                 Mode.start();
             } catch (err) {
@@ -206,7 +206,7 @@ $(document).ready(async function() {
                     return center.distanceTo(coord1) - center.distanceTo(coord2);
                 });
     
-                HubMenuHandler.render(hubs);
+                HubMenuHandler.render(hubs, selected_hub, false);
             }
         });
 
@@ -217,7 +217,7 @@ $(document).ready(async function() {
             let hubs = await HubAPI.get();
             hubs.sort((h1, h2) => h1.code.localeCompare(h2.code));
             
-            HubMenuHandler.render(hubs);
+            HubMenuHandler.render(hubs, null);
             for (const hub of hubs) {
                 hub_cache[hub.code] = hub;
                 Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
@@ -250,11 +250,13 @@ function showHub(hub_code, focus=true) {
     selected_hub = hub_code;
     let hub = hub_cache[hub_code];
 
+    Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
+    if (focus) { Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]); } 
+
     Form.clearFormData();
     Form.loadHubData(hub);
     $("#search-airport-error").hide();
 
-    Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
-    if (focus) { Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]); } 
     Mode.view(selected_hub);
+    $("#data-code").focus();
 }

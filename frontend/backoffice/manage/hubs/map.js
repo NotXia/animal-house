@@ -89,7 +89,7 @@ export function addMarkerAt(lat, lon, hub_code, marker_onclick=()=>{}, mode=0) {
     
     removeMarker(hub_code);
     
-    marker[hub_code] = new L.Marker(coord, { icon: HUB_MARKER_ICON });
+    marker[hub_code] = new L.Marker(coord, { icon: HUB_MARKER_ICON, keyboard: false });
     map.addLayer(marker[hub_code]);
     marker[hub_code].on('click', function() { marker_onclick(hub_code); });
     changeMarkerMode(hub_code, mode);
@@ -111,7 +111,7 @@ export function addTempMarkerAt(lat, lon) {
     let coord = new L.LatLng(lat, lon);
 
     removeTempMarker();
-    tmp_marker = new L.Marker(coord, { icon: CREATE_HUB_MARKER_ICON, draggable: true });
+    tmp_marker = new L.Marker(coord, { icon: CREATE_HUB_MARKER_ICON, draggable: true, keyboard:false });
     map.addLayer(tmp_marker);
 }
 
