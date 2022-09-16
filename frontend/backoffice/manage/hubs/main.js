@@ -238,6 +238,8 @@ function getHubData() {
 }
 
 function showHub(hub_code) {
+    Mode.view(Map, selected_hub); // Per annullare altre eventuali operazioni in corso
+
     selected_hub = hub_code;
     let hub = hub_cache[hub_code];
 
