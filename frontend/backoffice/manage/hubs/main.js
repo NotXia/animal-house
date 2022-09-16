@@ -147,7 +147,7 @@ $(document).ready(async function() {
         $("#cancel-modify-button").on("click", function () {
             const hub_code = $("#data-code").val();
             Form.clearFormData();
-            showHub(hub_code);
+            showHub(hub_code, false);
         });
 
         $("#start-delete-button").on("click", function () {
@@ -237,7 +237,7 @@ function getHubData() {
     return hub_data;
 }
 
-function showHub(hub_code) {
+function showHub(hub_code, focus=true) {
     Mode.view(Map, selected_hub); // Per annullare altre eventuali operazioni in corso
 
     selected_hub = hub_code;
@@ -248,6 +248,6 @@ function showHub(hub_code) {
     $("#search-airport-error").hide();
 
     Map.addMarkerAt(hub.position.coordinates[1], hub.position.coordinates[0], hub.code, showHub);
-    Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]);
+    if (focus) { Map.focusAt(hub.position.coordinates[1], hub.position.coordinates[0]); } 
     Mode.view(Map, selected_hub);
 }
