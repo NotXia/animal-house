@@ -41,8 +41,21 @@ export async function getNearestAirportIATA(lat, lon, country) {
     return nearest_airport;
 }
 
+export function showSearchTooltip() {
+    hideSearchError();
+    hideSearchSpinner();
+    $("#tooltip-autocomplete-code").show();
+    $("#tooltip-autocomplete-code").attr("aria-hidden", false);
+}
+
+export function hideSearchTooltip() {
+    $("#tooltip-autocomplete-code").hide();
+    $("#tooltip-autocomplete-code").attr("aria-hidden", true);
+}
+
 export function showSearchSpinner() {
     hideSearchError();
+    hideSearchTooltip();
     $("#search-airport-spinner").show();
     $("#arialabel-searching-airport > p").attr("aria-hidden", false);
 }
@@ -53,7 +66,8 @@ export function hideSearchSpinner() {
 }
 
 export function showSearchError() {
-    hideSearchSpinner()
+    hideSearchSpinner();
+    hideSearchTooltip();
     $("#search-airport-error").show();
     $("#arialabel-searching-airport-error > p").attr("aria-hidden", false);
 }

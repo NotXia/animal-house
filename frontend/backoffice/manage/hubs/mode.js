@@ -1,5 +1,6 @@
 import * as Form from "./form.js";
 import { Error } from "/admin/import/Error.js";
+import * as Airport from "./iataCode.js";
 
 export const START = 0,
              VIEW = 1,
@@ -20,6 +21,7 @@ export function start() {
     Map.removeTempMarker();
     Map.hideMarkerTips();
     $("#map-search").show();
+    Airport.hideSearchTooltip();
 }
 
 export function view(selected_hub) {
@@ -32,6 +34,7 @@ export function view(selected_hub) {
     Map.hideMarkerTips();
     $("#map-search").show();
     $("#data-address").hide();
+    Airport.hideSearchTooltip();
 }
 
 export function modify(selected_hub) {
@@ -50,6 +53,7 @@ export function create() {
     Map.showMarkerTips(CREATE);
     $("#map-search").hide();
     $("#data-address").show();
+    Airport.showSearchTooltip();
 }
 
 export function error(message) {
