@@ -154,8 +154,14 @@
                                                             <span role="status" class="fw-bold px-1" aria-hidden="true">?</span>
                                                         </span>
                                                         <script>
-                                                            $(document).ready(async function() { 
-                                                                $("#tooltip-autocomplete-code").on("click", function () { $("#data-address > input:first-child").focus(); }); 
+                                                            /*
+                                                                Premendo sul tooltip, viene messo il focus sulla barra di ricerca dell'indirizzo
+                                                            */
+                                                            $(document).ready(async function() {
+                                                                $("#tooltip-autocomplete-code").on("click", function (e) { 
+                                                                    e.preventDefault();
+                                                                    $("#data-address > input:first-child").focus(); 
+                                                                }); 
                                                             });
                                                         </script>
 
