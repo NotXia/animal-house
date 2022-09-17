@@ -1,6 +1,6 @@
 import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
-import { Error } from "../../import/Error.js";
+import { Error } from "/admin/import/Error.js";
 
 let NavbarHandler;
 let LoadingHandler;
