@@ -146,17 +146,23 @@
                                                 <div class="w-100">
                                                     <label for="data-code" class="fs-6 fw-semibold">
                                                         Codice
+                                                        <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Il codice può essere autocompletato usando la ricerca dell'indirizzo" aria-labelledby="arialabel-autocomplete-code">
+                                                            <div id="arialabel-autocomplete-code" class="visually-hidden">
+                                                                <p>Il codice può essere autocompletato usando la ricerca dell'indirizzo che si trova più avanti.</p>
+                                                            </div>
+                                                            <span role="status" class="px-1" aria-hidden="true">?</span>
+                                                        </span>
                                                         <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Ricercando il codice più adatto" aria-labelledby="arialabel-searching-airport">
                                                             <div id="arialabel-searching-airport" class="visually-hidden">
-                                                                <p>Ricercando il codice dell'aeroporto più vicino</p>
-                                                                <p>Verrà automaticamente compilato il codice dell'hub se non lo hai ancora fatto</p>
+                                                                <p aria-hidden="true">Ricercando il codice dell'aeroporto più vicino</p>
+                                                                <p aria-hidden="true">Verrà automaticamente compilato il codice dell'hub se non lo hai ancora fatto</p>
                                                             </div>
                                                             <span id="search-airport-spinner" style="display: none" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                                         </span>
-                                                        <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Non è stato possibile autocompletare il codice" aria-labelledby="arialabel-searching-airport">
-                                                            <div id="arialabel-searching-airport" class="visually-hidden">
-                                                                <p>Non è stato possibile autocompletare il codice</p>
-                                                                <p>Si prega di compilarlo manualmente</p>
+                                                        <span data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Non è stato possibile autocompletare il codice" aria-labelledby="arialabel-searching-airport-error">
+                                                            <div id="arialabel-searching-airport-error" class="visually-hidden">
+                                                                <p aria-hidden="true">Non è stato possibile autocompletare il codice</p>
+                                                                <p aria-hidden="true">Si prega di compilarlo manualmente</p>
                                                             </div>
                                                             <span id="search-airport-error" class="fw-bold px-1" style="display: none; color: red" role="status" aria-hidden="true">!</span>
                                                         </span>

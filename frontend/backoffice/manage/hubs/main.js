@@ -26,6 +26,7 @@ $(document).ready(async function() {
         /* Inizializzazione barra di ricerca indirizzi */
         let map_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("map-search"), GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca indirizzo", bias: "it" });
         let form_address_search = new autocomplete.GeocoderAutocomplete(document.getElementById("data-address"), GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca indirizzo", bias: "it" });
+        $(".geoapify-autocomplete-input").attr("aria-autocomplete", "list");
 
         // Inizializzazione mappa
         Map.init();
@@ -121,14 +122,14 @@ $(document).ready(async function() {
 
                 // Autocompletamento IATA in modalità creazione
                 if (!$("#data-code").val()) {
-                    $("#search-airport-spinner").show();
-                    $("#search-airport-error").hide();
+                    Airport.showSearchSpinner();
+                    Airport.hideSearchError();
                     Airport.getNearestAirportIATA(coord.lat, coord.lng, location.properties.country).then(function (iata) {
                         if (!$("#data-code").val()) { 
-                            if (!iata) { $("#search-airport-error").show(); }
+                            if (!iata) { Airport.showSearchError(); }
                             else { $("#data-code").val(iata); }
                         }
-                        $("#search-airport-spinner").hide();
+                        Airport.hideSearchSpinner();
                     });
                 }
             }
@@ -143,6 +144,7 @@ $(document).ready(async function() {
 
         $("#enable-modify-button").on("click", function () {
             Mode.modify(selected_hub);
+            $("#data-code").focus();
         });
 
         $("#cancel-modify-button").on("click", function () {
@@ -182,11 +184,12 @@ $(document).ready(async function() {
                 $("#cancel-modify-button").trigger("click"); 
                 selected_hub = null; 
             }
-
+            
             Form.clearFormData();
             Mode.create();
             Map.addTempMarkerAt(Map.CENTER.lat, Map.CENTER.lon);
             Map.focusCenter();
+            $("#data-code").focus();
         });
 
         $("#cancel-create-button").on("click", function () {
