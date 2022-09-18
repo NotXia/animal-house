@@ -1,3 +1,5 @@
+import { api_request } from "/js/auth.js"
+
 export class FileUpload {
     /**
      * Gestisce il caricamento di file sul server
