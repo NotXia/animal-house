@@ -21,12 +21,10 @@ export async function init() {
         let upload_data = new FormData();
         let uploaded_images;
         
-        // Preparazione payload
+        // Preparazione payload e upload
         for (let i=0; i<$(this)[0].files.length; i++) {
             upload_data.append(`file${i}`, $(this)[0].files[i]);
         }
-
-        // Upload
         uploaded_images = await FileUpload.upload(upload_data).catch((err) => { Error.showError("product.images", "Non è stato possibile caricare i file"); });
 
         // Aggiunta righe per descrizione
@@ -50,8 +48,9 @@ export function reset() {
     $("#container-products-tab").html("");
 
     // Reset lista immagini caricate
-    $("#container-uploaded_images").html("");
-}
+    ImageInput.reset();
+}   
+
 
 /**
  * Aggiunge un tab alla lista dei prodotti
@@ -61,14 +60,11 @@ export function addProductTab(product, focus=false) {
     let index = tab_index;
     tab_index++;
 
-    // Gestione dati da visualizzare
-    if (!product) {
-        product = { name: "&nbsp", images: ["/shop/images/default.png"] }
-        tab_products[index] = {};
-    }
-
-    // Salvataggio dati del tab
+    // Salvataggio/Creazione dati del tab
     tab_products[index] = product ? product : {};
+
+    // Gestione dati di default da visualizzare
+    if (!product) { product = { name: "&nbsp", images: ["/shop/images/default.png"] } }
 
     $("#container-products-tab").append(`
         <button id="product-tab-${index}" class="btn btn-outline-dark mx-1" type="button" role="tab" data-bs-toggle="pill">
@@ -101,18 +97,36 @@ export function updateProductTabImage() {
 }
 
 
-function getProductData() {
+function resetProductData() {
+    $("#input-product\\.barcode").val("");
+    $("#input-product\\.name").val("");
+    product_editor.setData("");
+    $("#input-product\\.price").val("");
+    $("#input-product\\.quantity").val("");
+    $(`input[name="target_species"]`).prop("checked", false);
+    ImageInput.reset();
+}
+
+export function getProductData() {
     return {
-        barcode: $("input-product\\.barcode").val(),
-        name: $("input-product\\.name").val(),
+        barcode: $("#input-product\\.barcode").val(),
+        name: $("#input-product\\.name").val(),
         description: product_editor.getData(),
-        target_species: $.map($('input[name="target_species"]:checked'), (checkbox) => $(checkbox).val()),
-        price: $("input-product\\.price").val(),
-        quantity: $("input-product\\.quantity").val(),
-        images: [] // TODO
+        target_species: $.map($("input[name='target_species']:checked"), (checkbox) => $(checkbox).val()),
+        price: $("#input-product\\.price").val(),
+        quantity: $("#input-product\\.quantity").val(),
+        images: ImageInput.getImagesData()
     };
 }
 
-function loadProductData(product) {
+export function loadProductData(product) {
+    resetProductData();
 
+    $("#input-product\\.barcode").val(product.barcode);
+    $("#input-product\\.name").val(product.name);
+    product_editor.setData(product.description ? product.description : "");
+    $("#input-product\\.price").val(product.price);
+    $("#input-product\\.quantity").val(product.quantity);
+    if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
+    if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }
 }

@@ -1,8 +1,12 @@
 import * as Form from "../form.js";
 
+export function reset() {
+    $("#container-uploaded_images").html("");
+}
+
 /* Aggiunge una nuova riga tra le immagini del prodotto corrente */
 let row_index = 0;
-export function addRow(image_path) {
+export function addRow(image_path, description="") {
     let index = row_index;
     row_index++;
 
@@ -17,7 +21,7 @@ export function addRow(image_path) {
                 <div class="row h-100">
                     <div class="col-11">
                         <input id="input-product.image.${index}.path" name="product.image.path" type="hidden" value="${image_path}">
-                        <textarea id="input-product.image.${index}.description" name="product.image.description" class="w-100 h-100" placeholder="Descrizione immagine"></textarea>
+                        <textarea id="input-product.image.${index}.description" name="product.image.description" class="w-100 h-100" placeholder="Descrizione immagine">${description}</textarea>
                     </div>
                     <div class="col-1">
                         <div class="d-flex justify-content-center align-items-center h-100">
@@ -48,4 +52,18 @@ export function getFirstData() {
     else {
         return { path: "/shop/images/default.png", description: "" }
     }
+}
+
+/* Restituisce i dati delle immagini del prodotto corrente */
+export function getImagesData() {
+    let data = [];
+
+    $("[id*='container-image_row-']").each(function() {
+        data.push({
+            path: $(`#${this.id} input[name="product.image.path"]`).val(),
+            description: $(`#${this.id} textarea[name="product.image.description"]`).val()
+        })
+    });
+
+    return data;
 }
