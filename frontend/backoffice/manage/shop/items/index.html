@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/translations/it.js"></script>
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="./css/product_tab.css" rel="stylesheet">
+    <link href="/css/icon.css" rel="stylesheet">
+    <script type="module">
+        import {isAuthenticated, isOperator} from "/js/auth.js";
+        isAuthenticated().then(async function (is_auth) { 
+            if (!is_auth) { window.location.href = "/admin/login.html"; } 
+            if (!await isOperator()) { window.location.href = "/"; } 
+        });
+    </script>
+
+    <style>
+    .ck-editor__editable_inline {
+        min-height: 6rem;
+    }
+    </style>
+
+    <title>Gestione shop</title>
+</head>
+<body>
+    <header>
+        <div id="navbar-placeholder"></div>
+    </header>
+    
+    <main>
+        <div class="d-flex justify-content-center mt-2 mb-2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
+                        <div class="d-flex justify-content-center">
+                            <form id="form-search-item" class="d-flex" role="search">
+                                <input id="input-search-item" class="form-control" type="input" placeholder="Cerca barcode">
+                                <button class="ps-2 pe-2 btn btn-link" type="submit" aria-label="Cerca item">
+                                    <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
+                                </button>
+                            </form>
+    
+                            <div id="container-start-create" class="ms-3">
+                                <button type="button" id="button-start-create" class="btn btn-outline-dark text-truncate" aria-label="Crea un nuovo item">Crea nuovo</button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center">
+                            <label data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form>
+            <div class="container">
+                <!-- Generalità item -->
+                <div class="row">
+                    <div class="col-12 col-lg-8">
+                        <label for="input-item.name" class="fs-6 fw-semibold">Nome item</label>
+                        <input type="text" id="input-item.name" name="item.name" class="form-control">
+                        <label data-feedback-for="item.name" class="invalid-feedback d-block" aria-live="polite"></label>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <label for="input-item.category" class="fs-6 fw-semibold">Categoria</label>
+                        <select id="input-item.category" class="form-select">
+                            <option disabled selected>Seleziona una categoria</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="w-100">
+                            <label for="container-item.description-editor" class="fs-6 fw-semibold">Descrizione generale item</label>
+                            <textarea name="item.description" id="container-item.description-editor"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inizio prodotti -->
+                <div class="row mt-4 px-5">
+                    <!-- Selettore prodotti -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="text-center">
+                                <h2 class="fs-4">Prodotti</h2>
+                            </div>
+                            <div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="nav nav-pills flex-nowrap" id="nav-tab" role="tablist" style="overflow-x: auto; overflow-y: hidden;">
+                                        <button class="btn btn-outline-dark active mx-1" id="nav-home-tab" data-bs-toggle="pill" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+                                            <div class="product-tab-name-container text-truncate">Colore: salmone</div>
+                                            <div class="d-flex justify-content-center align-items-center product-tab-image-container">
+                                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Salmon_leaping_at_Willamette_Falls.jpg/1280px-Salmon_leaping_at_Willamette_Falls.jpg" alt="" class="product-tab-image">
+                                            </div>
+                                        </button>
+                                        
+                                        <button class="btn btn-outline-dark mx-1" id="nav-profile-tab" data-bs-toggle="pill" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                                            <div class="product-tab-name-container text-truncate">Colore: verde</div>
+                                            <div class="d-flex justify-content-center align-items-center product-tab-image-container">
+                                                <img src="/img/logo.png" alt="" class="product-tab-image">
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-3">
+                                        <button class="btn btn-outline-success w-100 h-75">Aggiungi</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Genericità prodotto -->
+                    <div class="row mt-2">
+                        <div class="col-12 col-lg-6 offset-lg-3">
+                            <label for="input-product.name" class="fs-6 fw-semibold">Nome prodotto</label>
+                            <input type="text" id="input-product.name" name="product.name" class="form-control">
+                            <label data-feedback-for="product.name" class="invalid-feedback d-block" aria-live="polite"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-lg-6">
+                            <label for="input-product.barcode" class="fs-6 fw-semibold">Barcode</label>
+                            <input type="text" id="input-product.barcode" name="product.barcode" class="form-control">
+                            <label data-feedback-for="product.barcode" class="invalid-feedback d-block" aria-live="polite"></label>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <label for="input-product.price" class="fs-6 fw-semibold">Prezzo</label>
+                            <input type="number" min="0.00" step="0.01" id="input-product.price" name="product.price" class="form-control">
+                            <label data-feedback-for="product.price" class="invalid-feedback d-block" aria-live="polite"></label>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <label for="input-product.quantity" class="fs-6 fw-semibold">Quantità</label>
+                            <input type="number" min="0" step="1" id="input-product.quantity" name="product.quantity" class="form-control">
+                            <label data-feedback-for="product.quantity" class="invalid-feedback d-block" aria-live="polite"></label>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="w-100">
+                                <label for="container-product.description-editor" class="fs-6 fw-semibold">Descrizione prodotto</label>
+                                <textarea name="product.description" id="container-product.description-editor"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload immagini -->
+                    <div class="row mb-2">
+                        <div class="col-12 col-lg-4 offset-lg-4">
+                            <label for="formFile" class="fs-6 fw-semibold">Carica immagini</label>
+                            <input class="form-control" type="file" id="formFile">
+                        </div>
+                    </div>
+                    
+                    <!-- Immagini caricate -->
+                    <div class="row" id="container-uploaded_images">
+                        <div class="row mt-4 mt-lg-2">
+                            <div class="col-12 col-lg-4" style="min-height: 10rem;">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <img style="max-height: 15rem; max-width: 100%;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Salmon_leaping_at_Willamette_Falls.jpg/1280px-Salmon_leaping_at_Willamette_Falls.jpg" alt="">
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-8">
+                                <div class="row h-100">
+                                    <div class="col-11">
+                                        <textarea name="product.image.0.description" id="input-product.image.0.description" class="w-100 h-100" placeholder="Descrizione immagine"></textarea>
+                                    </div>
+                                    <div class="col-1">
+                                        <div class="d-flex justify-content-center align-items-center h-100">
+                                            <button class="btn-close" aria-label="Cancella immagine"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Specie target -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <fieldset id="fieldset-target_species">
+                                <legend class="fs-6 fw-semibold">Animali target</legend>
+                            
+                            </fieldset>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row mb-2">
+                    <!-- Bottoni -->
+                </div>
+
+            </div>
+        </form>
+    </main>
+    
+    <div id="loading-container"></div>
+</body>
+
+<script type="module" src="./main.js"></script>
+
+</html>
