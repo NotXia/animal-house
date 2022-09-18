@@ -329,6 +329,84 @@ paths:
         500:
           description: "Errore lato server"
 
+  /shop/items/{item_id}/products/:
+    post:
+      tags:
+      - "Item e prodotti"
+      summary: "Creazione di un prodotto"
+      description: |
+        Gestisce la creazione di un prodotto associato ad un item.
+
+        Richiede permessi ["operator", "shop_write"]
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+      - name: body
+        in: body
+        description: "Dati del prodotto"
+        schema:
+          type: object
+          properties:
+            barcode:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            target_species:
+              type: array
+              items:
+                type: string
+            price:
+              type: number
+            quantity:
+              type: number
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+                required: [ path, description ]
+          required: [ barcode, name, price, quantity ]
+      responses:
+        201:
+          description: "Creato con successo"
+          schema:
+            $ref: "#/definitions/Product"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Nessun item trovato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        409:
+          description: "Il barcode di uno dei prodotti è già esistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
+        500:
+          description: "Errore lato server"
+
   /shop/items/{item_id}/products/{product_index}:
     put:
       tags:

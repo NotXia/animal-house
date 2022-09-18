@@ -69,6 +69,17 @@ const validateDeleteProductByIndex = [
     utils.validatorErrorHandler
 ];
 
+const validateCreateProduct = [
+    validator.validateItemId("param", REQUIRED, "item_id"),
+    validator.validateProductBarcode("body", REQUIRED),
+    validator.validateItemName("body", REQUIRED),
+    validator.validateItemDescription("body", OPTIONAL),
+    validator.validateProductTargetSpecies("body", OPTIONAL),
+    validator.validateProductPrice("body", REQUIRED),
+    validator.validateProductQuantity("body", REQUIRED),
+    validator.validateProductImages("body", OPTIONAL),
+    utils.validatorErrorHandler
+];
 
 module.exports = {
     validateCreate: validateCreate,
@@ -78,5 +89,6 @@ module.exports = {
     validateUpdateItem: validateUpdateItemById,
     validateUpdateProduct: validateUpdateProductByIndex,
     validateDeleteItem: validateDeleteItemById,
-    validateDeleteProduct: validateDeleteProductByIndex
+    validateDeleteProduct: validateDeleteProductByIndex,
+    validateCreateProduct: validateCreateProduct
 }

@@ -20,20 +20,23 @@ router.post("/items/", [ auth_middleware([ ["operator", "shop_write"] ], [ ["adm
 /* Cerca determinati item dello shop paginandoli secondo un dato criterio */
 router.get("/items/", shop_middleware.item.validateSearch, shop_controller.item.search);
 
-/* Cerca un item dello shop cercandolo per barcode di uno dei prodotto associati */
+/* Cerca un item dello shop per barcode di uno dei prodotto associati */
 router.get("/items/barcode/:barcode", [ shop_middleware.item.validateSearchByBarcode ], shop_controller.item.searchByBarcode);
 
-/* Cerca di un singolo item */
+/* Cerca un singolo item */
 router.get("/items/:item_id", shop_middleware.item.validateSearchItem, shop_controller.item.searchItem);
 
 /* Modifica le generalità di un item */
 router.put("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateUpdateItem ], shop_controller.item.updateItem);
 
-/* Modifica i dati di un prodotto */
-router.put("/items/:item_id/products/:product_index", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateUpdateProduct ], shop_controller.item.updateProduct);
-
 /* Cancella un item e tutti i prodotti connessi */
 router.delete("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateDeleteItem ], shop_controller.item.deleteItem);
+
+/* Creazione di un prodotto in un item */
+router.post("/items/:item_id/products/", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateCreateProduct ], shop_controller.item.createProduct);
+
+/* Modifica i dati di un prodotto */
+router.put("/items/:item_id/products/:product_index", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateUpdateProduct ], shop_controller.item.updateProduct);
 
 /* Cancella un prodotto di un item */
 router.delete("/items/:item_id/products/:product_index", [ auth_middleware([ ["operator", "shop_write"]], [ ["admin"] ]), shop_middleware.item.validateDeleteProduct ], shop_controller.item.deleteProduct);
