@@ -13,7 +13,8 @@ let tab_products = {};
 export async function init() {
     item_editor = await TextEditor.init("#container-item\\.description-editor");
     product_editor = await TextEditor.init("#container-product\\.description-editor");
-
+    
+    /* Upload di immagini */
     $("#input-upload-images").on("change", async function () {
         if ($(this)[0].files.length <= 0) { return; }
 
@@ -36,8 +37,14 @@ export async function init() {
         $("#loading-upload-images").hide();
     });
 
+    /* Aggiunta prodotto */
     $("#button-add-product").on("click", function () {
         addProductTab(null, true);
+    });
+
+    /* Aggiornamento anteprima nome prodotto */
+    $("#input-product\\.name").on("change", function () {
+        updateProductTabName()
     });
 }
 
@@ -100,7 +107,12 @@ export function addProductTab(product, focus=false) {
 export function updateProductTabImage() {
     $(`#product-tab-${current_product_tab_index}-image`).attr("src", ImageInput.getFirstData().path);
 }
-
+/**
+ * Aggiorna l'anteprima del nome del prodotto corrente nella tablist
+ */
+ export function updateProductTabName() {
+    $(`#product-tab-${current_product_tab_index}-name`).text($("#input-product\\.name").val());
+}
 
 function resetProductData() {
     $("#input-product\\.barcode").val("");
