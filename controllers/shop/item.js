@@ -43,7 +43,7 @@ async function createItem(req, res) {
         await checkCategoryExists(to_insert_item.category);
         for (const product of to_insert_products) {
             if (product.target_species) {
-                for (const species of product.target_species) { await checkSpeciesExists(species.name); }
+                for (const species of product.target_species) { await checkSpeciesExists(species); }
             }
         }
 
@@ -189,7 +189,7 @@ async function updateProductByIndex(req, res) {
 
     try {
         if (updated_fields.target_species) {
-            for (const species of product.target_species) { await checkSpeciesExists(species.name); }
+            for (const species of product.target_species) { await checkSpeciesExists(species); }
         }
 
         // Estrazione del prodotto a partire dall'item
@@ -296,7 +296,7 @@ async function createProduct(req, res) {
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
 
         // Verifica esistenza specie
-        if (product_data.target_species) {  for (const species of product_data.target_species) { await checkSpeciesExists(species.name); } }
+        if (product_data.target_species) {  for (const species of product_data.target_species) { await checkSpeciesExists(species); } }
 
         // Reclamo immagini
         if (product_data.images) { 
