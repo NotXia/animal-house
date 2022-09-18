@@ -269,6 +269,34 @@ describe("Test modifica", function () {
     });
 });
 
+describe("Test inserimento prodotto", function () {
+    test("Richiesta corretta a POST /items/:item_id/products/", async function () {
+        const item_old = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body;
+
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .expect(200);
+        const image = res.body[0];
+
+        res = await curr_session.post(`/shop/items/${itemA.id}/products`)
+            .set({ Authorization: `Bearer ${admin_token}` })
+            .send({ barcode: "A56789", name: "ProdottoNuovoA1", price: 1000, quantity: 5, images: [ {path: image, description: "AAA"} ] })
+            .expect(201);
+        expect(res.body.barcode).toEqual("A56789");
+
+        const product = await ProductModel.findOne({ barcode: res.body.barcode }).exec();
+        expect(product.name).toEqual("ProdottoNuovoA1");
+        expect( fs.existsSync(path.join(process.env.SHOP_IMAGES_DIR_ABS_PATH, path.basename(product.images[0].path))) ).toBeTruthy();
+
+        const item_new = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body;
+        expect(item_new.products.length).toEqual(item_old.products.length + 1);
+
+        // Cancellazione del prodotto appena inserito
+        await curr_session.delete(`/shop/items/${itemA.id}/products/${item_new.products.length-1}`).set({ Authorization: `Bearer ${admin_token}` }).expect(204);
+    });
+});
+
 describe("Test cancellazione", function () {
     test("Richiesta corretta a DELETE /items/:item_id/products/:product_index", async function () {
         const probably_deleted_image = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body.products[1].images[0].path;

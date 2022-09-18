@@ -43,7 +43,7 @@ async function createItem(req, res) {
         await checkCategoryExists(to_insert_item.category);
         for (const product of to_insert_products) {
             if (product.target_species) {
-                for (const species of product.target_species) { await checkSpeciesExists(species.name); }
+                for (const species of product.target_species) { await checkSpeciesExists(species); }
             }
         }
 
@@ -189,7 +189,7 @@ async function updateProductByIndex(req, res) {
 
     try {
         if (updated_fields.target_species) {
-            for (const species of product.target_species) { await checkSpeciesExists(species.name); }
+            for (const species of product.target_species) { await checkSpeciesExists(species); }
         }
 
         // Estrazione del prodotto a partire dall'item
@@ -286,6 +286,40 @@ async function deleteProductByIndex(req, res) {
     return res.sendStatus(utils.http.NO_CONTENT);
 }
 
+async function createProduct(req, res) {
+    const item_id = req.params.item_id;
+    const product_data = validator.matchedData(req, { locations: ["body"] });
+    let new_product;
+
+    try {
+        const item = await ItemModel.findById(item_id);
+        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
+
+        // Verifica esistenza specie
+        if (product_data.target_species) {  for (const species of product_data.target_species) { await checkSpeciesExists(species); } }
+
+        // Reclamo immagini
+        if (product_data.images) { 
+            const product_images_name = product_data.images.map((image) => image.path);
+            await file_controller.utils.claim(product_images_name, process.env.SHOP_IMAGES_DIR_ABS_PATH);
+        }
+
+        // Inserimento prodotto
+        new_product = await new ProductModel(product_data).save();
+
+        // Aggiornamento item
+        item.products_id.push(new_product.id);
+        await item.save();
+    }
+    catch (err) {
+        if (err.code == utils.MONGO_DUPLICATED_KEY) {
+            err = error.generate.CONFLICT({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
+        }
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.CREATED).json(new_product.getData());
+}
 
 module.exports = {
     create: createItem,
@@ -295,5 +329,6 @@ module.exports = {
     updateItem: updateItemById,
     updateProduct: updateProductByIndex,
     deleteItem: deleteItemById,
-    deleteProduct: deleteProductByIndex
+    deleteProduct: deleteProductByIndex,
+    createProduct: createProduct
 }
