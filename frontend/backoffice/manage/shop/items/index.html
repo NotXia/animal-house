@@ -159,31 +159,18 @@
                     <div class="row mb-2">
                         <div class="col-12 col-lg-4 offset-lg-4">
                             <label for="formFile" class="fs-6 fw-semibold">Carica immagini</label>
-                            <input class="form-control" type="file" id="formFile">
+                            <div class="d-flex align-items-center">
+                                <input id="input-upload-images" class="form-control" type="file" accept="image/png, image/gif, image/jpeg" multiple>
+                                <div id="loading-upload-images" class="spinner-border spinner-border-sm ms-2" role="status" style="display: none">
+                                    <span class="visually-hidden">Caricando le immagini</span>
+                                </div>
+                            </div>
+                            <label data-feedback-for="product.images" class="invalid-feedback d-block" aria-live="polite"></label>
                         </div>
                     </div>
                     
                     <!-- Immagini caricate -->
                     <div class="row" id="container-uploaded_images">
-                        <div class="row mt-4 mt-lg-2">
-                            <div class="col-12 col-lg-4" style="min-height: 10rem;">
-                                <div class="d-flex justify-content-center align-items-center">
-                                    <img style="max-height: 15rem; max-width: 100%;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Salmon_leaping_at_Willamette_Falls.jpg/1280px-Salmon_leaping_at_Willamette_Falls.jpg" alt="">
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-8">
-                                <div class="row h-100">
-                                    <div class="col-11">
-                                        <textarea name="product.image.0.description" id="input-product.image.0.description" class="w-100 h-100" placeholder="Descrizione immagine"></textarea>
-                                    </div>
-                                    <div class="col-1">
-                                        <div class="d-flex justify-content-center align-items-center h-100">
-                                            <button class="btn-close" aria-label="Cancella immagine"></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Specie target -->
