@@ -35,6 +35,10 @@ export async function init() {
         $(this).val("");
         $("#loading-upload-images").hide();
     });
+
+    $("#button-add-product").on("click", function () {
+        addProductTab(null, true);
+    });
 }
 
 export function reset() {
@@ -75,10 +79,6 @@ export function addProductTab(product, focus=false) {
         </button>
     `);
 
-    // Inizializzazione tab
-    const tab = new bootstrap.Tab($(`#product-tab-${index}`));
-    if (focus) { tab.show(); }
-
     $(`#product-tab-${index}`).on("click", function () {
         // Salvataggio del prodotto attualmente visibile
         tab_products[current_product_tab_index] = getProductData();
@@ -87,6 +87,11 @@ export function addProductTab(product, focus=false) {
         current_product_tab_index = index;
         loadProductData(tab_products[index]);
     });
+
+    // Inizializzazione tab
+    const tab = new bootstrap.Tab($(`#product-tab-${index}`));
+    if (focus) { tab.show(); $(`#product-tab-${index}`).trigger("click"); }
+
 }
 
 /**
