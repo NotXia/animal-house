@@ -13,9 +13,9 @@ export class Error {
     }
     
     static showErrors(errors) {
-        clearErrors();
+        this.clearErrors();
         for (const error of errors) {
-            showError(error.field, error.message);
+            this.showError(error.field, error.message);
         }
     }
     

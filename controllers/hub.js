@@ -29,7 +29,7 @@ async function getHubs(req, res) {
     if (req.query.lat != undefined && req.query.lon != undefined) {
         query.position = {
             "$near": {
-                "$geometry": { type: "Point", coordinates: [ req.query.lat , req.query.lon ] }
+                "$geometry": { type: "Point", coordinates: [ req.query.lon, req.query.lat ] }
             }
         }
     }

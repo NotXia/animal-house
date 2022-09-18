@@ -50,7 +50,7 @@ describe("Creazione di hub", function () {
                 postal_code: "40100"
             },
             position: {
-                type: "Point", coordinates: [44.499192, 11.327076] // Porta San Felice
+                type: "Point", coordinates: [11.327076, 44.499192] // Porta San Felice
             },
             opening_time: { 
                 monday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
@@ -75,8 +75,8 @@ describe("Creazione di hub", function () {
         expect(hub).toBeDefined();
         expect(hub.code).toEqual("BLQ1");
         expect(moment(hub.opening_time.monday[0].start).local().format()).toEqual(moment("9:00", "HH:mm").local().format());
-        expect(hub.position.coordinates[0]).toEqual(44.499192);
-        expect(hub.position.coordinates[1]).toEqual(11.327076);
+        expect(hub.position.coordinates[0]).toEqual(11.327076);
+        expect(hub.position.coordinates[1]).toEqual(44.499192);
     });
 
     test("Creazione corretta", async function () {
@@ -90,7 +90,7 @@ describe("Creazione di hub", function () {
                 postal_code: "40100"
             },
             position: {
-                type: "Point", coordinates: [44.484245, 11.356587] // Porta Santo Stefano
+                type: "Point", coordinates: [11.356587, 44.484245] // Porta Santo Stefano
             },
             opening_time: { 
                 monday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
