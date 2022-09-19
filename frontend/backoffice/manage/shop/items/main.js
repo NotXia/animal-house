@@ -5,6 +5,7 @@ import * as CategoryHandler from "./view/categories.js";
 import * as SpeciesHandler from "./view/species.js";
 import * as Mode from "./mode.js";
 import * as Form from "./form.js";
+import * as ItemAPI from "./ItemAPI.js";
 
 let NavbarHandler;
 let LoadingHandler;
@@ -48,7 +49,11 @@ $(document).ready(async function() {
 
                 await LoadingHandler.wrap(async function() {
                     try {
-
+                        switch (Mode.current) {
+                            case Mode.CREATE:
+                                const item = Form.getItemData();
+                                await ItemAPI.create(item);
+                        }
                     }
                     catch (err) {
                         switch (err.status) {

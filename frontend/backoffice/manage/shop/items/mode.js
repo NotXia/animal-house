@@ -15,7 +15,7 @@ export function start() {
 export function create() {
     current = CREATE;
     Form.reset();
-    Form.addProductTab(null, true);
+    Form.createMode();
     $("#form-shop").show();
 }
 

@@ -34,3 +34,17 @@ export function getItemData() {
         products: ProductTab.getProductsData()
     }
 }
+
+
+function resetSubmitButtons() {
+    $("div[id*='container-submit_button-'] button").attr("type", "button");
+}
+
+export function createMode() {
+    $("#form-shop").show();
+    reset();
+    addProductTab(null, true);
+
+    resetSubmitButtons()
+    $("#button-create").attr("type", "submit");
+}
