@@ -1,4 +1,4 @@
-import * as Form from "../form.js";
+import * as ProductTab from "./productTab.js";
 
 export function reset() {
     $("#container-uploaded_images").html("");
@@ -35,7 +35,7 @@ export function addRow(image_path, description="") {
 
     $(`#button-image_row-delete-${index}`).on("click", function () {
         $(`#container-image_row-${index}`).remove();
-        Form.updateProductTabImage(); // Aggiorna l'anteprima del prodotto
+        ProductTab.updateProductTabImage(); // Aggiorna l'anteprima del prodotto
     });
 }
 
