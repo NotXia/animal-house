@@ -124,7 +124,12 @@
 
                     <!-- Genericità prodotto -->
                     <div class="row mt-2">
-                        <div class="col-12 col-lg-6 offset-lg-3">
+                        <div class="col-12 col-lg-2 offset-lg-2">
+                            <div class="d-flex justify-content-center align-items-center w-100 h-100">
+                                <button id="button-start-delete-product" class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-product">Cancella prodotto</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
                             <label for="input-product.name" class="fs-6 fw-semibold">Nome prodotto</label>
                             <input type="text" id="input-product.name" name="product.name" class="form-control">
                             <label data-feedback-for="product.name" class="invalid-feedback d-block" aria-live="polite"></label>
@@ -192,6 +197,25 @@
             </div>
         </form>
     </main>
+
+    <!-- Conferma cancellazione prodotto -->
+    <div class="modal fade" id="modal-delete-product" tabindex="-1" aria-labelledby="modal-delete-product-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-4" id="modal-delete-product-label">Conferma cancellazione</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Stai cancellando il prodotto <span id="modal-product-name" class="fw-semibold"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button id="button-delete-product" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancella</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div id="loading-container"></div>
 </body>

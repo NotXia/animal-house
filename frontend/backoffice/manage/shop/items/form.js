@@ -8,8 +8,10 @@ export let item_editor;
 export let product_editor;
 
 let current_product_tab_index = 0;
-let tab_products = {};
+let tab_indexes_order = []; // Tiene traccia dell'ordine degli indici
 let bs_tab_by_index = {};
+
+let tab_products = {};
 
 export async function init() {
     item_editor = await TextEditor.init("#container-item\\.description-editor");
@@ -41,12 +43,28 @@ export async function init() {
     /* Aggiunta prodotto */
     $("#button-add-product").on("click", function () {
         if (!$("#container-product-data input").valid()) { return; } // Impedisce di creare nuovi prodotti se quello attuale è invalido
+        storeCurrentProduct();
         addProductTab(null, true);
     });
 
     /* Aggiornamento anteprima nome prodotto */
     $("#input-product\\.name").on("change", function () {
         updateProductTabName()
+    });
+
+    /* Cancellazione di prodotti */
+    $("#button-start-delete-product").on("click", function () {
+        $("#modal-product-name").text($("#input-product\\.name").val());
+    });
+    $("#button-delete-product").on("click", function () {
+        let curr_position = tab_indexes_order.indexOf(current_product_tab_index);
+        let to_focus_index = tab_indexes_order[curr_position == 0 ? curr_position+1 : curr_position-1];
+
+        $(`#product-tab-${current_product_tab_index}`).remove();
+        delete tab_products[current_product_tab_index];
+        tab_indexes_order.splice(curr_position, 1);
+
+        focusOnTab(to_focus_index);
     });
 }
 
@@ -64,6 +82,23 @@ export function reset() {
     ImageInput.reset();
 }   
 
+/**
+ * Gestisce il focus su un determinato prodotto
+ * Non gestisce il salvataggio dei dati correnti 
+ */
+function focusOnTab(index) {
+    bs_tab_by_index[index].show(); 
+
+    current_product_tab_index = index;
+    loadProductData(tab_products[index]);
+}
+
+/**
+ * Gestisce il salvataggio dei dati del prodotto attualmente visibile
+ */
+function storeCurrentProduct() {
+    tab_products[current_product_tab_index] = getProductData();
+}
 
 /**
  * Aggiunge un tab alla lista dei prodotti
@@ -72,6 +107,8 @@ let tab_index = 0;
 export function addProductTab(product, focus=false) {
     let index = tab_index;
     tab_index++;
+
+    tab_indexes_order.push(index);
 
     // Salvataggio/Creazione dati del tab
     tab_products[index] = product ? product : {};
@@ -93,7 +130,7 @@ export function addProductTab(product, focus=false) {
         if (!$("#container-product-data input").valid()) { bs_tab_by_index[current_product_tab_index].show(); return; } 
 
         // Salvataggio del prodotto attualmente visibile
-        tab_products[current_product_tab_index] = getProductData();
+        storeCurrentProduct();
 
         // Caricamento dei dati del prodotto selezionato
         current_product_tab_index = index;
@@ -104,10 +141,7 @@ export function addProductTab(product, focus=false) {
     bs_tab_by_index[index] = new bootstrap.Tab($(`#product-tab-${index}`));
     
     // Gestione focus
-    if (focus) { 
-        bs_tab_by_index[index].show(); 
-        $(`#product-tab-${index}`).trigger("click"); 
-    }
+    if (focus) { focusOnTab(index); }
 }
 
 /**
@@ -155,4 +189,8 @@ export function loadProductData(product) {
     $("#input-product\\.quantity").val(product.quantity);
     if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
     if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }
+
+    // Non si può cancellare l'unico prodotto di un item
+    if (Object.keys(tab_products).length === 1) { $("#button-start-delete-product").prop("disabled", true); } 
+    else { $("#button-start-delete-product").prop("disabled", false); }
 }
