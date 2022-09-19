@@ -74,9 +74,10 @@
                     </div>
                     <div class="col-12 col-lg-4">
                         <label for="input-item.category" class="fs-6 fw-semibold">Categoria</label>
-                        <select id="input-item.category" class="form-select">
+                        <select id="input-item.category" class="form-select" name="item.category">
                             <option disabled selected>Seleziona una categoria</option>
                         </select>
+                        <label data-feedback-for="item.category" class="invalid-feedback d-block" aria-live="polite"></label>
                     </div>
                 </div>
                 <div class="row mt-2">
@@ -89,7 +90,7 @@
                 </div>
 
                 <!-- Inizio prodotti -->
-                <div class="row mt-4 px-5">
+                <div id="container-product-data" class="row mt-4 px-5">
                     <!-- Selettore prodotti -->
                     <div class="row">
                         <div class="col-12">
@@ -182,7 +183,6 @@
                             </fieldset>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="row mb-2">

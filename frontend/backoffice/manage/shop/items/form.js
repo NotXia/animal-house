@@ -9,6 +9,7 @@ export let product_editor;
 
 let current_product_tab_index = 0;
 let tab_products = {};
+let bs_tab_by_index = {};
 
 export async function init() {
     item_editor = await TextEditor.init("#container-item\\.description-editor");
@@ -39,6 +40,7 @@ export async function init() {
 
     /* Aggiunta prodotto */
     $("#button-add-product").on("click", function () {
+        if (!$("#container-product-data input").valid()) { return; } // Impedisce di creare nuovi prodotti se quello attuale è invalido
         addProductTab(null, true);
     });
 
@@ -86,7 +88,10 @@ export function addProductTab(product, focus=false) {
         </button>
     `);
 
-    $(`#product-tab-${index}`).on("click", function () {
+    $(`#product-tab-${index}`).on("click", function (e) {
+        // Impedisce di cambiare tab prodotto se quello attuale non è valido
+        if (!$("#container-product-data input").valid()) { bs_tab_by_index[current_product_tab_index].show(); return; } 
+
         // Salvataggio del prodotto attualmente visibile
         tab_products[current_product_tab_index] = getProductData();
 
@@ -96,9 +101,13 @@ export function addProductTab(product, focus=false) {
     });
 
     // Inizializzazione tab
-    const tab = new bootstrap.Tab($(`#product-tab-${index}`));
-    if (focus) { tab.show(); $(`#product-tab-${index}`).trigger("click"); }
-
+    bs_tab_by_index[index] = new bootstrap.Tab($(`#product-tab-${index}`));
+    
+    // Gestione focus
+    if (focus) { 
+        bs_tab_by_index[index].show(); 
+        $(`#product-tab-${index}`).trigger("click"); 
+    }
 }
 
 /**
