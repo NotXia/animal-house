@@ -7,3 +7,9 @@ export async function create(item_data) {
         data: JSON.stringify(item_data)
     });
 }
+
+export async function searchItemByBarcode(barcode) {
+    return await api_request({ 
+        type: "GET", url: ` /shop/items/barcode/${barcode}`
+    });
+}

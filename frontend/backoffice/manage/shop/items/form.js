@@ -35,16 +35,65 @@ export function getItemData() {
     }
 }
 
+export function loadItemData(item, barcode_to_focus) {
+    $("#input-item\\.name").val(item.name);
+    $("#input-item\\.category").val(item.category);
+    item_editor.setData(item.description);
+
+    if (!barcode_to_focus) { barcode_to_focus = item.products[0].barcode }
+    for (const product of item.products) {
+        ProductTab.addProductTab(product, product.barcode === barcode_to_focus);
+    }
+}
+
+
+export function readOnly() {
+    $("#form-shop input, #form-shop textarea").readonly(true);
+    item_editor.enableReadOnlyMode("item_editor");
+    ProductTab.product_editor.enableReadOnlyMode("product_editor");
+
+    $("#button-add-product").prop("disabled", true);
+    $("#button-start-delete-product").prop("disabled", true);
+    $("[id*='button-image_row-delete-']").prop("disabled", true);
+
+    $("#input-upload-images").prop("disabled", true);
+    $("#input-item\\.category").readonly(true);
+}
+
+export function enable() {
+    $("#form-shop input, #form-shop textarea").readonly(false);
+    item_editor.disableReadOnlyMode("item_editor");
+    ProductTab.product_editor.disableReadOnlyMode("product_editor");
+
+    $("#button-add-product").prop("disabled", false);
+    $("#button-start-delete-product").prop("disabled", false);
+    $("[id*='button-image_row-delete-']").prop("disabled", false);
+
+    $("#input-upload-images").prop("disabled", false);
+    $("#input-item\\.category").readonly(false);
+}
 
 function resetSubmitButtons() {
     $("div[id*='container-submit_button-'] button").attr("type", "button");
+    $("div[id*='container-submit_button-']").hide();
 }
 
 export function createMode() {
     $("#form-shop").show();
+    enable();
     reset();
     addProductTab(null, true);
 
-    resetSubmitButtons()
+    resetSubmitButtons();
     $("#button-create").attr("type", "submit");
+    $("#container-submit_button-create").show();
+}
+
+export function viewMode() {
+    $("#form-shop").show();
+    reset();
+
+    resetSubmitButtons();
+    $("#container-submit_button-start-modify").show();
+    readOnly();
 }

@@ -3,20 +3,27 @@ import * as Form from "./form.js";
 
 export const START = 0,
              CREATE = 1,
+             VIEW = 2,
              ERROR = -1;
 
 export let current;
 
 export function start() {
     current = START;
+    Error.clearErrors();
     $("#form-shop").hide();
 }
 
 export function create() {
     current = CREATE;
-    Form.reset();
+    Error.clearErrors();
     Form.createMode();
-    $("#form-shop").show();
+}
+
+export function view() {
+    current = VIEW;
+    Error.clearErrors();
+    Form.viewMode();
 }
 
 export function error(message) {

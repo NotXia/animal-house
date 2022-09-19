@@ -2,6 +2,8 @@ import * as TextEditor from "./textEditor.js";
 import { FileUpload } from "/admin/import/FileUpload.js";
 import { Error } from "/admin/import/Error.js";
 import * as ImageInput from "./imageInput.js";
+import * as Mode from "../mode.js";
+import * as Form from "../form.js";
 
 export let product_editor;
 
@@ -29,7 +31,7 @@ export async function init() {
         uploaded_images = await FileUpload.upload(upload_data).catch((err) => { Error.showError("product.images", "Non è stato possibile caricare i file"); });
 
         // Aggiunta righe per descrizione
-        uploaded_images.forEach((image_path) => { ImageInput.addRow(image_path); });
+        uploaded_images.forEach((image_path) => { ImageInput.addRow(`/tmp/${image_path}`); });
 
         updateProductTabImage(); // Aggiornamento anteprima prodotto nella tablist
 
@@ -108,13 +110,15 @@ export function addProductTab(product, focus=false) {
     tab_products[index] = product ? product : {};
 
     // Gestione dati di default da visualizzare
-    if (!product) { product = { name: "&nbsp", images: ["/shop/images/default.png"] } }
+    let product_name = product?.name ?? "&nbsp"; 
+    let product_image = product?.images.length > 0 ? product.images[0].path : "/shop/images/default.png";
+
 
     $("#container-products-tab").append(`
         <button id="product-tab-${index}" class="btn btn-outline-dark mx-1" type="button" role="tab" data-bs-toggle="pill">
-            <div id="product-tab-${index}-name" class="product-tab-name-container text-truncate">${product.name}</div>
+            <div id="product-tab-${index}-name" class="product-tab-name-container text-truncate">${product_name}</div>
             <div class="d-flex justify-content-center align-items-center product-tab-image-container">
-                <img id="product-tab-${index}-image" class="product-tab-image" src="${product.images[0]}" alt="">
+                <img id="product-tab-${index}-image" class="product-tab-image" src="${product_image}" alt="">
             </div>
         </button>
     `);
@@ -192,7 +196,8 @@ function loadProductData(product) {
     if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
     if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }
 
-    // Non si può cancellare l'unico prodotto di un item
-    if (Object.keys(tab_products).length === 1) { $("#button-start-delete-product").prop("disabled", true); } 
+    if (Object.keys(tab_products).length === 1) { $("#button-start-delete-product").prop("disabled", true); } // Non si può cancellare l'unico prodotto di un item
     else { $("#button-start-delete-product").prop("disabled", false); }
+
+    if (Mode.current === Mode.VIEW) { Form.readOnly(); } // Necessario perché vengono generati nuovi elementi
 }

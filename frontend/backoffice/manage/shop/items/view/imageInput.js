@@ -14,7 +14,7 @@ export function addRow(image_path, description="") {
         <div id="container-image_row-${index}" class="row mt-4 mt-lg-2">
             <div class="col-12 col-lg-4" style="min-height: 10rem;">
                 <div class="d-flex justify-content-center align-items-center">
-                    <img style="max-height: 15rem; max-width: 100%;" src="/tmp/${image_path}" alt="">
+                    <img style="max-height: 15rem; max-width: 100%;" src="${image_path}" alt="">
                 </div>
             </div>
             <div class="col-12 col-lg-8">
@@ -45,7 +45,7 @@ export function getFirstData() {
         const first_container_id = $("[id*='container-image_row-']")[0].id;
     
         return {
-            path: "/tmp/" + $(`#${first_container_id} input[name="product.image.path"]`).val(),
+            path: $(`#${first_container_id} img`).attr("src"),
             description: $(`#${first_container_id} textarea[name="product.image.description"]`).val()
         }
     }

@@ -35,7 +35,6 @@ $(document).ready(async function() {
             rules: {
                 "item.name": { required: true },
                 "item.category": { required: true },
-                // "item.description": { required: true },
                 "product.name": { required: true },
                 "product.barcode": { required: true },
                 "product.price": { required: true },
@@ -53,6 +52,7 @@ $(document).ready(async function() {
                             case Mode.CREATE:
                                 const item = Form.getItemData();
                                 await ItemAPI.create(item);
+                                break;
                         }
                     }
                     catch (err) {
@@ -69,5 +69,27 @@ $(document).ready(async function() {
         $("#button-start-create").on("click", function () {
             Mode.create();
         })
+
+        $("#form-search-item").on("submit", async function (e) {
+            e.preventDefault();
+            const query_barcode = $("#input-search-item").val();
+            if (query_barcode === "") { return; }
+
+            await LoadingHandler.wrap(async function() {
+                try {
+                    const item = await ItemAPI.searchItemByBarcode(query_barcode);
+
+                    Mode.view();
+                    Form.loadItemData(item, query_barcode);
+                    Form.readOnly();
+                } catch (err) {
+                    switch (err.status) {
+                        case 404: Mode.error(`Nessun item associato al barcode ${query_barcode}`); break;
+                        default: Mode.error(`Si è verificato un errore`); break;
+                    }
+                }
+            });
+
+        });
     });
 });
