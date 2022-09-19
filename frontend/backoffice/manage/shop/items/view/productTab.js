@@ -76,6 +76,11 @@ export function reset() {
 
     // Reset lista immagini caricate
     ImageInput.reset();
+
+    current_product_tab_index = 0;
+    tab_indexes_order = [];
+    bs_tab_by_index = {};
+    tab_products = {};
 }   
 
 /**
@@ -138,6 +143,8 @@ export function addProductTab(product, focus=false) {
     // Inizializzazione tab
     bs_tab_by_index[index] = new bootstrap.Tab($(`#product-tab-${index}`));
     
+    updateDeleteProductButton();
+    
     // Gestione focus
     if (focus) { focusOnTab(index); }
 }
@@ -196,8 +203,16 @@ function loadProductData(product) {
     if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
     if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }
 
-    if (Object.keys(tab_products).length === 1) { $("#button-start-delete-product").prop("disabled", true); } // Non si può cancellare l'unico prodotto di un item
-    else { $("#button-start-delete-product").prop("disabled", false); }
+    updateDeleteProductButton();
 
     if (Mode.current === Mode.VIEW) { Form.readOnly(); } // Necessario perché vengono generati nuovi elementi
+}
+
+function updateDeleteProductButton() {
+    if (Object.keys(tab_products).length === 1) { // Non si può cancellare l'unico prodotto di un item
+        $("#button-start-delete-product").prop("disabled", true); 
+    } 
+    else { 
+        $("#button-start-delete-product").prop("disabled", false); 
+    }
 }
