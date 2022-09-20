@@ -103,6 +103,7 @@ export function viewMode() {
 export function modifyMode() {
     $("#form-shop").show();
     enable();
+    ProductTab.updateDeleteProductButton();
 
     resetSubmitButtons();
     $("#button-modify").attr("type", "submit");

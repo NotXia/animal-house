@@ -50,18 +50,50 @@ $(document).ready(async function() {
 
                 await LoadingHandler.wrap(async function() {
                     try {
+                        const item_data = Form.getItemData();
+
                         switch (Mode.current) {
                             case Mode.CREATE:
-                                const item = Form.getItemData();
-                                await ItemAPI.create(item);
-                                showItem(item);
+                                await ItemAPI.create(item_data);
+                                showItem(item_data);
                                 break;
 
                             case Mode.MODIFY:
+                                const updated_products = Object.values(item_data.products);
+                                delete item_data.products;
+                                const findProductByBarcode = (barcode) => updated_products.find(product => product.old_barcode === barcode);
+
+                                // Itero sull'item originale confrontando con i dati aggiornati
+                                for (let i=item_cache.products.length-1; i>=0; i--) {
+                                    const updated_product = findProductByBarcode(item_cache.products[i].barcode);
+                                    
+                                    if (updated_product === undefined) {
+                                        // Cancellazione prodotto eliminato
+                                        await ItemAPI.deleteProductAtIndex(item_cache.id, i);
+                                    }
+                                    else if (updated_product.old_barcode !== undefined) {
+                                        // Aggiornamento prodotto esistente
+                                        delete updated_product.old_barcode;
+                                        await ItemAPI.updateProductAtIndex(item_cache.id, i, updated_product);
+                                        updated_products.splice(i, 1);
+                                    }
+                                }
+
+                                console.log(updated_products);
+                                // I rimanenti sono prodotti nuovi
+                                for (const product of updated_products) { await ItemAPI.insertProduct(item_cache.id, product); }
+
+                                console.log(item_data);
+                                // Dati generali item
+                                await ItemAPI.updateItem(item_cache.id, item_data);
+
+                                item_cache = await ItemAPI.searchItemById(item_cache.id)
+                                showItem(item_cache);
                                 break;
                         }
                     }
                     catch (err) {
+                        console.log(err);
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
                             case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
@@ -79,6 +111,8 @@ $(document).ready(async function() {
 
             await LoadingHandler.wrap(async function() {
                 try {
+                    Mode.view();
+
                     const item = await ItemAPI.searchItemByBarcode(query_barcode);
                     showItem(item, query_barcode);
                 } catch (err) {

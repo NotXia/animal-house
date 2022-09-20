@@ -12,7 +12,6 @@ let tab_indexes_order = []; // Tiene traccia dell'ordine degli indici
 let bs_tab_by_index = {};
 
 let tab_products = {};
-let deleted_products = [];
 // let modified_products = [];
 
 export async function init() {
@@ -64,7 +63,6 @@ export async function init() {
         $(`#product-tab-${current_product_tab_index}`).remove();
         delete tab_products[current_product_tab_index]; // Rimozione dai prodotti memorizzati
         tab_indexes_order.splice(curr_position, 1);     // Rimozione come posizione tra i tab
-        deleted_products.push( tab_products[current_product_tab_index] ); // Inserimento nella lista di prodotti eliminati
 
         focusOnTab(to_focus_index);
     });
@@ -84,7 +82,6 @@ export function reset() {
     tab_indexes_order = [];
     bs_tab_by_index = {};
     tab_products = {};
-    deleted_products = [];
 }   
 
 /**
@@ -102,7 +99,10 @@ function focusOnTab(index) {
  * Gestisce il salvataggio dei dati del prodotto attualmente visibile
  */
 function storeCurrentProduct() {
+    const old_barcode = tab_products[current_product_tab_index].old_barcode;
+
     tab_products[current_product_tab_index] = getProductData();
+    tab_products[current_product_tab_index].old_barcode = old_barcode;
 }
 
 /**
@@ -117,6 +117,8 @@ export function addProductTab(product, focus=false) {
 
     // Salvataggio/Creazione dati del tab
     tab_products[index] = product ? product : {};
+
+    if (product) { tab_products[index].old_barcode = product.barcode; } // Salvataggio barcode originale
 
     // Gestione dati di default da visualizzare
     let product_name = product?.name ?? "&nbsp"; 
@@ -192,7 +194,17 @@ export function getProductsData() {
     storeCurrentProduct(); // Per avere tutti i dati allineati
 
     let products = [];
-    tab_indexes_order.forEach( (index) => products.push(tab_products[index]) );
+    tab_indexes_order.forEach( function (index) {
+        let product = tab_products[index];
+
+        // Normalizzazione path immagine
+        product.images = product.images.map((image) => ({ 
+            path: image.path.split(/[\\/]/).pop(), // Rimuove l'eventuale percorso in testa
+            description: image.description ? image.description : " " 
+        })); 
+
+        products.push(tab_products[index]);
+    });
     return products;
 }
 
@@ -212,7 +224,7 @@ function loadProductData(product) {
     if (Mode.current === Mode.VIEW) { Form.readOnly(); } // Necessario perché vengono generati nuovi elementi
 }
 
-function updateDeleteProductButton() {
+export function updateDeleteProductButton() {
     if (Object.keys(tab_products).length === 1) { // Non si può cancellare l'unico prodotto di un item
         $("#button-start-delete-product").prop("disabled", true); 
     } 
