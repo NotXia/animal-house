@@ -66,10 +66,6 @@ $(document).ready(async function() {
             }
         });
 
-        $("#button-start-create").on("click", function () {
-            Mode.create();
-        })
-
         $("#form-search-item").on("submit", async function (e) {
             e.preventDefault();
             const query_barcode = $("#input-search-item").val();
@@ -89,7 +85,14 @@ $(document).ready(async function() {
                     }
                 }
             });
+        });
 
+        $("#button-start-create").on("click", function () {
+            Mode.create();
+        });
+
+        $("#button-start-modify").on("click", function () {
+            Mode.modify();
         });
     });
 });

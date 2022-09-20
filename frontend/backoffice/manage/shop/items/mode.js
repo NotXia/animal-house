@@ -4,6 +4,7 @@ import * as Form from "./form.js";
 export const START = 0,
              CREATE = 1,
              VIEW = 2,
+             MODIFY = 3,
              ERROR = -1;
 
 export let current;
@@ -24,6 +25,12 @@ export function view() {
     current = VIEW;
     Error.clearErrors();
     Form.viewMode();
+}
+
+export function modify() {
+    current = MODIFY;
+    Error.clearErrors();
+    Form.modifyMode();
 }
 
 export function error(message) {

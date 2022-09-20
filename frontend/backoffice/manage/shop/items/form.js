@@ -80,8 +80,8 @@ function resetSubmitButtons() {
 
 export function createMode() {
     $("#form-shop").show();
-    enable();
     reset();
+    enable();
     addProductTab(null, true);
 
     resetSubmitButtons();
@@ -92,8 +92,17 @@ export function createMode() {
 export function viewMode() {
     $("#form-shop").show();
     reset();
+    readOnly();
 
     resetSubmitButtons();
     $("#container-submit_button-start-modify").show();
-    readOnly();
+}
+
+export function modifyMode() {
+    $("#form-shop").show();
+    enable();
+
+    resetSubmitButtons();
+    $("#button-modify").attr("type", "submit");
+    $("#container-submit_button-modify").show();
 }
