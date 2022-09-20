@@ -57,7 +57,8 @@ export function readOnly() {
     $("[id*='button-image_row-delete-']").prop("disabled", true);
 
     $("#input-upload-images").prop("disabled", true);
-    $("#input-item\\.category").readonly(true);
+    $("#input-item\\.category").attr("style", "pointer-events: none;");
+    $("#input-item\\.category").attr("aria-readonly", true);
 }
 
 export function enable() {
@@ -70,7 +71,8 @@ export function enable() {
     $("[id*='button-image_row-delete-']").prop("disabled", false);
 
     $("#input-upload-images").prop("disabled", false);
-    $("#input-item\\.category").readonly(false);
+    $("#input-item\\.category").attr("style", "");
+    $("#input-item\\.category").attr("aria-readonly", false);
 }
 
 function resetSubmitButtons() {
