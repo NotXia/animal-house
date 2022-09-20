@@ -79,11 +79,9 @@ $(document).ready(async function() {
                                     }
                                 }
 
-                                console.log(updated_products);
                                 // I rimanenti sono prodotti nuovi
                                 for (const product of updated_products) { await ItemAPI.insertProduct(item_cache.id, product); }
 
-                                console.log(item_data);
                                 // Dati generali item
                                 await ItemAPI.updateItem(item_cache.id, item_data);
 
@@ -93,7 +91,6 @@ $(document).ready(async function() {
                         }
                     }
                     catch (err) {
-                        console.log(err);
                         switch (err.status) {
                             case 400: Error.showErrors(err.responseJSON); break;
                             case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
