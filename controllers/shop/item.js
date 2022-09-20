@@ -163,7 +163,7 @@ async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
     let updated_item = undefined;
 
-    if (updated_fields.category) { await checkCategoryExists(to_insert_item.category); }
+    if (updated_fields.category) { await checkCategoryExists(updated_fields.category); }
 
     try {
         updated_item = await ItemModel.findById(req.params.item_id);
