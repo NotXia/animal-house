@@ -12,6 +12,8 @@ let tab_indexes_order = []; // Tiene traccia dell'ordine degli indici
 let bs_tab_by_index = {};
 
 let tab_products = {};
+let deleted_products = [];
+// let modified_products = [];
 
 export async function init() {
     product_editor = await TextEditor.init("#container-product\\.description-editor");
@@ -60,8 +62,9 @@ export async function init() {
         let to_focus_index = tab_indexes_order[curr_position == 0 ? curr_position+1 : curr_position-1];
 
         $(`#product-tab-${current_product_tab_index}`).remove();
-        delete tab_products[current_product_tab_index];
-        tab_indexes_order.splice(curr_position, 1);
+        delete tab_products[current_product_tab_index]; // Rimozione dai prodotti memorizzati
+        tab_indexes_order.splice(curr_position, 1);     // Rimozione come posizione tra i tab
+        deleted_products.push( tab_products[current_product_tab_index] ); // Inserimento nella lista di prodotti eliminati
 
         focusOnTab(to_focus_index);
     });
@@ -81,6 +84,7 @@ export function reset() {
     tab_indexes_order = [];
     bs_tab_by_index = {};
     tab_products = {};
+    deleted_products = [];
 }   
 
 /**
@@ -215,4 +219,8 @@ function updateDeleteProductButton() {
     else { 
         $("#button-start-delete-product").prop("disabled", false); 
     }
+}
+
+export function currentSelectedBarcode() {
+    return tab_products[current_product_tab_index].barcode;
 }

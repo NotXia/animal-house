@@ -6,10 +6,12 @@ import * as SpeciesHandler from "./view/species.js";
 import * as Mode from "./mode.js";
 import * as Form from "./form.js";
 import * as ItemAPI from "./ItemAPI.js";
+import * as ProductTab from "./view/productTab.js";
 
 let NavbarHandler;
 let LoadingHandler;
 
+let item_cache;
 
 $(document).ready(async function() {
     // Caricamento delle componenti esterne
@@ -52,6 +54,10 @@ $(document).ready(async function() {
                             case Mode.CREATE:
                                 const item = Form.getItemData();
                                 await ItemAPI.create(item);
+                                showItem(item);
+                                break;
+
+                            case Mode.MODIFY:
                                 break;
                         }
                     }
@@ -74,10 +80,7 @@ $(document).ready(async function() {
             await LoadingHandler.wrap(async function() {
                 try {
                     const item = await ItemAPI.searchItemByBarcode(query_barcode);
-
-                    Mode.view();
-                    Form.loadItemData(item, query_barcode);
-                    Form.readOnly();
+                    showItem(item, query_barcode);
                 } catch (err) {
                     switch (err.status) {
                         case 404: Mode.error(`Nessun item associato al barcode ${query_barcode}`); break;
@@ -94,5 +97,20 @@ $(document).ready(async function() {
         $("#button-start-modify").on("click", function () {
             Mode.modify();
         });
+
+        $("#button-revert").on("click", function () {
+            showItem(item_cache, ProductTab.currentSelectedBarcode());
+        })
     });
 });
+
+
+function showItem(item, barcode_to_focus) {
+    item_cache = item;
+
+    if (!barcode_to_focus) { barcode_to_focus = item.products[0].barcode; }
+
+    Mode.view();
+    Form.loadItemData(item, barcode_to_focus);
+    Form.readOnly();
+}
