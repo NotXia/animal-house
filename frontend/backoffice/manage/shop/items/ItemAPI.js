@@ -49,3 +49,9 @@ export async function updateItem(item_id, item_data) {
         data: JSON.stringify(item_data)
     });
 }
+
+export async function deleteItem(item_id) {
+    return await api_request({ 
+        type: "DELETE", url: `/shop/items/${item_id}/`
+    });
+}

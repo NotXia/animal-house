@@ -191,7 +191,7 @@
 
                             <div id="container-submit_button-modify">
                                 <button id="button-modify" class="btn btn-outline-success" type="button" >Salva modifiche</button>
-                                <button id="button-delete-item" class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#confirm_delete-modal">Elimina item</button>
+                                <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-item">Elimina item</button>
                                 <button id="button-revert" class="btn btn-outline-secondary" type="button" >Annulla modifiche</button>
                             </div>
                         </div>
@@ -214,8 +214,24 @@
                     Stai cancellando il prodotto <span id="modal-product-name" class="fw-semibold"></span>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button id="button-delete-product" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancella</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button id="button-delete-product" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancella</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conferma cancellazione item -->
+    <div class="modal fade" id="modal-delete-item" tabindex="-1" aria-labelledby="modal-delete-item-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-4" id="modal-delete-item-label">Conferma cancellazione</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button id="button-delete-item" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancella</button>
                 </div>
             </div>
         </div>

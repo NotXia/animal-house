@@ -132,6 +132,19 @@ $(document).ready(async function() {
         $("#button-revert").on("click", function () {
             showItem(item_cache, ProductTab.currentSelectedBarcode());
         })
+
+        $("#button-delete-item").on("click", async function () {
+            await LoadingHandler.wrap(async function() {
+                try {
+                    await ItemAPI.deleteItem(item_cache.id);
+                    Mode.start();
+                } catch (err) {
+                    console.log(err);
+                    Mode.error(err.responseJSON.message ? err.responseJSON.message : `Si è verificato un errore`);
+                }
+            });
+            
+        });
     });
 });
 
