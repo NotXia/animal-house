@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/translations/it.js"></script>
+    <script src="https://unpkg.com/currency.js@2.0.4/dist/currency.min.js"></script>
     <link href="/css/style.css" rel="stylesheet">
     <link href="./css/product_tab.css" rel="stylesheet">
     <link href="/css/icon.css" rel="stylesheet">
@@ -129,7 +130,7 @@
                             <label data-feedback-for="product.barcode" class="invalid-feedback d-block" aria-live="polite"></label>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <label for="input-product.price" class="fs-6 fw-semibold">Prezzo</label>
+                            <label for="input-product.price" class="fs-6 fw-semibold">Prezzo (€)</label>
                             <input type="number" min="0.00" step="0.01" id="input-product.price" name="product.price" class="form-control">
                             <label data-feedback-for="product.price" class="invalid-feedback d-block" aria-live="polite"></label>
                         </div>

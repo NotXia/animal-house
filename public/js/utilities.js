@@ -24,3 +24,21 @@ export function base64(file, header=false) {
         reader.onerror = error => reject(error);
     });
 }
+
+/**
+ * Converte una stringa che rappresenta un prezzo intero in centesimi
+ * @param {*} string_currency   Stringa da convertire
+ * @returns Stringa del prezzo in centesimi
+ */
+export function priceToCents(string_currency) {
+    if (!string_currency.includes(".")) {
+        // Se manca la parte decimale, viene aggiunta
+        string_currency = string_currency + "00";
+    }
+    else {
+        // Gestisce cifre decimali mancanti (es. 1.2 che dovrebbe essere 1.20)
+        let decimals = string_currency.split(".")[1].length;
+        for (let i=0; i<2-decimals; i++) { string_currency = string_currency + "0"; }
+    }
+    return string_currency.replace(".", "");
+}

@@ -4,6 +4,7 @@ import { Error } from "/admin/import/Error.js";
 import * as ImageInput from "./imageInput.js";
 import * as Mode from "../mode.js";
 import * as Form from "../form.js";
+import { priceToCents } from "/js/utilities.js";
 
 export let product_editor;
 
@@ -184,7 +185,7 @@ function getProductData() {
         name: $("#input-product\\.name").val(),
         description: product_editor.getData(),
         target_species: $.map($("input[name='target_species']:checked"), (checkbox) => $(checkbox).val()),
-        price: $("#input-product\\.price").val(),
+        price: priceToCents($("#input-product\\.price").val()),
         quantity: $("#input-product\\.quantity").val(),
         images: ImageInput.getImagesData()
     };
@@ -214,7 +215,7 @@ function loadProductData(product) {
     $("#input-product\\.barcode").val(product.barcode);
     $("#input-product\\.name").val(product.name);
     product_editor.setData(product.description ? product.description : "");
-    $("#input-product\\.price").val(product.price);
+    $("#input-product\\.price").val(currency(product.price, { fromCents: true }));
     $("#input-product\\.quantity").val(product.quantity);
     if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
     if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }
