@@ -42,3 +42,7 @@ export function priceToCents(string_currency) {
     }
     return string_currency.replace(".", "");
 }
+
+export function basename(path) {
+    return path.split(/[\\/]/).pop();
+}

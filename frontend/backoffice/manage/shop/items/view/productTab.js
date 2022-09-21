@@ -4,7 +4,7 @@ import { Error } from "/admin/import/Error.js";
 import * as ImageInput from "./imageInput.js";
 import * as Mode from "../mode.js";
 import * as Form from "../form.js";
-import { priceToCents } from "/js/utilities.js";
+import { priceToCents, basename } from "/js/utilities.js";
 
 export let product_editor;
 
@@ -66,6 +66,11 @@ export async function init() {
         tab_indexes_order.splice(curr_position, 1);     // Rimozione come posizione tra i tab
 
         focusOnTab(to_focus_index);
+    });
+
+    $(`input[id*="input-product"]`).on("change", function () {
+        Error.clearError($(this).attr("name"));
+        tab_products[current_product_tab_index].errors.splice(tab_products[current_product_tab_index].errors.findIndex((error) => `product.${error.field}` === $(this).attr("name")) , 1)
     });
 }
 
@@ -196,16 +201,17 @@ export function getProductsData() {
 
     let products = [];
     tab_indexes_order.forEach( function (index) {
-        let product = tab_products[index];
+        let product = structuredClone(tab_products[index]);
 
         // Normalizzazione path immagine
         product.images = product.images.map((image) => ({ 
-            path: image.path.split(/[\\/]/).pop(), // Rimuove l'eventuale percorso in testa
-            description: image.description ? image.description : " " 
+            path: basename(image.path), // Rimuove l'eventuale percorso in testa
+            description: image.description
         })); 
 
-        products.push(tab_products[index]);
+        products.push(product);
     });
+    console.log(products);
     return products;
 }
 
@@ -223,6 +229,12 @@ function loadProductData(product) {
     updateDeleteProductButton();
 
     if (Mode.current === Mode.VIEW) { Form.readOnly(); } // Necessario perché vengono generati nuovi elementi
+
+    if (product.errors) {
+        for (const error of product.errors) { 
+            Error.showError(`product.${error.field}`, error.message); 
+        }
+    }
 }
 
 export function updateDeleteProductButton() {
@@ -236,4 +248,19 @@ export function updateDeleteProductButton() {
 
 export function currentSelectedBarcode() {
     return tab_products[current_product_tab_index].barcode;
+}
+
+export function addErrorToProduct(barcode, error_list) {
+    for (const [index, product] of Object.entries(tab_products)) {
+        if (product.barcode === barcode) {
+            if (!tab_products[index].errors) { tab_products[index].errors = []; }
+
+            tab_products[index].errors = tab_products[index].errors.concat(error_list);
+            break;
+        }
+    }
+}
+
+export function reload() {
+    loadProductData(tab_products[current_product_tab_index]);
 }
