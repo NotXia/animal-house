@@ -139,7 +139,6 @@ $(document).ready(async function() {
                     await ItemAPI.deleteItem(item_cache.id);
                     Mode.start();
                 } catch (err) {
-                    console.log(err);
                     Mode.error(err.responseJSON.message ? err.responseJSON.message : `Si è verificato un errore`);
                 }
             });
