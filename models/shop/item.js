@@ -3,9 +3,8 @@
 */
 
 const mongoose = require("mongoose");
-const ObjectId = mongoose.Schema.Types.ObjectId;
 const ValidationError = mongoose.Error.ValidationError
-const ProductModel = require("./product");
+const path = require("path");
 
 const itemSchema = mongoose.Schema({
     name: {
@@ -20,19 +19,36 @@ const itemSchema = mongoose.Schema({
         type: String,
         requied: true
     },
-    products_id: [{ 
-        type: ObjectId, ref: ProductModel.collection.collectionName,
-    }],
+
+    products: [ mongoose.Schema({
+        barcode: { type: String, required: true, unique: true },
+        name: { type: String },
+        description: { type: String, default: "" },
+        images: [{
+            path: { type: String, required: true },
+            description: { type: String },
+        }],
+        target_species: [{ type: String }],
+        price: { // In formato intero
+            type: Number, required: true, 
+            validate: (val) => { return val >= 0; } 
+        },
+        quantity: {
+            type: Number, required: true, default: 0,
+            validate: (val) => { return val >= 0; } 
+        }
+    }, { _id: false }) ],
+
     relevance: {
         type: Number, required: true,
         default: 0
     }
 });
 
-itemSchema.index({ relevance: 1, products_id: 1, category_id: 1 });
+itemSchema.index({ relevance: 1, category: 1, "products.barcode": 1 });
 
-itemSchema.pre("validate", async function (next) {
-    if (this.products_id.length <= 0) {
+itemSchema.pre("validate", function (next) {
+    if (this.products.length <= 0) {
         next(new ValidationError());
     }
     else {
@@ -40,17 +56,55 @@ itemSchema.pre("validate", async function (next) {
     }
 });
 
-itemSchema.methods.getData = async function() {
-    const data = await this.populate("products_id");
-
+function productGetData(product) {
     return {
-        id: data._id,
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        relevance: data.relevance,
-        products: data.products_id.map(product => product.getData())
+        barcode: product.barcode,
+        name: product.name,
+        description: product.description,
+        images: product.images.map( (image) => ({
+            path: path.join(process.env.SHOP_IMAGES_BASE_URL, image.path),
+            description: image.description
+        }) ),
+        target_species: product.target_species,
+        price: product.price,
+        quantity: product.quantity
+    }
+}
+
+itemSchema.methods.getData = function() {
+    return {
+        id: this._id,
+        name: this.name,
+        description: this.description,
+        category: this.category,
+        relevance: this.relevance,
+        products: this.products.map(product => productGetData(product))
     };
+};
+
+itemSchema.statics.getProductByBarcode = async function(barcode) {
+    // Ricerca item che contiene barcode
+    const item = await this.findOne({ "products.barcode": barcode }).exec();
+    if (!item) { return null; }
+
+    // Estrazione prodotto
+    return productGetData(item.products.find((product) => product.barcode === barcode));
+};
+
+itemSchema.statics.updateProductAmount = async function(barcode, factor) {
+    // Ricerca item che contiene barcode
+    const item = await this.findOne({ "products.barcode": barcode }).exec();
+    if (!item) { return; }
+
+    // Estrazione prodotto
+    for (let i=0; i<item.products.length; i++) {
+        if (item.products[i].barcode === barcode) {
+            item.products[i].quantity += factor;
+            break;
+        }
+    }
+
+    await item.save();
 };
 
 module.exports = mongoose.model("items", itemSchema);
