@@ -4,7 +4,7 @@ const utils = require("./utils/utils");
 const session = require('supertest-session');
 
 const OrderModel = require("../models/shop/order");
-const ProductModel = require("../models/shop/product");
+const ItemModel = require("../models/shop/item");
 
 let curr_session = session(app);
 let itemA, itemB, itemC;
@@ -68,7 +68,7 @@ describe("Inserimento ordine", function () {
         expect(order.hub_code).toEqual("MXP1");
         expect(order.products.length).toEqual(1);
 
-        const product = await ProductModel.findOne({ barcode: "A12345" }).exec();
+        const product = await ItemModel.getProductByBarcode("A12345");
         expect(product.quantity).toEqual(3);
     });
 
@@ -86,9 +86,9 @@ describe("Inserimento ordine", function () {
         expect(order.address.city).toEqual("Bologna");
         expect(order.products.length).toEqual(2);
 
-        let product = await ProductModel.findOne({ barcode: "A23456" }).exec();
+        let product = await ItemModel.getProductByBarcode("A23456");
         expect(product.quantity).toEqual(0);
-        product = await ProductModel.findOne({ barcode: "C12345" }).exec();
+        product = await ItemModel.getProductByBarcode("C12345");
         expect(product.quantity).toEqual(18);
     });
 
@@ -212,9 +212,9 @@ describe("Aggiornamento ordine", function () {
 
 describe("Cancellazione ordine", function () {
     test("Cancellazione corretta come cliente", async function () {
-        let product = await ProductModel.findOne({ barcode: "A23456" }).exec();
+        let product = await ItemModel.getProductByBarcode("A23456");
         expect(product.quantity).toEqual(0);
-        product = await ProductModel.findOne({ barcode: "C12345" }).exec();
+        product = await ItemModel.getProductByBarcode("C12345");
         expect(product.quantity).toEqual(16);
         
         await curr_session.delete(`/shop/orders/${order2.id}`)
@@ -223,9 +223,9 @@ describe("Cancellazione ordine", function () {
         const order = await OrderModel.findById(order2.id).exec();
         expect(order.status).toEqual("cancelled");
 
-        product = await ProductModel.findOne({ barcode: "A23456" }).exec();
+        product = await ItemModel.getProductByBarcode("A23456");
         expect(product.quantity).toEqual(1);
-        product = await ProductModel.findOne({ barcode: "C12345" }).exec();
+        product = await ItemModel.getProductByBarcode("C12345");
         expect(product.quantity).toEqual(18);
     });
 
