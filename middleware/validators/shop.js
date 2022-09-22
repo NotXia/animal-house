@@ -27,21 +27,20 @@ module.exports.validateProductImages = function (source, required=true, field_na
 }
 
 module.exports.validateListOfProducts = function (source, required=true, field_name="products") {
-    if (required) {
-        return [
-            validator[source](`${field_name}`).exists().isArray({ min: 1 }).withMessage("Nessun prodotto inserito"),
-            module.exports.validateProductBarcode(source, utils.REQUIRED, `${field_name}.*.barcode`),
-            module.exports.validateProductName(source, utils.REQUIRED, `${field_name}.*.name`),
-            module.exports.validateProductDescription(source, utils.OPTIONAL, `${field_name}.*.description`),
-            module.exports.validateProductPrice(source, utils.REQUIRED, `${field_name}.*.price`),
-            module.exports.validateProductQuantity(source, utils.REQUIRED, `${field_name}.*.quantity`),
-            module.exports.validateProductTargetSpecies(source, utils.OPTIONAL, `${field_name}.*.target_species_id.*`),
-            module.exports.validateProductImages(source, utils.OPTIONAL, `${field_name}.*.images`),
-        ];
-    }
-    else {
-        return validator[source](`${field_name}`).optional();
-    }
+    let validation = [];
+
+    if (required) { validation.push( utils.handleRequired(validator[source](`${field_name}`)).isArray({ min: 1 }).withMessage("Nessun prodotto inserito") ); }
+    else { validation.push(utils.handleRequired(validator[source](`${field_name}`)) ); }
+    
+    return validation.concat([
+        module.exports.validateProductBarcode(source, utils.REQUIRED, `${field_name}.*.barcode`),
+        module.exports.validateProductName(source, utils.REQUIRED, `${field_name}.*.name`),
+        module.exports.validateProductDescription(source, utils.OPTIONAL, `${field_name}.*.description`),
+        module.exports.validateProductPrice(source, utils.REQUIRED, `${field_name}.*.price`),
+        module.exports.validateProductQuantity(source, utils.REQUIRED, `${field_name}.*.quantity`),
+        module.exports.validateProductTargetSpecies(source, utils.OPTIONAL, `${field_name}.*.target_species_id.*`),
+        module.exports.validateProductImages(source, utils.OPTIONAL, `${field_name}.*.images`),
+    ]);
 }
 
 /* Categorie */
