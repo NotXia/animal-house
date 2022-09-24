@@ -3,7 +3,7 @@ const validator = require("express-validator");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const OrderModel = require("../../models/shop/order");
-const ProductModel = require("../../models/shop/product");
+const ItemModel = require("../../models/shop/item");
 const HubModel = require("../../models/services/hub");
 const moment = require("moment");
 
@@ -15,6 +15,7 @@ async function createOrder(req, res) {
     let ordered_products_barcode = [];
     let ordered_products_quantity = {};
     let order_data = validator.matchedData(req);
+    let order_products = [];
     
     ordered_products_barcode = order_data.products.map((product) => product.barcode)
     for (const product of order_data.products) { ordered_products_quantity[product.barcode] = parseInt(product.quantity); };
@@ -28,25 +29,27 @@ async function createOrder(req, res) {
         }
 
         // Estrazione prodotti dell'ordine
-        const products = await ProductModel.find({ barcode: {"$in": ordered_products_barcode} }).exec();
-        if (products.length != ordered_products_barcode.length) { throw error.generate.NOT_FOUND("Sono presenti prodotti inesistenti"); }
+        for (const barcode of ordered_products_barcode) {
+            const product = await ItemModel.getProductByBarcode(barcode);
+            if (!product) { throw error.generate.NOT_FOUND("Sono presenti prodotti inesistenti"); }
+
+            order_products.push(product);
+        }
         
         // Verifica quantità
-        for (const product of products) {
+        for (const product of order_products) {
             if (product.quantity < ordered_products_quantity[product.barcode]) { throw error.generate.BAD_REQUEST({ field: "products", message: "Sono presenti prodotti non disponibili"}); }
         }
 
         // Aggiornamento quantità
-        for (const product of products) {
-            let to_update_product = await ProductModel.findById(product._id).exec();
-            to_update_product.quantity -= ordered_products_quantity[product.barcode];
-            await to_update_product.save();
+        for (const product of order_products) {
+            await ItemModel.updateProductAmount(product.barcode, -ordered_products_quantity[product.barcode]);
         }
 
         // Inserimento dati mancanti dell'ordine
         order_data.customer = req.auth.username;
-        order_data.total = products.reduce((total, product) => total + parseInt(product.price)*ordered_products_quantity[product.barcode], 0);
-        order_data.products = products.map((product) => ({
+        order_data.total = order_products.reduce((total, product) => total + parseInt(product.price)*ordered_products_quantity[product.barcode], 0);
+        order_data.products = order_products.map((product) => ({
             barcode: product.barcode,
             name: product.name,
             price: product.price,
@@ -89,7 +92,6 @@ async function searchOrder(req, res) {
         orders = orders.map((order) => order.getData());
     }
     catch (err) {
-        console.warn(err);
         return error.response(err, res);
     }
 
@@ -151,9 +153,7 @@ async function removeOrder(req, res) {
 
         // Aggiornamento quantità prodotti
         for (const product of order.products) {
-            let to_update_product = await ProductModel.findOne({ barcode: product.barcode }).exec();
-            to_update_product.quantity += product.quantity;
-            await to_update_product.save();
+            await ItemModel.updateProductAmount(product.barcode, product.quantity);
         }
     }
     catch (err) {

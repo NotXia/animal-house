@@ -1,7 +1,6 @@
 const { query } = require("express-validator");
 const validator = require("../validators/shop");
 const { REQUIRED, OPTIONAL } = require("../validators/utils");
-const file_upload = require("express-fileupload");
 const utils = require("../utils");
 
 
@@ -42,19 +41,7 @@ const validateUpdateItemById = [
     validator.validateItemDescription("body", OPTIONAL),
     validator.validateCategoryName("body", OPTIONAL, "category"),
     validator.validateItemRelevance("body", OPTIONAL),
-    utils.validatorErrorHandler
-];
-
-const validateUpdateProductByIndex = [
-    validator.validateItemId("param", REQUIRED),
-    validator.validateProductIndex("param", REQUIRED),
-    validator.validateProductBarcode("body", OPTIONAL),
-    validator.validateItemName("body", OPTIONAL),
-    validator.validateItemDescription("body", OPTIONAL),
-    validator.validateProductTargetSpecies("body", OPTIONAL),
-    validator.validateProductPrice("body", OPTIONAL),
-    validator.validateProductQuantity("body", OPTIONAL),
-    validator.validateProductImages("body", OPTIONAL),
+    validator.validateListOfProducts("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
 
@@ -63,23 +50,6 @@ const validateDeleteItemById = [
     utils.validatorErrorHandler
 ];
 
-const validateDeleteProductByIndex = [
-    validator.validateItemId("param", REQUIRED),
-    validator.validateProductIndex("param", REQUIRED),
-    utils.validatorErrorHandler
-];
-
-const validateCreateProduct = [
-    validator.validateItemId("param", REQUIRED, "item_id"),
-    validator.validateProductBarcode("body", REQUIRED),
-    validator.validateItemName("body", REQUIRED),
-    validator.validateItemDescription("body", OPTIONAL),
-    validator.validateProductTargetSpecies("body", OPTIONAL),
-    validator.validateProductPrice("body", REQUIRED),
-    validator.validateProductQuantity("body", REQUIRED),
-    validator.validateProductImages("body", OPTIONAL),
-    utils.validatorErrorHandler
-];
 
 module.exports = {
     validateCreate: validateCreate,
@@ -87,8 +57,5 @@ module.exports = {
     validateSearchByBarcode: validateSearchItemByBarcode,
     validateSearchItem: validateSearchSingleItem,
     validateUpdateItem: validateUpdateItemById,
-    validateUpdateProduct: validateUpdateProductByIndex,
-    validateDeleteItem: validateDeleteItemById,
-    validateDeleteProduct: validateDeleteProductByIndex,
-    validateCreateProduct: validateCreateProduct
+    validateDeleteItem: validateDeleteItemById
 }

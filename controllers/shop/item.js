@@ -1,17 +1,13 @@
 require('dotenv').config();
 
 const ItemModel = require("../../models/shop/item");
-const ProductModel = require("../../models/shop/product");
 const CategoryModel = require("../../models/shop/category");
 const SpeciesModel = require("../../models/animals/species");
 
-const { nanoid } = require("nanoid");
 const validator = require("express-validator");
 const path = require("path");
-const fs = require("fs");
 const utils = require("../../utilities");
 const error = require("../../error_handler");
-const product = require('../../models/shop/product');
 const file_controller = require('../file');
 
 async function checkCategoryExists(category_name) {
@@ -28,49 +24,58 @@ async function checkSpeciesExists(species_name) {
     return true;
 }
 
+async function checkBarcodeUniqueness(barcode, to_ignore_item_id) {
+    let query = {};
+    query["products.barcode"] = barcode;
+    if (to_ignore_item_id) { query["_id"] = {"$ne": to_ignore_item_id}; }
+
+    if (await ItemModel.findOne(query)) {
+        throw error.generate.CONFLICT({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" }); 
+    }
+    return true;
+}
+
 /* 
     Gestisce la creazione di un nuovo item comprensivo di prodotti 
 */
 async function createItem(req, res) {
     let new_item;
-    let products_id;
     const to_insert_item = validator.matchedData(req);
-    const to_insert_products = to_insert_item.products;
-    delete to_insert_item.products;
 
     try {
         // Verifica esistenza categoria e specie target
         await checkCategoryExists(to_insert_item.category);
-        for (const product of to_insert_products) {
+        for (const product of to_insert_item.products) {
             if (product.target_species) {
                 for (const species of product.target_species) { await checkSpeciesExists(species); }
             }
         }
 
+        // Verifica unicità barcode
+        let local_barcodes = {};
+        for (const product of to_insert_item.products) {
+            await checkBarcodeUniqueness(product.barcode, null); // Verifica collisioni tra item
+
+            // Verifica collisioni nello stesso item
+            if (local_barcodes[product.barcode]) { throw error.generate.CONFLICT({ field: "barcode", message: "Sono presenti stessi barcode nello stesso item" }); }
+            local_barcodes[product.barcode] = true;
+        }
+
         // Reclamo immagini
-        for (const product of to_insert_products) {
+        for (const product of to_insert_item.products) {
             if (!product.images) { continue; }
             const product_images_name = product.images.map((image) => image.path);
             await file_controller.utils.claim(product_images_name, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
 
-        // Inserimento dei singoli prodotti
-        const products = await ProductModel.insertMany(to_insert_products);
-        products_id = products.map((product) => product._id);
-        to_insert_item.products_id = products_id;
-
         // Inserimento dell'item
         new_item = await new ItemModel(to_insert_item).save();
     }
     catch (err) {
-        if (err.code == utils.MONGO_DUPLICATED_KEY) {
-            await ProductModel.deleteMany({ _id: products_id }).catch((err) => {}); // Rimuove tutti i prodotti dato che non verranno associati all'item
-            err = error.generate.CONFLICT({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
-        }
         return error.response(err, res);
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(await new_item.getData());
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(new_item.getData());
 }
 
 /*
@@ -94,22 +99,16 @@ async function searchItem(req, res) {
     try {
         items = await ItemModel.aggregate([
             { $match: query_criteria },
-            { $lookup: {
-                    from: ProductModel.collection.name,
-                    localField: "products_id",
-                    foreignField: "_id",
-                    as: "products"
-            }},
             { $addFields: {
-                    min_price: { $min: "$products.price" },
-                    max_price: { $max: "$products.price" },
+                min_price: { $min: "$products.price" },
+                max_price: { $max: "$products.price" },
             }},
             { $sort: sort_criteria },
             { $skip: parseInt(req.query.page_number) }, // Per paginazione
             { $limit: parseInt(req.query.page_size) },
         ]);
 
-        items = await Promise.all(items.map( async item => await (new ItemModel(item)).getData() )); // Conversione del risultato nel formato corretto
+        items = items.map(item => (new ItemModel(item)).getData()); // Conversione del risultato nel formato corretto
     }
     catch (err) {
         return error.response(err, res);
@@ -125,17 +124,14 @@ async function searchItemByBarcode(req, res) {
     let item = undefined; // Conterrà il risultato della ricerca
 
     try {
-        // Cerca il prodotto associato al barcode e poi l'item che contiene il prodotto
-        const product = await ProductModel.findOne({ barcode: req.params.barcode }).exec();
-        if (product) { item = await ItemModel.findOne({ products_id: product._id }).exec(); }
-
+        item = await ItemModel.findOne({ "products.barcode": req.params.barcode }).exec();
         if (!item) { throw error.generate.NOT_FOUND("Nessun item associato al barcode"); }
     }
     catch (err) {
         return error.response(err, res);
     }
     
-    return res.status(utils.http.OK).json(await item.getData());
+    return res.status(utils.http.OK).json(item.getData());
 }
 
 /*
@@ -147,77 +143,64 @@ async function searchSingleItem(req, res) {
     try {
         out_item = await ItemModel.findById(req.params.item_id).exec();
         if (!out_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        out_item = await out_item.getData();
     }
     catch (err) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(out_item);
+    return res.status(utils.http.OK).json(out_item.getData());
 }
 
 /*
-    Aggiorna i dati generali (non dei singoli prodotti) di un item
+    Aggiorna i dati di un item
 */
 async function updateItemById(req, res) {
     const updated_fields = validator.matchedData(req, { locations: ["body"] });
     let updated_item = undefined;
 
-    if (updated_fields.category) { await checkCategoryExists(updated_fields.category); }
-
-    try {
-        updated_item = await ItemModel.findById(req.params.item_id);
-        if (!updated_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-
-        for (const [field, value] of Object.entries(updated_fields)) { updated_item[field] = value; }
-        await updated_item.save();
-
-    }
-    catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.status(utils.http.OK).json(await updated_item.getData());
-}
-
-/*
-    Aggiorna i dati di un prodotto ricercandolo a partire dal suo item
-*/
-async function updateProductByIndex(req, res) {
-    const updated_fields = validator.matchedData(req, { locations: ["body"] });
-    let updated_product;
-
-    try {
-        if (updated_fields.target_species) {
-            for (const species of product.target_species) { await checkSpeciesExists(species); }
+    // Verifica esistenza categoria e specie
+    if (updated_fields.category) { await checkCategoryExists(to_insert_item.category); }
+    if (updated_fields.products) {
+        for (const product of updated_fields.products) {
+            if (product.target_species) {
+                for (const species of product.target_species) { await checkSpeciesExists(species); }
+            }
         }
+    }
 
-        // Estrazione del prodotto a partire dall'item
-        const item = await ItemModel.findById(req.params.item_id, { "products_id": 1 }).exec();
+    try {
+        item = await ItemModel.findById(req.params.item_id);
         if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
-        const product_id = item.products_id[parseInt(req.params.product_index)];
 
-        // Gestione caricamento/cancellazione delle immagini aggiornate
-        if (updated_fields.images) {
-            // Normalizzazione dei percorsi
-            updated_fields.images = updated_fields.images.map( (image) => ({ path: path.basename(image.path), description: image.description }) );
+        if (updated_fields.products) {
+            // -- Gestione unicità barcode --
+            let local_barcodes = {};
+            for (const product of updated_fields.products) {
+                await checkBarcodeUniqueness(product.barcode, item.id); // Verifica collisioni tra altri item
 
-            const curr_product = await ProductModel.findById(product_id, { images: 1 });
-            if (!curr_product) { throw error.generate.NOT_FOUND("Post inesistente"); }
-            const curr_images_name = curr_product.images.map((image) => image.path);
-            const updated_image_name = updated_fields.images.map((image) => image.path);
+                // Verifica collisioni nello stesso item
+                if (local_barcodes[product.barcode]) { throw error.generate.CONFLICT({ field: "barcode", message: "Sono presenti stessi barcode nello stesso item" }); }
+                local_barcodes[product.barcode] = true;
+            }
 
+            // Normalizzazione path immagini
+            for (let product of updated_fields.products) {
+                product.images = product.images?.map((image) => ({ path: path.basename(image.path), description: image.description}));
+            }
+            
+            // -- Gestione immagini --
+            let old_images = item.products.map(          (product) => product.images?.map((image) => path.basename(image.path)) ).flat(); // Estrazione path immagini attuali
+            let new_images = updated_fields.products.map((product) => product.images?.map((image) => path.basename(image.path)) ).flat(); // Estrazione path immagini attuali
             // Gestione delle immagini cambiate
-            const images_changes = file_controller.utils.diff(curr_images_name, updated_image_name);
+            const images_changes = file_controller.utils.diff(old_images, new_images);
             await file_controller.utils.claim(images_changes.added, process.env.SHOP_IMAGES_DIR_ABS_PATH);
             await file_controller.utils.delete(images_changes.removed, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
-    
-        updated_product = await ProductModel.findById(product_id);
-        for (const [field, value] of Object.entries(updated_fields)) { updated_product[field] = value; }
-        await updated_product.save();
 
+        for (const [field, value] of Object.entries(updated_fields)) { item[field] = value; }
+
+        await item.save();
+        updated_item = item;
     }
     catch (err) {
         if (err.code == utils.MONGO_DUPLICATED_KEY) {
@@ -226,7 +209,7 @@ async function updateProductByIndex(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(updated_product.getData());
+    return res.status(utils.http.OK).json(updated_item.getData());
 }
 
 /* 
@@ -235,19 +218,17 @@ async function updateProductByIndex(req, res) {
 async function deleteItemById(req, res) {
     try {
         // Estrazione dei prodotti associati all'item
-        const to_delete_item = await ItemModel.findById(req.params.item_id, { products_id: 1 }).exec();
+        const to_delete_item = await ItemModel.findById(req.params.item_id).exec();
         if (!to_delete_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
 
         // Rimozione delle immagini associate ai prodotti
-        const products = await ProductModel.find({ _id: { $in: to_delete_item.products_id } }, { images: 1 }).exec();
-        for (const product of products) {
+        for (const product of to_delete_item.products) {
             if (!product.images) { continue; }
-            const to_delete_images = product.images.map((image) => image.path);
+            const to_delete_images = product.images.map((image) => path.basename(image.path));
             await file_controller.utils.delete(to_delete_images, process.env.SHOP_IMAGES_DIR_ABS_PATH);
         }
 
-        // Rimozione dei prodotti e dell'item
-        await ProductModel.deleteMany({ _id: { $in: to_delete_item.products_id } });
+        // Rimozione dell'item
         await ItemModel.findByIdAndDelete(req.params.item_id);
     }
     catch (err) {
@@ -257,81 +238,11 @@ async function deleteItemById(req, res) {
     return res.sendStatus(utils.http.NO_CONTENT);
 }
 
-/* 
-    Gestisce la cancellazione di un singolo prodotto associato ad un item
-*/
-async function deleteProductByIndex(req, res) {
-    try {
-        // Estrazione del prodotto
-        const item = await ItemModel.findById(req.params.item_id).exec();
-        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-        if (!item.products_id[parseInt(req.params.product_index)]) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
-        if (item.products_id.length === 1) { 
-            return res.status(utils.http.SEE_OTHER).location(`${req.baseUrl}/items/${req.params.item_id}`).json({message: "Per rimuovere questo prodotto bisogna rimuovere l'item"}) 
-        }
-
-        // Rimozione delle immagini associate al prodotti
-        const to_delete_product = await ProductModel.findById(item.products_id[parseInt(req.params.product_index)], { images: 1 }).exec();
-        if (to_delete_product.images) {
-            const to_delete_images = to_delete_product.images.map((image) => image.path);
-            await file_controller.utils.delete(to_delete_images, process.env.SHOP_IMAGES_DIR_ABS_PATH);
-        }
-
-        // Rimozione dei prodotti e dell'item
-        await ProductModel.findByIdAndDelete(to_delete_product._id);
-        item.products_id.splice(parseInt(req.params.product_index), 1);
-        await item.save();
-    }
-    catch (err) {
-        return error.response(err, res);
-    }
-
-    return res.sendStatus(utils.http.NO_CONTENT);
-}
-
-async function createProduct(req, res) {
-    const item_id = req.params.item_id;
-    const product_data = validator.matchedData(req, { locations: ["body"] });
-    let new_product;
-
-    try {
-        const item = await ItemModel.findById(item_id);
-        if (!item) { throw error.generate.NOT_FOUND("Item inesistente"); }
-
-        // Verifica esistenza specie
-        if (product_data.target_species) {  for (const species of product_data.target_species) { await checkSpeciesExists(species); } }
-
-        // Reclamo immagini
-        if (product_data.images) { 
-            const product_images_name = product_data.images.map((image) => image.path);
-            await file_controller.utils.claim(product_images_name, process.env.SHOP_IMAGES_DIR_ABS_PATH);
-        }
-
-        // Inserimento prodotto
-        new_product = await new ProductModel(product_data).save();
-
-        // Aggiornamento item
-        item.products_id.push(new_product.id);
-        await item.save();
-    }
-    catch (err) {
-        if (err.code == utils.MONGO_DUPLICATED_KEY) {
-            err = error.generate.CONFLICT({ field: "barcode", message: "Il prodotto associato al barcode è già presente in un item" });
-        }
-        return error.response(err, res);
-    }
-
-    return res.status(utils.http.CREATED).json(new_product.getData());
-}
-
 module.exports = {
     create: createItem,
     search: searchItem,
     searchByBarcode: searchItemByBarcode,
     searchItem: searchSingleItem,
     updateItem: updateItemById,
-    updateProduct: updateProductByIndex,
-    deleteItem: deleteItemById,
-    deleteProduct: deleteProductByIndex,
-    createProduct: createProduct
+    deleteItem: deleteItemById
 }
