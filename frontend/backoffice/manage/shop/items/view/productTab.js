@@ -138,6 +138,9 @@ export function addProductTab(product, focus=false) {
     `);
 
     $(`#product-tab-${index}`).on("click", function (e) {
+        $("#input-product\\.name").focus();
+        if (index === current_product_tab_index) { return; } // Cambia tab solo se è diverso da quello corrente
+
         // Impedisce di cambiare tab prodotto se quello attuale non è valido
         if (!$("#container-product-data input").valid()) { bs_tab_by_index[current_product_tab_index].show(); return; } 
 
@@ -249,7 +252,7 @@ export function reload() {
 async function checkBarcodeUniqueness() {
     if ($("#input-product\\.barcode").val() === "") { return; }
     Error.clearError("product.barcode");
-    
+
     const barcode = $("#input-product\\.barcode").val();
     let old_barcodes = [], curr_barcodes = [];
 
