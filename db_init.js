@@ -77,7 +77,3 @@ async function init() {
 
 
 module.exports = init;
-
-if (!process.env.TESTING) {
-    init();
-}
