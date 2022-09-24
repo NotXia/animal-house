@@ -1,5 +1,6 @@
 import * as TextEditor from "./view/textEditor.js";
 import * as ProductTab from "./view/productTab.js";
+import { setReadOnly, removeReadOnly } from "/js/utilities.js";
 
 
 let item_editor;
@@ -57,6 +58,8 @@ export function readOnly() {
     $("#input-upload-images").prop("disabled", true);
     $("#input-item\\.category").prop("disabled", true);
     $("#input-item\\.category").attr("aria-readonly", true);
+
+    setReadOnly(`input[name="target_species"]`);
 }
 
 export function enable() {
@@ -72,7 +75,7 @@ export function enable() {
     $("#input-item\\.category").prop("disabled", false);
     $("#input-item\\.category").attr("aria-readonly", false);
 
-    $(`input[name="target_species"]`).prop("disabled", false);
+    removeReadOnly(`input[name="target_species"]`);
 }
 
 function resetSubmitButtons() {
