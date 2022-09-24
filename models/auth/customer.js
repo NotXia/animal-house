@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const addressSchema = require("../utils/address");
 const AnimalModel = require("../animals/animal");
-const ProductModel = require("../shop/product");
+const ItemModel = require("../shop/item");
 
 const customerScheme = mongoose.Schema({
     address: {
@@ -20,7 +20,7 @@ const customerScheme = mongoose.Schema({
 customerScheme.methods.getCartData = async function() {
     return await Promise.all(
         this.cart.map(async (cart_entry) => ({
-            product: (await ProductModel.findOne({ barcode: cart_entry.barcode }).exec()).getData(),
+            product: (await ItemModel.getProductByBarcode(cart_entry.barcode)),
             quantity: cart_entry.quantity
         }))
     );

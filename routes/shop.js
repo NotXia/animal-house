@@ -26,20 +26,11 @@ router.get("/items/barcode/:barcode", [ shop_middleware.item.validateSearchByBar
 /* Cerca un singolo item */
 router.get("/items/:item_id", shop_middleware.item.validateSearchItem, shop_controller.item.searchItem);
 
-/* Modifica le generalità di un item */
+/* Modifica di un item */
 router.put("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateUpdateItem ], shop_controller.item.updateItem);
 
 /* Cancella un item e tutti i prodotti connessi */
 router.delete("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateDeleteItem ], shop_controller.item.deleteItem);
-
-/* Creazione di un prodotto in un item */
-router.post("/items/:item_id/products/", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateCreateProduct ], shop_controller.item.createProduct);
-
-/* Modifica i dati di un prodotto */
-router.put("/items/:item_id/products/:product_index", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateUpdateProduct ], shop_controller.item.updateProduct);
-
-/* Cancella un prodotto di un item */
-router.delete("/items/:item_id/products/:product_index", [ auth_middleware([ ["operator", "shop_write"]], [ ["admin"] ]), shop_middleware.item.validateDeleteProduct ], shop_controller.item.deleteProduct);
 
 
 router.post("/categories/", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateCreate ], shop_controller.category.create);

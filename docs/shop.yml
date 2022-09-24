@@ -196,9 +196,9 @@ paths:
     put:
       tags:
       - "Item e prodotti"
-      summary: "Modifica delle generalità di un item"
+      summary: "Modifica di un item"
       description: |
-        Gestisce la modifica dei dati generali di un item (non dei singoli prodotti).
+        Gestisce la modifica dei dati di un item.
 
         Richiede permessi ["operator", "shop_write"]
       consumes:
@@ -227,6 +227,35 @@ paths:
             relevance:
               type: number
               format: int
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  barcode:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  target_species:
+                    type: array
+                    items:
+                      type: string
+                  price:
+                    type: number
+                  quantity:
+                    type: number
+                  images:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        description:
+                          type: string
+                      required: [ path, description ]
       responses:
         200:
           description: "Modificato con successo"
@@ -329,220 +358,7 @@ paths:
         500:
           description: "Errore lato server"
 
-  /shop/items/{item_id}/products/:
-    post:
-      tags:
-      - "Item e prodotti"
-      summary: "Creazione di un prodotto"
-      description: |
-        Gestisce la creazione di un prodotto associato ad un item.
-
-        Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - name: item_id
-        in: path
-        type: string
-        format: ObjectId
-        required: true
-      - name: body
-        in: body
-        description: "Dati del prodotto"
-        schema:
-          type: object
-          properties:
-            barcode:
-              type: string
-            name:
-              type: string
-            description:
-              type: string
-            target_species:
-              type: array
-              items:
-                type: string
-            price:
-              type: number
-            quantity:
-              type: number
-            images:
-              type: array
-              items:
-                type: object
-                properties:
-                  path:
-                    type: string
-                  description:
-                    type: string
-                required: [ path, description ]
-          required: [ barcode, name, price, quantity ]
-      responses:
-        201:
-          description: "Creato con successo"
-          schema:
-            $ref: "#/definitions/Product"
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi insufficienti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Nessun item trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        409:
-          description: "Il barcode di uno dei prodotti è già esistente"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/FieldErrorMessage"
-        500:
-          description: "Errore lato server"
-
-  /shop/items/{item_id}/products/{product_index}:
-    put:
-      tags:
-      - "Item e prodotti"
-      summary: "Modifica i dati di un prodotto"
-      description: |
-        Gestisce la modifica dei dati di un prodotto ricercato a partire dall'item di appartenenza.
-
-        Richiede permessi ["operator", "shop_write"]
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - name: item_id
-        in: path
-        type: string
-        format: ObjectId
-        required: true
-      - name: product_index
-        in: path
-        type: number
-        format: int
-        required: true
-      - name: body
-        in: body
-        description: "Dati da modificare del prodotto"
-        schema:
-          type: object
-          properties:
-            barcode:
-              type: string
-            name:
-              type: string
-            description:
-              type: string
-            target_species:
-              type: array
-              items:
-                type: string
-            price:
-              type: number
-            quantity:
-              type: number
-            images:
-              type: array
-              items:
-                type: object
-                properties:
-                  path:
-                    type: string
-                  description:
-                    type: string
-                required: [ path, description ]
-      responses:
-        200:
-          description: "Modificato con successo"
-          schema:
-            $ref: "#/definitions/Product"
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi insufficienti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Nessun item trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Errore lato server"
-
-    delete:
-      tags:
-      - "Item e prodotti"
-      summary: "Cancellazione di un prodotto"
-      description: |
-        Gestisce la cancellazione di un prodotto ricercato a partire dall'item di appartenenza.
-
-        Richiede permessi ["operator", "shop_write"]
-      produces:
-      - "application/json"
-      parameters:
-      - name: item_id
-        in: path
-        type: string
-        format: ObjectId
-        required: true
-      - name: product_index
-        in: path
-        type: number
-        required: true
-      responses:
-        204:
-          description: "Cancellato con successo"
-        303:
-          description: |
-            Si sta tentando di cancellare un prodotto da un item che ne contiene uno solo.
-            Si suggerisce di cancellare l'intero item.
-          headers:
-            location:
-              type : string
-              description: "Endpoint a cui richiedere la cancellazione dell'item"
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-            required:
-              - message
-        400:
-          description: "Parametri malformati"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
-        401:
-          description: "Non autenticato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        403:
-          description: "Permessi insufficienti"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        404:
-          description: "Nessun item trovato"
-          schema:
-            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
-        500:
-          description: "Errore lato server"
-
-
+  
   #
   # Inizio categorie
   #

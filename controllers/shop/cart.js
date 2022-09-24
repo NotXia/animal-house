@@ -2,10 +2,11 @@ require('dotenv').config();
 const utils = require("../../utilities");
 const error = require("../../error_handler");
 const UserModel = require("../../models/auth/user");
-const ProductModel = require("../../models/shop/product");
+const ItemModel = require("../../models/shop/item");
 
 async function isProductAvailable(barcode, amount) {
-    const product = await ProductModel.findOne({ barcode: barcode }).exec();
+    // Estrazione prodotto
+    const product = await ItemModel.getProductByBarcode(barcode);
     if (!product) { throw error.generate.NOT_FOUND("Prodotto inesistente"); }
 
     return (product.quantity >= amount);
