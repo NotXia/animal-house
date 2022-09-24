@@ -61,7 +61,7 @@ $(document).ready(async function() {
                                 item_cache = await ItemAPI.updateItem(item_cache.id, item_data);
                                 break;
                         }
-                        
+
                         showItem(item_cache);
                     }
                     catch (err) {

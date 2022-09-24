@@ -5,6 +5,7 @@ import * as ImageInput from "./imageInput.js";
 import * as Mode from "../mode.js";
 import * as Form from "../form.js";
 import { priceToCents, basename } from "/js/utilities.js";
+import * as ItemAPI from "../ItemAPI.js";
 
 export let product_editor;
 
@@ -47,9 +48,14 @@ export async function init() {
         addProductTab(null, true);
     });
 
+    /* Verifica validità barcode */
+    $("#input-product\\.barcode").on("change", async function () {
+        checkBarcodeUniqueness();
+    });
+
     /* Aggiornamento anteprima nome prodotto */
     $("#input-product\\.name").on("change", function () {
-        updateProductTabName()
+        updateProductTabName();
     });
 
     /* Cancellazione di prodotti */
@@ -99,7 +105,7 @@ function focusOnTab(index) {
  * Gestisce il salvataggio dei dati del prodotto attualmente visibile
  */
 function storeCurrentProduct() {
-    tab_products[current_product_tab_index] = getProductData();
+    Object.assign(tab_products[current_product_tab_index], getFormProductData());
 }
 
 /**
@@ -114,6 +120,8 @@ export function addProductTab(product, focus=false) {
 
     // Salvataggio/Creazione dati del tab
     tab_products[index] = product ? product : {};
+
+    if (product) { tab_products[index].old_barcode = product.barcode; } // Per tenere traccia del barcode originale
 
     // Gestione dati di default da visualizzare
     let product_name = product?.name ?? "&nbsp"; 
@@ -173,7 +181,7 @@ function resetProductData() {
     ImageInput.reset();
 }
 
-function getProductData() {
+function getFormProductData() {
     return {
         barcode: $("#input-product\\.barcode").val(),
         name: $("#input-product\\.name").val(),
@@ -218,11 +226,7 @@ function loadProductData(product) {
 
     if (Mode.current === Mode.VIEW) { Form.readOnly(); } // Necessario perché vengono generati nuovi elementi
 
-    if (product.errors) {
-        for (const error of product.errors) { 
-            Error.showError(`product.${error.field}`, error.message); 
-        }
-    }
+    checkBarcodeUniqueness();
 }
 
 export function updateDeleteProductButton() {
@@ -238,17 +242,36 @@ export function currentSelectedBarcode() {
     return tab_products[current_product_tab_index].barcode;
 }
 
-export function addErrorToProduct(barcode, error_list) {
-    for (const [index, product] of Object.entries(tab_products)) {
-        if (product.barcode === barcode) {
-            if (!tab_products[index].errors) { tab_products[index].errors = []; }
-
-            tab_products[index].errors = tab_products[index].errors.concat(error_list);
-            break;
-        }
-    }
-}
-
 export function reload() {
     loadProductData(tab_products[current_product_tab_index]);
+}
+
+async function checkBarcodeUniqueness() {
+    if ($("#input-product\\.barcode").val() === "") { return; }
+    Error.clearError("product.barcode");
+    
+    const barcode = $("#input-product\\.barcode").val();
+    let old_barcodes = [], curr_barcodes = [];
+
+    for (const [index, product] of Object.entries(tab_products)) {
+        old_barcodes.push(product.old_barcode);
+        if (index != current_product_tab_index) { curr_barcodes.push(product.barcode); }
+    }
+    
+    // Verifica collisione barcode locale all'item
+    if (curr_barcodes.includes(barcode)) {
+        Error.showError("product.barcode", "Barcode in uso da un altro prodotto di questo item");
+        return;
+    }
+
+    // Verifica collisione barcode con altri item
+    if (!old_barcodes.includes(barcode)) { // Controlla solo se il barcode è cambiato rispetto a quelli che erano presenti originariamente nell'item
+        try { await ItemAPI.searchItemByBarcode(barcode); } // Se trova un altro item, allora c'è collisione
+        catch (err) {
+            if (err.status === 404) { return; }
+        }
+
+        Error.showError("product.barcode", "Barcode già in uso in un altro item");
+        return;
+    }
 }
