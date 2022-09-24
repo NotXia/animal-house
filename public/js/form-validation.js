@@ -15,7 +15,8 @@ jQuery.extend(jQuery.validator.messages, {
     rangelength: jQuery.validator.format("Il valore deve avere una lunghezza compresa tra {0} e {1}"),
     range: jQuery.validator.format("Inserire un valore tra {0} - {1}"),
     max: jQuery.validator.format("Il valore può essere al massimo {0}"),
-    min: jQuery.validator.format("Il valore deve essere minimo {0}")
+    min: jQuery.validator.format("Il valore deve essere minimo {0}"),
+    step: jQuery.validator.format("Valore non valido")
 });
 
 jQuery.validator.addMethod("securePassword", function(value, element) {

@@ -39,8 +39,8 @@ $(document).ready(async function() {
                 "item.category": { required: true },
                 "product.name": { required: true },
                 "product.barcode": { required: true },
-                "product.price": { required: true },
-                "product.quantity": { required: true }
+                "product.price": { required: true, min: 0.01, step: 0.01 },
+                "product.quantity": { required: true, min: 0 }
             },
             errorPlacement: function(error, element) {
                 Error.showError(element.attr("name"), error);
