@@ -159,7 +159,7 @@ async function updateItemById(req, res) {
     let updated_item = undefined;
 
     // Verifica esistenza categoria e specie
-    if (updated_fields.category) { await checkCategoryExists(to_insert_item.category); }
+    if (updated_fields.category) { await checkCategoryExists(updated_fields.category); }
     if (updated_fields.products) {
         for (const product of updated_fields.products) {
             if (product.target_species) {
