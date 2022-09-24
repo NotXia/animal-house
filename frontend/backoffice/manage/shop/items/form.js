@@ -46,7 +46,7 @@ export function loadItemData(item, barcode_to_focus) {
 
 
 export function readOnly() {
-    $("#form-shop input, #form-shop textarea").readonly(true);
+    $("#form-shop input, #form-shop textarea").prop("readonly", true);
     item_editor.enableReadOnlyMode("item_editor");
     ProductTab.product_editor.enableReadOnlyMode("product_editor");
 
@@ -60,7 +60,7 @@ export function readOnly() {
 }
 
 export function enable() {
-    $("#form-shop input, #form-shop textarea").readonly(false);
+    $("#form-shop input, #form-shop textarea").prop("readonly", false);
     item_editor.disableReadOnlyMode("item_editor");
     ProductTab.product_editor.disableReadOnlyMode("product_editor");
 
@@ -71,6 +71,8 @@ export function enable() {
     $("#input-upload-images").prop("disabled", false);
     $("#input-item\\.category").prop("disabled", false);
     $("#input-item\\.category").attr("aria-readonly", false);
+
+    $(`input[name="target_species"]`).prop("disabled", false);
 }
 
 function resetSubmitButtons() {
