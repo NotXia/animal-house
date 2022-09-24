@@ -1,6 +1,4 @@
 import * as TextEditor from "./view/textEditor.js";
-import { api_request } from "/js/auth.js";
-import { Error } from "/admin/import/Error.js";
 import * as ProductTab from "./view/productTab.js";
 
 

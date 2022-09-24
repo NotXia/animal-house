@@ -54,66 +54,15 @@ $(document).ready(async function() {
 
                         switch (Mode.current) {
                             case Mode.CREATE:
-                                await ItemAPI.create(item_data);
-                                showItem(item_data);
+                                item_cache = await ItemAPI.create(item_data);
                                 break;
 
                             case Mode.MODIFY:
-                                const updated_products = Object.values(item_data.products);
-                                delete item_data.products;
-                                let got_error = false;
-                                const findProductByBarcode = (barcode) => updated_products.find(product => product.old_barcode === barcode);
-                                const productErrorHandler = function (barcode, err) {
-                                    got_error = true;
-                                    switch (err.status) {
-                                        case 400: ProductTab.addErrorToProduct(barcode, err.responseJSON); break;
-                                        case 409: ProductTab.addErrorToProduct(barcode, [err.responseJSON]); break;
-                                        default: throw err;
-                                    }
-                                }
-
-                                // Itero sull'item originale confrontando con i dati aggiornati
-                                for (let i=item_cache.products.length-1; i>=0; i--) {
-                                    const updated_product = findProductByBarcode(item_cache.products[i].barcode);
-                                    
-                                    if (updated_product === undefined) {
-                                        // Cancellazione prodotto eliminato
-                                        await ItemAPI.deleteProductAtIndex(item_cache.id, i);
-                                    }
-                                    else if (updated_product.old_barcode !== undefined) {
-                                        // Aggiornamento prodotto esistente
-                                        try {
-                                            /**
-                                             * TODO Verificare se il prodotto ha subito modifiche
-                                             */
-                                            await ItemAPI.updateProductAtIndex(item_cache.id, i, updated_product);
-                                            updated_products.splice(i, 1);
-                                        } catch (err) { productErrorHandler(updated_product.barcode, err); }
-                                    }
-                                }
-
-                                // I rimanenti sono prodotti nuovi
-                                for (const product of updated_products) { 
-                                    try {
-                                        await ItemAPI.insertProduct(item_cache.id, product);
-                                    } catch (err) { productErrorHandler(product.barcode, err); }
-                                }
-
-                                
-                                // Dati generali item
-                                await ItemAPI.updateItem(item_cache.id, item_data);
-                                
-                                item_cache = await ItemAPI.searchItemById(item_cache.id)
-
-                                if (got_error) {
-                                    ProductTab.reload();
-                                    return;
-                                }
-                                else {
-                                    showItem(item_cache);
-                                }
+                                item_cache = await ItemAPI.updateItem(item_cache.id, item_data);
                                 break;
                         }
+                        
+                        showItem(item_cache);
                     }
                     catch (err) {
                         switch (err.status) {

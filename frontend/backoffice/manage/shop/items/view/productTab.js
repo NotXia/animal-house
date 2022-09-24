@@ -13,7 +13,6 @@ let tab_indexes_order = []; // Tiene traccia dell'ordine degli indici
 let bs_tab_by_index = {};
 
 let tab_products = {};
-// let modified_products = [];
 
 export async function init() {
     product_editor = await TextEditor.init("#container-product\\.description-editor");
@@ -67,11 +66,6 @@ export async function init() {
 
         focusOnTab(to_focus_index);
     });
-
-    $(`input[id*="input-product"]`).on("change", function () {
-        Error.clearError($(this).attr("name"));
-        tab_products[current_product_tab_index].errors.splice(tab_products[current_product_tab_index].errors.findIndex((error) => `product.${error.field}` === $(this).attr("name")) , 1)
-    });
 }
 
 export function reset() {
@@ -105,10 +99,7 @@ function focusOnTab(index) {
  * Gestisce il salvataggio dei dati del prodotto attualmente visibile
  */
 function storeCurrentProduct() {
-    const old_barcode = tab_products[current_product_tab_index].old_barcode;
-
     tab_products[current_product_tab_index] = getProductData();
-    tab_products[current_product_tab_index].old_barcode = old_barcode;
 }
 
 /**
@@ -123,8 +114,6 @@ export function addProductTab(product, focus=false) {
 
     // Salvataggio/Creazione dati del tab
     tab_products[index] = product ? product : {};
-
-    if (product) { tab_products[index].old_barcode = product.barcode; } // Salvataggio barcode originale
 
     // Gestione dati di default da visualizzare
     let product_name = product?.name ?? "&nbsp"; 
@@ -211,7 +200,6 @@ export function getProductsData() {
 
         products.push(product);
     });
-    console.log(products);
     return products;
 }
 
