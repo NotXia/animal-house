@@ -34,8 +34,8 @@ export default class GenericTextInput extends React.Component {
 
         return (<>
             <div>
-                <div class="form-floating w-100">
-                    <input id={this.props.id} class={`form-control ${invalid_form_class}`}
+                <div className="form-floating w-100">
+                    <input id={this.props.id} className={`form-control ${invalid_form_class}`}
                             type={this.props.type} required={required_attr}
                             name={this.props.name} placeholder=" " onChange={(e) => this.inputValidation(e)}
                             aria-label={this.props.label} aria-invalid={aria_invalid} aria-errormessage={feedback_container_id} />
