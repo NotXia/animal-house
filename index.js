@@ -40,8 +40,8 @@ app.use(middlewareErrorHandler);
 app.use("/", express.static("public"));
 app.use("/admin", express.static("frontend/backoffice"));
 
-app.use("/frontoffice", express.static("frontend/frontoffice/build"));
-app.use("/frontoffice/*", (req, res) => { res.sendFile(path.join(__dirname, "frontend/frontoffice/build/index.html")) });
+app.use("/fo", express.static("frontend/frontoffice/build"));
+app.use("/fo/*", (req, res) => { res.sendFile(path.join(__dirname, "frontend/frontoffice/build/index.html")) });
 
 app.use("/", express.static("frontend/game/dist"));
 app.use((req, res) => { res.sendFile(path.join(__dirname, "frontend/game/dist/index.html")) });
