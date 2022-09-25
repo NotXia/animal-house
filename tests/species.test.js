@@ -105,6 +105,6 @@ describe("Cancellazione di una specie", function () {
     });
 
     test("Cancellazione specie inesistente", async function () {
-        await curr_session.delete('/animals/service/SpecieInesistente').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        await curr_session.delete('/animals/species/SpecieInesistente').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });

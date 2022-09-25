@@ -39,6 +39,10 @@ app.use("/appointments", booking);
 
 app.use(middlewareErrorHandler);
 
+app.use(function (req, res) {
+    res.redirect("/not-found.html");
+});
+
 async function start() {
     await db_init();
 
