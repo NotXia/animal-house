@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const { middlewareErrorHandler } = require("./error_handler");
 const fs = require("fs");
+const path = require("path");
 const db_init = require("./db_init");
 
 const auth = require("./routes/auth");
@@ -23,9 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/", express.static("public"));
-app.use("/admin", express.static("frontend/backoffice"));
-app.use("/", express.static("frontend/frontoffice/build"));
 app.use("/auth", auth);
 app.use("/files", file);
 app.use("/users", user);
@@ -39,9 +37,12 @@ app.use("/appointments", booking);
 
 app.use(middlewareErrorHandler);
 
-app.use(function (req, res) {
-    res.redirect("/not-found.html");
-});
+app.use("/", express.static("public"));
+app.use("/admin", express.static("frontend/backoffice"));
+
+app.use("/frontoffice", express.static("frontend/frontoffice/build"));
+app.use("/frontoffice/*", (req, res) => { res.sendFile(path.join(__dirname, "frontend/frontoffice/build/index.html")) });
+
 
 async function start() {
     await db_init();
