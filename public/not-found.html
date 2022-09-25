@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <title>Non trovato</title>
+</head>
+<body>
+    <div class="d-flex justify-content-center align-items-center vw-100 vh-100">
+        <div class="text-center">
+            <h1>Pagina non trovata</h1>
+            <p class="fs-5">Non ci sono croccantini da queste parti</p>
+
+            <img id="image-notfound" src="" alt="" style="max-height: 18rem;">
+        </div>
+    </div>
+</body>
+
+<script>
+    const apis = [
+        { url: "https://dog.ceo/api/breeds/image/random", getURL: (res) => res.message },
+        { url: "https://cataas.com/cat?json=true", getURL: (res) => `https://cataas.com${res.url}` },
+        { url: "https://cataas.com/cat/gif?json=true", getURL: (res) => `https://cataas.com${res.url}` },
+        { url: "https://randomfox.ca/floof/", getURL: (res) => res.image },
+    ]
+    $(async function() {
+        let api = apis[Math.floor(Math.random()*apis.length)];
+
+        try {
+            const res = await $.ajax({ method: "GET", url: api.url });
+            $("#image-notfound").attr("src", api.getURL(res));
+        }
+        catch (err) {
+            $("#image-notfound").attr("src", "/logos/logo.png");
+        }
+    });
+</script>
+</html>
