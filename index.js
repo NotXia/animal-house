@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 app.use("/", express.static("public"));
 app.use("/admin", express.static("frontend/backoffice"));
-app.use("/", express.static("frontend/frontoffice"));
+app.use("/", express.static("frontend/frontoffice/build"));
 app.use("/auth", auth);
 app.use("/files", file);
 app.use("/users", user);
