@@ -180,7 +180,7 @@ describe("Cancellazione di un servizio", function () {
     });
 
     test("Cancellazione servizio inesistente", async function () {
-        await curr_session.delete('/service/ServizioInesistente').set({ Authorization: `Bearer ${admin_token}` }).expect(404);
+        await curr_session.delete(`/services/${WRONG_MONGOID}`).set({ Authorization: `Bearer ${admin_token}` }).expect(404);
     });
 });
 
