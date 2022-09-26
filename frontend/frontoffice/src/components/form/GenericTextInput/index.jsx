@@ -23,6 +23,7 @@ export default class GenericTextInput extends React.Component {
         };
 
         this.inputValidation = this.inputValidation.bind(this);
+        this.validation_delay;
     }
 
     render() {
@@ -49,16 +50,15 @@ export default class GenericTextInput extends React.Component {
 
 
     async inputValidation(e) {
-        if (this.props.validation) {
-            const error = await this.props.validation(e.target.value); // Validazione
+        clearTimeout(this.validation_delay); // Annulla il timer precedente
 
-            if (error) {
-                // Visualizzazione errori
-                this.setState({ error_message: error, valid: false });
-            }
-            else {
-                this.setState({ error_message: "", valid: true });
-            }
+        if (this.props.validation) {
+            this.validation_delay = setTimeout((async function() {
+                const error = await this.props.validation(e.target.value); // Validazione
+                
+                if (error)  { this.setState({ error_message: error, valid: false }); }
+                else        { this.setState({ error_message: "", valid: true }); }
+            }).bind(this), 200);
         }
     }
 }
