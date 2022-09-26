@@ -37,6 +37,12 @@ router.put("/operators/:username/working-time/", [ auth_middleware([ ["operator"
 router.get("/operators/:username/availabilities/", operator_middleware.validateGetAvailabilities, operator_controller.getAvailabilities);
 
 
+/* Controllo sulla disponibilità di uno username */
+router.get("/usernames/available/:username", user_middleware.validateUsernameAvailability, user_controller.checkUsernameAvailability);
+/* Controllo sulla disponibilità di una mail */
+router.get("/emails/available/:email", user_middleware.validateEmailAvailability, user_controller.checkEmailAvailability);
+
+
 /* Operazioni profilo degli utenti */
 router.get("/profiles/:username", user_middleware.validateSearchUserProfile, user_controller.searchUserProfile);
 
