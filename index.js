@@ -8,6 +8,7 @@ const { middlewareErrorHandler } = require("./error_handler");
 const fs = require("fs");
 const path = require("path");
 const db_init = require("./db_init");
+const cors = require('cors');
 
 const auth = require("./routes/auth");
 const file = require("./routes/file");
@@ -23,6 +24,7 @@ const booking = require("./routes/booking");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 app.use("/auth", auth);
 app.use("/files", file);
