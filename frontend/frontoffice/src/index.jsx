@@ -8,7 +8,8 @@ import homepage_routes from "./pages/Homepage/routes";
 let routes = [];
 routes = routes.concat(homepage_routes);
 
-const router = createBrowserRouter(routes);
+routes.push({ path: "/*", loader: () => { window.location.href="/not-found.html" } }); // Gestione not found (lasciare come ultimo route)
+const router = createBrowserRouter(routes, { basename: process.env.REACT_APP_BASE_PATH });
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
