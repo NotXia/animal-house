@@ -58,7 +58,7 @@ export default class UserValidation {
         return "";
     }
 
-    async phone(value, required) {
+    static async phone(value, required) {
         const isValidPhone = function (phone) { return String(phone).match( /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/ ); }
 
         if (required && value.length === 0)  { return `Telefono mancante`; }
