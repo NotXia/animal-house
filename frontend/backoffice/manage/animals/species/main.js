@@ -83,6 +83,16 @@ $(async function () {
             else { $("#logo-preview").hide(); }
         });
 
+        /* Ricerca di specie */
+        let search_delay;
+        $("#search-species").on("input", function() {
+            clearTimeout(search_delay); // Annulla il timer precedente
+
+            search_delay = setTimeout(async function() {
+                filterSpecies($("#search-species").val());
+            }, 100);
+        });
+
         /* Cancellazione specie */
         $("#form-species-delete").on("submit", async function (event) {
             event.preventDefault();
@@ -129,6 +139,16 @@ async function fetchSpecies() {
         return species;
     } catch (err) {
 
+    }
+}
+
+/* Filtra le specie visibili per nome */
+function filterSpecies(query) {
+    if (!query) {
+        displaySpecies(species_cache);
+    } else {
+        const species = species_cache.filter((species) => species.name.toLowerCase().includes(query.toLowerCase()));
+        displaySpecies(species);
     }
 }
 
