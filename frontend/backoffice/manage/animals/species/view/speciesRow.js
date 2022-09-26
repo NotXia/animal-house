@@ -1,5 +1,5 @@
 /**
- * Restituisce il contenuto HTML di una riga della tabella delle categorie
+ * Restituisce il contenuto HTML di una riga della tabella delle specie
  * @param {Species} species   Dati della specie
  * @param {integer}  index      Indice della riga
  * @returns HTML della riga
