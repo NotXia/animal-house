@@ -19,7 +19,8 @@ export default class GenericTextInput extends React.Component {
         super(props);
         this.state = {
             error_message: "",
-            valid: null
+            valid: null,
+            hadError: false
         };
 
         this.inputValidation = this.inputValidation.bind(this);
@@ -31,7 +32,7 @@ export default class GenericTextInput extends React.Component {
         let invalid_form_class = this.state.valid === false ? "is-invalid" : "";
         let feedback_container_id = `__container-feedback-${this.props.id}`;
         let aria_invalid = this.state.valid === false;
-        let success_message = this.state.valid === true ? `${this.props.name} corretto` : "";
+        let success_message = (this.state.valid === true && this.state.hadError) ? `${this.props.label} corretto` : "";
 
         return (<>
             <div>
@@ -56,7 +57,7 @@ export default class GenericTextInput extends React.Component {
             this.validation_delay = setTimeout((async function() {
                 const error = await this.props.validation(e.target.value); // Validazione
                 
-                if (error)  { this.setState({ error_message: error, valid: false }); }
+                if (error)  { this.setState({ error_message: error, valid: false, hadError: true }); }
                 else        { this.setState({ error_message: "", valid: true }); }
             }).bind(this), 200);
         }
