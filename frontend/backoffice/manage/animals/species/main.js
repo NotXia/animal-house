@@ -138,7 +138,7 @@ async function fetchSpecies() {
 
         return species;
     } catch (err) {
-
+        Mode.error(err.responseJSON.message ? err.responseJSON.message : "Si è verificato un errore");
     }
 }
 
