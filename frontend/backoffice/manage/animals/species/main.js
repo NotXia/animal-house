@@ -45,7 +45,7 @@ $(async function () {
                             case Mode.MODIFY:
                                 let toUpdateSpecies = $("#data-old_name").val()
                                 await api_request({
-                                    type: "PUT", url: `/animals/species/${toUpdateSpecies}`,
+                                    type: "PUT", url: `/animals/species/${encodeURIComponent(toUpdateSpecies)}`,
                                     data: species_data
                                 });
                         }
@@ -101,7 +101,7 @@ $(async function () {
                     let toDeleteSpecies = $("#data-delete-name").val();
 
                     await api_request({
-                        type: "DELETE", url: `/animals/species/${toDeleteSpecies}`,
+                        type: "DELETE", url: `/animals/species/${encodeURIComponent(toDeleteSpecies)}`,
                     });
 
                     await showSpecies();
