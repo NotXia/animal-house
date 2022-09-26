@@ -8,7 +8,7 @@
  *  - type          type dell'elemento <input>
  *  - label         label da visualizzare
  *  - validation    funzione che valida il valore dell'input con interfaccia {{ [async] function(value, required) }}
- *  - required      required dell'elento <input>
+ *  - required      required dell'elemento <input>
  * 
  * Funzioni esposte:
  *      async validate()     valida l'input
