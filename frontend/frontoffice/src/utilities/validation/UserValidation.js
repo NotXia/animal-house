@@ -33,28 +33,24 @@ export default class UserValidation {
     }
 
     static async email(value, required) {
-        const isValidEmail = function (email) {
-            return String(email.toLowerCase()).match( /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ );
-        }
+        const isValidEmail = function (email) { return String(email.toLowerCase()).match( /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ ); }
 
         if (required && value.trim().length === 0)   { return `Email mancante`; }
         else if (!isValidEmail(value))               { return `Email non valida`; }
 
         const email_availability = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/users/emails/available/${encodeURIComponent(value)}` }).catch((err)=>{});
         if (!email_availability.available) { return `Email già in uso`; }
-
+        
         return "";
     }
 
     static name(value, required) {
         if (required && value.trim().length === 0) { return `Nome mancante`; }
-
         return "";
     }
 
     static surname(value, required) {
         if (required && value.trim().length === 0) { return `Cognome mancante`; }
-
         return "";
     }
 
@@ -64,6 +60,23 @@ export default class UserValidation {
         if (required && value.length === 0)  { return `Telefono mancante`; }
         else if (!isValidPhone(value))       { return `Telefono non valido`; }
         
+        return "";
+    }
+
+    static city(value, required) {
+        if (required && value.trim().length === 0) { return `Città mancante`; }
+        return "";
+    }
+    static street(value, required) {
+        if (required && value.trim().length === 0) { return `Indirizzo mancante`; }
+        return "";
+    }
+    static number(value, required) {
+        if (required && value.trim().length === 0) { return `Civico mancante`; }
+        return "";
+    }
+    static postal_code(value, required) {
+        if (required && value.trim().length === 0) { return `CAP mancante`; }
         return "";
     }
 

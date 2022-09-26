@@ -12,9 +12,10 @@
  *  - fields        vettore dei campi nella forma [ { label: "...", value: "..." }, ... ]
  * 
  * Funzioni esposte:
- *      validate()     valida l'input
- *      value()        restituisce il valore dell'input
- *      focus()        mette il focus sul primo input
+ *      validate()          valida l'input
+ *      value()             restituisce il valore dell'input
+ *      focus()             mette il focus sul primo input
+ *      writeError(msg)     inserisce un messaggio (esterno) di errore
  */
 
 import React from "react";
@@ -31,6 +32,7 @@ export default class GroupInput extends React.Component {
         this.validate = this.validate.bind(this);
         this.value = this.value.bind(this);
         this.focus = this.focus.bind(this);
+        this.writeError = this.writeError.bind(this);
     }
     
 
@@ -96,6 +98,13 @@ export default class GroupInput extends React.Component {
      */
     focus() {
         $( $(`#__fieldset-group-${this.props.name} input`)[0] ).trigger("focus");
+    }
+
+    /**
+     * Inserisce manualmente un messaggio di errore
+     */
+    writeError(error_message) {
+        this.setState({ error_message: error_message, valid: false });
     }
 }
 

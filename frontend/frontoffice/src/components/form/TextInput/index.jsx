@@ -11,9 +11,10 @@
  *  - required      required dell'elemento <input>
  * 
  * Funzioni esposte:
- *      async validate()     valida l'input
- *      value()           restituisce il valore dell'input
- *      focus()              mette il focus sull'input
+ *      async validate()    valida l'input
+ *      value()             restituisce il valore dell'input
+ *      focus()             mette il focus sull'input
+ *      writeError(msg)     inserisce un messaggio (esterno) di errore
  * 
  */
 
@@ -36,6 +37,7 @@ export default class TextInput extends React.Component {
         this.validate = this.validate.bind(this);
         this.value = this.value.bind(this);
         this.focus = this.focus.bind(this);
+        this.writeError = this.writeError.bind(this);
     }
 
     render() {
@@ -102,6 +104,13 @@ export default class TextInput extends React.Component {
      */
     focus() {
         $(`#${this.props.id}`).trigger("focus");
+    }
+    
+    /**
+     * Inserisce manualmente un messaggio di errore
+     */
+    writeError(error_message) {
+        this.setState({ error_message: error_message, valid: false, hadError: true });
     }
 }
 
