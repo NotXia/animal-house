@@ -10,13 +10,17 @@ export async function getSpeciesData() {
 export function reset() {
     $("#logo-preview").hide();
     $("#form-species").trigger("reset");
+
+    // Reset bottoni
+    $("#form-species-submit-container > div").hide();
+    $("#form-species-submit-container > button").attr("type", "button");
 }
 
-// export function modifyMode() {
-//     reset();
-//     $("#modify-submit-container").show();
-//     $("#modify-submit-btn").attr("type", "submit");
-// }
+export function modifyMode() {
+    reset();
+    $("#modify-submit-container").show();
+    $("#modify-submit-btn").attr("type", "submit");
+}
 
 export function createMode() {
     reset();

@@ -34,10 +34,21 @@ $(async function () {
                     try {
                         let species_data = await Form.getSpeciesData();
 
-                        await api_request({
-                            type: "POST", url: `/animals/species/`,
-                            data: species_data
-                        });
+                        switch (Mode.current) {
+                            case Mode.CREATE:
+                                await api_request({
+                                    type: "POST", url: `/animals/species/`,
+                                    data: species_data
+                                });
+                                break;
+
+                            case Mode.MODIFY:
+                                let toUpdateSpecies = $("#data-old_name").val()
+                                await api_request({
+                                    type: "PUT", url: `/animals/species/${toUpdateSpecies}`,
+                                    data: species_data
+                                });
+                        }
                         await showSpecies();
                     } catch (err) {
                         switch (err.status) {
@@ -75,7 +86,7 @@ $(async function () {
         /* Cancellazione specie */
         $("#form-species-delete").on("submit", async function (event) {
             event.preventDefault();
-            await LoadingHandler.wrap(async function() {
+            await LoadingHandler.wrap(async function () {
                 try {
                     let toDeleteSpecies = $("#data-delete-name").val();
 
@@ -95,8 +106,8 @@ $(async function () {
 
         await showSpecies();
     });
-    
-    
+
+
 });
 
 // Caricamento delle specie
@@ -108,7 +119,7 @@ async function showSpecies() {
 /* Estrae tutte le specie */
 async function fetchSpecies() {
     try {
-        let species = await api_request({ 
+        let species = await api_request({
             type: "GET", url: `/animals/species/`
         });
 
@@ -117,7 +128,7 @@ async function fetchSpecies() {
 
         return species;
     } catch (err) {
-        
+
     }
 }
 
@@ -132,10 +143,22 @@ function displaySpecies(speciesList) {
     for (const species of speciesList) {
         $("#species-container").append(SpeciesRow.render(species, index));
 
-        $(`#delete-btn-${index}`).on("click", function() {
+        $(`#modify-btn-${index}`).on("click", function () {
+            Mode.modify();
+
+            $("#data-name").val(species.name);
+            $("#data-old_name").val(species.name);
+            if (species.logo) {
+                $("#logo-preview").show();
+                $("#logo-preview").attr("src", `data:image/*;base64,${species.logo}`);
+            }
+        });
+
+        $(`#delete-btn-${index}`).on("click", function () {
             $("#data-delete-name").val(species.name);
             $("#delete-species-name").text(species.name);
         });
+
         index++;
     }
 }

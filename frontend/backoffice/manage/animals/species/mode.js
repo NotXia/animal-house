@@ -12,11 +12,11 @@ export function create() {
     Form.createMode();
 }
 
-// export function modify() {
-//     current = MODIFY;
-//     $("#modal-species-title").text("Modifica specie");
-//     Form.modifyMode();
-// }
+export function modify() {
+    current = MODIFY;
+    $("#modal-species-title").text("Modifica specie");
+    Form.modifyMode();
+}
 
 export function error(message) {
     current = ERROR;
