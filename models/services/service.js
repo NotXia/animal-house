@@ -38,6 +38,7 @@ serviceScheme.methods.getData = function() {
         description: this.description,
         duration: this.duration,
         price: this.price,
+        online: this.online,
         target: this.target
     };
 };
