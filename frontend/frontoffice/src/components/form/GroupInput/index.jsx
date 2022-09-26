@@ -69,9 +69,11 @@ export default class GroupInput extends React.Component {
     validate() {
         if (this.props.required && $(`#__fieldset-group-${this.props.name} input:checked`).length === 0) {
             this.setState({ error_message: "Nessun valore selezionato", valid: false });
+            return false;
         }
         else { 
-            this.setState({ error_message: "", valid: true }); 
+            this.setState({ error_message: "", valid: true });
+            return true;
         }
     }
 

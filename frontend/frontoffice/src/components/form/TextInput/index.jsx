@@ -79,8 +79,14 @@ export default class TextInput extends React.Component {
         if (this.props.validation) {
             const error = await this.props.validation(this.state.value, this.props.required); // Validazione
                 
-            if (error)  { this.setState({ error_message: error, valid: false, hadError: true }); }
-            else        { this.setState({ error_message: "", valid: true }); }
+            if (error)  { 
+                this.setState({ error_message: error, valid: false, hadError: true }); 
+                return false; 
+            }
+            else { 
+                this.setState({ error_message: "", valid: true }); 
+                return true; 
+            }
         }
     }
 
