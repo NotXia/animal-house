@@ -11,6 +11,7 @@
 
 import React from "react";
 import GenericTextInput from "../GenericTextInput";
+import $ from "jquery";
 
 export default class InputUsername extends React.Component {
     constructor(props) {
@@ -34,9 +35,12 @@ export default class InputUsername extends React.Component {
     }
 
 
-    validation(value) {
+    async validation(value) {
         if (this.props.required && value.trim().length === 0)           { return `${this.element.label} mancante`; }
         else if (value.trim().length > 0 && value.trim().length <= 2)   { return `${this.element.label} troppo corto`; }
+
+        const username_availability = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/users/usernames/available/${encodeURIComponent(value)}` }).catch((err)=>{});
+        if (!username_availability.available) { return `${this.element.label} già in uso`; }
 
         return "";
     }
