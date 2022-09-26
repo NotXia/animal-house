@@ -21,6 +21,11 @@ const serviceScheme = mongoose.Schema({
         required: true,
         default: 0
     },
+    online: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     target: [{
         type: String
     }]
