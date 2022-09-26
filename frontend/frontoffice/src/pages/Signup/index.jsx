@@ -48,8 +48,8 @@ class Signup extends React.Component {
                 <title>Registrazione</title>
             </Helmet>
             
-            <div className="d-flex justify-content-center align-items-center vw-100 vh-100 container-page">
-                <Container>
+            <div className="d-flex justify-content-center align-items-center vw-100 min-vh-100 container-page">
+                <Container className="my-4">
                     <Row>
                         <Col xs="12" lg={{span: 6, offset: 3}}>
                             <div className="form-card">
