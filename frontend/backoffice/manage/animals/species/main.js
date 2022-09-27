@@ -69,7 +69,7 @@ $(async function () {
         /* Pulizia modal alla chiusura */
         $("#modal-create-species").on("hidden.bs.modal", function (e) {
             Error.clearErrors();
-            Form.reset()
+            Form.reset();
         });
 
         /* Anteprima icona durante upload */
@@ -101,7 +101,7 @@ $(async function () {
                     let toDeleteSpecies = $("#data-delete-name").val();
 
                     await api_request({
-                        type: "DELETE", url: `/animals/species/${encodeURIComponent(toDeleteSpecies)}`,
+                        type: "DELETE", url: `/animals/species/${encodeURIComponent(toDeleteSpecies)}`
                     });
 
                     await showSpecies();
@@ -116,11 +116,9 @@ $(async function () {
 
         await showSpecies();
     });
-
-
 });
 
-// Caricamento delle specie
+/* Caricamento delle specie */
 async function showSpecies() {
     species_cache = await fetchSpecies();
     displaySpecies(species_cache);
