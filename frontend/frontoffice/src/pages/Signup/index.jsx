@@ -10,18 +10,16 @@ import UserValidation from "../../utilities/validation/UserValidation";
 import TextInput from "../../components/form/TextInput";
 import GroupInput from "../../components/form/GroupInput";
 
-const USER_DATA = 0,
-      CUSTOMER_DATA = 1;
+const SIGN_IN = 0,
+      SUCCESS = 1;
 
 class Signup extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            current_step: USER_DATA,
+            current_step: SIGN_IN,
             error_message: ""
         };
-
-        this.changeStep = this.changeStep.bind(this);
 
         this.input = {
             name: React.createRef(),
@@ -31,12 +29,13 @@ class Signup extends React.Component {
             email: React.createRef(),
             phone: React.createRef(),
             gender: React.createRef(),
-            city: React.createRef(),
-            street: React.createRef(),
-            number: React.createRef(),
-            postal_code: React.createRef(),
+            "address.city": React.createRef(),
+            "address.street": React.createRef(),
+            "address.number": React.createRef(),
+            "address.postal_code": React.createRef(),
         }
-
+        
+        this.getStep = this.getStep.bind(this);
         this.getUserData = this.getUserData.bind(this);
         this.validateForm = this.validateForm.bind(this);
         this.createUser = this.createUser.bind(this);
@@ -53,10 +52,9 @@ class Signup extends React.Component {
                     <Row>
                         <Col xs="12" lg={{span: 6, offset: 3}}>
                             <div className="form-card">
-                                <h1 className="text-center fs-3">Entra in Animal House</h1>
                                 <form>
                                     <Container>
-                                        {this.getStep(this.state.current_step)}
+                                        { this.getStep() }
                                     </Container>
                                 </form>
                             </div>
@@ -67,13 +65,17 @@ class Signup extends React.Component {
         </>);
     }
 
-    changeStep(step) {
-        this.setState({ current_step: step });
+    getStep() {
+        switch(this.state.current_step) {
+            case SIGN_IN: return this.signInPage();
+            case SUCCESS: return this.returnPage();
+        }
     }
     
-    getStep(index) {
+    signInPage() {
         return (<>
             <Row>
+                <Col lg="12"><h1 className="text-center fs-3">Entra in Animal House</h1></Col>
                 <Col lg="12"><p className="text-center fs-4 mb-1">Crea il tuo account</p></Col>
             </Row>
             <Row>
@@ -104,12 +106,12 @@ class Signup extends React.Component {
             </Row>
 
             <Row>
-                <Col lg="6"> <TextInput ref={this.input.street} id="data-street" type="text" name="street" label="Via" validation={UserValidation.street} required/> </Col>
-                <Col lg="6"> <TextInput ref={this.input.number} id="data-number" type="text" name="number" label="Civico" validation={UserValidation.number} required/> </Col>
+                <Col lg="6"> <TextInput ref={this.input["address.street"]} id="data-street" type="text" name="street" label="Via" validation={UserValidation.street} required/> </Col>
+                <Col lg="6"> <TextInput ref={this.input["address.number"]} id="data-number" type="text" name="number" label="Civico" validation={UserValidation.number} required/> </Col>
             </Row>
             <Row>
-                <Col lg="6"> <TextInput ref={this.input.city} id="data-city" type="text" name="city" label="Città" validation={UserValidation.city} required/> </Col>
-                <Col lg="6"> <TextInput ref={this.input.postal_code} id="data-postal_code" type="text" name="postal_code" label="CAP" validation={UserValidation.postal_code} required/> </Col>
+                <Col lg="6"> <TextInput ref={this.input["address.city"]} id="data-city" type="text" name="city" label="Città" validation={UserValidation.city} required/> </Col>
+                <Col lg="6"> <TextInput ref={this.input["address.postal_code"]} id="data-postal_code" type="text" name="postal_code" label="CAP" validation={UserValidation.postal_code} required/> </Col>
             </Row>
 
             <Row className="mt-4">
@@ -120,7 +122,17 @@ class Signup extends React.Component {
                 </Col>
             </Row>
         </>);
+    }
 
+    returnPage() {
+        return (<>
+            <Row>
+                <Col lg="12">
+                    <p className="text-center fs-4 mb-0">Account creato correttamente.</p>
+                    <p className="text-center fs-4 mb-1">Ti abbiamo inviato una mail di verifica.</p>
+                </Col>
+            </Row>
+        </>);
     }
 
     getUserData() {
@@ -133,10 +145,10 @@ class Signup extends React.Component {
             gender: this.input.gender.current.value(),
             phone: this.input.phone.current.value(),
             address: {
-                city: this.input.city.current.value(),
-                street: this.input.street.current.value(),
-                number: this.input.number.current.value(),
-                postal_code: this.input.postal_code.current.value()
+                city: this.input["address.city"].current.value(),
+                street: this.input["address.street"].current.value(),
+                number: this.input["address.number"].current.value(),
+                postal_code: this.input["address.postal_code"].current.value()
             }
         }
     }
@@ -158,24 +170,18 @@ class Signup extends React.Component {
 
         const user_data = this.getUserData();
         try {
-            const user = await $.ajax({
+            await $.ajax({
                 method: "POST", url: `${process.env.REACT_APP_DOMAIN}/users/customers/`,
                 data: user_data
             });
+
+            this.setState({ current_step: SUCCESS });
         }
         catch (err) {
             switch (err.status) {
-                case 400:
-                    for (const error of error.responseJSON) { this.input[error.field].current.writeError(error.message); }
-                    break;
-
-                case 409:
-                    this.input[err.responseJSON.field].current.writeError(err.responseJSON.message);
-                    break;
-
-                default:
-                    this.setState({ error_message: "Si è verificato un errore" });
-                    break;
+                case 400: for (const error of err.responseJSON) { this.input[error.field].current.writeError(error.message); } break;
+                case 409: this.input[err.responseJSON.field].current.writeError(err.responseJSON.message); break;
+                default: this.setState({ error_message: "Si è verificato un errore" }); break;
             }
         }
     }
