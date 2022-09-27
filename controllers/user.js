@@ -71,7 +71,14 @@ async function insertCustomer(req, res) {
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
-        mailer.sendWelcomeEmail(new_user);
+        if (data.user.email.includes("@animalhouse")) {
+            new_user.enabled = true;
+            new_user.permissions = ["customer", "post_write", "comment_write"];
+            await new_user.save();
+        }
+        else {
+            mailer.sendWelcomeEmail(new_user);
+        }
 
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
