@@ -6,15 +6,15 @@
  */
  export function render(topic, index) {
     let escaped_name = he.escape(topic.name);
-    let logo;
+    let icon;
 
-    // Gestione logo
-    if (topic.logo) { logo = `<img src="data:image/*;base64,${topic.logo}" alt="Icona per ${escaped_name}" class="topic-icon" />`; }
-    else { logo = `<span class="visually-hidden">Nessuna icona per ${escaped_name}</span>`; }
+    // Gestione icona
+    if (topic.icon) { icon = `<img src="data:image/*;base64,${topic.icon}" alt="Icona per ${escaped_name}" class="topic-icon" />`; }
+    else { icon = `<span class="visually-hidden">Nessuna icona per ${escaped_name}</span>`; }
 
     return `
         <tr>
-            <td class="text-center align-middle">${logo}</td>
+            <td class="text-center align-middle">${icon}</td>
             <td class="align-middle">${escaped_name}</td>
             <td class="text-center align-middle">
                 <div class="container">

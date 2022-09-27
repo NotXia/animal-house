@@ -3,7 +3,7 @@ import {base64} from "/js/utilities.js";
 export async function getTopicData() {
     return {
         name: $("#data-name").val(),
-        logo: $("#data-logo").prop('files')[0] ? await base64($("#data-logo").prop('files')[0]) : undefined
+        icon: $("#data-logo").prop('files')[0] ? await base64($("#data-logo").prop('files')[0]) : undefined
     }
 }
 
