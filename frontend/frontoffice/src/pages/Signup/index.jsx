@@ -41,13 +41,17 @@ class Signup extends React.Component {
         this.createUser = this.createUser.bind(this);
     }
 
+    componentDidMount() {
+        document.body.style.backgroundColor = "#e2e2e2"
+    }
+
     render() {
         return (<>
             <Helmet>
                 <title>Registrazione</title>
             </Helmet>
             
-            <div className="d-flex justify-content-center align-items-center vw-100 min-vh-100 container-page">
+            <div className={`d-flex justify-content-center align-items-center vw-100 min-vh-100 container-page`}>
                 <Container className="my-4">
                     <Row>
                         <Col xs="12" lg={{span: 6, offset: 3}}>
