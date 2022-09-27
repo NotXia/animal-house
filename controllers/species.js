@@ -50,6 +50,9 @@ async function updateSpecies(req, res) {
 
         return res.status(utils.http.OK).json(updated_species.getData());
     } catch (err) {
+        if (err.code === utils.MONGO_DUPLICATED_KEY) {
+            err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
+        }
         return error.response(err, res);
     }
 }
