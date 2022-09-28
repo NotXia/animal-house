@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import "./signup.css";
+import css from "./signup.module.css";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -42,7 +42,7 @@ class Signup extends React.Component {
     }
 
     componentDidMount() {
-        document.body.style.backgroundColor = "#e2e2e2"
+        document.body.style.backgroundColor = "#e2e2e2";
     }
 
     render() {
@@ -51,11 +51,11 @@ class Signup extends React.Component {
                 <title>Registrazione</title>
             </Helmet>
             
-            <div className={`d-flex justify-content-center align-items-center vw-100 min-vh-100 container-page`}>
+            <div className="d-flex justify-content-center align-items-center vw-100 min-vh-100">
                 <Container className="my-4">
                     <Row>
                         <Col xs="12" lg={{span: 6, offset: 3}}>
-                            <div className="form-card">
+                            <div className={css["form-card"]}>
                                 <form>
                                     <Container>
                                         { this.getStep() }
