@@ -25,7 +25,7 @@
         });
     </script>
 
-    <title>Gestione specie</title>
+    <title>Gestione topic</title>
 </head>
 
 <body>
@@ -39,13 +39,13 @@
                 <div class="row">
                     <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
                         <div class="d-flex justify-content-center">
-                            <input role="search" id="search-species" class="form-control" type="input"
-                                placeholder="Cerca specie">
+                            <input role="search" id="search-topic" class="form-control" type="input"
+                                placeholder="Cerca topic">
 
                             <div id="start_create-container" class="ms-3">
                                 <button type="button" id="btn-start_create" class="btn btn-outline-dark text-truncate"
-                                    data-bs-toggle="modal" data-bs-target="#modal-create-species"
-                                    aria-label="Crea una nuova specie">Crea nuova</button>
+                                    data-bs-toggle="modal" data-bs-target="#modal-create-topic"
+                                    aria-label="Crea un nuovo topic">Crea nuovo</button>
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                                     <th scope="col" style="width: 40%" class="text-center">Operazioni</th>
                                 </tr>
                             </thead>
-                            <tbody id="species-container">
+                            <tbody id="topic-container">
 
                             </tbody>
                         </table>
@@ -83,18 +83,17 @@
 
     </main>
 
-    <!-- Creazione/Modifica specie -->
-    <div class="modal fade" id="modal-create-species" tabindex="-1" aria-labelledby="speciesModalLabel"
-        aria-hidden="true">
+    <!-- Creazione/Modifica topic -->
+    <div class="modal fade" id="modal-create-topic" tabindex="-1" aria-labelledby="topicModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="modal-species-title">Crea specie</h2>
+                    <h2 class="modal-title fs-5" id="modal-topic-title">Crea topic</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
                 <div class="modal-body">
 
-                    <form id="form-species">
+                    <form id="form-topic">
 
                         <input id="data-old_name" type="hidden" name="name">
                         <div class="modal-body">
@@ -103,7 +102,7 @@
                                     <div class="col-12 col-md-8 offset-md-2">
                                         <label for="data-name" class="fs-6 fw-semibold">Nome</label>
                                         <input id="data-name" type="text" class="form-control" name="name"
-                                            aria-label="Nome della specie">
+                                            aria-label="Nome del topic">
                                         <label for="data-name" data-feedback-for="name" class="invalid-feedback d-block"
                                             aria-live="polite"></label>
                                     </div>
@@ -111,7 +110,7 @@
                                 <div class="row">
                                     <div class="col-3 col-md-2 offset-md-2 col-md-2">
                                         <div class="d-flex justify-content-center align-items-center h-100 w-100">
-                                            <img id="logo-preview" src="" alt="Anteprima logo" class="species-icon"
+                                            <img id="logo-preview" src="" alt="Anteprima logo" class="topic-icon"
                                                 style="display: none;">
                                         </div>
                                     </div>
@@ -125,7 +124,7 @@
                             </div>
                         </div>
 
-                        <div class="modal-footer" id="form-species-submit-container">
+                        <div class="modal-footer" id="form-topic-submit-container">
                             <button type="button" class="btn btn-outline-secondary"
                                 data-bs-dismiss="modal">Annulla</button>
                             <div id="create-submit-container">
@@ -145,19 +144,19 @@
         </div>
     </div>
 
-    <!-- Cancellazione specie -->
-    <div class="modal fade" id="modal-delete-species" tabindex="-1" aria-labelledby="modal-delete-species-label"
+    <!-- Cancellazione topic -->
+    <div class="modal fade" id="modal-delete-topic" tabindex="-1" aria-labelledby="modal-delete-topic-label"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="modal-delete-species-label">Conferma cancellazione</h2>
+                    <h2 class="modal-title fs-5" id="modal-delete-topic-label">Conferma cancellazione</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                 </div>
-                <form id="form-species-delete">
+                <form id="form-topic-delete">
                     <input id="data-delete-name" type="hidden" name="name">
                     <div class="modal-body">
-                        Stai cancellando la specie <span id="delete-species-name"></span>.
+                        Stai cancellando il topic <span id="delete-topic-name"></span>.
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
