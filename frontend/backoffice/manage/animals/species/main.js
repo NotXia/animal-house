@@ -49,6 +49,8 @@ $(async function () {
                                     data: species_data
                                 });
                         }
+
+                        $("#modal-create-species").modal("hide");
                         await showSpecies();
                     } catch (err) {
                         switch (err.status) {

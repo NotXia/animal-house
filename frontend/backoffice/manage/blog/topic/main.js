@@ -49,6 +49,8 @@ $(async function () {
                                     data: topic_data
                                 })
                         }
+
+                        $("#modal-create-topic").modal("hide");
                         await showTopic();
                     } catch (err) {
                         switch (err.status) {
