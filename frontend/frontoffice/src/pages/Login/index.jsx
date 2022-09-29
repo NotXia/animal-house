@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import "./login.css";
+import css from "./login.module.css";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -8,12 +8,15 @@ import Button from 'react-bootstrap/Button';
 import TextInput from "../../components/form/TextInput";
 import Form from 'react-bootstrap/Form';
 import { login, isAuthenticated } from "../../import/auth.js"
+import $ from "jquery"
 
 export default class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            error_message: ""
+            error_message: "",
+            animal_image_path: "",
+            animal_fact: "",
         };
 
         this.input = {
@@ -23,6 +26,10 @@ export default class Login extends React.Component {
         }
 
         this.loginHandler = this.loginHandler.bind(this);
+    }
+
+    componentDidMount() {
+        this.loadAnimal();
     }
 
     render() {
@@ -57,9 +64,25 @@ export default class Login extends React.Component {
                             </div>
                         </div>
                     </Col>
-                    <Col lg="7" className="d-none d-lg-block min-vh-100" style={{backgroundColor: "lightgray"}}>
-                        <div className="d-flex justify-content-center align-items-center w-100 h-100">
-                            <img src={`${process.env.REACT_APP_DOMAIN}/logos/logo.png`} alt="" />
+                    <Col lg="7" className="d-none d-lg-block min-vh-100 p-0" style={{backgroundColor: "lightgray"}}>
+                        <div className="d-flex justify-content-center align-items-center overflow-hidden w-100 h-100">
+                            <div className="position-relative w-100 h-100">
+                                <div className={`${css["background-image"]} ${css["blur"]} position-absolute top-0 start-0 w-100 h-100`} style={{backgroundImage: `url("${this.state.animal_image_path}")`, zIndex: "0"}}></div>
+                                <div className="position-absolute top-0 start-0 w-100 h-100">
+                                    <div className={`d-flex justify-content-center align-items-end w-100 h-100`} style={{zIndex: "1"}}>
+                                        <div className={`mb-5 ${css["fact-container"]} w-75`} style={{display: this.state.animal_fact ? "block" : "none"}}>
+                                            <p className="text-center m-0" style={{zIndex: "1"}}>{this.state.animal_fact}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={`d-flex justify-content-center align-items-center w-100 h-100`} style={{zIndex: "1"}}>
+                                    <div className="position-relative">
+                                        <div className={`d-flex justify-content-center align-items-center ${css["image-container"]}`}>
+                                            <img src={this.state.animal_image_path} alt="" className={`w-100 h-100 ${css["no-blur"]}`} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </Col>
                 </Row>
@@ -80,5 +103,32 @@ export default class Login extends React.Component {
         else {
             this.setState({ error_message: "Credenziali errate" });
         }
+    }
+
+    async loadAnimal() {
+        const apis = [
+            // { url: "https://dog.ceo/api/breeds/image/random", getURL: (res) => res.message },
+            { url: "https://cataas.com/cat?json=true", getURL: (res) => `https://cataas.com${res.url}`, fact_url: "https://meowfacts.herokuapp.com", getFact: (res) => res.data[0] },
+            // { url: "https://randomfox.ca/floof/", getURL: (res) => res.image },
+            // { url: "https://aws.random.cat/meow", getURL: (res) => res.file },
+            // { url: "https://api.bunnies.io/v2/loop/random/?media=png", getURL: (res) => res.media.poster },
+            // { url: "https://nekos.life/api/v2/img/lizard", getURL: (res) => res.url },
+            // { url: "http://shibe.online/api/shibes", getURL: (res) => res[0] },
+            // { url: "https://some-random-api.ml/img/koala", getURL: (res) => res.link },
+            // { url: "https://some-random-api.ml/img/panda", getURL: (res) => res.link },
+            // { url: "https://some-random-api.ml/img/birb", getURL: (res) => res.link }
+        ]
+        let api = apis[Math.floor(Math.random()*apis.length)];
+        let image_path = "", fact = "";
+
+        const res = await $.ajax({ method: "GET", url: api.url });
+        image_path = api.getURL(res);
+
+        if (api.fact_url) {
+           const res = await $.ajax({ method: "GET", url: api.fact_url });
+           fact = api.getFact(res);
+        }
+
+        this.setState({ animal_image_path: image_path, animal_fact: fact });
     }
 }
