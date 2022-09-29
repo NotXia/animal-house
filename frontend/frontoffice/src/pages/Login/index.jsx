@@ -107,16 +107,16 @@ export default class Login extends React.Component {
 
     async loadAnimal() {
         const apis = [
-            // { url: "https://dog.ceo/api/breeds/image/random", getURL: (res) => res.message },
+            { url: "https://dog.ceo/api/breeds/image/random", getURL: (res) => res.message },
             { url: "https://cataas.com/cat?json=true", getURL: (res) => `https://cataas.com${res.url}`, fact_url: "https://meowfacts.herokuapp.com", getFact: (res) => res.data[0] },
-            // { url: "https://randomfox.ca/floof/", getURL: (res) => res.image },
-            // { url: "https://aws.random.cat/meow", getURL: (res) => res.file },
-            // { url: "https://api.bunnies.io/v2/loop/random/?media=png", getURL: (res) => res.media.poster },
-            // { url: "https://nekos.life/api/v2/img/lizard", getURL: (res) => res.url },
-            // { url: "http://shibe.online/api/shibes", getURL: (res) => res[0] },
-            // { url: "https://some-random-api.ml/img/koala", getURL: (res) => res.link },
-            // { url: "https://some-random-api.ml/img/panda", getURL: (res) => res.link },
-            // { url: "https://some-random-api.ml/img/birb", getURL: (res) => res.link }
+            { url: "https://randomfox.ca/floof/", getURL: (res) => res.image },
+            { url: "https://aws.random.cat/meow", getURL: (res) => res.file },
+            { url: "https://api.bunnies.io/v2/loop/random/?media=png", getURL: (res) => res.media.poster },
+            { url: "https://nekos.life/api/v2/img/lizard", getURL: (res) => res.url },
+            { url: "http://shibe.online/api/shibes", getURL: (res) => res[0] },
+            { url: "https://some-random-api.ml/img/koala", getURL: (res) => res.link },
+            { url: "https://some-random-api.ml/img/panda", getURL: (res) => res.link },
+            { url: "https://some-random-api.ml/img/birb", getURL: (res) => res.link }
         ]
         let api = apis[Math.floor(Math.random()*apis.length)];
         let image_path = "", fact = "";
