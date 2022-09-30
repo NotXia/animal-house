@@ -12,8 +12,8 @@
 }
 
 .blur {
-    filter: blur(15px);
-    -webkit-filter: blur(15px);
+    filter: blur(25px);
+    -webkit-filter: blur(25px);
 }
 
 .no-blur {
