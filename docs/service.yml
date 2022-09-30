@@ -36,11 +36,13 @@ paths:
             price:
               type: number
               format: int
+            online:
+              type: boolean
             target:
               type: array
               items:
                 type: string
-          required: [ name, description, duration, price ]
+          required: [ name, description, duration, price, online ]
       responses:
         201:
           description: "Creato con successo"
@@ -163,6 +165,8 @@ paths:
             price:
               type: number
               format: int
+            online:
+              type: boolean
             target:
               type: array
               items:
@@ -244,8 +248,10 @@ definitions:
       price:
         type: number
         format: int
+      online:
+        type: boolean
       target:
         type: array
         items:
           type: string
-    required: [ id, name, description, duration, price ]
+    required: [ id, name, description, duration, price, online ]

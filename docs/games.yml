@@ -1,0 +1,80 @@
+swagger: "2.0"
+info:
+  description: "Endpoint per i giochi"
+  version: "1.0.0"
+  title: "Games"
+basePath: "/games"
+
+paths:
+  /games/animals/facts/:
+    get:
+      tags:
+        - "Animals"
+      summary: "Fatti su animali"
+      description: "Restituisce un fatto sugli animali"
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal
+        in: query
+        description: "Filtro animale"
+        required: false
+        type: string      
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: object
+            properties:
+              animal:
+                type: string
+                description: "Animale a cui è riferito il fatto"
+              fact:
+                type: string
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Animale non gestito"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Problema interno"
+
+  /games/animals/images/:
+    get:
+      tags:
+        - "Animals"
+      summary: "Immagine su animali"
+      description: "Restituisce un'immagine o gif sugli animali"
+      produces:
+      - "application/json"
+      parameters:
+      - name: animal
+        in: query
+        description: "Filtro animale"
+        required: false
+        type: string      
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: object
+            properties:
+              animal:
+                type: string
+                description: "Animale dell'immagine"
+              image:
+                type: string
+                description: "URL dell'immagine"
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Animale non gestito"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Problema interno"

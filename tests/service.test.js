@@ -26,6 +26,7 @@ describe("Creazione di un servizio", function () {
             description: "Vaccino antirabbia per il vostro animale domestico",
             duration: 60,
             price: 1000,
+            online: false,
             target: ["Cane", "Gatto"]
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
         expect(res.body).toBeDefined();
@@ -36,6 +37,7 @@ describe("Creazione di un servizio", function () {
         expect(service.name).toEqual("Vaccino antirabbia");
         expect(service.duration).toEqual(60);
         expect(service.target.length).toEqual(2);
+        expect(service.online).toEqual(false);
         expect(service.target[1]).toEqual("Gatto");
     });
 
@@ -44,7 +46,8 @@ describe("Creazione di un servizio", function () {
             name: "Dog-sitting",
             description: "Servizio di dog-sitting per il vostro cane (o tartaruga)",
             duration: 120,
-            price: 500
+            price: 500,
+            online: true
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
         let service = await ServiceModel.findOne({ name: "Dog-sitting" }).exec();
         servizioTest2 = service;
@@ -53,7 +56,8 @@ describe("Creazione di un servizio", function () {
             name: "Workshop - Come fare la pizza",
             description: "🔥🍕🔥",
             duration: 15,
-            price: 50000
+            price: 50000,
+            online: true
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
         service = await ServiceModel.findOne({ name: "Workshop - Come fare la pizza" }).exec();
         servizioTest3 = service;
@@ -64,7 +68,8 @@ describe("Creazione di un servizio", function () {
             name: "Vaccino antirabbia",
             description: "Un altro vaccino antirabbia ma con lo stesso nome di prima",
             duration: 60,
-            price: 1000
+            price: 1000,
+            online: false
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
     });
 
@@ -146,7 +151,8 @@ describe("Modifica di servizi", function () {
         await curr_session.put(`/services/${servizioTest._id}`).send({
             name: "Fisioterapia",   // era Vaccino antirabbia
             price: 3000,            // era 1000
-            target: ["Cane"]        // era ["Cane", "Gatto"]
+            target: ["Cane"],       // era ["Cane", "Gatto"]
+            online: true            // era false
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         const service = await ServiceModel.findOne({ name: "Fisioterapia" }).exec();
@@ -155,6 +161,7 @@ describe("Modifica di servizi", function () {
         expect(service.name).toEqual("Fisioterapia");
         expect(service.duration).toEqual(60);
         expect(service.price).toEqual(3000);
+        expect(service.online).toEqual(true);
         expect(service.target.length).toEqual(1);
         expect(service.target[0]).toEqual("Cane");
     });
