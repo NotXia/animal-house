@@ -29,7 +29,10 @@ export default class Login extends React.Component {
     }
     
     componentDidMount() {
-        this.getSideScreenData().then( (data) => this.setState({animal_image_path: data.image, animal_fact: data.fact}) );
+        if (!this.imageLoaded) {
+            this.getSideScreenData().then( (data) => this.setState({animal_image_path: data.image, animal_fact: data.fact}) );
+            this.imageLoaded = true;
+        }
     }
 
     render() {
@@ -108,15 +111,18 @@ export default class Login extends React.Component {
     async getSideScreenData() {
         let image_path = "", fact = "";
 
-        try {
-            const image_res = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/games/animals/images/` });
-            image_path = image_res.image;
-
-            const fact_res = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/games/animals/facts/`, data: { animal: image_res.animal } }).catch((err) => {});
-            fact = fact_res.fact;
-        } catch (err) {
-            image_path = "";
-            fact = "";
+        for (let i=0; i<3; i++) { // Ritenta in caso di fallimento
+            try {
+                const image_res = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/games/animals/images/` });
+                image_path = image_res.image;
+    
+                const fact_res = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/games/animals/facts/`, data: { animal: image_res.animal } }).catch((err) => {});
+                fact = fact_res.fact;
+                break;
+            } catch (err) {
+                image_path = "";
+                fact = "";
+            }
         }
 
         return {
