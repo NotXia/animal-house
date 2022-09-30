@@ -71,7 +71,14 @@ async function insertCustomer(req, res) {
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
 
-        mailer.sendWelcomeEmail(new_user);
+        if (data.user.email.includes("@animalhouse")) {
+            new_user.enabled = true;
+            new_user.permissions = ["customer", "post_write", "comment_write"];
+            await new_user.save();
+        }
+        else {
+            mailer.sendWelcomeEmail(new_user);
+        }
 
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
@@ -245,6 +252,33 @@ async function sendVerificationMail(req, res) {
 }
 
 
+// Controlla la disponibilità di uno username
+async function checkUsernameAvailability(req, res) {
+    let user;
+
+    try {
+        user = await UserModel.findOne({ username: req.params.username }).exec();
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json({ available: user ? false : true });
+}
+
+// Controlla la disponibilità di una email
+async function checkEmailAvailability(req, res) {
+    let user;
+
+    try {
+        user = await UserModel.findOne({ email: req.params.email }).exec();
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json({ available: user ? false : true });
+}
+
+
 module.exports = {
     insertOperator: insertOperator,
     insertCustomer: insertCustomer,
@@ -255,5 +289,7 @@ module.exports = {
     getPermissions: getPermissions,
     getPermissionByName: searchPermissionByName,
     enableCustomer: enableCustomer,
-    sendVerificationMail: sendVerificationMail
+    sendVerificationMail: sendVerificationMail,
+    checkUsernameAvailability: checkUsernameAvailability,
+    checkEmailAvailability: checkEmailAvailability
 }
