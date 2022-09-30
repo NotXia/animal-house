@@ -8,6 +8,11 @@ function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
 }
 
+/**
+ * Formato lista di API:
+ * { url: "Indirizzo dell'endpoint", get: "Funzione che dato il risultato della chiamata, estrae i dati interessanti"}
+ */
+
 const image_apis = {
     "dog": [
         { url: "https://dog.ceo/api/breeds/image/random", get: (res) => res.message },
@@ -81,7 +86,7 @@ async function getAnimalFact(req, res) {
         animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(fact_apis));
         if (!fact_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
 
-        // Estrazione API
+        // Scelta API
         const api = randomOfArray(fact_apis[animal]);
 
         // Estrazione fact
@@ -100,11 +105,11 @@ async function getAnimalImage(req, res) {
     let animal = "";
 
     try {
-        // Selezione di un animale per cui cercare un fatto
+        // Selezione di un animale per cui cercare un'immagine
         animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(image_apis));
         if (!image_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
 
-        // Estrazione API
+        // Scelta API
         const api = randomOfArray(image_apis[animal]);
 
         // Estrazione immagine
