@@ -2,6 +2,7 @@ require('dotenv').config();
 const utils = require("../utilities");
 const error = require("../error_handler");
 const axios = require("axios").default;
+const { translate } = require("../utilities");
 
 function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
@@ -28,7 +29,7 @@ async function getAnimalFact(req, res) {
 
         // Estrazione fact
         const res = await axios({ method: "GET", url: api.url });
-        fact = api.get(res.data);
+        fact = await translate(api.get(res.data), "EN", "IT");
     } catch (err) {
         return error.response(err, res);
     }
