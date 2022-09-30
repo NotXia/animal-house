@@ -10,14 +10,14 @@ import UserValidation from "../../utilities/validation/UserValidation";
 import TextInput from "../../components/form/TextInput";
 import GroupInput from "../../components/form/GroupInput";
 
-const SIGN_IN = 0,
+const SIGN_UP = 0,
       SUCCESS = 1;
 
 class Signup extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            current_step: SIGN_IN,
+            current_step: SIGN_UP,
             error_message: ""
         };
 
@@ -71,12 +71,12 @@ class Signup extends React.Component {
 
     getStep() {
         switch(this.state.current_step) {
-            case SIGN_IN: return this.signInPage();
-            case SUCCESS: return this.returnPage();
+            case SIGN_UP: return this.signUpPage();
+            case SUCCESS: return this.successPage();
         }
     }
     
-    signInPage() {
+    signUpPage() {
         return (<>
             <Row>
                 <Col lg="12"><h1 className="text-center fs-3">Entra in Animal House</h1></Col>
@@ -86,7 +86,6 @@ class Signup extends React.Component {
                 <Col lg="12"><p className="invalid-feedback d-block text-center fs-6 mt-0">{this.state.error_message}</p></Col>
             </Row>
             <Row className="mt-2">
-                
                 <Col lg="6"><TextInput ref={this.input.name} id="data-name" type="text" name="name" label="Nome" validation={UserValidation.name} required/></Col>
                 <Col lg="6"><TextInput ref={this.input.surname} id="data-surname" type="text" name="surname" label="Cognome" validation={UserValidation.surname} required/></Col>
             </Row>
@@ -128,7 +127,7 @@ class Signup extends React.Component {
         </>);
     }
 
-    returnPage() {
+    successPage() {
         return (<>
             <Row>
                 <Col lg="12">
@@ -170,7 +169,7 @@ class Signup extends React.Component {
     async createUser(e) {
         e.preventDefault();
 
-        if (!(await this.validateForm())) {  return; }
+        if (!(await this.validateForm())) { return; }
 
         const user_data = this.getUserData();
         try {

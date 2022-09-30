@@ -72,7 +72,7 @@ export default class UserValidation {
         return "";
     }
     static number(value, required) {
-        if (required && value.trim().length === 0) { return `Civico mancante`; }
+        if (required && value.trim().length === 0) { return `Numero civico mancante`; }
         return "";
     }
     static postal_code(value, required) {
