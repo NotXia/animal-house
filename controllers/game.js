@@ -17,7 +17,7 @@ const image_apis = {
     "dog": [
         { url: "https://dog.ceo/api/breeds/image/random", get: (res) => res.message },
         { url: "http://shibe.online/api/shibes", get: (res) => res[0] },
-        { url: "https://random.dog/woof", get: (res) => `https://random.dog/${res}` }
+        { url: "https://random.dog/woof?filter=mp4,webm", get: (res) => `https://random.dog/${res}` }
     ],
     "cat": [
         { url: "https://cataas.com/cat?json=true", get: (res) => `https://cataas.com${res.url}` },
