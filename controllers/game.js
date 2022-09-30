@@ -11,7 +11,8 @@ function randomOfArray(array) {
 const image_apis = {
     "dog": [
         { url: "https://dog.ceo/api/breeds/image/random", get: (res) => res.message },
-        { url: "http://shibe.online/api/shibes", get: (res) => res[0] }
+        { url: "http://shibe.online/api/shibes", get: (res) => res[0] },
+        { url: "https://random.dog/woof", get: (res) => `https://random.dog/${res}` }
     ],
     "cat": [
         { url: "https://cataas.com/cat?json=true", get: (res) => `https://cataas.com${res.url}` },
@@ -33,14 +34,40 @@ const image_apis = {
         { url: "https://some-random-api.ml/img/koala", get: (res) => res.link }
     ],
     "panda": [
-        { url: "https://some-random-api.ml/img/panda", get: (res) => res.link }
-    ]
-    
+        { url: "https://some-random-api.ml/img/panda", get: (res) => res.link },
+        { url: "https://some-random-api.ml/animal/red_panda", get: (res) => res.image }
+    ],
+    "duck": [
+        { url: "https://random-d.uk/api/random", get: (res) => res.url }
+    ],
+    "kangaroo": [
+        { url: "https://some-random-api.ml/animal/kangaroo", get: (res) => res.image }
+    ],
 }
 
 const fact_apis = {
     "cat": [
-        { url: "https://meowfacts.herokuapp.com", get: (res) => res.data[0] }
+        { url: "https://meowfacts.herokuapp.com", get: (res) => res.data[0] },
+        { url: "https://some-random-api.ml/facts/cat", get: (res) => res.fact }
+    ],
+    "dog": [
+        { url: "https://dog-api.kinduff.com/api/facts", get: (res) => res.facts[0] },
+        { url: "https://some-random-api.ml/facts/dog", get: (res) => res.fact }
+    ],
+    "panda": [
+        { url: "https://some-random-api.ml/facts/panda", get: (res) => res.fact }
+    ],
+    "fox": [
+        { url: "https://some-random-api.ml/facts/fox", get: (res) => res.fact }
+    ],
+    "koala": [
+        { url: "https://some-random-api.ml/facts/koala", get: (res) => res.fact }
+    ],
+    "bird": [
+        { url: "https://some-random-api.ml/facts/bird", get: (res) => res.fact }
+    ],
+    "kangaroo": [
+        { url: "https://some-random-api.ml/animal/kangaroo", get: (res) => res.fact }
     ]
 }
 
