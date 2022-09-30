@@ -8,6 +8,36 @@ function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
 }
 
+const image_apis = {
+    "dog": [
+        { url: "https://dog.ceo/api/breeds/image/random", get: (res) => res.message },
+        { url: "http://shibe.online/api/shibes", get: (res) => res[0] }
+    ],
+    "cat": [
+        { url: "https://cataas.com/cat?json=true", get: (res) => `https://cataas.com${res.url}` },
+        { url: "https://aws.random.cat/meow", get: (res) => res.file }
+    ],
+    "bunny": [
+        { url: "https://api.bunnies.io/v2/loop/random/?media=gif", get: (res) => res.media.gif }
+    ],
+    "lizard": [
+        { url: "https://nekos.life/api/v2/img/lizard", get: (res) => res.url }
+    ],
+    "bird": [
+        { url: "https://some-random-api.ml/img/birb", get: (res) => res.link }
+    ],
+    "fox": [
+        { url: "https://randomfox.ca/floof/", get: (res) => res.image }
+    ],
+    "koala": [
+        { url: "https://some-random-api.ml/img/koala", get: (res) => res.link }
+    ],
+    "panda": [
+        { url: "https://some-random-api.ml/img/panda", get: (res) => res.link }
+    ]
+    
+}
+
 const fact_apis = {
     "cat": [
         { url: "https://meowfacts.herokuapp.com", get: (res) => res.data[0] }
@@ -21,7 +51,7 @@ async function getAnimalFact(req, res) {
 
     try {
         // Selezione di un animale per cui cercare un fatto
-        animal = req.params.animal ? String(req.params.animal).toLowerCase() : randomOfArray(Object.keys(fact_apis));
+        animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(fact_apis));
         if (!fact_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
 
         // Estrazione API
@@ -37,6 +67,30 @@ async function getAnimalFact(req, res) {
     return res.status(utils.http.OK).json({ animal: animal, fact: fact });
 }
 
+// Restituisce un'immagine di un animali
+async function getAnimalImage(req, res) {
+    let image_url = "";
+    let animal = "";
+
+    try {
+        // Selezione di un animale per cui cercare un fatto
+        animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(image_apis));
+        if (!image_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
+
+        // Estrazione API
+        const api = randomOfArray(image_apis[animal]);
+
+        // Estrazione immagine
+        const res = await axios({ method: "GET", url: api.url });
+        image_url = api.get(res.data);
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json({ animal: animal, image: image_url });
+}
+
 module.exports = {
-    getAnimalFact: getAnimalFact
+    getAnimalFact: getAnimalFact,
+    getAnimalImage: getAnimalImage
 }
