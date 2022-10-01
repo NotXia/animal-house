@@ -86,8 +86,8 @@ $(document).ready(async function() {
 
                     const item = await ItemAPI.searchItemByBarcode(query_barcode);
                     showItem(item, query_barcode);
+                    $("#input-item\\.name").trigger("focus");
                 } catch (err) {
-                    console.log(err);
                     switch (err.status) {
                         case 404: Mode.error(`Nessun item associato al barcode ${query_barcode}`); break;
                         default: Mode.error(`Si è verificato un errore`); break;
