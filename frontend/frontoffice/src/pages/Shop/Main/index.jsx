@@ -16,7 +16,8 @@ class ShopMain extends React.Component {
         this.state = {
             shop_categories: [],
             shop_items: [],
-            filter_category: null
+            filter_name: undefined,
+            filter_category: undefined
         };
     }
 
@@ -33,9 +34,9 @@ class ShopMain extends React.Component {
                 <title>Shop</title>
             </Helmet>
             
-            <Navbar/>
+            <Navbar />
 
-            <main>
+            <main className="mt-3">
                 <Container>
                     <Row>
                         <Col xs="12" lg="2">
@@ -47,6 +48,20 @@ class ShopMain extends React.Component {
                         </Col>
 
                         <Col xs="12" lg="10">
+                            <Row className="mb-3">
+                                <Col>
+                                    <form onSubmit={(e) => this.handleNameSearch(e)} className="w-100">
+                                        <div className="d-flex justify-content-center">
+                                            <div className="d-flex w-50">
+                                                <input id="input-search-name" name="item_name" type="text" className="form-control" placeholder="Cerca prodotto" role="search" />
+                                                <button className="btn btn-link" type="submit">
+                                                    <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/search.png`} alt="Cerca" style={{height: "1.5rem"}} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </Col>
+                            </Row>
                             <Row>
                                 { this.renderItems() }
                             </Row>
@@ -94,20 +109,35 @@ class ShopMain extends React.Component {
         </>)
     }
 
+    handleNameSearch(e) {
+        e.preventDefault();
+        this.filterName(e.target.item_name.value);
+    }
+
+
+    filterName(name) {
+        if (name === "") { name = undefined; }
+        this.setState({ filter_name: name }, this.updateDisplayedItems);
+    }
+
     filterCategory(category) {
         let filter_category = category;
         if (this.state.filter_category == category) { filter_category = undefined; }
 
-        this.updateDisplayedItems("", filter_category);
+        this.setState({ filter_category: filter_category }, this.updateDisplayedItems);
     }
 
-    async updateDisplayedItems(text_search, category) {
+    async updateDisplayedItems() {
         const items = await $.ajax({ 
             method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
-            data: { page_size: 25, page_number: 0, category: category}
+            data: { 
+                page_size: 25, page_number: 0, 
+                name: this.state.filter_name, 
+                category: this.state.filter_category
+            }
         });
 
-        this.setState({ shop_items: items, filter_category: category });
+        this.setState({ shop_items: items });
     }
 }
 
