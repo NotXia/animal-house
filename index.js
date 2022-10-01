@@ -20,6 +20,7 @@ const service = require("./routes/service");
 const species = require("./routes/species");
 const animal = require("./routes/animal");
 const booking = require("./routes/booking");
+const game = require("./routes/game");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -36,6 +37,7 @@ app.use("/services", service);
 app.use("/animals/species", species);
 app.use("/animals", animal);
 app.use("/appointments", booking);
+app.use("/games", game);
 
 app.use(middlewareErrorHandler);
 
