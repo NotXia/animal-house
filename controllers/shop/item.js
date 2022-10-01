@@ -87,7 +87,7 @@ async function searchItem(req, res) {
     let sort_criteria = { "relevance": -1 };
 
     // Composizione della query
-    if (req.query.category) { query_criteria.category = category; } // Non c'è bisogno di controllare l'esistenza
+    if (req.query.category) { query_criteria.category = req.query.category; } // Non c'è bisogno di controllare l'esistenza
     if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
     
     // Determina il criterio di ordinamento
