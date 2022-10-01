@@ -88,7 +88,7 @@ export default class GroupInput extends React.Component {
         if (this.props.type === "radio") {
             return $(`#__fieldset-group-${this.props.name} input:checked`).val();
         }
-        else{
+        else {
             return $.map($(`#__fieldset-group-${this.props.name} input:checked`), (checkbox) => $(checkbox).val());
         }
     }
