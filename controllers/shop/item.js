@@ -203,6 +203,9 @@ async function updateItemById(req, res) {
         updated_item = item;
     }
     catch (err) {
+        if (err.code == utils.MONGO_DUPLICATED_KEY) {
+            err = error.generate.CONFLICT({ field: "barcode", message: "Il prodotto associato al barcode è già presente" });
+        }
         return error.response(err, res);
     }
 
