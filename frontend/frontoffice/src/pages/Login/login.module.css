@@ -1,0 +1,30 @@
+.image-container {
+    max-height: 30rem;
+    max-width: 40rem;
+    overflow: hidden;
+    border-radius: 1rem;
+}
+
+.background-image {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.blur {
+    filter: blur(25px);
+    -webkit-filter: blur(25px);
+}
+
+.no-blur {
+    filter: blur(0);
+    -webkit-filter: blur(0);
+}
+
+.fact-container {
+    background-color: #363636b9;
+    border-radius: 1rem;
+    padding: 0.5rem;
+    color: white;
+    z-index: 2;
+}
