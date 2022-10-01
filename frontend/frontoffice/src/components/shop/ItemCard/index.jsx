@@ -24,10 +24,12 @@ export default class ItemCard extends React.Component {
     }
     
     render() {
-        let available_class = this.available ? "" : css["card-text-unavailable"];
+        let unavailable_class = this.available ? "" : css["card-text-unavailable"];
+        let unavailable_text = this.available ? "" : "Non disponibile";
+        let price_text = this.getItemPriceString();
 
         return (<>
-            <Link to={`/shop/item?id=${this.props.item.id}`} className={`${css["card-link"]}`}>
+            <Link to={`/shop/item?id=${this.props.item.id}`} className={`${css["card-link"]}`} aria-label={`${this.props.item.name}, ${price_text} ${unavailable_text}`}>
                 <div className={`${css["card-container"]}`}>
                     <Container>
                         <Row>
@@ -36,9 +38,9 @@ export default class ItemCard extends React.Component {
                             </div>
                         </Row>
                         <Row className="mt-2">
-                            <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>{this.available ? "" : "Non disponibile"}</p>
-                            <p className={`text-center fs-4 m-0 ${available_class}`}>{this.props.item.name}</p>
-                            <p className={`fw-semibold text-center fs-5 m-0 ${available_class}`}>{this.getItemPriceString()}</p>
+                            <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>{unavailable_text}</p>
+                            <p className={`text-center fs-4 m-0 ${unavailable_class}`}>{this.props.item.name}</p>
+                            <p className={`fw-semibold text-center fs-5 m-0 ${unavailable_class}`}>{price_text}</p>
                         </Row>
                     </Container>
                 </div>
