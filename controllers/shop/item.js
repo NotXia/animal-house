@@ -88,7 +88,7 @@ async function searchItem(req, res) {
 
     // Composizione della query
     if (req.query.category) { query_criteria.category = req.query.category; } // Non c'è bisogno di controllare l'esistenza
-    if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
+    if (req.query.name) { query_criteria.name = new RegExp(`${req.query.name}`, "i"); }
     
     // Determina il criterio di ordinamento
     if (req.query.price_asc) { sort_criteria = { "min_price": 1 }; }
