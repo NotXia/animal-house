@@ -49,6 +49,9 @@ async function updateCategory(req, res) {
         await updated_category.save();
     }
     catch (err) {
+        if (err.code === utils.MONGO_DUPLICATED_KEY) {
+            err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
+        }
         return error.response(err, res);
     }
 

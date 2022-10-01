@@ -25,8 +25,8 @@ const RANDOM_MONGOID = "111111111111111111111111";
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 
-    service1 = (await curr_session.post('/services/').send({ name: "Pranzo di Pasqua", description: "A", duration: 60, price: 1000 }).set({ Authorization: `Bearer ${admin_token}` })).body;
-    service2 = (await curr_session.post('/services/').send({ name: "Pranzo di Natale", description: "A", duration: 25, price: 1000 }).set({ Authorization: `Bearer ${admin_token}` })).body;
+    service1 = (await curr_session.post('/services/').send({ name: "Pranzo di Pasqua", description: "A", duration: 60, price: 1000, online: true }).set({ Authorization: `Bearer ${admin_token}` })).body;
+    service2 = (await curr_session.post('/services/').send({ name: "Pranzo di Natale", description: "A", duration: 25, price: 1000, online: false }).set({ Authorization: `Bearer ${admin_token}` })).body;
     
     operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id, service2.id]);
     await curr_session.put(`/users/operators/${operator1.username}`)

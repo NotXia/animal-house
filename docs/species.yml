@@ -72,7 +72,9 @@ paths:
         200:
           description: "Trovato con successo"
           schema:
-            $ref: "#/definitions/SpeciesData"
+            type: array
+            items:
+              $ref: "#/definitions/SpeciesData"
         400:
           description: "Input malformato"
           schema:

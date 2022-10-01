@@ -174,6 +174,17 @@ const validateSendVerificationMail = [
 ];
 
 
+const validateUsernameAvailability = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+];
+
+const validateEmailAvailability = [
+    user_validator.validateEmail("param", REQUIRED, "email"),
+    utils.validatorErrorHandler,
+];
+
+
 module.exports = {
     validateInsertCustomer : validateInsertCustomer,
     validateInsertOperator : validateInsertOperator,
@@ -183,5 +194,7 @@ module.exports = {
     validateDeleteUser : validateDeleteUser,
     validateSearchUserProfile : validateSearchUserProfile,
     validateSearchPermissionByName: validateSearchPermissionByName,
-    validateSendVerificationMail: validateSendVerificationMail
+    validateSendVerificationMail: validateSendVerificationMail,
+    validateUsernameAvailability: validateUsernameAvailability,
+    validateEmailAvailability: validateEmailAvailability
 }

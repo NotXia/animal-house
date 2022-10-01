@@ -323,6 +323,24 @@ describe("Modifica di un operatore", function () {
     });
 });
 
+describe("Test disponibilità username / email", function () {
+    test("Verifica username", async function () {
+        let res = await curr_session.get('/users/usernames/available/Luigino234').expect(200);
+        expect(res.body.available).toBeFalsy();
+
+        res = await curr_session.get('/users/usernames/available/CiaoneLuigino').expect(200);
+        expect(res.body.available).toBeTruthy();
+    });
+
+    test("Verifica email", async function () {
+        let res = await curr_session.get('/users/emails/available/newnewluigino01@gmail.com').expect(200);
+        expect(res.body.available).toBeFalsy();
+
+        res = await curr_session.get('/users/emails/available/ciaoneluigino01@gmail.com').expect(200);
+        expect(res.body.available).toBeTruthy();
+    });
+});
+
 
 describe("Cancellazione di un operatore - tramite permesso admin", function () {
     test("Cancellazione di un operatore", async function () {
