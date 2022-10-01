@@ -70,7 +70,10 @@ export default class Login extends React.Component {
                     <Col lg="7" className="d-none d-lg-block min-vh-100 p-0" style={{backgroundColor: "lightgray"}}>
                         <div className="d-flex justify-content-center align-items-center overflow-hidden w-100 h-100">
                             <div className="position-relative w-100 h-100">
+                                {/* Per gestire lo sfondo sfocato */}
                                 <div className={`${css["background-image"]} ${css["blur"]} position-absolute top-0 start-0 w-100 h-100`} style={{backgroundImage: `url("${this.state.animal_image_path}")`, zIndex: "0"}}></div>
+                                
+                                {/* Per contenere il fact */}
                                 <div className="position-absolute top-0 start-0 w-100 h-100">
                                     <div className={`d-flex justify-content-center align-items-end w-100 h-100`} style={{zIndex: "1"}}>
                                         <div className={`mb-5 ${css["fact-container"]} w-75`} style={{display: this.state.animal_fact ? "block" : "none"}}>
@@ -78,6 +81,8 @@ export default class Login extends React.Component {
                                         </div>
                                     </div>
                                 </div>
+                                
+                                {/* Immagine da visualizzare */}
                                 <div className={`d-flex justify-content-center align-items-center w-100 h-100`} style={{zIndex: "1"}}>
                                     <div className="position-relative">
                                         <div className={`d-flex justify-content-center align-items-center ${css["image-container"]}`}>
@@ -113,12 +118,15 @@ export default class Login extends React.Component {
 
         for (let i=0; i<3; i++) { // Ritenta in caso di fallimento
             try {
+                // Estrazione immagine
                 const image_res = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/games/animals/images/` });
                 image_path = image_res.image;
     
+                // Estrazione fatto sull'animale
                 const fact_res = await $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/games/animals/facts/`, data: { animal: image_res.animal } }).catch((err) => {});
                 fact = fact_res.fact;
-                break;
+
+                break; // Interrompe il loop in caso di successo
             } catch (err) {
                 image_path = "";
                 fact = "";
