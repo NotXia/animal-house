@@ -9,8 +9,9 @@ import TextInput from "../../components/form/TextInput";
 import Form from 'react-bootstrap/Form';
 import { login, isAuthenticated } from "../../import/auth.js"
 import $ from "jquery"
+import SearchParamsHook from "../../hooks/SearchParams";
 
-export default class Login extends React.Component {
+class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -106,7 +107,8 @@ export default class Login extends React.Component {
         const remember_me = this.input.remember_me.current.checked;
 
         if (await login(username, password, remember_me)) {
-            window.location.href = "/";
+            const return_url = this.props.searchParams.get("return") ? this.props.searchParams.get("return") : "/"; // Gestisce l'indirizzo a cui tornare
+            window.location.href = return_url;
         }
         else {
             this.setState({ error_message: "Credenziali errate" });
@@ -139,3 +141,5 @@ export default class Login extends React.Component {
         }
     }
 }
+
+export default SearchParamsHook(Login);
