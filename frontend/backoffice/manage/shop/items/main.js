@@ -7,6 +7,7 @@ import * as Mode from "./mode.js";
 import * as Form from "./form.js";
 import * as ItemAPI from "./ItemAPI.js";
 import * as ProductTab from "./view/productTab.js";
+import { createSuccessPopup } from "../../../import/successPopup.js";
 
 let NavbarHandler;
 let LoadingHandler;
@@ -55,10 +56,12 @@ $(document).ready(async function() {
                         switch (Mode.current) {
                             case Mode.CREATE:
                                 item_cache = await ItemAPI.create(item_data);
+                                createSuccessPopup("#container-success", `Item ${item_cache.name} creato con successo`);
                                 break;
 
                             case Mode.MODIFY:
                                 item_cache = await ItemAPI.updateItem(item_cache.id, item_data);
+                                createSuccessPopup("#container-success", `Item ${item_cache.name} modificato con successo`);
                                 break;
                         }
 
@@ -112,6 +115,7 @@ $(document).ready(async function() {
             await LoadingHandler.wrap(async function() {
                 try {
                     await ItemAPI.deleteItem(item_cache.id);
+                    createSuccessPopup("#container-success", `Item ${item_cache.name} eliminato con successo`);
                     Mode.start();
                 } catch (err) {
                     Mode.error(err.responseJSON.message ? err.responseJSON.message : `Si è verificato un errore`);

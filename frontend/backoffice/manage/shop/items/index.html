@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
-    <script src="/lib/serenix_readonly.js"></script>
     <script src="/js/form-validation.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
@@ -56,11 +55,15 @@
                         </div>
                     </div>
     
-                    <div class="col-12">
-                        <div class="d-flex justify-content-center">
-                            <label data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></label>
-                        </div>
+                </div>
+
+                <div class="row">
+                    <div class="d-flex justify-content-center">
+                        <p data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></p>
                     </div>
+                </div>
+                <div class="row">
+                    <div id="container-success" class="col-12 col-lg-6 offset-lg-3"></div>
                 </div>
             </div>
         </div>
