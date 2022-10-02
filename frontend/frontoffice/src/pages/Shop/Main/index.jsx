@@ -5,12 +5,12 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
-import TextInput from "../../../components/form/TextInput";
-import GroupInput from "../../../components/form/GroupInput";
 import Navbar from "../../../components/Navbar";
 import ItemCard from "../../../components/shop/ItemCard";
 import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
+import category_css from "./category.module.css";
+
 class ShopMain extends React.Component {
     constructor(props) {
         super(props);
@@ -64,9 +64,12 @@ class ShopMain extends React.Component {
 
                                                     return (
                                                         <li className="nav-item w-100 mb-1 mb-md-3" key={category.name}>
-                                                            <button className={`btn btn-outline-primary w-100 ${active_class}`} type="button" aria-selected={active}
+                                                            <button className={`${category_css["btn-category"]} w-100 ${active_class}`} type="button" aria-selected={active}
                                                                     onClick={() => this.filterCategory(category.name)}>
-                                                                <span className="text-truncate">{category.name}</span>
+                                                                <div className="d-flex justify-content-start align-items-center">
+                                                                    <img src={`data:image/*;base64,${category.icon}`} alt="" className="ah-icon" />
+                                                                    <span className="text-truncate">{category.name}</span>
+                                                                </div>
                                                             </button>
                                                         </li>
                                                     );
