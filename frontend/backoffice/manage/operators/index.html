@@ -57,6 +57,24 @@
 
         <form id="operator-form">
             <div class="container">
+                <div class="row mt-3 mb-4">
+                    <div id="button-container" class="d-flex justify-content-center align-items-center">
+                        <div id="enable_modify-container">
+                            <button type="button" id="modify-btn" class="btn btn-outline-dark">Abilita modifiche</button>
+                        </div>
+                        <div id="modify-container">
+                            <div class="d-flex justify-content-center">
+                                <button type="button" id="save-btn" class="btn btn-outline-success mx-1">Salva modifiche</button>
+                                <button type="button" class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#confirm_delete-modal">Elimina utente</button>
+                                <button type="button" id="revert-btn" class="btn btn-outline-secondary mx-1">Annulla modifiche</button>
+                            </div>
+                        </div>
+                        <div id="create-container">
+                            <button type="button" id="create-btn" class="btn btn-outline-success">Crea operatore</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-10">
                         <div class="row">
@@ -195,23 +213,10 @@
                         <div class="accordion" id="working_time-accordion"></div>
                     </div>
                 </div>
-
-            </div>
-            
-            <div id="button-container" class="d-flex justify-content-center align-items-center mb-4 mt-5">
-                <div id="enable_modify-container">
-                    <button type="button" id="modify-btn" class="btn btn-outline-dark">Abilita modifiche</button>
-                </div>
-                <div id="modify-container">
-                    <button type="button" id="save-btn" class="btn btn-outline-success">Salva modifiche</button>
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirm_delete-modal">Elimina utente</button>
-                    <button type="button" id="revert-btn" class="btn btn-outline-secondary">Annulla modifiche</button>
-                </div>
-                <div id="create-container">
-                    <button type="button" id="create-btn" class="btn btn-outline-success">Crea operatore</button>
-                </div>
             </div>
         </form>
+
+        <div class="mb-4"></div>
     </main>
 
     <!-- Modal conferma cancellazione -->
