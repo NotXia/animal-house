@@ -9,6 +9,7 @@ import TextInput from "../../../components/form/TextInput";
 import GroupInput from "../../../components/form/GroupInput";
 import Navbar from "../../../components/Navbar";
 import ItemCard from "../../../components/shop/ItemCard";
+import Form from 'react-bootstrap/Form';
 
 class ShopMain extends React.Component {
     constructor(props) {
@@ -17,7 +18,8 @@ class ShopMain extends React.Component {
             shop_categories: [],
             shop_items: [],
             filter_name: undefined,
-            filter_category: undefined
+            filter_category: undefined,
+            price_asc: false, price_desc: false, name_asc: false, name_desc: false
         };
     }
 
@@ -42,7 +44,36 @@ class ShopMain extends React.Component {
                         <Col xs="12" lg="2">
                             <div className="d-flex justify-content-center w-100">
                                 <div>
-                                    { this.renderFilter() }
+                                    {/* Selettore categoria */}
+                                    <fieldset>
+                                        <legend className="fs-5">Categoria</legend>
+                                        <ul className="nav nav-pills">
+                                        {
+                                            this.state.shop_categories.map((category, index) => {
+                                                const active = this.state.filter_category == category.name;
+                                                const active_class = active ? "active" : "";
+
+                                                return (
+                                                    <li className="nav-item w-100 mb-3" key={category.name}>
+                                                        <button className={`btn btn-outline-primary w-100 ${active_class}`} type="button" role="tab" aria-selected={active} 
+                                                                onClick={() => this.filterCategory(category.name)}>
+                                                            <span className="text-truncate">{category.name}</span>
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })
+                                        }
+                                        </ul>
+                                    </fieldset>
+
+                                    {/* Regola di ordinamento */}
+                                    <label htmlFor="select-sort" className="form-label fs-5">Ordina per</label>
+                                    <Form.Select id="select-sort" defaultValue="relevance" onChange={(e) => this.changeOrderRule(e.target.value)} aria-label="Regola di ordinamento dei prodotti" >
+                                        <option value="relevance">Rilevanza</option>
+                                        <option value="name_asc">Nome</option>
+                                        <option value="price_asc">Prezzo crescente</option>
+                                        <option value="price_desc">Prezzo descrescente</option>
+                                    </Form.Select>
                                 </div>
                             </div>
                         </Col>
@@ -70,31 +101,6 @@ class ShopMain extends React.Component {
                 </Container>
             </main>
         </>);
-    }
-
-    renderFilter() {
-        return (<>
-            <fieldset>
-                <legend className="fs-5">Categoria</legend>
-                <ul className="nav nav-pills">
-                {
-                    this.state.shop_categories.map((category, index) => {
-                        const active = this.state.filter_category == category.name;
-                        const active_class = active ? "active" : "";
-
-                        return (
-                            <li className="nav-item w-100 mb-3" key={category.name}>
-                                <button className={`btn btn-outline-primary w-100 ${active_class}`} type="button" role="tab" aria-selected={active} 
-                                        onClick={() => this.filterCategory(category.name)}>
-                                    <span className="text-truncate">{category.name}</span>
-                                </button>
-                            </li>
-                        );
-                    })
-                }
-                </ul>
-            </fieldset>
-        </>)
     }
 
     renderItems() {
@@ -127,13 +133,24 @@ class ShopMain extends React.Component {
         this.setState({ filter_category: filter_category }, this.updateDisplayedItems);
     }
 
+    changeOrderRule(order_method) {
+        let order = { price_asc: false, price_desc: false, name_asc: false, name_desc: false }
+        order[order_method] = true;
+
+        this.setState(order, this.updateDisplayedItems);
+    }
+
     async updateDisplayedItems() {
         const items = await $.ajax({ 
             method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
             data: { 
                 page_size: 25, page_number: 0, 
                 name: this.state.filter_name, 
-                category: this.state.filter_category
+                category: this.state.filter_category,
+                price_asc: this.state.price_asc,
+                price_desc: this.state.price_desc,
+                name_asc: this.state.name_asc,
+                name_desc: this.state.name_desc
             }
         });
 
