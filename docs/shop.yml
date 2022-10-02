@@ -358,6 +358,33 @@ paths:
         500:
           description: "Errore lato server"
 
+  /shop/items/{item_id}/click:
+    post:
+      tags:
+      - "Item e prodotti"
+      summary: "Incremento rilevanza"
+      description: |
+        Incrementa la rilevanza di un item.
+      parameters:
+      - name: item_id
+        in: path
+        type: string
+        format: ObjectId
+        required: true
+        description: "Id dell'item a cui incrementare la rilevanza"
+      responses:
+        204:
+          description: "Incrementato con successo"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        404:
+          description: "Item inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore interno"
   
   #
   # Inizio categorie

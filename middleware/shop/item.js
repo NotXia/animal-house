@@ -50,6 +50,11 @@ const validateDeleteItemById = [
     utils.validatorErrorHandler
 ];
 
+const validateItemClick = [
+    validator.validateItemId("param", REQUIRED),
+    utils.validatorErrorHandler
+];
+
 
 module.exports = {
     validateCreate: validateCreate,
@@ -57,5 +62,6 @@ module.exports = {
     validateSearchByBarcode: validateSearchItemByBarcode,
     validateSearchItem: validateSearchSingleItem,
     validateUpdateItem: validateUpdateItemById,
-    validateDeleteItem: validateDeleteItemById
+    validateDeleteItem: validateDeleteItemById,
+    validateItemClick: validateItemClick
 }

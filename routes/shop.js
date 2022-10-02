@@ -32,6 +32,9 @@ router.put("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], 
 /* Cancella un item e tutti i prodotti connessi */
 router.delete("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateDeleteItem ], shop_controller.item.deleteItem);
 
+/* Conta un nuovo click sull'item */
+router.post("/items/:item_id/click", shop_middleware.item.validateItemClick, shop_controller.item.itemClick);
+
 
 router.post("/categories/", [ auth_middleware([ ["operator", "shop_write"], ["admin"] ]), shop_middleware.category.validateCreate ], shop_controller.category.create);
 router.get("/categories/", shop_controller.category.getAll);
