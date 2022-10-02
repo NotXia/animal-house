@@ -65,15 +65,17 @@ class ShopMain extends React.Component {
                                         }
                                         </ul>
                                     </fieldset>
-
-                                    {/* Regola di ordinamento */}
-                                    <label htmlFor="select-sort" className="form-label fs-5">Ordina per</label>
-                                    <Form.Select id="select-sort" defaultValue="relevance" onChange={(e) => this.changeOrderRule(e.target.value)} aria-label="Regola di ordinamento dei prodotti" >
-                                        <option value="relevance">Rilevanza</option>
-                                        <option value="name_asc">Nome</option>
-                                        <option value="price_asc">Prezzo crescente</option>
-                                        <option value="price_desc">Prezzo descrescente</option>
-                                    </Form.Select>
+                                    
+                                    <div className="mt-3">
+                                        {/* Regola di ordinamento */}
+                                        <label htmlFor="select-sort" className="form-label fs-5">Ordina per</label>
+                                        <Form.Select id="select-sort" defaultValue="relevance" onChange={(e) => this.changeOrderRule(e.target.value)} aria-label="Regola di ordinamento dei prodotti" >
+                                            <option value="relevance">Rilevanza</option>
+                                            <option value="name_asc">Nome</option>
+                                            <option value="price_asc">Prezzo crescente</option>
+                                            <option value="price_desc">Prezzo descrescente</option>
+                                        </Form.Select>
+                                    </div>
                                 </div>
                             </div>
                         </Col>
