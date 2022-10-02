@@ -46,23 +46,24 @@ class ShopMain extends React.Component {
                                 <div>
                                     {/* Selettore categoria */}
                                     <fieldset>
-                                        <legend className="fs-5">Categoria</legend>
+                                        <legend className="fs-5" aria-label="Filtra per categoria">Categoria</legend>
+                                        <div> <span className="visually-hidden">{this.state.filter_category ? `Attualmente stai guardando la categoria ${this.state.filter_category}` : `Attualmente non stai filtrando per categoria`}</span> </div>
                                         <ul className="nav nav-pills">
-                                        {
-                                            this.state.shop_categories.map((category, index) => {
-                                                const active = this.state.filter_category == category.name;
-                                                const active_class = active ? "active" : "";
+                                            {
+                                                this.state.shop_categories.map((category, index) => {
+                                                    const active = this.state.filter_category == category.name;
+                                                    const active_class = active ? "active" : "";
 
-                                                return (
-                                                    <li className="nav-item w-100 mb-3" key={category.name}>
-                                                        <button className={`btn btn-outline-primary w-100 ${active_class}`} type="button" role="tab" aria-selected={active} 
-                                                                onClick={() => this.filterCategory(category.name)}>
-                                                            <span className="text-truncate">{category.name}</span>
-                                                        </button>
-                                                    </li>
-                                                );
-                                            })
-                                        }
+                                                    return (
+                                                        <li className="nav-item w-100 mb-3" key={category.name}>
+                                                            <button className={`btn btn-outline-primary w-100 ${active_class}`} type="button" aria-selected={active}
+                                                                    onClick={() => this.filterCategory(category.name)}>
+                                                                <span className="text-truncate">{category.name}</span>
+                                                            </button>
+                                                        </li>
+                                                    );
+                                                })
+                                            }
                                         </ul>
                                     </fieldset>
                                     
@@ -110,7 +111,9 @@ class ShopMain extends React.Component {
             {
                 this.state.shop_items.map((item, index) => (
                     <Col lg="3" key={item.id} className="my-2">
-                        <ItemCard item={item}/>
+                        <section>
+                            <ItemCard item={item}/>
+                        </section>
                     </Col>
                 ))
             }
