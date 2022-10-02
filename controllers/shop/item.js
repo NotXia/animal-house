@@ -87,26 +87,42 @@ async function searchItem(req, res) {
     let sort_criteria = { "relevance": -1 };
 
     // Composizione della query
-    if (req.query.category) { query_criteria.category = category; } // Non c'è bisogno di controllare l'esistenza
-    if (req.query.name) { query_criteria.name = `/${req.query.name}/`; }
+    if (req.query.category) { query_criteria.category = req.query.category; } // Non c'è bisogno di controllare l'esistenza
+    if (req.query.name) { query_criteria.name = new RegExp(`${req.query.name}`, "i"); }
     
     // Determina il criterio di ordinamento
-    if (req.query.price_asc) { sort_criteria = { "min_price": 1 }; }
-    if (req.query.price_desc) { sort_criteria = { "max_price": -1 }; }
-    if (req.query.name_asc) { sort_criteria = { "name": 1 }; }
-    if (req.query.name_desc) { sort_criteria = { "name": -1 }; }
+    if (req.query.price_asc)    { sort_criteria = { "min_price": 1, "relevance": -1 }; }
+    if (req.query.price_desc)   { sort_criteria = { "min_price": -1, "relevance": -1 }; }
+    if (req.query.name_asc)     { sort_criteria = { "name": 1, "relevance": -1 }; }
+    if (req.query.name_desc)    { sort_criteria = { "name": -1, "relevance": -1 }; }
 
     try {
         items = await ItemModel.aggregate([
             { $match: query_criteria },
             { $addFields: {
-                min_price: { $min: "$products.price" },
-                max_price: { $max: "$products.price" },
+                available_products: { // Calcolo dei soli prodotti disponibili
+                    $filter: {
+                        input: "$products", as: "product",
+                        cond: { $gt: [ "$$product.quantity", 0 ] }
+                    }
+                }
+            }},
+            { $addFields: {
+                reference_products: { // Calcolo dei prodotti "rappresentanti" dell'item (solo quelli disponibili se ne esiste almeno uno, tutti altrimenti)
+                    $cond: { 
+                        if: { $gt: [ {$size: "$available_products"}, 0 ] }, 
+                        then: "$available_products", 
+                        else: "$products" 
+                    }
+                }
+            }},
+            { $addFields: {
+                min_price: { $min: "$reference_products.price" }, // Prezzo minimo calcolato sui prodotti "rappresentanti"
             }},
             { $sort: sort_criteria },
             { $skip: parseInt(req.query.page_number) }, // Per paginazione
             { $limit: parseInt(req.query.page_size) },
-        ]);
+        ], { collation: {locale: "en", strength: 2} }); // Per l'ordinamento case insensitive
 
         items = items.map(item => (new ItemModel(item)).getData()); // Conversione del risultato nel formato corretto
     }
