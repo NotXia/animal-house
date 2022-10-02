@@ -25,12 +25,12 @@ export default class TextInput extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: "",
-
             error_message: "",
             valid: null,
             hadError: false
         };
+
+        this.input = React.createRef();
 
         this.validation_delay;
         this._inputValidation = this._inputValidation.bind(this);
@@ -50,7 +50,7 @@ export default class TextInput extends React.Component {
         return (<>
             <div>
                 <div className="form-floating w-100">
-                    <input id={this.props.id} className={`form-control ${invalid_form_class}`}
+                    <input ref={this.input} id={this.props.id} className={`form-control ${invalid_form_class}`}
                             type={this.props.type} required={required_attr}
                             name={this.props.name} placeholder=" " onChange={(e) => this._inputValidation(e)}
                             aria-label={this.props.label} aria-invalid={aria_invalid} aria-errormessage={feedback_container_id} />
@@ -64,12 +64,11 @@ export default class TextInput extends React.Component {
 
 
     async _inputValidation(e) {
-        this.setState({ value: e.target.value });
-
-        clearTimeout(this.validation_delay); // Annulla il timer precedente
         if (this.props.validation) {
+            clearTimeout(this.validation_delay); // Annulla il timer precedente
+        
             this.validation_delay = setTimeout((async function() {
-                this.validate();
+                await this.validate();
             }).bind(this), 200);
         }
     }
@@ -79,7 +78,7 @@ export default class TextInput extends React.Component {
      */
     async validate() {
         if (this.props.validation) {
-            const error = await this.props.validation(this.state.value, this.props.required); // Validazione
+            const error = await this.props.validation(this.input.current.value, this.props.required); // Validazione
                 
             if (error) { 
                 this.setState({ error_message: error, valid: false, hadError: true }); 
@@ -96,7 +95,7 @@ export default class TextInput extends React.Component {
      * Restituisce il valore dell'input attuale
      */
     value() {
-        return this.state.value;
+        return this.input.current.value;
     }
 
     /**
