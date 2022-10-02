@@ -91,11 +91,11 @@ async function searchItem(req, res) {
     if (req.query.name) { query_criteria.name = new RegExp(`${req.query.name}`, "i"); }
     
     // Determina il criterio di ordinamento
-    if (req.query.price_asc)    { sort_criteria = { "min_price": 1, "relevance": -1 }; }
-    if (req.query.price_desc)   { sort_criteria = { "min_price": -1, "relevance": -1 }; }
-    if (req.query.name_asc)     { sort_criteria = { "name": 1, "relevance": -1 }; }
-    if (req.query.name_desc)    { sort_criteria = { "name": -1, "relevance": -1 }; }
-
+    if (req.query.price_asc === "true")    { sort_criteria = { "min_price": 1, "relevance": -1 }; }
+    if (req.query.price_desc === "true")   { sort_criteria = { "min_price": -1, "relevance": -1 }; }
+    if (req.query.name_asc === "true")     { sort_criteria = { "name": 1, "relevance": -1 }; }
+    if (req.query.name_desc === "true")    { sort_criteria = { "name": -1, "relevance": -1 }; }
+    
     try {
         items = await ItemModel.aggregate([
             { $match: query_criteria },
