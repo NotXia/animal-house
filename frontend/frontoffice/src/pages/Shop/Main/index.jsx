@@ -45,51 +45,53 @@ class ShopMain extends React.Component {
                 <Container>
                     <Row>
                         <Col xs="12" md="4" lg="2">
-                            {/* Selettore categoria */}
-                            <Button variant="secondary" className="d-md-none w-100" 
-                                    onClick={() => this.setState({category_collapse_open: !this.state.category_collapse_open })} 
-                                    aria-controls="collapse-category" aria-expanded={this.state.category_collapse_open}>
-                                Filtra categoria{ this.state.filter_category ? `: ${this.state.filter_category}` : "" }
-                            </Button>
-                            <Collapse in={this.state.category_collapse_open}>
-                                <div id="#collapse-category" className="d-md-block">
-                                    <fieldset>
-                                        <legend className="fs-5 d-none d-md-block" aria-label="Filtra per categoria">Categoria</legend>
-                                        <div> <span className="visually-hidden">{this.state.filter_category ? `Attualmente stai guardando la categoria ${this.state.filter_category}` : `Attualmente non stai filtrando per categoria`}</span> </div>
-                                        <ul className="nav nav-pills">
-                                            {
-                                                this.state.shop_categories.map((category, index) => {
-                                                    const active = this.state.filter_category == category.name;
-                                                    const active_class = active ? "active" : "";
-
-                                                    return (
-                                                        <li className="nav-item w-100 mb-1 mb-md-3" key={category.name}>
-                                                            <button className={`${category_css["btn-category"]} w-100 ${active_class}`} type="button" aria-selected={active}
-                                                                    onClick={() => this.filterCategory(category.name)}>
-                                                                <div className="d-flex justify-content-start align-items-center">
-                                                                    <img src={`data:image/*;base64,${category.icon}`} alt="" className="ah-icon" />
-                                                                    <span className="text-truncate">{category.name}</span>
-                                                                </div>
-                                                            </button>
-                                                        </li>
-                                                    );
-                                                })
-                                            }
-                                        </ul>
-                                    </fieldset>
-                                </div>
-                            </Collapse>
-
-
+                            
                             {/* Regola di ordinamento */}
-                            <div id="#collapse-sort" className="mt-2 mt-md-3 mb-2">
+                            <div id="#collapse-sort">
                                 <label htmlFor="select-sort" className="form-label fs-5 mb-0 mb-md-1">Ordina per</label>
                                 <Form.Select id="select-sort" defaultValue="relevance" onChange={(e) => this.changeOrderRule(e.target.value)} aria-label="Regola di ordinamento dei prodotti" >
                                     <option value="relevance">Rilevanza</option>
                                     <option value="name_asc">Nome</option>
                                     <option value="price_asc">Prezzo crescente</option>
-                                    <option value="price_desc">Prezzo descrescente</option>
+                                    <option value="price_desc">Prezzo decrescente</option>
                                 </Form.Select>
+                            </div>
+
+                            {/* Selettore categoria */}
+                            <div className="mt-2 mt-md-3">
+                                <Button variant="secondary" className="d-md-none w-100" 
+                                        onClick={() => this.setState({category_collapse_open: !this.state.category_collapse_open })} 
+                                        aria-controls="collapse-category" aria-expanded={this.state.category_collapse_open}>
+                                    Filtra categoria{ this.state.filter_category ? `: ${this.state.filter_category}` : "" }
+                                </Button>
+                                <Collapse in={this.state.category_collapse_open}>
+                                    <div id="#collapse-category" className="d-md-block">
+                                        <fieldset>
+                                            <legend className="fs-5 d-none d-md-block" aria-label="Filtra per categoria">Categoria</legend>
+                                            <div> <span className="visually-hidden">{this.state.filter_category ? `Attualmente stai guardando la categoria ${this.state.filter_category}` : `Attualmente non stai filtrando per categoria`}</span> </div>
+                                            <ul className="nav nav-pills">
+                                                {
+                                                    this.state.shop_categories.map((category, index) => {
+                                                        const active = this.state.filter_category == category.name;
+                                                        const active_class = active ? "active" : "";
+
+                                                        return (
+                                                            <li className="nav-item w-100 mb-1 mb-md-3" key={category.name}>
+                                                                <button className={`${category_css["btn-category"]} w-100 ${active_class}`} type="button" aria-selected={active}
+                                                                        onClick={() => this.filterCategory(category.name)}>
+                                                                    <div className="d-flex justify-content-start align-items-center">
+                                                                        <img src={`data:image/*;base64,${category.icon}`} alt="" className="ah-icon" />
+                                                                        <span className="text-truncate">{category.name}</span>
+                                                                    </div>
+                                                                </button>
+                                                            </li>
+                                                        );
+                                                    })
+                                                }
+                                            </ul>
+                                        </fieldset>
+                                    </div>
+                                </Collapse>
                             </div>
                         </Col>
 
