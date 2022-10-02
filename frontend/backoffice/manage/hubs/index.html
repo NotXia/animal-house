@@ -119,6 +119,28 @@
                     <div class="col-12 col-lg-9">
                         <div class="d-flex justify-content-center">
                             <div class="container-fluid my-4">
+                            <form id="hub-form">
+
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <div id="form-submits-container" class="d-flex justify-content-center">
+                                            <div id="create-button-container">
+                                                <button id="create-button" type="button" class="btn btn-outline-success">Crea</button>
+                                                <button id="cancel-create-button" type="button" class="btn btn-outline-secondary">Annulla</button>
+                                            </div>
+                                            <div id="enable-modify-button-container">
+                                                <button id="enable-modify-button" type="button" class="btn btn-outline-dark">Abilita modifiche</button>
+                                            </div>
+                                            <div id="modify-button-container">
+                                                <div class="d-flex justify-content-center">
+                                                    <button id="modify-button" type="button" class="btn btn-outline-success mx-1">Salva modifica</button>
+                                                    <button id="start-delete-button" type="button" class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#modal-delete-hub">Elimina hub</button>
+                                                    <button id="cancel-modify-button" type="button" class="btn btn-outline-secondary mx-1">Annulla modifiche</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 
                                 <div class="row h-100">
                                     <div class="col-12 col-lg-12">
@@ -139,8 +161,6 @@
                                     </div>
                                     
                                     <div class="col-12 col-lg-12">
-                                        <form id="hub-form">
-
                                         <div class="row">
                                             <div class="col-4 col-lg-3">
                                                 <div class="w-100">
@@ -257,30 +277,10 @@
                                                 <div class="accordion" id="opening_time-accordion"></div>
                                             </div>
                                         </div>
-        
-                                        <div class="row mt-3">
-                                            <div class="col-12">
-                                                <div id="form-submits-container" class="d-flex justify-content-center">
-                                                    <div id="create-button-container">
-                                                        <button id="create-button" type="button" class="btn btn-outline-success">Crea</button>
-                                                        <button id="cancel-create-button" type="button" class="btn btn-outline-secondary">Annulla</button>
-                                                    </div>
-                                                    <div id="enable-modify-button-container">
-                                                        <button id="enable-modify-button" type="button" class="btn btn-outline-dark">Abilita modifiche</button>
-                                                    </div>
-                                                    <div id="modify-button-container">
-                                                        <button id="modify-button" type="button" class="btn btn-outline-success">Salva modifica</button>
-                                                        <button id="start-delete-button" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-hub">Elimina hub</button>
-                                                        <button id="cancel-modify-button" type="button" class="btn btn-outline-secondary">Annulla modifiche</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </form>
                                     </div>
                                 </div>
                                 
+                            </form>
                             </div>
                         </div>
                     </div>
