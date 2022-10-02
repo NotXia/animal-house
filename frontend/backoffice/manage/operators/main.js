@@ -8,6 +8,7 @@ import * as OperatorAPI from "./operatorAPI.js";
 import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
 import { api_request, getUsername } from "/js/auth.js";
+import { createSuccessPopup } from "../../import/successPopup.js";
 
 let NavbarHandler;
 let LoadingHandler;
@@ -73,6 +74,7 @@ $(document).ready(async function() {
                         switch (Mode.current) {
                             case Mode.MODIFY:
                                 res_operator = await OperatorAPI.update(operator_cache.username, operator_data);
+                                createSuccessPopup("#container-success", `Operatore ${operator_cache.username} modificato con successo`);
         
                                 // Aggiornamento della navbar se si aggiorna sé stessi
                                 if (operator_cache.username === await getUsername()) { await NavbarHandler.render(); }
@@ -80,6 +82,7 @@ $(document).ready(async function() {
         
                             case Mode.CREATE:
                                 res_operator = await OperatorAPI.create(operator_data);
+                                createSuccessPopup("#container-success", `Operatore ${operator_data.username} creato con successo`);
                                 break;
                         }
         
@@ -154,6 +157,7 @@ $(document).ready(async function() {
             await LoadingHandler.wrap(async function() {
                 try {
                     await OperatorAPI.remove(operator_cache.username);
+                    createSuccessPopup("#container-success", `Operatore ${operator_cache.username} eliminato con successo`);
                 } catch (err) {
                     Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore");
                 }
