@@ -342,6 +342,29 @@ describe("Test inserimento prodotto", function () {
     });
 });
 
+describe("Test rilevanza", function () {
+    test("Richiesta corretta a POST /items/:item_id/click", async function () {
+        const item_old = await ItemModel.findById(itemA.id).exec();
+
+        await curr_session.post(`/shop/items/${itemA.id}/click`).expect(204);
+
+        const item = await ItemModel.findById(itemA.id).exec();
+        expect(item.relevance).toEqual(item_old.relevance+0.1);
+    });
+
+    test("Richieste corrette a POST /items/:item_id/click", async function () {
+        const item_old = await ItemModel.findById(itemA.id).exec();
+
+        await curr_session.post(`/shop/items/${itemA.id}/click`).expect(204);
+        await curr_session.post(`/shop/items/${itemA.id}/click`).expect(204);
+        await curr_session.post(`/shop/items/${itemA.id}/click`).expect(204);
+
+        const item = await ItemModel.findById(itemA.id).exec();
+        expect(item.relevance).toEqual(item_old.relevance+0.3);
+    });
+});
+
+
 describe("Test cancellazione", function () {
     test("Modifica item con cancellazione", async function () {
         const probably_deleted_image = (await curr_session.get(`/shop/items/${itemA.id}`).expect(200)).body.products[1].images[0].path;
