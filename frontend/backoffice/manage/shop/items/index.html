@@ -43,7 +43,7 @@
                     <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
                         <div class="d-flex justify-content-center">
                             <form id="form-search-item" class="d-flex" role="search">
-                                <input id="input-search-item" class="form-control" type="input" placeholder="Cerca barcode">
+                                <input id="input-search-item" class="form-control" type="input" placeholder="Cerca per barcode o nome">
                                 <button class="ps-2 pe-2 btn btn-link" type="submit" aria-label="Cerca item">
                                     <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
                                 </button>
@@ -236,6 +236,26 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
                     <button id="button-delete-item" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancella</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selezione item da ricerca multipla -->
+    <div class="modal fade" id="modal-select-item" tabindex="-1" aria-labelledby="modal-select-item-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-4" id="modal-select-item-label">Risultati ricerca</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>La ricerca ha prodotto i seguenti risultati:</p>
+                    <div class="container" id="container-select-item">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
                 </div>
             </div>
         </div>
