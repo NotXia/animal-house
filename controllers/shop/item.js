@@ -230,7 +230,7 @@ async function updateItemById(req, res) {
 */
 async function deleteItemById(req, res) {
     try {
-        // Estrazione dei prodotti associati all'item
+        // Estrazione dell'item da cancellare
         const to_delete_item = await ItemModel.findById(req.params.item_id).exec();
         if (!to_delete_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
 
@@ -251,11 +251,32 @@ async function deleteItemById(req, res) {
     return res.sendStatus(utils.http.NO_CONTENT);
 }
 
+/* 
+    Gestisce l'incremento della rilevanza di un item
+*/
+async function itemClick(req, res) {
+    try {
+        // Estrazione dell'item
+        const to_update_item = await ItemModel.findById(req.params.item_id).exec();
+        if (!to_update_item) { throw error.generate.NOT_FOUND("Item inesistente"); }
+
+        to_update_item.relevance += 0.1;
+        await to_update_item.save();
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.sendStatus(utils.http.NO_CONTENT);
+}
+
+
 module.exports = {
     create: createItem,
     search: searchItem,
     searchByBarcode: searchItemByBarcode,
     searchItem: searchSingleItem,
     updateItem: updateItemById,
-    deleteItem: deleteItemById
+    deleteItem: deleteItemById,
+    itemClick: itemClick
 }
