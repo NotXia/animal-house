@@ -10,9 +10,9 @@ export function createSuccessPopup(container_selector, message) {
     index++;
 
     $(container_selector).html(`
-        <div id="${popup_id}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <div id="${popup_id}" class="alert alert-success alert-dismissible fade show" role="alert" aria-live="polite">
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi popup"></button>
         </div>
     `);
 
