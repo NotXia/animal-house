@@ -9,6 +9,7 @@ import * as Form from "./form.js";
 import * as Mode from "./mode.js";
 import * as HubAPI from "./hubAPI.js";
 import { GEOAPIFY_KEY } from "/js/keys.js";
+import { createSuccessPopup } from "../../import/successPopup.js";
 
 let NavbarHandler, LoadingHandler;
 let hub_cache = {}
@@ -72,11 +73,13 @@ $(document).ready(async function() {
                                 res_hub = await HubAPI.modify(selected_hub, hub_data);
                                 hub_cache[res_hub.code] = res_hub;
                                 HubMenuHandler.updateHubMenu(res_hub);
+                                createSuccessPopup("#container-success", `Hub ${selected_hub} modificato con successo`);
                                 break;
                             case Mode.CREATE: 
                                 res_hub = await HubAPI.create(hub_data);
                                 hub_cache[res_hub.code] = res_hub;
                                 HubMenuHandler.render(Object.values(hub_cache), selected_hub);
+                                createSuccessPopup("#container-success", `Hub ${hub_data.code} creato con successo`);
                                 break;
                         }
                         
@@ -160,6 +163,7 @@ $(document).ready(async function() {
         $("#delete-button").on("click", async function () {
             try {
                 await HubAPI.remove(selected_hub);
+                createSuccessPopup("#container-success", `Hub ${selected_hub} eliminato con successo`);
 
                 // Aggiornamento mappa
                 Map.removeMarker(selected_hub);
