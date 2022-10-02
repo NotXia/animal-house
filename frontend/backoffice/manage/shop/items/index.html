@@ -67,6 +67,27 @@
 
         <form id="form-shop" style="display: none;">
             <div class="container">
+
+                <div class="row mt-3 mb-2">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center">
+                            <div id="container-submit_button-create">
+                                <button id="button-create" class="btn btn-outline-success" type="button">Crea</button>
+                            </div>
+
+                            <div id="container-submit_button-start-modify">
+                                <button id="button-start-modify" class="btn btn-outline-dark" type="button">Abilita modifiche</button>
+                            </div>
+
+                            <div id="container-submit_button-modify">
+                                <button id="button-modify" class="btn btn-outline-success" type="button" >Salva modifiche</button>
+                                <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-item">Elimina item</button>
+                                <button id="button-revert" class="btn btn-outline-secondary" type="button" >Annulla modifiche</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Generalità item -->
                 <div class="row">
                     <div class="col-12 col-lg-8">
@@ -174,26 +195,6 @@
                                 <legend class="fs-6 fw-semibold">Animali target</legend>
                             
                             </fieldset>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-2">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-center">
-                            <div id="container-submit_button-create">
-                                <button id="button-create" class="btn btn-outline-success" type="button">Crea</button>
-                            </div>
-
-                            <div id="container-submit_button-start-modify">
-                                <button id="button-start-modify" class="btn btn-outline-dark" type="button">Abilita modifiche</button>
-                            </div>
-
-                            <div id="container-submit_button-modify">
-                                <button id="button-modify" class="btn btn-outline-success" type="button" >Salva modifiche</button>
-                                <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-item">Elimina item</button>
-                                <button id="button-revert" class="btn btn-outline-secondary" type="button" >Annulla modifiche</button>
-                            </div>
                         </div>
                     </div>
                 </div>
