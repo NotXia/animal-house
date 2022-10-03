@@ -7,60 +7,71 @@
  */
 
 import React from "react";
-import "bootstrap/js/src/carousel";
+import Tab from "bootstrap/js/src/tab";
+import $ from "jquery";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Zoom from "react-medium-image-zoom"
+import "react-medium-image-zoom/dist/styles.css"
 
 export default class ImagesViewer extends React.Component {
     constructor(props) {
         super(props);
+
+        let images = this.props.images;
+        if (!images || images.length === 0) { images = [{ path: `${process.env.REACT_APP_DOMAIN}/shop/images/default.png`, description: "" }] } // Se non ci sono immagini
+        
+        this.state = {
+            images: images,
+            selected: "1"
+        }
     }
     
+    componentDidMount() {
+        new Tab(document.querySelector('#tab-product-images'))
+    }
+
     render() {
-        let images = this.props.images;
-        if (!images) { images = [{ path: `${process.env.REACT_APP_DOMAIN}/shop/images/default.png`, description: "" }] } // Se non ci sono immagini
-
         return (<>
-            <div id="carousel-product-images" className="carousel slide carousel-dark" data-bs-ride="false">
-                <div className="carousel-indicators">
-                    {
-                        this.props.images.map((_, index) => {
-                            return (
-                                <button key={`carousel-control-${index}`} type="button" data-bs-target="#carousel-product-images" data-bs-slide-to={index} 
-                                        className={index === 0 ? "active" : ""} aria-current={index===0} aria-label={`Immagine ${index+1}`}></button>
-                            );
-                        })
-                    }
-                </div>
-                <div className="carousel-inner">
-                    {
-                        this.props.images.map((image, index) => {
-                            return (
-                                <div className={ `carousel-item ${index === 0 ? "active" : ""}` } key={image.path}>
-                                    <div className="d-flex justify-content-center align-items-center" style={{height: "30rem", width: "100%"}}>
-                                        <img src={`${process.env.REACT_APP_DOMAIN}${image.path}`} alt={image.description} 
-                                            style={{maxHeight: "100%", maxWidth: "100%"}} />
-                                    </div>
+            <Container fluid>
+                <Row>
+                    <Zoom>
+                        <div className="d-flex justify-content-center align-items-center p-2" style={{height: "25rem", width: "100%"}}>
+                                <img src={`${process.env.REACT_APP_DOMAIN}${this.getSelectedImage().path}`} alt={this.getSelectedImage().description} 
+                                    style={{maxHeight: "100%", maxWidth: "100%"}} />
+                        </div>
+                    </Zoom>
+                </Row>
 
-                                    <div className="carousel-caption d-none d-md-block p-1 mb-3" style={{backgroundColor: image.description ? "#fafafac0" : ""}}>
-                                        <div className="d-flex justify-content-center align-items-center h-100 w-100">
-                                            <span>{image.description}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })
-                    }
-                </div>
+                <Row>
+                    <div className="d-flex justify-content-center overflow-auto">
+                        <ul id="tab-product-images" className="nav nav-pills flex-nowrap mw-100" role="tablist">
+                            {
+                                this.state.images.map((image, index) => {
+                                    let active_class = index === 0 ? "active" : "";
+                                    let isActive = index === 0;
 
-                <button className="carousel-control-prev" type="button" data-bs-target="#carousel-product-images" data-bs-slide="prev">
-                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span className="visually-hidden">Immagine precedente</span>
-                </button>
-                <button className="carousel-control-next" type="button" data-bs-target="#carousel-product-images" data-bs-slide="next">
-                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span className="visually-hidden">Immagine successiva</span>
-                </button>
-            </div>
+                                    return (
+                                        <li key={`tab-image-control-${image.path}`} className="nav-item" role="none">
+                                            <button type="button" role="tab" data-bs-toggle="pill" aria-selected={isActive}
+                                                    className={`btn btn-link ${active_class}`} style={{height: "6rem", width: "6rem"}}
+                                                    onClick={()=>this.setState({selected: index})} onMouseEnter={()=>this.setState({selected: index})} onFocus={()=>this.setState({selected: index})} >
+                                                <img src={`${process.env.REACT_APP_DOMAIN}${image.path}`} alt="" style={{maxHeight: "100%", maxWidth: "100%"}} />
+                                            </button>
+                                        </li>
+                                    );
+                                })
+                            }
+                        </ul>
+                    </div>
+                </Row>
+            </Container>
         </>);
+    }
+
+    getSelectedImage() {
+        return this.state.images[this.state.selected];
     }
 }
 
