@@ -170,12 +170,12 @@ function loadItemSelectorModal(items) {
         const products_barcode_string = item.products.map((product) => product.barcode).join(", ")
 
         $("#container-select-item").append(`
-            <div class="row">
+            <li class="row">
                 <button id="${button_id}" class="btn btn-outline-dark mb-1 p-2" data-bs-dismiss="modal">
                     <h3 class="fs-6 fw-semibold mb-0">${item.name}</h3>
                     <p class="mb-0">Barcode contenuti: ${products_barcode_string}</p>
                 </button>
-            </div>
+            </li>
         `);
 
         $(`#${button_id}`).on("click", function () { showItem(item, focus_data); });
