@@ -122,7 +122,7 @@ $(document).ready(async function() {
                     Mode.view();
                 }
                 catch (err) {
-                    if (err.status === 400) { Mode.error("Utente inesistente"); }
+                    if (err.status === 404) { Mode.error("Utente inesistente"); }
                     else { Mode.error("Si è verificato un errore"); }
                 }
             });
