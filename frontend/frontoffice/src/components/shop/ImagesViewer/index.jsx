@@ -35,16 +35,31 @@ export default class ImagesViewer extends React.Component {
     }
 
     render() {
+        let description = <></>
+        if (this.getSelectedImage().description) {
+            description = (
+                <div className={`position-absolute bottom-0 start-0 w-100 ${css["description-box"]}`}>
+                    {this.getSelectedImage().description}
+                </div>
+            )
+        }
+
         return (<>
             <Container fluid>
                 {/* Immagine visualizzata */}
                 <Row>
-                    <Zoom>
-                        <div className={`d-flex justify-content-center align-items-center p-2 ${css["image-box"]}`}>
-                            <img src={`${process.env.REACT_APP_DOMAIN}${this.getSelectedImage().path}`} alt={this.getSelectedImage().description} 
-                                style={{maxHeight: "100%", maxWidth: "100%"}} />
+                    <figure>
+                        <div className="position-relative w-100">
+                            {description }
+
+                            <Zoom>
+                                <div className={`d-flex justify-content-center align-items-center p-2 ${css["image-box"]}`}>
+                                    <img src={`${process.env.REACT_APP_DOMAIN}${this.getSelectedImage().path}`} alt={this.getSelectedImage().description} 
+                                        style={{maxHeight: "100%", maxWidth: "100%"}} />
+                                </div>
+                            </Zoom>
                         </div>
-                    </Zoom>
+                    </figure>
                 </Row>
 
                 {/* Selettore immagine */}
@@ -60,7 +75,7 @@ export default class ImagesViewer extends React.Component {
                                         <li key={`tab-image-control-${image.path}`} className="nav-item mx-1" role="none">
                                             <button type="button" role="tab" data-bs-toggle="pill" aria-selected={isActive}
                                                     className={`${css["image-selector-button"]} ${active_class}`}
-                                                    onClick={() => this.changeImage(index)} onMouseEnter={() => this.changeImage(index)} onFocus={() => this.changeImage(index)} >
+                                                    onClick={(e) => this.changeImage(e, index)} onMouseEnter={(e) => this.changeImage(e, index)} onFocus={(e) => this.changeImage(e, index)} >
                                                 <img src={`${process.env.REACT_APP_DOMAIN}${image.path}`} alt="" style={{maxHeight: "100%", maxWidth: "100%"}} />
                                             </button>
                                         </li>
@@ -78,9 +93,10 @@ export default class ImagesViewer extends React.Component {
         return this.state.images[this.state.selected];
     }
 
-    changeImage(index) {
-        this.setState({selected: index});
+    changeImage(e, index) {
+        e.preventDefault();
 
+        this.setState({selected: index});
         $(`#tab-product-images li:nth-child(${index+1}) button`).tab("show");
     }
 }

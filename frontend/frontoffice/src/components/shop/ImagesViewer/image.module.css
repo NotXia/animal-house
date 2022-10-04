@@ -17,3 +17,10 @@
 .image-selector-button[class*="active"], .image-selector-button:hover, .image-selector-button:focus, .image-selector-button:active {
     border-bottom: 0.15rem solid black;
 }
+
+.description-box {
+    z-index: 5;
+    background-color: #f0f0f0f8;
+    text-align: center;
+    padding: 0.5rem 0 0.5rem 0;
+}
