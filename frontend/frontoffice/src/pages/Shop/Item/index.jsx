@@ -5,12 +5,12 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from 'react-bootstrap/Button';
-import TextInput from "../../../components/form/TextInput";
-import GroupInput from "../../../components/form/GroupInput";
+import NumberInput from "../../../components/form/NumberInput";
 import Navbar from "../../../components/Navbar";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import { centToPrice } from "../../../utilities/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
+import ProductCard from "../../../components/shop/ProductCard";
 
 class ShopItem extends React.Component {
     constructor(props) {
@@ -33,24 +33,44 @@ class ShopItem extends React.Component {
             
             <Navbar/>
 
-            <main>
+            <main className="mt-4">
                 <Container>
                     <Row>
-                        <Col xs="12" md="6">
-                            <div style={{height: "50rem"}}>
-                                <ImagesViewer images={this.currProduct().images}/>
+                        {/* Immagini */}
+                        <Col xs="12" md="5">
+                            <div>
+                                <ImagesViewer key={`images-viewer-${this.state.product_index}`} images={this.currProduct().images}/>
                             </div>
                         </Col>
-                        <Col xs="12" md="6">
-                            <h1>{this.state.item.name}</h1>
-                            <h2>{this.currProduct().name}</h2>
-                            <p>{`${centToPrice(this.currProduct().price)}€`}</p>
-                            <Button>Aggiungi al carrello</Button>
-                            <div>
+
+                        {/* Dati item */}
+                        <Col xs="12" md="7" className="mt-4 mt-md-0">
+                            <Row>
+                                <Col xs="12" md="8">
+                                    <div className="">
+                                        <h1 className="fs-1 mb-1">{this.state.item.name}</h1>
+                                        <h2 className="fs-2 overflow-hidden">{this.currProduct().name}</h2>
+                                        <p className="fs-3 fw-semibold">{`${centToPrice(this.currProduct().price)}€`}</p>
+                                    </div>
+                                </Col>
+                                <Col xs="12" md="4">
+                                    <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
+                                        { this.renderAddToCartButton() }
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            {/* Selettore prodotti */}
+                            { this.renderProductSelector() }
+
+                            <div className="mt-4">
                                 <div dangerouslySetInnerHTML={{__html: this.state.item.description}}></div>
                                 <div dangerouslySetInnerHTML={{__html: this.currProduct().description}}></div>
                             </div>
                         </Col>
+                    </Row>
+
+                    <Row className="mt-5">
                     </Row>
                 </Container>
             </main>
@@ -60,6 +80,54 @@ class ShopItem extends React.Component {
     currProduct() {
         return this.state.item.products[this.state.product_index];
     }
+
+    renderProductSelector() {
+        if (this.state.item.products.length === 1) { return (<></>); }
+
+        return (                            
+            <Container fluid>
+                <Row>
+                    <p className="fs-5 p-0 mb-0  mt-2">Variante:</p>
+                </Row>
+                <Row>
+                    {
+                        this.state.item.products.map((product, index) => {
+                            let selected = this.state.product_index === index;
+                            
+                            return ( <ProductCard key={product.barcode} product={product} onClick={() => this.setState({ product_index: index })} selected={selected} /> )
+                        })
+                    }  
+                </Row>
+            </Container>
+        );
+    }
+
+    renderAddToCartButton() {
+        if (this.currProduct().quantity > 0) {
+            return (
+                <div>
+                    <div className="mb-2">
+                        <Button variant="outline-primary" className="w-100">Aggiungi al carrello</Button>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <div className="w-75">
+                            <NumberInput id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+        else {
+            return (
+                <div>
+                    <div className="mb-2">
+                        <Button variant="outline-primary" className="w-100" disabled>Non disponibile</Button>
+                    </div>
+                </div>
+            )
+        }
+    }
+
 }
 
 export default SearchParamsHook(ShopItem);
