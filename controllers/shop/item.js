@@ -120,7 +120,7 @@ async function searchItem(req, res) {
                 min_price: { $min: "$reference_products.price" }, // Prezzo minimo calcolato sui prodotti "rappresentanti"
             }},
             { $sort: sort_criteria },
-            { $skip: parseInt(req.query.page_number) }, // Per paginazione
+            { $skip: parseInt(req.query.page_number)*parseInt(req.query.page_size) }, // Per paginazione
             { $limit: parseInt(req.query.page_size) },
         ], { collation: {locale: "en", strength: 2} }); // Per l'ordinamento case insensitive
 
