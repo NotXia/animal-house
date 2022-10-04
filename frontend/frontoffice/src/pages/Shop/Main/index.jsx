@@ -11,26 +11,46 @@ import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
 import category_css from "./category.module.css";
 
+let __initialized = false;
+const PAGE_SIZE = 24;
+
 class ShopMain extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             shop_categories: [],
             shop_items: [],
+
             filter_name: undefined,
             filter_category: undefined,
             price_asc: false, price_desc: false, name_asc: false, name_desc: false,
 
+            curr_page_index: -1,
+            pagination_end: false,
+            item_fetching: false,
+
             category_collapse_open: false,
-            sort_collapse_open: false
+            sort_collapse_open: false,
+
         };
+
+        this.items_fetch_request = null;
+
+        this.scrollItemUpdate = this.scrollItemUpdate.bind(this);
     }
 
     componentDidMount() {
-        // Inizializzazione categorie
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` }).then( (categories) => this.setState({ shop_categories: categories }) );
-        
-        this.updateDisplayedItems();
+        if (!__initialized) {
+            // Inizializzazione categorie
+            $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` }).then( (categories) => this.setState({ shop_categories: categories }) );
+            
+            this.updateDisplayedItems();
+
+            // Per rilevare il l'altezza dello scroll
+            window.addEventListener('scroll', this.scrollItemUpdate);
+
+            __initialized = true;
+        }
     }
 
     render() {
@@ -114,6 +134,23 @@ class ShopMain extends React.Component {
                             <Row>
                                 { this.renderItems() }
                             </Row>
+
+                            <Row>
+                                {
+                                    (() => {
+                                        if (this.state.item_fetching) {
+                                            return (<>
+                                                <div className="d-flex justify-content-center w-100 my-5">
+                                                    <div className="spinner-border" role="status">
+                                                        <span className="visually-hidden">Caricando la prossima pagina di prodotti</span>
+                                                    </div>
+                                                </div>
+                                            </>);
+                                        }
+                                        return (<></>);
+                                    })()
+                                }
+                            </Row>
                         </Col>
                     </Row>
                 </Container>
@@ -161,20 +198,44 @@ class ShopMain extends React.Component {
     }
 
     async updateDisplayedItems() {
-        const items = await $.ajax({ 
-            method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
-            data: { 
-                page_size: 25, page_number: 0, 
-                name: this.state.filter_name, 
-                category: this.state.filter_category,
-                price_asc: this.state.price_asc,
-                price_desc: this.state.price_desc,
-                name_asc: this.state.name_asc,
-                name_desc: this.state.name_desc
-            }
-        });
+        if (!this.state.pagination_end) {
+            this.setState({ item_fetching: true });
 
-        this.setState({ shop_items: items });
+            const items = await $.ajax({ 
+                method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
+                data: { 
+                    page_size: PAGE_SIZE, page_number: this.state.curr_page_index+1, 
+                    name: this.state.filter_name, 
+                    category: this.state.filter_category,
+                    price_asc: this.state.price_asc,
+                    price_desc: this.state.price_desc,
+                    name_asc: this.state.name_asc,
+                    name_desc: this.state.name_desc
+                }
+            });
+            
+            this.setState({
+                shop_items: this.state.shop_items.concat(items), 
+                curr_page_index: this.state.curr_page_index + 1,
+                pagination_end: items.length < PAGE_SIZE,
+                item_fetching: false
+            });
+        }
+    }
+    
+    async scrollItemUpdate() {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scroll_percentage = winScroll / height;
+        
+        if (scroll_percentage > 0.7) {
+            if (!this.items_fetch_request) { // Per evitare richieste multiple
+                this.items_fetch_request = this.updateDisplayedItems();
+            }
+
+            await this.items_fetch_request; // Attesa sulla richiesta corrente
+            this.items_fetch_request = null;
+        }
     }
 }
 
