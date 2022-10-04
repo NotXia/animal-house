@@ -12,16 +12,24 @@ import { centToPrice } from "../../../utilities/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
 
+let __relevance_increased= false;
+
 class ShopItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             item: undefined,
-            product_index: 0
+            product_index: 0,
         };
         
         let item_id = this.props.searchParams.get("id");
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` }).then( (item) => this.setState({ item: item }) )
+        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` }).then( (item) => this.setState({ item: item }) );
+
+        // Incremento rilevanza
+        if (!__relevance_increased) {
+            $.ajax({ method: "POST", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}/click` });
+            __relevance_increased = true;
+        }
     }
 
     render() {
