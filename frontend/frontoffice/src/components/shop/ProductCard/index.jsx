@@ -38,11 +38,11 @@ export default class ProductCard extends React.Component {
                                 <p className="my-0 text-truncate">{ this.product.name }</p>
                             </div>
                         </Row>
-                        <Row className="d-flex justify-content-center align-items-center">
+                        {/* <Row className="d-flex justify-content-center align-items-center">
                             <div style={{height: "5rem", width: "100%"}}>
                                 <img src={`${process.env.REACT_APP_DOMAIN}${image}`} alt="" style={{maxHeight: "100%", maxWidth: "100%"}} />
                             </div>
-                        </Row>
+                        </Row> */}
                     </Container>
                 </button>
             </Col>
