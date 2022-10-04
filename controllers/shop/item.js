@@ -84,17 +84,17 @@ async function createItem(req, res) {
 async function searchItem(req, res) {
     let items = [];
     let query_criteria = {};
-    let sort_criteria = { "relevance": -1 };
+    let sort_criteria = { "relevance": -1, "_id": -1 };
 
     // Composizione della query
     if (req.query.category) { query_criteria.category = req.query.category; } // Non c'è bisogno di controllare l'esistenza
     if (req.query.name) { query_criteria.name = new RegExp(`${req.query.name}`, "i"); }
     
     // Determina il criterio di ordinamento
-    if (req.query.price_asc === "true")    { sort_criteria = { "min_price": 1, "relevance": -1 }; }
-    if (req.query.price_desc === "true")   { sort_criteria = { "min_price": -1, "relevance": -1 }; }
-    if (req.query.name_asc === "true")     { sort_criteria = { "name": 1, "relevance": -1 }; }
-    if (req.query.name_desc === "true")    { sort_criteria = { "name": -1, "relevance": -1 }; }
+    if (req.query.price_asc === "true")    { sort_criteria["min_price"] = 1; }
+    if (req.query.price_desc === "true")   { sort_criteria["min_price"] = -1; }
+    if (req.query.name_asc === "true")     { sort_criteria["name"] = 1; }
+    if (req.query.name_desc === "true")    { sort_criteria["name"] = -1; }
     
     try {
         items = await ItemModel.aggregate([
