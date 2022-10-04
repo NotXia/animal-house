@@ -52,8 +52,8 @@ export default class ImagesViewer extends React.Component {
                         <div className="position-relative w-100">
                             {description }
 
-                            <Zoom>
-                                <div className={`d-flex justify-content-center align-items-center p-2 ${css["image-box"]}`}>
+                            <Zoom a11yNameButtonUnzoom="Rimpicciolisci immagine" a11yNameButtonZoom="Ingrandisci immagine">
+                                <div className={`d-flex justify-content-center align-items-center ${css["image-box"]}`}>
                                     <img src={`${process.env.REACT_APP_DOMAIN}${this.getSelectedImage().path}`} alt={this.getSelectedImage().description} 
                                         style={{maxHeight: "100%", maxWidth: "100%"}} />
                                 </div>

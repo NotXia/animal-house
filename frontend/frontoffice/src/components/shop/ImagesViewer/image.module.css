@@ -2,6 +2,7 @@
     height: 25rem;
     width: 100%; 
     border: 1px solid lightgray;
+    padding: 1rem;
 }
 
 .image-selector-button {
