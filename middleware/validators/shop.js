@@ -22,7 +22,7 @@ module.exports.validateProductImages = function (source, required=true, field_na
     return [
         utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato non valido"),
         utils.handleRequired(validator[source](`${field_name}.*.path`), required=true).notEmpty().withMessage("Valore mancante").trim(),
-        utils.handleRequired(validator[source](`${field_name}.*.description`), required=true).notEmpty().withMessage("Valore mancante").trim()
+        utils.handleRequired(validator[source](`${field_name}.*.description`), required=true).withMessage("Valore mancante").trim()
     ]; 
 }
 
