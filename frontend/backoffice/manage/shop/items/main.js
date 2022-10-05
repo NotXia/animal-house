@@ -97,7 +97,7 @@ $(document).ready(async function() {
 
                     // Unione dei risultati
                     matched_items = item_by_name;
-                    if (item_by_barcode.item) { matched_items = matched_items.concat(item_by_barcode) }
+                    if (item_by_barcode.item) { matched_items = matched_items.concat(item_by_barcode); }
 
                     switch (matched_items.length) {
                         case 0: Mode.error(`Nessun item con barcode o nome ${query_item}`); return;
