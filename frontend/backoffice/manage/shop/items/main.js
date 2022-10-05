@@ -14,8 +14,6 @@ let LoadingHandler;
 
 let item_cache;
 
-window.test = ItemAPI.searchItemByName
-
 $(document).ready(async function() {
     // Caricamento delle componenti esterne
     NavbarHandler = new Navbar("navbar-placeholder");
