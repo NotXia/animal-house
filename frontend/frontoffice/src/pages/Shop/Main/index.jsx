@@ -122,6 +122,13 @@ class ShopMain extends React.Component {
     }
 
     renderItems() {
+        // Gestione di ricerche vuote
+        if (this.state.shop_items.length === 0) { 
+            return (
+                <Col xs="12"><p className="text-center fs-5">Nessun prodotto corrisponde ai criteri di ricerca</p></Col>
+            ) ;
+        }
+
         return (<>
             {
                 this.state.shop_items.map((item, index) => (
