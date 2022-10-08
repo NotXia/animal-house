@@ -20,10 +20,18 @@ class ShopItem extends React.Component {
         this.state = {
             item: undefined,
             product_index: 0,
+
+            error_message: ""
         };
         
         let item_id = this.props.searchParams.get("id");
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` }).then( (item) => this.setState({ item: item }) );
+        try {
+            $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` }).then( (item) => this.setState({ item: item }) );
+        }
+        catch (err) {
+            this.state.error_message = "Si è verificato un errore";
+            return;
+        }
 
         // Incremento rilevanza
         if (!__relevance_increased) {
@@ -33,7 +41,20 @@ class ShopItem extends React.Component {
     }
 
     render() {
-        if (!this.state.item) { return (<></>); }
+        if (!this.state.item || this.state.error_message !== "") {
+            const message = this.state.error_message ? this.state.error_message : "Non c'è nessun prodotto da queste parti";
+            return (<>
+                <Helmet> <title>Shop</title> </Helmet>
+                <Navbar/>
+
+                <Container>
+                    <Row>
+                        <p className="text-center fs-3 mt-3 invalid-feedback d-block">{message}</p>
+                    </Row>
+                </Container>
+            </>); 
+        }
+
         return (<>
             <Helmet>
                 <title>{this.state.item.name}</title>
