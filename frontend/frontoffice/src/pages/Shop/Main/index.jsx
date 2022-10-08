@@ -22,7 +22,9 @@ class ShopMain extends React.Component {
             price_asc: false, price_desc: false, name_asc: false, name_desc: false,
 
             category_collapse_open: false,
-            sort_collapse_open: false
+            sort_collapse_open: false,
+
+            error_message: ""
         };
     }
 
@@ -110,6 +112,11 @@ class ShopMain extends React.Component {
                                 </Col>
                             </Row>
 
+                            <Row>
+                                <p className="text-center fs-5 invalid-feedback d-block">{ this.state.error_message }</p>
+                            </Row>
+
+
                             {/* Item */}
                             <Row>
                                 { this.renderItems() }
@@ -122,8 +129,8 @@ class ShopMain extends React.Component {
     }
 
     renderItems() {
-        // Gestione di ricerche vuote
-        if (this.state.shop_items.length === 0) { 
+        // Gestione di ricerche vuote (senza errori)
+        if (this.state.shop_items.length === 0 && this.state.error_message === "") { 
             return (
                 <Col xs="12"><p className="text-center fs-5">Nessun prodotto corrisponde ai criteri di ricerca</p></Col>
             ) ;
@@ -168,20 +175,26 @@ class ShopMain extends React.Component {
     }
 
     async updateDisplayedItems() {
-        const items = await $.ajax({ 
-            method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
-            data: { 
-                page_size: 25, page_number: 0, 
-                name: this.state.filter_name, 
-                category: this.state.filter_category,
-                price_asc: this.state.price_asc,
-                price_desc: this.state.price_desc,
-                name_asc: this.state.name_asc,
-                name_desc: this.state.name_desc
-            }
-        });
+        try {
+            const items = await $.ajax({ 
+                method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
+                data: { 
+                    page_size: 25, page_number: 0, 
+                    name: this.state.filter_name, 
+                    category: this.state.filter_category,
+                    price_asc: this.state.price_asc,
+                    price_desc: this.state.price_desc,
+                    name_asc: this.state.name_asc,
+                    name_desc: this.state.name_desc
+                }
+            });
 
-        this.setState({ shop_items: items });
+            this.setState({ shop_items: items });
+        }
+        catch (err) {
+            this.setState({ error_message: "Si è verificato un errore durante la ricerca" });
+        }
+        
     }
 }
 
