@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
-    <script src="/lib/serenix_readonly.js"></script>
     <script src="/js/form-validation.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
@@ -44,7 +43,7 @@
                     <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
                         <div class="d-flex justify-content-center">
                             <form id="form-search-item" class="d-flex" role="search">
-                                <input id="input-search-item" class="form-control" type="input" placeholder="Cerca barcode">
+                                <input id="input-search-item" class="form-control" type="input" placeholder="Cerca per barcode o nome">
                                 <button class="ps-2 pe-2 btn btn-link" type="submit" aria-label="Cerca item">
                                     <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
                                 </button>
@@ -56,17 +55,44 @@
                         </div>
                     </div>
     
-                    <div class="col-12">
-                        <div class="d-flex justify-content-center">
-                            <label data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></label>
-                        </div>
+                </div>
+
+                <div class="row">
+                    <div class="d-flex justify-content-center">
+                        <p data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></p>
                     </div>
+                </div>
+                <div class="row">
+                    <div id="container-success" class="col-12 col-lg-6 offset-lg-3"></div>
                 </div>
             </div>
         </div>
 
         <form id="form-shop" style="display: none;">
             <div class="container">
+
+                <div class="row mt-3 mb-2">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center">
+                            <div id="container-submit_button-create">
+                                <button id="button-create" class="btn btn-outline-success" type="button">Crea</button>
+                            </div>
+
+                            <div id="container-submit_button-start-modify">
+                                <button id="button-start-modify" class="btn btn-outline-dark" type="button">Abilita modifiche</button>
+                            </div>
+
+                            <div id="container-submit_button-modify">
+                                <div class="d-flex justify-content-center">
+                                    <button id="button-modify" class="btn btn-outline-success mx-1" type="button" >Salva modifiche</button>
+                                    <button class="btn btn-outline-danger mx-1" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-item">Elimina item</button>
+                                    <button id="button-revert" class="btn btn-outline-secondary mx-1" type="button" >Annulla modifiche</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Generalità item -->
                 <div class="row">
                     <div class="col-12 col-lg-8">
@@ -178,28 +204,9 @@
                     </div>
                 </div>
 
-                <div class="row mb-2">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-center">
-                            <div id="container-submit_button-create">
-                                <button id="button-create" class="btn btn-outline-success" type="button">Crea</button>
-                            </div>
-
-                            <div id="container-submit_button-start-modify">
-                                <button id="button-start-modify" class="btn btn-outline-dark" type="button">Abilita modifiche</button>
-                            </div>
-
-                            <div id="container-submit_button-modify">
-                                <button id="button-modify" class="btn btn-outline-success" type="button" >Salva modifiche</button>
-                                <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-item">Elimina item</button>
-                                <button id="button-revert" class="btn btn-outline-secondary" type="button" >Annulla modifiche</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </form>
+        <div class="mb-4"></div>
     </main>
 
     <!-- Conferma cancellazione prodotto -->
@@ -232,6 +239,27 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
                     <button id="button-delete-item" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancella</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selezione item da ricerca multipla -->
+    <div class="modal fade" id="modal-select-item" tabindex="-1" aria-labelledby="modal-select-item-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-4" id="modal-select-item-label">Risultati ricerca</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>La ricerca ha prodotto i seguenti risultati:</p>
+                    <div class="container">
+                        <ul id="container-select-item" class="list-unstyled"> </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
                 </div>
             </div>
         </div>
