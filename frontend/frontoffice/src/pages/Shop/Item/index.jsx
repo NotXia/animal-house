@@ -20,36 +20,41 @@ class ShopItem extends React.Component {
         this.state = {
             item: undefined,
             product_index: 0,
+            fetched: false,
 
             error_message: ""
         };
         
         let item_id = this.props.searchParams.get("id");
-        try {
-            $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` }).then( (item) => this.setState({ item: item }) );
-        }
-        catch (err) {
-            this.state.error_message = "Si è verificato un errore";
-            return;
-        }
+        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
+        .then((item) => {
+            this.setState({ item: item, fetched: true });
 
-        // Incremento rilevanza
-        if (!__relevance_increased) {
-            $.ajax({ method: "POST", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}/click` });
-            __relevance_increased = true;
-        }
+            // Incremento rilevanza
+            if (!__relevance_increased) {
+                $.ajax({ method: "POST", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}/click` });
+                __relevance_increased = true;
+            }
+        })
+        .catch((err) => {
+            switch (err.status) {
+                case 404: this.setState({ error_message: "Non ci sono prodotti da queste parti", fetched: true }); break;
+                default: this.setState({ error_message: "Si è verificato un errore", fetched: true }); break;
+            }
+        });
     }
 
     render() {
-        if (!this.state.item || this.state.error_message !== "") {
-            const message = this.state.error_message ? this.state.error_message : "Non c'è nessun prodotto da queste parti";
+        if (!this.state.fetched) { return (<></>); }
+
+        if (this.state.error_message !== "") {
             return (<>
                 <Helmet> <title>Shop</title> </Helmet>
                 <Navbar/>
 
                 <Container>
                     <Row>
-                        <p className="text-center fs-3 mt-3 invalid-feedback d-block">{message}</p>
+                        <p className="text-center fs-3 mt-3 invalid-feedback d-block">{this.state.error_message}</p>
                     </Row>
                 </Container>
             </>); 
