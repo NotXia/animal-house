@@ -32,6 +32,7 @@ class ShopMain extends React.Component {
             category_collapse_open: false,
             sort_collapse_open: false,
 
+            error_message: ""
         };
 
         this.items_fetch_request = null;
@@ -130,6 +131,11 @@ class ShopMain extends React.Component {
                                 </Col>
                             </Row>
 
+                            <Row>
+                                <p className="text-center fs-5 invalid-feedback d-block">{ this.state.error_message }</p>
+                            </Row>
+
+
                             {/* Item */}
                             <Row>
                                 { this.renderItems() }
@@ -159,6 +165,13 @@ class ShopMain extends React.Component {
     }
 
     renderItems() {
+        // Gestione di ricerche vuote (senza errori)
+        if (this.state.shop_items.length === 0 && this.state.error_message === "") { 
+            return (
+                <Col xs="12"><p className="text-center fs-5">Nessun prodotto corrisponde ai criteri di ricerca</p></Col>
+            ) ;
+        }
+
         return (<>
             {
                 this.state.shop_items.map((item, index) => (

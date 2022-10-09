@@ -14,6 +14,26 @@ export async function searchItemByBarcode(barcode) {
     });
 }
 
+export async function searchItemByName(name) {
+    let res = [];
+    let items = [];
+    let index = 0;
+    const FETCH_SIZE = 100000;
+
+    // Estrae tutti gli item che contengono il nome (quindi bypassando la paginazione)
+    do {
+        res = await api_request({ 
+            type: "GET", url: `/shop/items/`,
+            data: { page_size: FETCH_SIZE, page_number: index, name: name }
+        });
+
+        items = items.concat(res);
+        index++;
+    } while (res.length === FETCH_SIZE);
+
+    return items;
+}
+
 export async function searchItemById(item_id) {
     return await api_request({ 
         type: "GET", url: `/shop/items/${encodeURIComponent(item_id)}`
