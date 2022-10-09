@@ -10,6 +10,8 @@ import ItemCard from "../../../components/shop/ItemCard";
 import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
 import category_css from "./category.module.css";
+import { updateURLQuery, removeQueryFromURL } from "../../../utilities/url";
+import SearchParamsHook from "../../../hooks/SearchParams";
 
 const PAGE_SIZE = 24;
 
@@ -43,7 +45,27 @@ class ShopMain extends React.Component {
         // Inizializzazione categorie
         $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` }).then( (categories) => this.setState({ shop_categories: categories }) );
         
-        this.updateDisplayedItems();
+        const search_query = this.props.searchParams.get("search"),
+              category_query = this.props.searchParams.get("category"),
+              order_query = this.props.searchParams.get("order");
+
+        if (search_query || category_query || order_query) {
+            let filter = {};
+            
+            // Composizione del filtro
+            if (search_query) {
+                filter.filter_name = search_query;
+                $("#input-search-name").val(search_query);
+            }
+            if (category_query) { filter.filter_category = category_query; }
+            if (order_query) {filter[order_query] = true; }
+
+            this.setState(filter, this.updateDisplayedItems);
+        }
+        else {
+            // Ordinamento per rilevanza di default
+            this.changeOrderRule("relevance");
+        }
 
         // Per rilevare il l'altezza dello scroll
         window.addEventListener('scroll', this.scrollItemUpdate);
@@ -193,19 +215,22 @@ class ShopMain extends React.Component {
 
     // Aggiunge un filtro per nome
     filterName(name) {
-        if (name === "") { name = undefined; }
-
         this.resetDisplayedItems();
-        this.setState({ filter_name: name }, this.updateDisplayedItems);
+        this.setState({ filter_name: name === "" ? undefined : name }, this.updateDisplayedItems);
+        updateURLQuery("search", name);
     }
 
     // Aggiunge un filtro per categoria
     filterCategory(category) {
         let filter_category = category;
         if (this.state.filter_category == category) { filter_category = undefined; }
-
+        
         this.resetDisplayedItems();
         this.setState({ filter_category: filter_category, category_collapse_open: false }, this.updateDisplayedItems);
+        
+        // Aggiornamento url
+        if (filter_category) { updateURLQuery("category", filter_category); }
+        else { removeQueryFromURL("category"); }
     }
 
     // Cambia l'ordinamento
@@ -215,6 +240,7 @@ class ShopMain extends React.Component {
 
         this.resetDisplayedItems();
         this.setState(order, this.updateDisplayedItems);
+        updateURLQuery("order", order_method);
     }
 
     // Reset della visualizzazione degli item
@@ -268,4 +294,4 @@ class ShopMain extends React.Component {
     }
 }
 
-export default ShopMain;
+export default SearchParamsHook(ShopMain);
