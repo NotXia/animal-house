@@ -1,0 +1,11 @@
+.btn-category {
+    background-color: transparent;
+    border: 1px solid #8d8d8d;
+    border-radius: 1rem;
+    padding: 0.5rem;
+    height: 3rem;
+}
+
+.btn-category:hover, .btn-category[class*="active"] {
+    background-color: #d6d6d6;
+}
