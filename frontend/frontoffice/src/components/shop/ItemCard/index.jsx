@@ -38,8 +38,8 @@ export default class ItemCard extends React.Component {
                             </div>
                         </Row>
                         <Row className="mt-2">
-                            <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>{unavailable_text}</p>
                             <p className={`text-center fs-4 m-0 ${unavailable_class}`}>{this.props.item.name}</p>
+                            <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>{unavailable_text}</p>
                             <p className={`fw-semibold text-center fs-5 m-0 ${unavailable_class}`}>{price_text}</p>
                         </Row>
                     </Container>
