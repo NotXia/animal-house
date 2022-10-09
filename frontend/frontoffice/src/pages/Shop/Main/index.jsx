@@ -61,63 +61,65 @@ class ShopMain extends React.Component {
                 <Container>
                     <Row>
                         <Col xs="12" md="4" lg="2">
-                            
-                            {/* Regola di ordinamento */}
-                            <div id="#collapse-sort">
-                                <label htmlFor="select-sort" className="form-label fs-5 mb-0 mb-md-1">Ordina per</label>
-                                <Form.Select id="select-sort" defaultValue="relevance" onChange={(e) => this.changeOrderRule(e.target.value)} aria-label="Regola di ordinamento dei prodotti" >
-                                    <option value="relevance">Rilevanza</option>
-                                    <option value="name_asc">Nome</option>
-                                    <option value="price_asc">Prezzo crescente</option>
-                                    <option value="price_desc">Prezzo decrescente</option>
-                                </Form.Select>
-                            </div>
+                            <nav aria-label="Filtri di ricerca dei prodotti">
+                                {/* Regola di ordinamento */}
+                                <div id="#collapse-sort">
+                                    <label htmlFor="select-sort" className="form-label fs-5 mb-0 mb-md-1">Ordina per</label>
+                                    <Form.Select id="select-sort" defaultValue="relevance" onChange={(e) => this.changeOrderRule(e.target.value)} aria-label="Regola di ordinamento dei prodotti" >
+                                        <option value="relevance">Rilevanza</option>
+                                        <option value="name_asc">Nome</option>
+                                        <option value="price_asc">Prezzo crescente</option>
+                                        <option value="price_desc">Prezzo decrescente</option>
+                                    </Form.Select>
+                                </div>
 
-                            {/* Selettore categoria */}
-                            <div className="mt-2 mt-md-3">
-                                <Button variant="secondary" className="d-md-none w-100" 
-                                        onClick={() => this.setState({category_collapse_open: !this.state.category_collapse_open })} 
-                                        aria-controls="collapse-category" aria-expanded={this.state.category_collapse_open}>
-                                    Filtra categoria{ this.state.filter_category ? `: ${this.state.filter_category}` : "" }
-                                </Button>
-                                <Collapse in={this.state.category_collapse_open}>
-                                    <div id="#collapse-category" className="d-md-block">
-                                        <fieldset>
-                                            <legend className="fs-5 d-none d-md-block" aria-label="Filtra per categoria">Categoria</legend>
-                                            <div> <span className="visually-hidden">{this.state.filter_category ? `Attualmente stai guardando la categoria ${this.state.filter_category}` : `Attualmente non stai filtrando per categoria`}</span> </div>
-                                            <ul className="nav nav-pills">
-                                                {
-                                                    this.state.shop_categories.map((category, index) => {
-                                                        const active = this.state.filter_category == category.name;
-                                                        const active_class = active ? "active" : "";
+                                {/* Selettore categoria */}
+                                <div className="mt-2 mt-md-3">
+                                    {/* Collapse su schermi < md e lista di bottoni su schermi >= md */}
+                                    <Button variant="secondary" className="d-md-none w-100" 
+                                            onClick={() => this.setState({category_collapse_open: !this.state.category_collapse_open })} 
+                                            aria-controls="collapse-category" aria-expanded={this.state.category_collapse_open}>
+                                        Filtra categoria{ this.state.filter_category ? `: ${this.state.filter_category}` : "" }
+                                    </Button>
+                                    <Collapse in={this.state.category_collapse_open}>
+                                        <div id="#collapse-category" className="d-md-block">
+                                            <fieldset>
+                                                <legend className="fs-5 d-none d-md-block" aria-label="Filtra per categoria">Categoria</legend>
+                                                <div> <span className="visually-hidden">{this.state.filter_category ? `Attualmente stai guardando la categoria ${this.state.filter_category}` : `Attualmente non stai filtrando per categoria`}</span> </div>
+                                                <ul className="nav nav-pills">
+                                                    {
+                                                        this.state.shop_categories.map((category, index) => {
+                                                            const active = this.state.filter_category == category.name;
+                                                            const active_class = active ? "active" : "";
 
-                                                        return (
-                                                            <li className="nav-item w-100 mb-1 mb-md-3" key={category.name}>
-                                                                <button className={`${category_css["btn-category"]} w-100 ${active_class}`} type="button" aria-selected={active}
-                                                                        onClick={() => this.filterCategory(category.name)}>
-                                                                    <div className="d-flex justify-content-start align-items-center">
-                                                                        <img src={`data:image/*;base64,${category.icon}`} alt="" className="ah-icon" />
-                                                                        <span className="text-truncate">{category.name}</span>
-                                                                    </div>
-                                                                </button>
-                                                            </li>
-                                                        );
-                                                    })
-                                                }
-                                            </ul>
-                                        </fieldset>
-                                    </div>
-                                </Collapse>
-                            </div>
+                                                            return (
+                                                                <li className="nav-item w-100 mb-1 mb-md-3" key={category.name}>
+                                                                    <button className={`${category_css["btn-category"]} w-100 ${active_class}`} type="button" aria-selected={active}
+                                                                            onClick={() => this.filterCategory(category.name)}>
+                                                                        <div className="d-flex justify-content-start align-items-center">
+                                                                            <img src={`data:image/*;base64,${category.icon}`} alt="" className="ah-icon" />
+                                                                            <span className="text-truncate">{category.name}</span>
+                                                                        </div>
+                                                                    </button>
+                                                                </li>
+                                                            );
+                                                        })
+                                                    }
+                                                </ul>
+                                            </fieldset>
+                                        </div>
+                                    </Collapse>
+                                </div>
+                            </nav>
                         </Col>
 
                         <Col xs="12" md="8" lg="10">
                             {/* Barra di ricerca */}
                             <Row className="mb-3 mt-4 mt-md-0">
                                 <Col xs={{span: 10, offset: 1}} md={{span: 8, offset: 2}} lg={{span: 6, offset: 3}}>
-                                    <form onSubmit={(e) => this.handleNameSearch(e)}>
+                                    <form onSubmit={(e) => this.handleNameSearch(e)} role="search" aria-label="Ricerca di prodotti per nome">
                                         <div className="d-flex justify-content-center w-100">
-                                            <input id="input-search-name" name="item_name" type="text" className="form-control" placeholder="Cerca prodotto" role="search" />
+                                            <input id="input-search-name" name="item_name" type="text" className="form-control" placeholder="Cerca prodotto" />
                                             <button className="btn btn-link" type="submit">
                                                 <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/search.png`} alt="Cerca" style={{height: "1.5rem"}} />
                                             </button>
@@ -125,17 +127,21 @@ class ShopMain extends React.Component {
                                     </form>
                                 </Col>
                             </Row>
-
+                            
+                            {/* Messaggio di errore */}
                             <Row>
                                 <p className="text-center fs-5 invalid-feedback d-block">{ this.state.error_message }</p>
                             </Row>
 
 
                             {/* Item */}
-                            <Row>
-                                { this.renderItems() }
-                            </Row>
+                            <section aria-label="Lista dei prodotti">
+                                <Row>
+                                    { this.renderItems() }
+                                </Row>
+                            </section>
 
+                            {/* Caricamento di item */}
                             <Row>
                                 {
                                     (() => {
@@ -185,7 +191,7 @@ class ShopMain extends React.Component {
         this.filterName(e.target.item_name.value);
     }
 
-
+    // Aggiunge un filtro per nome
     filterName(name) {
         if (name === "") { name = undefined; }
 
@@ -193,6 +199,7 @@ class ShopMain extends React.Component {
         this.setState({ filter_name: name }, this.updateDisplayedItems);
     }
 
+    // Aggiunge un filtro per categoria
     filterCategory(category) {
         let filter_category = category;
         if (this.state.filter_category == category) { filter_category = undefined; }
@@ -201,6 +208,7 @@ class ShopMain extends React.Component {
         this.setState({ filter_category: filter_category, category_collapse_open: false }, this.updateDisplayedItems);
     }
 
+    // Cambia l'ordinamento
     changeOrderRule(order_method) {
         let order = { price_asc: false, price_desc: false, name_asc: false, name_desc: false }
         order[order_method] = true;
@@ -209,12 +217,14 @@ class ShopMain extends React.Component {
         this.setState(order, this.updateDisplayedItems);
     }
 
+    // Reset della visualizzazione degli item
     resetDisplayedItems() {
         this.curr_page_index = -1;
         this.pagination_end = false;
-        this.setState({ shop_items: [] })
+        this.setState({ shop_items: [] });
     }
 
+    // Aggiunge agli item visualizzati la pagina successiva a quella corrente (se esiste)
     async updateDisplayedItems() {
         if (!this.pagination_end) {
             this.setState({ item_fetching: true });
@@ -241,6 +251,7 @@ class ShopMain extends React.Component {
         }
     }
     
+    // Gestisce il caricamento degli item in base al livello di scroll
     async scrollItemUpdate() {
         const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;

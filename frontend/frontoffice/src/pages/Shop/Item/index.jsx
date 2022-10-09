@@ -60,6 +60,8 @@ class ShopItem extends React.Component {
             </>); 
         }
 
+        let product_name_aria_label = this.state.item.products.length === 1 ? this.currProduct().name : `Variante ${this.state.product_index+1} di ${this.state.item.products.length}: ${this.currProduct().name}`
+
         return (<>
             <Helmet>
                 <title>{this.state.item.name}</title>
@@ -67,30 +69,25 @@ class ShopItem extends React.Component {
             
             <Navbar/>
 
-            <main className="mt-4">
+            <main className="mt-4 mb-4">
                 <Container>
                     <Row>
-                        {/* Immagini */}
-                        <Col xs="12" md="5">
-                            <div>
-                                <ImagesViewer key={`images-viewer-${this.state.product_index}`} images={this.currProduct().images}/>
-                            </div>
-                        </Col>
-
                         {/* Dati item */}
-                        <Col xs="12" md="7" className="mt-4 mt-md-0">
+                        <Col xs={{ span: 12, order: 2 }} md="7" className="mt-4 mt-md-0">
                             <Row>
                                 <Col xs="12" md="8">
-                                    <div className="">
+                                    <section aria-label="Dati del prodotto">
                                         <h1 className="fs-1 mb-1">{this.state.item.name}</h1>
-                                        <h2 className="fs-2 overflow-hidden">{this.currProduct().name}</h2>
+                                        <h2 className="fs-2 overflow-hidden" aria-label={product_name_aria_label}>{this.currProduct().name}</h2>
                                         <p className="fs-3 fw-semibold">{`${centToPrice(this.currProduct().price)}€`}</p>
-                                    </div>
+                                    </section>
                                 </Col>
                                 <Col xs="12" md="4">
-                                    <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
-                                        { this.renderAddToCartButton() }
-                                    </div>
+                                    <section aria-label="Aggiungi al carrello" className="w-100 h-100">
+                                        <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
+                                            { this.renderAddToCartButton() }
+                                        </div>
+                                    </section>
                                 </Col>
                             </Row>
 
@@ -98,13 +95,21 @@ class ShopItem extends React.Component {
                             { this.renderProductSelector() }
 
                             <div className="mt-4">
-                                <div dangerouslySetInnerHTML={{__html: this.state.item.description}}></div>
-                                <div dangerouslySetInnerHTML={{__html: this.currProduct().description}}></div>
+                                <section aria-label="Descrizione del prodotto">
+                                    <div dangerouslySetInnerHTML={{__html: this.state.item.description}}></div>
+                                    <div dangerouslySetInnerHTML={{__html: this.currProduct().description}}></div>
+                                </section>
                             </div>
                         </Col>
-                    </Row>
 
-                    <Row className="mt-5">
+                        {/* Immagini */}
+                        <Col xs={{ span: 12, order: 1 }} md="5">
+                            <section aria-label="Immagini del prodotto">
+                                <div>
+                                    <ImagesViewer key={`images-viewer-${this.state.product_index}`} images={this.currProduct().images}/>
+                                </div>
+                            </section>
+                        </Col>
                     </Row>
                 </Container>
             </main>
@@ -118,21 +123,23 @@ class ShopItem extends React.Component {
     renderProductSelector() {
         if (this.state.item.products.length === 1) { return (<></>); }
 
-        return (                            
-            <Container fluid>
-                <Row>
-                    <p className="fs-5 p-0 mb-0  mt-2">Variante:</p>
-                </Row>
-                <Row>
-                    {
-                        this.state.item.products.map((product, index) => {
-                            let selected = this.state.product_index === index;
-                            
-                            return ( <ProductCard key={product.barcode} product={product} onClick={() => this.setState({ product_index: index })} selected={selected} /> )
-                        })
-                    }  
-                </Row>
-            </Container>
+        return (                
+            <section aria-label="Selettore variante">            
+                <Container fluid>
+                    <Row>
+                        <p className="fs-5 p-0 mb-0  mt-2" aria-hidden="true">Variante:</p>
+                    </Row>
+                    <Row>
+                        {
+                            this.state.item.products.map((product, index) => {
+                                let selected = this.state.product_index === index;
+                                
+                                return ( <ProductCard key={product.barcode} product={product} onClick={() => this.setState({ product_index: index })} selected={selected} /> )
+                            })
+                        }  
+                    </Row>
+                </Container>
+            </section>
         );
     }
 
