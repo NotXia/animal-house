@@ -83,7 +83,6 @@ export default class TextInput extends React.Component {
      */
     async validate() {
         const value = this.input.current.value;
-        console.log(value, isNaN(parseFloat(value)), isNaN(value));
 
         if (value === "" && !this.props.required) {
             this.setState({ error_message: "", valid: true }); 
