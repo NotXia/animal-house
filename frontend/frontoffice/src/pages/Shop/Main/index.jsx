@@ -24,8 +24,6 @@ class ShopMain extends React.Component {
             filter_category: undefined,
             price_asc: false, price_desc: false, name_asc: false, name_desc: false,
 
-            curr_page_index: -1,
-            pagination_end: false,
             item_fetching: false,
 
             category_collapse_open: false,
@@ -35,6 +33,8 @@ class ShopMain extends React.Component {
         };
 
         this.items_fetch_request = null;
+        this.pagination_end = false;
+        this.curr_page_index = -1;
 
         this.scrollItemUpdate = this.scrollItemUpdate.bind(this);
     }
@@ -161,7 +161,7 @@ class ShopMain extends React.Component {
 
     renderItems() {
         // Gestione di ricerche vuote (senza errori)
-        if (this.state.shop_items.length === 0 && this.state.error_message === "") { 
+        if (!this.state.item_fetching && this.state.shop_items.length === 0 && this.state.error_message === "") { 
             return (
                 <Col xs="12"><p className="text-center fs-5">Nessun prodotto corrisponde ai criteri di ricerca</p></Col>
             ) ;
@@ -188,6 +188,8 @@ class ShopMain extends React.Component {
 
     filterName(name) {
         if (name === "") { name = undefined; }
+
+        this.resetDisplayedItems();
         this.setState({ filter_name: name }, this.updateDisplayedItems);
     }
 
@@ -195,6 +197,7 @@ class ShopMain extends React.Component {
         let filter_category = category;
         if (this.state.filter_category == category) { filter_category = undefined; }
 
+        this.resetDisplayedItems();
         this.setState({ filter_category: filter_category, category_collapse_open: false }, this.updateDisplayedItems);
     }
 
@@ -202,17 +205,25 @@ class ShopMain extends React.Component {
         let order = { price_asc: false, price_desc: false, name_asc: false, name_desc: false }
         order[order_method] = true;
 
+        this.resetDisplayedItems();
         this.setState(order, this.updateDisplayedItems);
     }
 
+    resetDisplayedItems() {
+        this.curr_page_index = -1;
+        this.pagination_end = false;
+        this.setState({ shop_items: [] })
+    }
+
     async updateDisplayedItems() {
-        if (!this.state.pagination_end) {
+        if (!this.pagination_end) {
             this.setState({ item_fetching: true });
+            this.curr_page_index += 1;
 
             const items = await $.ajax({ 
                 method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
                 data: { 
-                    page_size: PAGE_SIZE, page_number: this.state.curr_page_index+1, 
+                    page_size: PAGE_SIZE, page_number: this.curr_page_index, 
                     name: this.state.filter_name, 
                     category: this.state.filter_category,
                     price_asc: this.state.price_asc,
@@ -224,10 +235,9 @@ class ShopMain extends React.Component {
             
             this.setState({
                 shop_items: this.state.shop_items.concat(items), 
-                curr_page_index: this.state.curr_page_index + 1,
-                pagination_end: items.length < PAGE_SIZE,
                 item_fetching: false
             });
+            this.pagination_end = items.length < PAGE_SIZE;
         }
     }
     
