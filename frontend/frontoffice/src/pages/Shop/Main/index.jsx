@@ -11,7 +11,6 @@ import Form from "react-bootstrap/Form";
 import Collapse from "react-bootstrap/Collapse";
 import category_css from "./category.module.css";
 
-let __initialized = false;
 const PAGE_SIZE = 24;
 
 class ShopMain extends React.Component {
@@ -41,17 +40,13 @@ class ShopMain extends React.Component {
     }
 
     componentDidMount() {
-        if (!__initialized) {
-            // Inizializzazione categorie
-            $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` }).then( (categories) => this.setState({ shop_categories: categories }) );
-            
-            this.updateDisplayedItems();
+        // Inizializzazione categorie
+        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` }).then( (categories) => this.setState({ shop_categories: categories }) );
+        
+        this.updateDisplayedItems();
 
-            // Per rilevare il l'altezza dello scroll
-            window.addEventListener('scroll', this.scrollItemUpdate);
-
-            __initialized = true;
-        }
+        // Per rilevare il l'altezza dello scroll
+        window.addEventListener('scroll', this.scrollItemUpdate);
     }
 
     render() {

@@ -22,8 +22,6 @@ const router = createBrowserRouter(routes, { basename: process.env.REACT_APP_BAS
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-    <React.StrictMode>
-        <RouterProvider router={router} />
-    </React.StrictMode>
+    <RouterProvider router={router} />
 );
 
