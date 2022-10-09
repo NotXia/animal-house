@@ -4,8 +4,14 @@
  * @returns Prezzo intero
  */
 export function centToPrice(cents) {
+    let price = "";
     cents = String(cents);
-    let price = (cents).slice(0, cents.length-2) + "," + cents.slice(cents.length-2);
+
+    if (cents.length === 1) { price = `0,0${cents}`;}
+    else if (cents.length === 2) { price = `0,${cents}`;}
+    else {
+        price = (cents).slice(0, cents.length-2) + "," + cents.slice(cents.length-2);
+    }
 
     return price;
 }
