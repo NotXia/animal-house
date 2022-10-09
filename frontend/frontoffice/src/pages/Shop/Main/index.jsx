@@ -43,7 +43,9 @@ class ShopMain extends React.Component {
 
     componentDidMount() {
         // Inizializzazione categorie
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` }).then( (categories) => this.setState({ shop_categories: categories }) );
+        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` })
+        .then( (categories) => this.setState({ shop_categories: categories }) )
+        .catch((err) => { this.setState({ error_message: "Si è verificato un errore durante il caricamento della pagina" }) });
         
         const search_query = this.props.searchParams.get("search"),
               category_query = this.props.searchParams.get("category"),
@@ -256,24 +258,30 @@ class ShopMain extends React.Component {
             this.setState({ item_fetching: true });
             this.curr_page_index += 1;
 
-            const items = await $.ajax({ 
-                method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
-                data: { 
-                    page_size: PAGE_SIZE, page_number: this.curr_page_index, 
-                    name: this.state.filter_name, 
-                    category: this.state.filter_category,
-                    price_asc: this.state.price_asc,
-                    price_desc: this.state.price_desc,
-                    name_asc: this.state.name_asc,
-                    name_desc: this.state.name_desc
-                }
-            });
-            
-            this.setState({
-                shop_items: this.state.shop_items.concat(items), 
-                item_fetching: false
-            });
-            this.pagination_end = items.length < PAGE_SIZE;
+            try {
+                const items = await $.ajax({ 
+                    method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
+                    data: { 
+                        page_size: PAGE_SIZE, page_number: this.curr_page_index, 
+                        name: this.state.filter_name, 
+                        category: this.state.filter_category,
+                        price_asc: this.state.price_asc,
+                        price_desc: this.state.price_desc,
+                        name_asc: this.state.name_asc,
+                        name_desc: this.state.name_desc
+                    }
+                });
+
+                this.setState({
+                    shop_items: this.state.shop_items.concat(items), 
+                    item_fetching: false
+                });
+                this.pagination_end = items.length < PAGE_SIZE;
+            }
+            catch (err) {
+                this.setState({ error_message: "Si è verificato un errore durante la ricerca" });
+                this.setState({ item_fetching: false });
+            }
         }
     }
     

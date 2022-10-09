@@ -50,7 +50,7 @@ export default class ImagesViewer extends React.Component {
                 <Row>
                     <figure>
                         <div className="position-relative w-100">
-                            {description }
+                            {description}
 
                             <Zoom a11yNameButtonUnzoom="Rimpicciolisci immagine" a11yNameButtonZoom="Ingrandisci immagine">
                                 <div className={`d-flex justify-content-center align-items-center ${css["image-box"]}`}>
