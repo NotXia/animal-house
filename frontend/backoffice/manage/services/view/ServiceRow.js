@@ -1,5 +1,4 @@
-import { centToPrice } from "../../../../frontoffice/src/utilities/currency.js";
-import { centToPrice } from "../../../../../public/img/icons/check.png";
+import { centToPrice } from "/js/utilities.js";
 
 /**
  * Restituisce il contenuto HTML di una riga della tabella dei servizi
@@ -10,7 +9,7 @@ import { centToPrice } from "../../../../../public/img/icons/check.png";
 export function render(service, index) {
     let escaped_name = he.escape(service.name);
     let price = centToPrice(service.price);
-    let onlineIcon = service.online ? `<img src="../../../../../public/img/icons/check.png" alt="Servizio ${escaped_name} online" class="service-online" />` : `<img src="../../../../../public/img/icons/cross.png" alt="Servizio ${escaped_name} offline" class="service-online" />`;
+    let onlineIcon = service.online ? `<img src="/img/icons/check.png" alt="Servizio ${escaped_name} online" class="service-online" />` : `<img src="/img/icons/cross.png" alt="Servizio ${escaped_name} offline" class="service-online" />`;
 
     return `
         <tr>

@@ -26,21 +26,21 @@ export function base64(file, header=false) {
 }
 
 /**
- * Converte una stringa che rappresenta un prezzo intero in centesimi
- * @param {*} string_currency   Stringa da convertire
- * @returns Stringa del prezzo in centesimi
+ * Data una stringa in centesimi, converte la stringa in un prezzo intero
+ * @param {String} cents     Valore in centesimi
+ * @returns Prezzo intero
  */
-export function priceToCents(string_currency) {
-    if (!string_currency.includes(".")) {
-        // Se manca la parte decimale, viene aggiunta
-        string_currency = string_currency + "00";
-    }
+ export function centToPrice(cents) {
+    let price = "";
+    cents = String(cents);
+
+    if (cents.length === 1) { price = `0,0${cents}`;}
+    else if (cents.length === 2) { price = `0,${cents}`;}
     else {
-        // Gestisce cifre decimali mancanti (es. 1.2 che dovrebbe essere 1.20)
-        let decimals = string_currency.split(".")[1].length;
-        for (let i=0; i<2-decimals; i++) { string_currency = string_currency + "0"; }
+        price = (cents).slice(0, cents.length-2) + "," + cents.slice(cents.length-2);
     }
-    return string_currency.replace(".", "");
+
+    return price;
 }
 
 export function basename(path) {
