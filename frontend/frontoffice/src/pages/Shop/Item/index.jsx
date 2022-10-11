@@ -11,6 +11,7 @@ import SearchParamsHook from "../../../hooks/SearchParams";
 import { centToPrice } from "../../../utilities/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
+import { isAuthenticated } from "../../../import/auth.js"
 
 let __relevance_increased= false;
 
@@ -22,9 +23,14 @@ class ShopItem extends React.Component {
             product_index: 0,
             fetched: false,
 
+            logged: false,
+
             error_message: ""
         };
-        
+    }
+
+    componentDidMount() {
+        /* Estrazione dati item */
         let item_id = this.props.searchParams.get("id");
         $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
         .then((item) => {
@@ -42,6 +48,9 @@ class ShopItem extends React.Component {
                 default: this.setState({ error_message: "Si è verificato un errore", fetched: true }); break;
             }
         });
+
+        /* Controllo autenticazione */
+        isAuthenticated().then(is_logged => { this.setState({ logged: is_logged })});
     }
 
     render() {
@@ -83,11 +92,7 @@ class ShopItem extends React.Component {
                                     </section>
                                 </Col>
                                 <Col xs="12" md="4">
-                                    <section aria-label="Aggiungi al carrello" className="w-100 h-100">
-                                        <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
-                                            { this.renderAddToCartButton() }
-                                        </div>
-                                    </section>
+                                    { this.renderAddToCartButton() }
                                 </Col>
                             </Row>
 
@@ -144,31 +149,40 @@ class ShopItem extends React.Component {
     }
 
     renderAddToCartButton() {
-        if (this.currProduct().quantity > 0) {
-            return (
-                <div>
-                    <div className="mb-2">
-                        <Button variant="outline-primary" className="w-100">Aggiungi al carrello</Button>
-                    </div>
-                    <div className="d-flex justify-content-center">
-                        <div className="w-75">
-                            <NumberInput id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
-                        </div>
-                    </div>
-                </div>
-            )
-        }
-        else {
-            return (
-                <div>
-                    <div className="mb-2">
-                        <Button variant="outline-primary" className="w-100" disabled>Non disponibile</Button>
-                    </div>
-                </div>
-            )
-        }
+        return (
+            <section aria-label="Aggiungi al carrello" className="w-100 h-100">
+            <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
+                {
+                    (() => {
+                        if (this.currProduct().quantity > 0 && this.state.logged) {
+                            return (
+                                <div>
+                                    <div className="mb-2">
+                                        <Button variant="outline-primary" className="w-100">Aggiungi al carrello</Button>
+                                    </div>
+                                    <div className="d-flex justify-content-center">
+                                        <div className="w-75">
+                                            <NumberInput id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        }
+                        else if (this.currProduct().quantity === 0) {
+                            return (
+                                <div>
+                                    <div className="mb-2">
+                                        <Button variant="outline-primary" className="w-100" disabled>Non disponibile</Button>
+                                    </div>
+                                </div>
+                            );
+                        }
+                    })()
+                }
+            </div>
+            </section>
+        );
     }
-
 }
 
 export default SearchParamsHook(ShopItem);
