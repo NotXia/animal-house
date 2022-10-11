@@ -59,7 +59,7 @@ async function storeRefreshToken(user_id, token, expiration_time) {
 function setRefreshTokenCookie(res, token, token_id, expiration) {
     const cookie_option = {
         httpOnly: true,
-        path: "/auth/refresh",
+        path: "/auth",
         secure: process.env.SCHEMA === "https",
         sameSite: "strict"
     };
