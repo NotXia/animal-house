@@ -15,6 +15,7 @@ async function isProductAvailable(barcode, amount) {
 /* Inserimento di un prodotto nel carrello */
 async function addToCart(req, res) {
     let cart_data;
+    req.body.quantity = parseInt(req.body.quantity);
 
     try {
         if (!await isProductAvailable(req.body.barcode, req.body.quantity)) { throw error.generate.BAD_REQUEST("Quantità insufficiente"); }
