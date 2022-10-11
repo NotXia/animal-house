@@ -25,7 +25,7 @@ const game = require("./routes/game");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' , credentials :  true}));
 
 app.use("/auth", auth);
 app.use("/files", file);
