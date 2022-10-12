@@ -11,7 +11,7 @@ import SearchParamsHook from "../../../hooks/SearchParams";
 import { centToPrice } from "../../../utilities/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
-import { isAuthenticated } from "../../../import/auth.js"
+import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
 
 let __relevance_increased= false;
 
@@ -27,6 +27,10 @@ class ShopItem extends React.Component {
 
             error_message: ""
         };
+
+        this.input = {
+            quantity: React.createRef(),
+        }
     }
 
     componentDidMount() {
@@ -158,11 +162,12 @@ class ShopItem extends React.Component {
                             return (
                                 <div>
                                     <div className="mb-2">
-                                        <Button variant="outline-primary" className="w-100">Aggiungi al carrello</Button>
+                                        <Button variant="outline-primary" className="w-100" 
+                                                onClick={() => this.addToCard(this.currProduct().barcode, this.input.quantity.current.value())}>Aggiungi al carrello</Button>
                                     </div>
                                     <div className="d-flex justify-content-center">
                                         <div className="w-75">
-                                            <NumberInput id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
+                                            <NumberInput ref={this.input.quantity} id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
                                         </div>
                                     </div>
                                 </div>
@@ -182,6 +187,15 @@ class ShopItem extends React.Component {
             </div>
             </section>
         );
+    }
+
+    async addToCard(barcode, quantity) {
+        await api_request({ 
+            method: "POST", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
+            data: {
+                barcode: barcode, quantity: parseInt(quantity)
+            }
+        });
     }
 }
 
