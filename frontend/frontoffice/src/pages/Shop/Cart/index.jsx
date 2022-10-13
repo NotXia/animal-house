@@ -56,7 +56,6 @@ class Cart extends React.Component {
 
                 // Aggiornamento carrello
                 if (require_cart_update) {
-                    console.log(cart_entries.map((entry) => ({ barcode: entry.product.barcode, quantity: entry.quantity })) );
                     cart_entries = await api_request({
                         method: "PUT",
                         url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
@@ -67,7 +66,6 @@ class Cart extends React.Component {
                 this.setState({ cart_entries: cart_entries, removed_entries: to_remove_entries });
             }
             catch (err) {
-                console.log(err);
                 this.setState({ error_message: "Si è verificato un errore durante il caricamento del carrello" });
             }
         })();
