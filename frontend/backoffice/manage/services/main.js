@@ -74,6 +74,16 @@ $(async function () {
             Error.clearErrors();
             Form.reset();
         })
+
+        /* Ricerca di servizi */
+        let search_delay;
+        $("#search-service").on("input", function () {
+            clearTimeout(search_delay); // Annulla il timer precedente
+
+            search_delay = setTimeout(async function () {
+                filterService($("#search-service").val());
+            }, 100);
+        });
         
         await showServices();
     })
@@ -98,6 +108,16 @@ async function fetchServices() {
         return service;
     } catch (err) {
         Mode.error(err.responseJSON.message ? err.responseJSON.message : "Si è verificato un errore");
+    }
+}
+
+/* Filtra i servizi visibili per nome */
+function filterService(query) {
+    if (!query) {
+        displayServices(service_cache);
+    } else {
+        const services = service_cache.filter((service) => service.name.toLowerCase().includes(query.toLowerCase()));
+        displayServices(services);
     }
 }
 
