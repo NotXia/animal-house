@@ -6,11 +6,11 @@ export const CREATE = 1,
 
 export let current;
 
-// export function create() {
-//     current = CREATE;
-//     $("#modal-service-title").text("Crea servizio");
-//     Form.createMode();
-// }
+export function create() {
+    current = CREATE;
+    $("#modal-service-title").text("Crea servizio");
+    Form.createMode();
+}
 
 // export function modify() {
 //     current = MODIFY;

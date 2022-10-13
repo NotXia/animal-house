@@ -1,8 +1,8 @@
 import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
-// import { Error } from "/admin/import/Error.js";
+import { Error } from "/admin/import/Error.js";
 import { api_request } from "/js/auth.js";
-// import * as Form from "./form.js";
+import * as Form from "./form.js";
 import * as Mode from "./mode.js";
 import * as ServiceRow from "./view/serviceRow.js";
 
@@ -19,6 +19,53 @@ $(async function () {
 
     await LoadingHandler.wrap(async function () {
         await NavbarHandler.render();
+
+        $("#form-service").validate({
+            rules: {
+                name: { required: true }
+            },
+            errorPlacement: function (error, element) {
+                Error.showError(element.attr("name"), error);
+            },
+            submitHandler: async function (_, event) {
+                event.preventDefault();
+
+                await LoadingHandler.wrap(async function() {
+                    try {
+                        let service_data = await Form.getServiceData();
+
+                        switch (Mode.current) {
+                            case Mode.CREATE:
+                                await api_request({
+                                    type: "POST", url: `/services/`,
+                                    data: service_data
+                                });
+                                break;
+                        }
+
+                        $("#modal-create-service").modal("hide");
+                        await showServices();
+                    } catch (err) {
+                        switch (err.status) {
+                            case 400: Error.showErrors(err.responseJSON); break;
+                            case 409: Error.showError(err.responseJSON.field, err.responseJSON.message); break;
+                            default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
+                        }
+                    }
+                })
+            }
+        });
+
+        /* Inizio creazione servizio */
+        $("#btn-start_create").on("click", function() {
+            Mode.create();
+        });
+
+        /* Pulizia modal alla chiusura */
+        $("#modal-create-service").on("hidden.bs.modal", function (_) {
+            Error.clearErrors();
+            Form.reset();
+        })
         
         await showServices();
     })
@@ -27,7 +74,6 @@ $(async function () {
 /* Caricamento dei servizi */
 async function showServices() {
     service_cache = await fetchServices();
-    displaySpecies();
     displayServices(service_cache);
 }
 
@@ -53,6 +99,7 @@ async function fetchServices() {
  */
 function displayServices(serviceList) {
     $("#service-container").html("");
+    $("#data-target").html("");
     let index = 0;
 
     for (const service of serviceList) {
@@ -60,6 +107,7 @@ function displayServices(serviceList) {
 
         index++;
     }
+    displaySpecies();
 }
 
 /* Estrae le specie */
@@ -91,7 +139,7 @@ async function displaySpecies() {
 
             $("#data-target").append(`
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="data-${species.name}" name="target" aria-label="Specie ${species.name}">
+                <input class="form-check-input" type="checkbox" id="data-${species.name}" name="target" aria-label="Specie ${species.name}" value="${species.name}">
                 <label for="data-${species.name}" class="fs-6 fw-semibold">
                     ${speciesLogo}
                     ${species.name}
