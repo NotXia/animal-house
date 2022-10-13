@@ -2,6 +2,7 @@ import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
 import { Error } from "/admin/import/Error.js";
 import { api_request } from "/js/auth.js";
+import { centToPrice } from "/js/utilities.js";
 import * as Form from "./form.js";
 import * as Mode from "./mode.js";
 import * as ServiceRow from "./view/serviceRow.js";
@@ -32,7 +33,7 @@ $(async function () {
 
                 await LoadingHandler.wrap(async function() {
                     try {
-                        let service_data = await Form.getServiceData();
+                        let service_data = Form.getServiceData();
 
                         switch (Mode.current) {
                             case Mode.CREATE:
@@ -41,6 +42,13 @@ $(async function () {
                                     data: service_data
                                 });
                                 break;
+
+                            case Mode.MODIFY:
+                                let toUpdateService = $("#data-old_id").val();
+                                await api_request({
+                                    type: "PUT", url: `/services/${encodeURIComponent(toUpdateService)}`,
+                                    data: service_data
+                                })
                         }
 
                         $("#modal-create-service").modal("hide");
@@ -105,6 +113,22 @@ function displayServices(serviceList) {
     for (const service of serviceList) {
         $("#service-container").append(ServiceRow.render(service, index));
 
+        $(`#modify-btn-${index}`).on("click", function () {
+            Mode.modify();
+
+            $("#data-old_id").val(service.id);
+            $("#data-name").val(service.name);
+            $("#data-description").val(service.description);
+            $("#data-duration").val(service.duration);
+            $("#data-price").val(
+                parseFloat(centToPrice(service.price).replace(',','.').replace(' ','')));
+            if(service.online) {
+                $("#data-online").prop("checked", true);
+            }
+            for (const species in service.target) {
+                $(`#data-${service.target[species]}`).prop("checked", true);
+            }
+        });
         index++;
     }
     displaySpecies();
@@ -149,7 +173,6 @@ async function displaySpecies() {
         }
         
     } catch (err) {
-        console.log(err);
         Mode.error(err.responseJSON.message ? err.responseJSON.message : "Si è verificato un errore");
     }
 }

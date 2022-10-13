@@ -12,11 +12,11 @@ export function create() {
     Form.createMode();
 }
 
-// export function modify() {
-//     current = MODIFY;
-//     $("#modal-service-title").text("Modifica servizio");
-//     Form.modifyMode();
-// }
+export function modify() {
+    current = MODIFY;
+    $("#modal-service-title").text("Modifica servizio");
+    Form.modifyMode();
+}
 
 export function error(message) {
     current = ERROR;

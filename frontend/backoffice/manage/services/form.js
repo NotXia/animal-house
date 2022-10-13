@@ -17,6 +17,12 @@ export function reset() {
     $("#form-service-submit-container > button").attr("type", "button");
 }
 
+export function modifyMode() {
+    reset();
+    $("#modify-submit-container").show();
+    $("#modify-submit-btn").attr("type", "submit");
+}
+
 export function createMode() {
     reset();
     $("#create-submit-container").show();
