@@ -54,10 +54,9 @@ class Cart extends React.Component {
                         <table className="table align-middle">
                             <thead>
                                 <tr>
-                                    <th style={{width: "60%"}}>Prodotto</th>
-                                    <th style={{width: "15%"}}>Quantità</th>
-                                    <th style={{width: "10%"}}>Prezzo</th>
-                                    <th style={{width: "15%"}}>Totale</th>
+                                    <th className="fs-5" style={{width: "60%"}}>Prodotto</th>
+                                    <th className="fs-5 text-center" style={{width: "20%"}}>Quantità</th>
+                                    <th className="fs-5 text-center" style={{width: "20%"}}>Prezzo</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -91,11 +90,12 @@ class Cart extends React.Component {
                             <span className="ms-3 fs-4"> {cart_entry.source_item.name} ({cart_entry.product.name}) </span>
                         </div>
                     </td>
-                    <td>
-                        <input type="number" className="form-control" defaultValue={cart_entry.quantity} />
+                    <td className="text-center">
+                        <NumberInput type="number" className="form-control" label="Quantità" inline hide-label
+                                     defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
+                        <span>{centToPrice(cart_entry.product.price)}€ cad.</span>
                     </td>
-                    <td>{centToPrice(cart_entry.product.price)}€</td>
-                    <td>
+                    <td className="text-center">
                         <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * cart_entry.quantity)}€</span>
                     </td>
                 </tr>
