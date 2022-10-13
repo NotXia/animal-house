@@ -1,5 +1,6 @@
 import MainPage from "./Main";
 import ItemPage from "./Item";
+import CartPage from "./Cart";
 
 let routes = [
     {
@@ -9,6 +10,10 @@ let routes = [
     {
         path: "/shop/item",
         element: <ItemPage />,
+    },
+    {
+        path: "/shop/cart",
+        element: <CartPage />,
     }
 ]
 
