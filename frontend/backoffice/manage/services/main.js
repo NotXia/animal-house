@@ -84,6 +84,27 @@ $(async function () {
                 filterService($("#search-service").val());
             }, 100);
         });
+
+        /* Cancellazione servizio */
+        $("#form-service-delete").on("submit", async function (event) {
+            event.preventDefault();
+            await LoadingHandler.wrap(async function () {
+                try {
+                    let toDeleteService = $("#data-delete-id").val();
+
+                    await api_request({
+                        type: "DELETE", url: `/services/${encodeURIComponent(toDeleteService)}` 
+                    });
+
+                    await showServices();
+                } catch (err) {
+                    switch (err.status) {
+                        case 400: Error.showErrors(err.responseJSON); break;
+                        default: Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore"); break;
+                    }
+                }
+            })
+        })
         
         await showServices();
     })
@@ -149,6 +170,11 @@ function displayServices(serviceList) {
                 $(`#data-${service.target[species]}`).prop("checked", true);
             }
         });
+
+        $(`#delete-btn-${index}`).on("click", function() {
+            $("#data-delete-id").val(service.id);
+            $("#delete-service-name").text(service.name);
+        })
         index++;
     }
     displaySpecies();

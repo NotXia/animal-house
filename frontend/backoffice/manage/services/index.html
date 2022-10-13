@@ -164,6 +164,30 @@
         </div>
     </div>
 
+    <!-- Cancellazione servizio -->
+    <div class="modal fade" id="modal-delete-service" tabindex="-1" aria-labelledby="modal-delete-service-label"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="modal-delete-service-label">Conferma cancellazione</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <form id="form-service-delete">
+                    <input id="data-delete-id" type="hidden" name="name">
+                    <div class="modal-body">
+                        Stai cancellando il servizio <span id="delete-service-name"></span>.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                        <button id="delete-submit-btn" type="submit" class="btn btn-outline-danger"
+                            data-bs-dismiss="modal">Elimina</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-container"></div>
 </body>
 
