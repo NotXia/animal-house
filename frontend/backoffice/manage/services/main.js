@@ -21,6 +21,7 @@ $(async function () {
     await LoadingHandler.wrap(async function () {
         await NavbarHandler.render();
 
+        displaySpecies();
         $("#form-service").validate({
             rules: {
                 name: { required: true },
@@ -151,7 +152,6 @@ function filterService(query) {
  */
 function displayServices(serviceList) {
     $("#service-container").html("");
-    $("#data-target").html("");
     let index = 0;
 
     for (const service of serviceList) {
@@ -180,7 +180,6 @@ function displayServices(serviceList) {
         })
         index++;
     }
-    displaySpecies();
 }
 
 /* Estrae le specie */
