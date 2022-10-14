@@ -27,7 +27,6 @@ $(async function () {
                 description: { required: true },
                 duration: { required: true, min: 1, step: 1 },
                 price: { required: true, min: 0.01, step: 0.01 },
-                online: { required: true }
             },
             errorPlacement: function (error, element) {
                 Error.showError(element.attr("name"), error);
