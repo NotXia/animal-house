@@ -30,7 +30,7 @@ export function base64(file, header=false) {
  * @param {*} string_currency   Stringa da convertire
  * @returns Stringa del prezzo in centesimi
  */
-export function priceToCents(string_currency) {
+ export function priceToCents(string_currency) {
     if (!string_currency.includes(".")) {
         // Se manca la parte decimale, viene aggiunta
         string_currency = string_currency + "00";
@@ -41,6 +41,24 @@ export function priceToCents(string_currency) {
         for (let i=0; i<2-decimals; i++) { string_currency = string_currency + "0"; }
     }
     return string_currency.replace(".", "");
+}
+
+/**
+ * Data una stringa in centesimi, converte la stringa in un prezzo intero
+ * @param {String} cents     Valore in centesimi
+ * @returns Prezzo intero
+ */
+ export function centToPrice(cents) {
+    let price = "";
+    cents = String(cents);
+
+    if (cents.length === 1) { price = `0,0${cents}`;}
+    else if (cents.length === 2) { price = `0,${cents}`;}
+    else {
+        price = (cents).slice(0, cents.length-2) + "," + cents.slice(cents.length-2);
+    }
+
+    return price;
 }
 
 export function basename(path) {
