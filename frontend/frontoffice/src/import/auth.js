@@ -23,6 +23,7 @@ async function _requestNewToken() {
         _current_refresh_request = $.ajax({
             type: "POST",
             url: `${process.env.REACT_APP_DOMAIN}/auth/refresh`,
+            xhrFields: { withCredentials: true }
         }).done(function (data, textStatus, jqXHR) {
             _setAccessToken(data.access_token.value, data.access_token.expiration);
         }).catch((err) => {
@@ -43,7 +44,10 @@ function _setAccessToken(token, expiration) {
 
 /* Restituisce l'access token, rinnovandolo se necessario */
 async function _getAccessToken() {
-    if (!_isAccessTokenValid()) { await _requestNewToken(); }
+    if (!_isAccessTokenValid()) { 
+        _removeAccessToken();
+        await _requestNewToken(); 
+    }
 
     return sessionStorage.getItem(_ACCESS_TOKEN_NAME);
 }
@@ -87,7 +91,8 @@ export async function login(username, password, remember_me) {
     await $.ajax({
         type: "POST",
         url: `${process.env.REACT_APP_DOMAIN}/auth/login`,
-        data: { username: username, password: password, remember_me: remember_me }
+        data: { username: username, password: password, remember_me: remember_me },
+        xhrFields: { withCredentials: true }
     }).done(function (data, textStatus, jqXHR) {
         _setAccessToken(data.access_token.value, data.access_token.expiration);
         logged = true;
@@ -107,7 +112,8 @@ export async function login(username, password, remember_me) {
 export async function logout() {
     await $.ajax({
         url: `${process.env.REACT_APP_DOMAIN}/auth/logout`,
-        type: 'POST'
+        type: 'POST',
+        xhrFields: { withCredentials: true }
     }).always(function () {
         _removeAccessToken();
     }).catch(function () {
