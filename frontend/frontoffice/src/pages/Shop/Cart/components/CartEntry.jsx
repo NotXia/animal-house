@@ -46,7 +46,7 @@ class CartEntry extends React.Component {
             <Container fluid>
                 <Row>
                     <Col xs="3" md="4" className="p-0">
-                        <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
+                        <Link to={`/shop/item?id=${cart_entry.source_item.id}&barcode=${cart_entry.product.barcode}`} className="text-decoration-none text-black">
                             <div className={`d-flex align-items-center justify-content-center h-100`}>
                                 <div className={`d-flex align-items-center justify-content-center w-100`} style={{ height: "12rem" }}>
                                     <img src={image} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} />
@@ -58,7 +58,7 @@ class CartEntry extends React.Component {
                     <Col xs="7" md="6">
                         <div className="d-flex justify-content-start align-items-center h-100">
                             <div>
-                                <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
+                                <Link to={`/shop/item?id=${cart_entry.source_item.id}&barcode=${cart_entry.product.barcode}`} className="text-decoration-none text-black">
                                     <span className="fs-4 overflow-hidden">{cart_entry.source_item.name} ({cart_entry.product.name})</span>
                                 </Link>
 
