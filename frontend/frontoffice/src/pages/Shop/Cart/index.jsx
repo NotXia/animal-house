@@ -79,6 +79,7 @@ class Cart extends React.Component {
             <Container>
                 <Row>
                     <Col xs={{ span: 12, order: 2 }} md={{ span: 8, order: 1 }}>
+                        {/* Segnalazione di prodotti rimossi */}
                         {
                             (() => {
                                 if (this.state.removed_entries.length === 0) { return; }
@@ -94,6 +95,7 @@ class Cart extends React.Component {
                             })()
                         }
 
+                        {/* Lista dei prodotti nel carrello */}
                         <div>
                             <ul className="list-group">
                                 { this.renderCartContent() }
@@ -114,7 +116,9 @@ class Cart extends React.Component {
         for (const cart_entry of this.state.cart_entries) {
             entries.push(
                 <li key={cart_entry.product.barcode} className="list-group-item">
-                    <CartEntry entry={cart_entry} onDelete={() => this.deleteCartEntryByBarcode(cart_entry.product.barcode)} />
+                    <CartEntry entry={cart_entry} 
+                               onDelete={() => this.deleteCartEntryByBarcode(cart_entry.product.barcode)} 
+                               onQuantityChange={(quantity) => this.updateCartEntryQuantityByBarcode(cart_entry.product.barcode, quantity)} />
                 </li>
             );
         }
@@ -140,13 +144,33 @@ class Cart extends React.Component {
         return entries;
     }
 
+
+    /**
+     * Gestisce la cancellazione di un elemento del carrello
+     */
     async deleteCartEntryByBarcode(barcode) {
         let cart_entries = this.state.cart_entries;
-        let to_delete_index = cart_entries.findIndex((entry) => entry.product.barcode === barcode);
+        let to_delete_index = cart_entries.findIndex((entry) => entry.product.barcode === barcode); // Ricerca indice da eliminare
 
         if (to_delete_index >= 0) {
             cart_entries.splice(to_delete_index, 1);
-            cart_entries = await this.updateCart(cart_entries);
+
+            cart_entries = await this.updateCart(cart_entries); // Aggiornamento server
+            this.setState({ cart_entries: cart_entries });
+        }
+    }
+
+    /**
+     * Gestisce l'aggiornamento di un elemento del carrello
+     */
+    async updateCartEntryQuantityByBarcode(barcode, quantity) {
+        let cart_entries = this.state.cart_entries;
+        let to_update_index = cart_entries.findIndex((entry) => entry.product.barcode === barcode); // Ricerca indice da aggiornare
+
+        if (to_update_index >= 0) {
+            cart_entries[to_update_index].quantity = quantity;
+
+            cart_entries = await this.updateCart(cart_entries); // Aggiornamento server
             this.setState({ cart_entries: cart_entries });
         }
     }

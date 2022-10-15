@@ -5,7 +5,8 @@
  *  - entry      Dati dell'elemento del carrello
  * 
  * Listener:
- *  - onDelete      Invocato quando viene premuto il bottone rimuovi
+ *  - onDelete              Invocato quando viene premuto il bottone rimuovi
+ *  - onQuantityChange      Invocato quando viene modificata la quantità
  */
 
 import React from "react";
@@ -20,11 +21,12 @@ class CartEntry extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            cart_entries: [],
-            removed_entries: [],
+            quantity: 0,
 
             error_message: ""
         };
+
+        this.state.quantity = this.props.entry.quantity;
     }
     
     render() {
@@ -65,7 +67,7 @@ class CartEntry extends React.Component {
                                     <div className="d-flex justify-content-start align-items-end w-100">
                                         <div className="w-50">
                                             <NumberInput type="number" className="form-control" label="Quantità"
-                                                         defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
+                                                         defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" onChange={(e) => this.updateQuantity(e.target.value)} />
                                         </div>
                                         <div className="w-50">
                                             <button className="btn btn-outline-danger mb-1 ms-2 text-truncate" onClick={(e) => this.props.onDelete(e)}>Rimuovi</button>
@@ -79,12 +81,19 @@ class CartEntry extends React.Component {
 
                     <Col xs="2" md="2">
                         <div className="d-flex align-items-center justify-content-center h-100 text-center">
-                            <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * cart_entry.quantity)}€</span>
+                            <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * this.state.quantity)}€</span>
                         </div>
                     </Col>
                 </Row>
             </Container>
         </>);
+    }
+
+    updateQuantity(quantity) {
+        if (quantity <= 0) { return; } 
+        this.setState({ quantity: quantity });
+
+        this.props.onQuantityChange(quantity);
     }
 }
 

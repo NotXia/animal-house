@@ -21,6 +21,9 @@
  *      focus()             mette il focus sull'input
  *      writeError(msg)     inserisce un messaggio (esterno) di errore
  * 
+ * Listener:
+ *   - onChange         Richiamato quando viene cambiato il valore
+ * 
  */
 
 import React from "react";
@@ -73,6 +76,8 @@ export default class TextInput extends React.Component {
 
 
     async _inputValidation(e) {
+        this.props.onChange(e);
+
         clearTimeout(this.validation_delay); // Annulla il timer precedente
     
         this.validation_delay = setTimeout((function() {
