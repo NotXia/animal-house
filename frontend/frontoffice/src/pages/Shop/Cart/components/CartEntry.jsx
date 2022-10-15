@@ -1,3 +1,13 @@
+/**
+ * 
+ * Visualizza un elemento del carrello
+ * Proprietà:
+ *  - entry      Dati dell'elemento del carrello
+ * 
+ * Listener:
+ *  - onDelete      Invocato quando viene premuto il bottone rimuovi
+ */
+
 import React from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -33,17 +43,17 @@ class CartEntry extends React.Component {
         return (<>
             <Container fluid>
                 <Row>
-                    <Col xs="4">
+                    <Col xs="3" md="4" className="p-0">
                         <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
                             <div className={`d-flex align-items-center justify-content-center h-100`}>
-                                <div className={`d-flex align-items-center justify-content-center`} style={{ height: "12rem" }}>
+                                <div className={`d-flex align-items-center justify-content-center w-100`} style={{ height: "12rem" }}>
                                     <img src={image} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} />
                                 </div>
                             </div>
                         </Link>
                     </Col>
-                    
-                    <Col xs="6">
+
+                    <Col xs="7" md="6">
                         <div className="d-flex justify-content-start align-items-center h-100">
                             <div>
                                 <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
@@ -51,16 +61,23 @@ class CartEntry extends React.Component {
                                 </Link>
 
                                 {message}
-                                <div className="w-50">
-                                    <NumberInput type="number" className="form-control" label="Quantità"
-                                                defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
+                                <div className="col-12 col-md-8">
+                                    <div className="d-flex justify-content-start align-items-end w-100">
+                                        <div className="w-50">
+                                            <NumberInput type="number" className="form-control" label="Quantità"
+                                                         defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
+                                        </div>
+                                        <div className="w-50">
+                                            <button className="btn btn-outline-danger mb-1 ms-2 text-truncate" onClick={(e) => this.props.onDelete(e)}>Rimuovi</button>
+                                        </div>
+                                    </div>
                                     <span>{centToPrice(cart_entry.product.price)}€ cad.</span>
                                 </div>
                             </div>
                         </div>
                     </Col>
 
-                    <Col xs="2">
+                    <Col xs="2" md="2">
                         <div className="d-flex align-items-center justify-content-center h-100 text-center">
                             <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * cart_entry.quantity)}€</span>
                         </div>

@@ -57,11 +57,7 @@ class Cart extends React.Component {
 
                 // Aggiornamento carrello
                 if (require_cart_update) {
-                    cart_entries = await api_request({
-                        method: "PUT",
-                        url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
-                        data: { cart: cart_entries.map((entry) => ({ barcode: entry.product.barcode, quantity: entry.quantity })) }
-                    });
+                    await this.updateCart(cart_entries);
                 }
 
                 this.setState({ cart_entries: cart_entries, removed_entries: to_remove_entries });
@@ -118,7 +114,7 @@ class Cart extends React.Component {
         for (const cart_entry of this.state.cart_entries) {
             entries.push(
                 <li key={cart_entry.product.barcode} className="list-group-item">
-                    <CartEntry entry={cart_entry} />
+                    <CartEntry entry={cart_entry} onDelete={() => this.deleteCartEntryByBarcode(cart_entry.product.barcode)} />
                 </li>
             );
         }
@@ -142,6 +138,29 @@ class Cart extends React.Component {
         }
 
         return entries;
+    }
+
+    async deleteCartEntryByBarcode(barcode) {
+        let cart_entries = this.state.cart_entries;
+        let to_delete_index = cart_entries.findIndex((entry) => entry.product.barcode === barcode);
+
+        if (to_delete_index >= 0) {
+            cart_entries.splice(to_delete_index, 1);
+            cart_entries = await this.updateCart(cart_entries);
+            this.setState({ cart_entries: cart_entries });
+        }
+    }
+
+    /**
+     * Aggiorna il carrello sul server
+     * @param updated_cart_entries  Entry del carrello nella forma [ { source_item, product, quantity } ]
+     */
+    async updateCart(updated_cart_entries) {
+        return await api_request({
+            method: "PUT",
+            url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
+            data: { cart: updated_cart_entries.map((entry) => ({ barcode: entry.product.barcode, quantity: entry.quantity })) }
+        });
     }
 }
 
