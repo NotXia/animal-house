@@ -11,6 +11,7 @@ import { centToPrice } from "../../../utilities/currency"
 import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
 import css from "./cart.module.css";
 import { Link } from "react-router-dom";
+import CartEntry from "./components/CartEntry";
 
 class Cart extends React.Component {
     constructor(props) {
@@ -97,19 +98,10 @@ class Cart extends React.Component {
                             })()
                         }
 
-                        <div className="table-responsive">
-                            <table className="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th className="fs-5" style={{width: "60%"}}>Prodotto</th>
-                                        <th className="fs-5 text-center" style={{width: "20%"}}>Quantità</th>
-                                        <th className="fs-5 text-center" style={{width: "20%"}}>Prezzo</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    { this.renderCartContent() }
-                                </tbody>
-                            </table>
+                        <div>
+                            <ul className="list-group">
+                                { this.renderCartContent() }
+                            </ul>
                         </div>
                     </Col>
 
@@ -124,39 +116,11 @@ class Cart extends React.Component {
         let entries = [];
 
         for (const cart_entry of this.state.cart_entries) {
-            let image = "";
-            let message = "";
-
-            if (cart_entry.product.images[0]) { image = `${process.env.REACT_APP_DOMAIN}${cart_entry.product.images[0].path}`; }
-            else { image = `${process.env.REACT_APP_DOMAIN}/shop/images/default.png`; }
-
-            if (cart_entry.message) {
-                message = (<div className="alert alert-warning p-1" role="alert">{cart_entry.message}</div>);
-            }
-
             entries.push(
-                <tr key={cart_entry.product.barcode}>
-                    <td>
-                        <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
-                            <div className="d-flex justify-content-start align-items-center">
-                                <div className={`d-flex align-items-center justify-content-center ${css["container-image"]}`}>
-                                    <img src={image} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} />
-                                </div>
-                                <span className="ms-3 fs-4"> {cart_entry.source_item.name} ({cart_entry.product.name}) </span>
-                            </div>
-                        </Link>
-                    </td>
-                    <td className="text-center">
-                        {message}
-                        <NumberInput type="number" className="form-control" label="Quantità" inline hide-label
-                                     defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
-                        <span>{centToPrice(cart_entry.product.price)}€ cad.</span>
-                    </td>
-                    <td className="text-center">
-                        <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * cart_entry.quantity)}€</span>
-                    </td>
-                </tr>
-            )
+                <li key={cart_entry.product.barcode} className="list-group-item">
+                    <CartEntry entry={cart_entry} />
+                </li>
+            );
         }
 
         return entries;
@@ -169,7 +133,9 @@ class Cart extends React.Component {
             entries.push(
                 <li key={cart_entry.product.barcode}>
                     <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
-                        <span className=""> {cart_entry.source_item.name} ({cart_entry.product.name}) </span>
+                        <div className="text-truncate">
+                            <span> {cart_entry.source_item.name} ({cart_entry.product.name}) </span>
+                        </div>
                     </Link>
                 </li>
             );
