@@ -77,9 +77,10 @@ class Cart extends React.Component {
             <Navbar/>
 
             <Container className="mt-3">
+                <Row> <h1>Carrello</h1> </Row>
+
                 <Row>
                     <Col xs={{ span: 12, order: 2 }} md={{ span: 8, order: 1 }}>
-                        <h1>Carrello</h1>
                         {/* Segnalazione di prodotti rimossi */}
                         {
                             (() => {
@@ -105,6 +106,12 @@ class Cart extends React.Component {
                     </Col>
 
                     <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }}>
+                        <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
+                        <div className="d-flex justify-content-center">
+                            <Button variant="outline-primary">
+                                <span className="fs-6">Procedi con l'ordine</span>
+                            </Button>
+                        </div>
                     </Col>
                 </Row>
             </Container>
@@ -189,6 +196,14 @@ class Cart extends React.Component {
             processData: false, contentType: "application/json",
             data: JSON.stringify({ cart: updated_cart_entries.map((entry) => ({ barcode: entry.product.barcode, quantity: entry.quantity })) })
         });
+    }
+
+    getOrderTotalString() {
+        let total = 0;
+
+        for (const entry of this.state.cart_entries) { total += entry.quantity * entry.product.price; }
+
+        return centToPrice(total);
     }
 }
 
