@@ -76,9 +76,10 @@ class Cart extends React.Component {
             
             <Navbar/>
 
-            <Container>
+            <Container className="mt-3">
                 <Row>
                     <Col xs={{ span: 12, order: 2 }} md={{ span: 8, order: 1 }}>
+                        <h1>Carrello</h1>
                         {/* Segnalazione di prodotti rimossi */}
                         {
                             (() => {
@@ -87,7 +88,7 @@ class Cart extends React.Component {
                                 return (
                                     <div className="alert alert-danger" role="alert">
                                         <p>I seguenti prodotti sono stati rimossi dal carrello perché non sono più disponibili:</p>
-                                        <ul style={{ listStyleType: "none" }}>
+                                        <ul className="mb-0" style={{ listStyleType: "none" }}>
                                             { this.renderRemovedContent() }
                                         </ul>
                                     </div>  
@@ -112,6 +113,8 @@ class Cart extends React.Component {
 
     renderCartContent() {
         let entries = [];
+
+        if (this.state.cart_entries.length === 0) { return (<li className="list-group-item fs-5">È piuttosto vuoto da queste parti</li>) }
 
         for (const cart_entry of this.state.cart_entries) {
             entries.push(
