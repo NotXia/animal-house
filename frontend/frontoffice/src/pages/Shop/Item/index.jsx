@@ -1,3 +1,9 @@
+/*
+    URL query
+        id     Id dell'item da visualizzare
+        [barcode]   Barcode del prodotto dell'item da visualizzare (se esiste)
+*/
+
 import React from "react";
 import { Helmet } from "react-helmet";
 import $ from "jquery";
@@ -26,9 +32,19 @@ class ShopItem extends React.Component {
         };
         
         let item_id = this.props.searchParams.get("id");
+        let to_search_barcode = this.props.searchParams.get("barcode");
+
         $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
         .then((item) => {
-            this.setState({ item: item, fetched: true });
+            let product_index = 0;
+            
+            // Ricerca eventuale indice da visualizzare per barcode
+            if (to_search_barcode) {
+                product_index = item.products.findIndex((product) => product.barcode === to_search_barcode);
+                if (product_index < 0) { product_index = 0; }
+            }
+
+            this.setState({ item: item, fetched: true, product_index: product_index });
 
             // Incremento rilevanza
             if (!__relevance_increased) {
