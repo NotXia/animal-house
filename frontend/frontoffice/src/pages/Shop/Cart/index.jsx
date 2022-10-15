@@ -183,7 +183,8 @@ class Cart extends React.Component {
         return await api_request({
             method: "PUT",
             url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
-            data: { cart: updated_cart_entries.map((entry) => ({ barcode: entry.product.barcode, quantity: entry.quantity })) }
+            processData: false, contentType: "application/json",
+            data: JSON.stringify({ cart: updated_cart_entries.map((entry) => ({ barcode: entry.product.barcode, quantity: entry.quantity })) })
         });
     }
 }
