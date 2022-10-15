@@ -1,6 +1,6 @@
 /*
     URL query
-        item_id     Id dell'item da visualizzare
+        id     Id dell'item da visualizzare
         [barcode]   Barcode del prodotto dell'item da visualizzare (se esiste)
 */
 
