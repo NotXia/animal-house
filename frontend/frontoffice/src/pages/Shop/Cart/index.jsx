@@ -23,7 +23,7 @@ class Cart extends React.Component {
             error_message: ""
         };
 
-        isAuthenticated().then(is_auth => { if (!is_auth) { window.location = "/fo/login" } } );
+        isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `/fo/login?return=${window.location.href}` } } );
     }
     
     componentDidMount() {
