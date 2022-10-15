@@ -36,24 +36,30 @@ class CartEntry extends React.Component {
                     <Col xs="4">
                         <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
                             <div className={`d-flex align-items-center justify-content-center h-100`}>
-                                <img src={image} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+                                <div className={`d-flex align-items-center justify-content-center`} style={{ height: "12rem" }}>
+                                    <img src={image} alt="" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+                                </div>
                             </div>
                         </Link>
                     </Col>
+                    
                     <Col xs="6">
-                        <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
-                            <div className="d-flex justify-content-start align-items-center">
-                                <span className="fs-4 overflow-hidden">{cart_entry.source_item.name} ({cart_entry.product.name})</span>
-                            </div>
-                        </Link>
+                        <div className="d-flex justify-content-start align-items-center h-100">
+                            <div>
+                                <Link to={`/shop/item?id=${cart_entry.source_item.id}`} className="text-decoration-none text-black">
+                                    <span className="fs-4 overflow-hidden">{cart_entry.source_item.name} ({cart_entry.product.name})</span>
+                                </Link>
 
-                        {message}
-                        <div className="w-50">
-                            <NumberInput type="number" className="form-control" label="Quantità"
-                                         defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
-                            <span>{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                {message}
+                                <div className="w-50">
+                                    <NumberInput type="number" className="form-control" label="Quantità"
+                                                defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" />
+                                    <span>{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                </div>
+                            </div>
                         </div>
                     </Col>
+
                     <Col xs="2">
                         <div className="d-flex align-items-center justify-content-center h-100 text-center">
                             <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * cart_entry.quantity)}€</span>
