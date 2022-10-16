@@ -76,7 +76,9 @@ export default class TextInput extends React.Component {
 
 
     async _inputValidation(e) {
-        this.props.onChange(e);
+        if (this.props.onChange) {
+            this.props.onChange(e);
+        }
 
         clearTimeout(this.validation_delay); // Annulla il timer precedente
     
