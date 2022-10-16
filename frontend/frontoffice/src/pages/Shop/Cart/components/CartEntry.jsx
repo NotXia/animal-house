@@ -56,7 +56,7 @@ class CartEntry extends React.Component {
                         </Link>
                     </Col>
 
-                    <Col xs="7" md="6">
+                    <Col xs="6" md="6">
                         <div className="d-flex justify-content-start align-items-center h-100">
                             <div>
                                 <Link to={`/shop/item?id=${cart_entry.source_item.id}&barcode=${cart_entry.product.barcode}`} className="text-decoration-none text-black">
@@ -64,26 +64,26 @@ class CartEntry extends React.Component {
                                 </Link>
 
                                 {message}
-                                <div className="col-12 col-md-8">
-                                    <div className="d-flex justify-content-start align-items-end w-100">
-                                        <div className="w-50">
-                                            <NumberInput type="number" className="form-control" label="Quantità" id={`input-quantity-${cart_entry.product.barcode}`}
-                                                         defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" onChange={(e) => this.updateQuantity(e.target.value)} />
-                                        </div>
-                                        <div className="w-50">
-                                            <button className="btn btn-outline-danger mb-1 ms-2 text-truncate" aria-label={`Rimuovi ${product_full_name} dal carrello`}
-                                                    onClick={(e) => this.props.onDelete(e)}>Rimuovi</button>
-                                        </div>
+                                <div className="d-flex justify-content-start align-items-end w-100">
+                                    <div className="w-50">
+                                        <NumberInput type="number" className="form-control" label="Quantità" id={`input-quantity-${cart_entry.product.barcode}`}
+                                                        defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" onChange={(e) => this.updateQuantity(e.target.value)} />
                                     </div>
-                                    <div aria-label={`${centToPrice(cart_entry.product.price)}€ cadauno`}>
-                                        <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
-                                    </div>
+
+                                    <button className="btn btn-outline-secondary mb-1 ms-2 text-truncate" aria-label={`Rimuovi ${product_full_name} dal carrello`} onClick={(e) => this.props.onDelete(e)}>
+                                        <div className="d-flex align-items-center">
+                                            <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/trash.png`} alt="" style={{height: "1.5rem"}} />
+                                        </div>
+                                    </button>
+                                </div>
+                                <div aria-label={`${centToPrice(cart_entry.product.price)}€ cadauno`}>
+                                    <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
                                 </div>
                             </div>
                         </div>
                     </Col>
 
-                    <Col xs="2" md="2">
+                    <Col xs="3" md="2">
                         <div className="d-flex align-items-center justify-content-center h-100 text-center"
                              aria-label={`${centToPrice(cart_entry.product.price * this.state.quantity)}€ in totale per ${product_full_name}`}>
                             <span className="fw-semibold fs-5" aria-hidden="true">{centToPrice(cart_entry.product.price * this.state.quantity)}€</span>

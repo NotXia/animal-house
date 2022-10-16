@@ -111,7 +111,7 @@ class Cart extends React.Component {
                         </Col>
 
                         {/* Totale carrello */}
-                        <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }}>
+                        <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }} className="mb-3 mb-md-0">
                             <section aria-label="Procedi con ordine">
                                 <div className={`${css["container-checkout"]}`}>
                                     <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
