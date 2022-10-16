@@ -1,6 +1,6 @@
 /*
     URL query
-        item_id     Id dell'item da visualizzare
+        id     Id dell'item da visualizzare
         [barcode]   Barcode del prodotto dell'item da visualizzare (se esiste)
 */
 
@@ -18,6 +18,7 @@ import { centToPrice } from "../../../utilities/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
 import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { updateURLQuery } from "../../../utilities/url";
 
 let __relevance_increased= false;
 
@@ -45,6 +46,7 @@ class ShopItem extends React.Component {
         let item_id = this.props.searchParams.get("id");
         let to_search_barcode = this.props.searchParams.get("barcode");
 
+        // Estrazione dati item
         $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
         .then((item) => {
             let product_index = 0;
@@ -55,7 +57,7 @@ class ShopItem extends React.Component {
                 if (product_index < 0) { product_index = 0; }
             }
 
-            this.setState({ item: item, fetched: true, product_index: product_index });
+            this.setState({ item: item, fetched: true }, () => { this.viewProductAtIndex(product_index); });
 
             // Incremento rilevanza
             if (!__relevance_increased) {
@@ -172,7 +174,10 @@ class ShopItem extends React.Component {
                             this.state.item.products.map((product, index) => {
                                 let selected = this.state.product_index === index;
                                 
-                                return ( <ProductCard key={product.barcode} product={product} onClick={() => this.setState({ product_index: index })} selected={selected} /> )
+                                return ( 
+                                    <ProductCard key={product.barcode} product={product}  selected={selected}
+                                                onClick={() => { this.viewProductAtIndex(index) }} /> 
+                                )
                             })
                         }  
                     </Row>
@@ -252,6 +257,12 @@ class ShopItem extends React.Component {
         if (product_index < 0) { return 0; }
         else { return this.state.cart_data[product_index].quantity; }
     }
+    
+    viewProductAtIndex(index) {
+        this.setState({ product_index: index });
+        updateURLQuery("barcode", this.state.item.products[index].barcode);
+    }
+
 }
 
 export default SearchParamsHook(ShopItem);
