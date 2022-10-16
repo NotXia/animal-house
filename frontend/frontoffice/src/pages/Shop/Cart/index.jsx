@@ -77,7 +77,7 @@ class Cart extends React.Component {
             <Navbar/>
 
             <main>
-                <Container className="mt-3">
+                <Container className="my-3">
                     <Row> <h1>Carrello</h1> </Row>
 
                     <Row>
