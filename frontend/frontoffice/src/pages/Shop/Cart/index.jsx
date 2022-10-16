@@ -105,12 +105,15 @@ class Cart extends React.Component {
                         </div>
                     </Col>
 
+                    {/* Totale carrello */}
                     <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }}>
-                        <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
-                        <div className="d-flex justify-content-center">
-                            <Button variant="outline-primary">
-                                <span className="fs-6">Procedi con l'ordine</span>
-                            </Button>
+                        <div className={`${css["container-checkout"]}`}>
+                            <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
+                            <div className="d-flex justify-content-center">
+                                <Button variant="outline-primary" className="mb-1">
+                                    <span className="fs-6">Procedi con l'ordine</span>
+                                </Button>
+                            </div>
                         </div>
                     </Col>
                 </Row>
