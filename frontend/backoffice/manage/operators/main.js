@@ -9,6 +9,7 @@ import { Navbar } from "/admin/import/Navbar.js";
 import { Loading } from "/admin/import/Loading.js";
 import { api_request, getUsername } from "/js/auth.js";
 import { createSuccessPopup } from "../../import/successPopup.js";
+import { updateURLQuery } from "../../import/url.js";
 
 let NavbarHandler;
 let LoadingHandler;
@@ -109,9 +110,7 @@ $(document).ready(async function() {
             await LoadingHandler.wrap(async function() {
                 try {
                     // Aggiornamento query dell'URL
-                    const updated_url = new URL(window.location.href);
-                    updated_url.searchParams.set("username", to_search_username);
-                    window.history.pushState("", "", updated_url);
+                    updateURLQuery("username", to_search_username);
 
                     // Ricerca e caching operatore
                     const operator_data = await OperatorAPI.search(to_search_username);
