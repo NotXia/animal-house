@@ -28,6 +28,7 @@ class ShopItem extends React.Component {
             item: undefined,
             product_index: 0,
             fetched: false,
+            cart_data: null,
 
             logged: false,
 
@@ -70,7 +71,19 @@ class ShopItem extends React.Component {
         });
 
         /* Controllo autenticazione */
-        isAuthenticated().then(is_logged => { this.setState({ logged: is_logged })});
+        isAuthenticated().then(async (is_logged) => { 
+            this.setState({ logged: is_logged });
+
+            if (is_logged) {
+                /* Estrazione carrello */
+                api_request({
+                    method: "GET", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`
+                })
+                .then(cart_data => {
+                    this.setState({ cart_data: cart_data });
+                });
+            }
+        });
     }
 
     render() {
@@ -169,12 +182,18 @@ class ShopItem extends React.Component {
     }
 
     renderAddToCartButton() {
+        const in_cart_quantity = this.getQuantityInCartOf(this.currProduct().barcode);
+        let in_cart_message = "";
+        let user_available_quantity = this.currProduct().quantity - in_cart_quantity;
+
+        if (in_cart_quantity > 0) { in_cart_message = `${in_cart_quantity} unità nel carrello`; } 
+        
         return (
             <section aria-label="Aggiungi al carrello" className="w-100 h-100">
             <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
                 {
                     (() => {
-                        if (this.currProduct().quantity > 0 && this.state.logged) {
+                        if (user_available_quantity > 0 && this.state.logged) {
                             return (
                                 <div>
                                     <div className="mb-2">
@@ -183,17 +202,23 @@ class ShopItem extends React.Component {
                                     </div>
                                     <div className="d-flex justify-content-center">
                                         <div className="w-75">
-                                            <NumberInput ref={this.input.quantity} id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
+                                            <NumberInput ref={this.input.quantity} id="product-quantity" min={0} max={user_available_quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
                                         </div>
+                                    </div>
+                                    <div className="text-center">
+                                        {in_cart_message}
                                     </div>
                                 </div>
                             );
                         }
-                        else if (this.currProduct().quantity === 0) {
+                        else if (user_available_quantity === 0) {
                             return (
                                 <div>
                                     <div className="mb-2">
                                         <Button variant="outline-primary" className="w-100" disabled>Non disponibile</Button>
+                                    </div>
+                                    <div className="text-center">
+                                        {in_cart_message}
                                     </div>
                                 </div>
                             );
@@ -212,6 +237,16 @@ class ShopItem extends React.Component {
                 barcode: barcode, quantity: parseInt(quantity)
             }
         });
+    }
+
+    /* Dato un barcode, restituisce la quantità del prodotto già in carrello */
+    getQuantityInCartOf(barcode) {
+        if (!this.state.cart_data) { return 0; }
+
+        const product_index = this.state.cart_data.findIndex((cart_entry) => cart_entry.product.barcode === barcode);
+
+        if (product_index < 0) { return 0; }
+        else { return this.state.cart_data[product_index].quantity; }
     }
 }
 
