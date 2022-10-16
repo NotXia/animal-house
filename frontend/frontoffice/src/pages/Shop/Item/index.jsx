@@ -198,11 +198,13 @@ class ShopItem extends React.Component {
             <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
                 {
                     (() => {
-                        if (user_available_quantity > 0 && this.state.logged) {
+                        if (user_available_quantity > 0 && this.state.logged) { // Prodotto disponibile
+                            const button_aria_label = in_cart_quantity > 0 ? `Aggiungi al carrello. ${in_cart_quantity} unità nel carrello` : "Aggiungi al carrello"
+
                             return (
                                 <div>
                                     <div className="mb-2">
-                                        <Button variant="outline-primary" className="w-100" id="button-add_to_cart"
+                                        <Button variant="outline-primary" className="w-100" id="button-add_to_cart" aria-label={button_aria_label}
                                                 onClick={() => this.addToCard(this.currProduct().barcode, this.input.quantity.current.value())}>Aggiungi al carrello</Button>
                                     </div>
                                     <div className="d-flex justify-content-center">
@@ -210,19 +212,21 @@ class ShopItem extends React.Component {
                                             <NumberInput ref={this.input.quantity} id="product-quantity" min={0} max={user_available_quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
                                         </div>
                                     </div>
-                                    <div className="text-center">
+                                    <div className="text-center" aria-hidden="true">
                                         {in_cart_message}
                                     </div>
                                 </div>
                             );
                         }
-                        else if (user_available_quantity === 0) {
+                        else if (user_available_quantity === 0) { // Prodotto terminato
+                            const button_aria_label = in_cart_quantity > 0 ? `Disponibilità insufficienti. ${in_cart_quantity} unità nel carrello` : "Prodotto non disponibile"
+
                             return (
                                 <div>
                                     <div className="mb-2">
-                                        <Button variant="outline-primary" className="w-100" disabled>Non disponibile</Button>
+                                        <Button variant="outline-primary" className="w-100" aria-label={button_aria_label} disabled>Non disponibile</Button>
                                     </div>
-                                    <div className="text-center">
+                                    <div className="text-center" aria-hidden="true">
                                         {in_cart_message}
                                     </div>
                                 </div>

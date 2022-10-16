@@ -34,6 +34,7 @@ class CartEntry extends React.Component {
 
         let image = "";
         let message = "";
+        const product_full_name = `${cart_entry.source_item.name} (${cart_entry.product.name})`;
 
         if (cart_entry.product.images[0]) { image = `${process.env.REACT_APP_DOMAIN}${cart_entry.product.images[0].path}`; }
         else { image = `${process.env.REACT_APP_DOMAIN}/shop/images/default.png`; }
@@ -45,7 +46,7 @@ class CartEntry extends React.Component {
         return (<>
             <Container fluid>
                 <Row>
-                    <Col xs="3" md="4" className="p-0">
+                    <Col xs="3" md="4" className="p-0" aria-hidden="true">
                         <Link to={`/shop/item?id=${cart_entry.source_item.id}&barcode=${cart_entry.product.barcode}`} className="text-decoration-none text-black">
                             <div className={`d-flex align-items-center justify-content-center h-100`}>
                                 <div className={`d-flex align-items-center justify-content-center w-100`} style={{ height: "12rem" }}>
@@ -59,29 +60,33 @@ class CartEntry extends React.Component {
                         <div className="d-flex justify-content-start align-items-center h-100">
                             <div>
                                 <Link to={`/shop/item?id=${cart_entry.source_item.id}&barcode=${cart_entry.product.barcode}`} className="text-decoration-none text-black">
-                                    <span className="fs-4 overflow-hidden">{cart_entry.source_item.name} ({cart_entry.product.name})</span>
+                                    <span className="fs-4 overflow-hidden">{product_full_name}</span>
                                 </Link>
 
                                 {message}
                                 <div className="col-12 col-md-8">
                                     <div className="d-flex justify-content-start align-items-end w-100">
                                         <div className="w-50">
-                                            <NumberInput type="number" className="form-control" label="Quantità"
+                                            <NumberInput type="number" className="form-control" label="Quantità" id={`input-quantity-${cart_entry.product.barcode}`}
                                                          defaultValue={cart_entry.quantity} min="1" max={cart_entry.product.quantity} step="1" onChange={(e) => this.updateQuantity(e.target.value)} />
                                         </div>
                                         <div className="w-50">
-                                            <button className="btn btn-outline-danger mb-1 ms-2 text-truncate" onClick={(e) => this.props.onDelete(e)}>Rimuovi</button>
+                                            <button className="btn btn-outline-danger mb-1 ms-2 text-truncate" aria-label={`Rimuovi ${product_full_name} dal carrello`}
+                                                    onClick={(e) => this.props.onDelete(e)}>Rimuovi</button>
                                         </div>
                                     </div>
-                                    <span>{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                    <div aria-label={`${centToPrice(cart_entry.product.price)}€ cadauno`}>
+                                        <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </Col>
 
                     <Col xs="2" md="2">
-                        <div className="d-flex align-items-center justify-content-center h-100 text-center">
-                            <span className="fw-semibold fs-5">{centToPrice(cart_entry.product.price * this.state.quantity)}€</span>
+                        <div className="d-flex align-items-center justify-content-center h-100 text-center"
+                             aria-label={`${centToPrice(cart_entry.product.price * this.state.quantity)}€ in totale per ${product_full_name}`}>
+                            <span className="fw-semibold fs-5" aria-hidden="true">{centToPrice(cart_entry.product.price * this.state.quantity)}€</span>
                         </div>
                     </Col>
                 </Row>

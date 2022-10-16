@@ -76,48 +76,56 @@ class Cart extends React.Component {
             
             <Navbar/>
 
-            <Container className="mt-3">
-                <Row> <h1>Carrello</h1> </Row>
+            <main>
+                <Container className="mt-3">
+                    <Row> <h1>Carrello</h1> </Row>
 
-                <Row>
-                    <Col xs={{ span: 12, order: 2 }} md={{ span: 8, order: 1 }}>
-                        {/* Segnalazione di prodotti rimossi */}
-                        {
-                            (() => {
-                                if (this.state.removed_entries.length === 0) { return; }
+                    <Row>
+                        <Col xs={{ span: 12, order: 2 }} md={{ span: 8, order: 1 }}>
+                                {
+                                    /* Segnalazione di prodotti rimossi */
+                                    (() => {
+                                        if (this.state.removed_entries.length === 0) { return; }
+                                        
+                                        return (
+                                            <section aria-label="Avviso cambiamenti al carrello">
+                                                <div className="alert alert-danger" role="alert">
+                                                    <p>I seguenti prodotti sono stati rimossi dal carrello perché non sono più disponibili:</p>
+                                                    <ul className="mb-0" style={{ listStyleType: "none" }}>
+                                                        { this.renderRemovedContent() }
+                                                    </ul>
+                                                </div>  
+                                            </section>
+                                        );
+                                    })()
+                                }
 
-                                return (
-                                    <div className="alert alert-danger" role="alert">
-                                        <p>I seguenti prodotti sono stati rimossi dal carrello perché non sono più disponibili:</p>
-                                        <ul className="mb-0" style={{ listStyleType: "none" }}>
-                                            { this.renderRemovedContent() }
-                                        </ul>
-                                    </div>  
-                                );
-                            })()
-                        }
+                            <section aria-label="Contenuto carrello">
+                                {/* Lista dei prodotti nel carrello */}
+                                <div>
+                                    <ul className="list-group">
+                                        { this.renderCartContent() }
+                                    </ul>
+                                </div>
+                            </section>
+                        </Col>
 
-                        {/* Lista dei prodotti nel carrello */}
-                        <div>
-                            <ul className="list-group">
-                                { this.renderCartContent() }
-                            </ul>
-                        </div>
-                    </Col>
-
-                    {/* Totale carrello */}
-                    <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }}>
-                        <div className={`${css["container-checkout"]}`}>
-                            <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
-                            <div className="d-flex justify-content-center">
-                                <Button variant="outline-primary" className="mb-1">
-                                    <span className="fs-6">Procedi con l'ordine</span>
-                                </Button>
-                            </div>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
+                        {/* Totale carrello */}
+                        <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }}>
+                            <section aria-label="Procedi con ordine">
+                                <div className={`${css["container-checkout"]}`}>
+                                    <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
+                                    <div className="d-flex justify-content-center">
+                                        <Button variant="outline-primary" className="mb-1">
+                                            <span className="fs-6">Procedi con l'ordine</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            </section>
+                        </Col>
+                    </Row>
+                </Container>
+            </main>
         </>);
     }
 
