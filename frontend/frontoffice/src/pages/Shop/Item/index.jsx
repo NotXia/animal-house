@@ -197,7 +197,7 @@ class ShopItem extends React.Component {
                             return (
                                 <div>
                                     <div className="mb-2">
-                                        <Button variant="outline-primary" className="w-100" 
+                                        <Button variant="outline-primary" className="w-100" id="button-add_to_cart"
                                                 onClick={() => this.addToCard(this.currProduct().barcode, this.input.quantity.current.value())}>Aggiungi al carrello</Button>
                                     </div>
                                     <div className="d-flex justify-content-center">
@@ -231,12 +231,16 @@ class ShopItem extends React.Component {
     }
 
     async addToCard(barcode, quantity) {
+        $("#button-add_to_cart").prop("disabled", true);
+
         await api_request({ 
             method: "POST", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
             data: {
                 barcode: barcode, quantity: parseInt(quantity)
             }
         });
+
+        window.location = `${process.env.REACT_APP_BASE_PATH}/shop/cart`;
     }
 
     /* Dato un barcode, restituisce la quantità del prodotto già in carrello */
