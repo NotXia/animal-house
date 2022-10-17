@@ -29,7 +29,7 @@ module.exports.validateProductImages = function (source, required=true, field_na
 module.exports.validateListOfProducts = function (source, required=true, field_name="products") {
     let validation = [];
 
-    if (required) { validation.push( utils.handleRequired(validator[source](`${field_name}`)).isArray({ min: 0 }).withMessage("Nessun prodotto inserito") ); }
+    if (required) { validation.push( utils.handleRequired(validator[source](`${field_name}`)).isArray({ min: 1 }).withMessage("Nessun prodotto inserito") ); }
     else { validation.push(utils.handleRequired(validator[source](`${field_name}`)) ); }
     
     return validation.concat([
