@@ -240,6 +240,7 @@ class ShopItem extends React.Component {
     }
 
     async addToCard(barcode, quantity) {
+        if (quantity <= 0) { return; }
         $("#button-add_to_cart").prop("disabled", true);
 
         await api_request({ 
