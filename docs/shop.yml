@@ -1081,6 +1081,8 @@ definitions:
     items:
       type: object
       properties:
+        source_item:
+          $ref: "#/definitions/Item"
         product:
           $ref: "#/definitions/Product"
         quantity:

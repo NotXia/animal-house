@@ -13,12 +13,16 @@
  *  - step          passo di incremento/decremento
  *  - defaultValue  valore di default
  *  - no-controls   se si vogliono nascondere le frecce per incremento/decremento
+ *  - hide-label    se si vuole visualizzare la label
  * 
  * Funzioni esposte:
  *      async validate()    valida l'input
  *      value()             restituisce il valore dell'input
  *      focus()             mette il focus sull'input
  *      writeError(msg)     inserisce un messaggio (esterno) di errore
+ * 
+ * Listener:
+ *   - onChange         Richiamato quando viene cambiato il valore
  * 
  */
 
@@ -52,11 +56,12 @@ export default class TextInput extends React.Component {
 
         let flex_container_class = this.props.inline ? "d-flex align-items-center" : "";
         let arrow_controls_class = this.props["no-controls"] ? "no-arrow-controls" : "";
+        let hide_label_class = this.props["hide-label"] ? "visually-hidden" : "";
 
         return (<>
             <div>
                 <div className={`${flex_container_class}`}>
-                    <label htmlFor={this.props.id} className="me-2">{this.props.label}</label>
+                    <label htmlFor={this.props.id} className={`me-2 ${hide_label_class}`}>{this.props.label}</label>
                     <input ref={this.input} id={this.props.id} className={`form-control w-100 ${arrow_controls_class} text-center`}
                         type="number" required={required_attr} min={this.props.min} max={this.props.max} defaultValue={this.props.defaultValue} step={this.props.step} 
                         name={this.props.name} onChange={(e) => this._inputValidation(e)}
@@ -71,6 +76,10 @@ export default class TextInput extends React.Component {
 
 
     async _inputValidation(e) {
+        if (this.props.onChange) {
+            this.props.onChange(e);
+        }
+
         clearTimeout(this.validation_delay); // Annulla il timer precedente
     
         this.validation_delay = setTimeout((function() {

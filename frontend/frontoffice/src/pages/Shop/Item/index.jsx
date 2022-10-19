@@ -17,6 +17,7 @@ import SearchParamsHook from "../../../hooks/SearchParams";
 import { centToPrice } from "../../../utilities/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
+import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
 import { updateURLQuery } from "../../../utilities/url";
 
 let __relevance_increased= false;
@@ -28,10 +29,20 @@ class ShopItem extends React.Component {
             item: undefined,
             product_index: 0,
             fetched: false,
+            cart_data: null,
+
+            logged: false,
 
             error_message: ""
         };
-        
+
+        this.input = {
+            quantity: React.createRef(),
+        }
+    }
+
+    componentDidMount() {
+        /* Estrazione dati item */
         let item_id = this.props.searchParams.get("id");
         let to_search_barcode = this.props.searchParams.get("barcode");
 
@@ -58,6 +69,21 @@ class ShopItem extends React.Component {
             switch (err.status) {
                 case 404: this.setState({ error_message: "Non ci sono prodotti da queste parti", fetched: true }); break;
                 default: this.setState({ error_message: "Si è verificato un errore", fetched: true }); break;
+            }
+        });
+
+        /* Controllo autenticazione */
+        isAuthenticated().then(async (is_logged) => { 
+            this.setState({ logged: is_logged });
+
+            if (is_logged) {
+                /* Estrazione carrello */
+                api_request({
+                    method: "GET", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`
+                })
+                .then(cart_data => {
+                    this.setState({ cart_data: cart_data });
+                });
             }
         });
     }
@@ -101,11 +127,7 @@ class ShopItem extends React.Component {
                                     </section>
                                 </Col>
                                 <Col xs="12" md="4">
-                                    <section aria-label="Aggiungi al carrello" className="w-100 h-100">
-                                        <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
-                                            { this.renderAddToCartButton() }
-                                        </div>
-                                    </section>
+                                    { this.renderAddToCartButton() }
                                 </Col>
                             </Row>
 
@@ -165,31 +187,82 @@ class ShopItem extends React.Component {
     }
 
     renderAddToCartButton() {
-        if (this.currProduct().quantity > 0) {
-            return (
-                <div>
-                    <div className="mb-2">
-                        <Button variant="outline-primary" className="w-100">Aggiungi al carrello</Button>
-                    </div>
-                    <div className="d-flex justify-content-center">
-                        <div className="w-75">
-                            <NumberInput id="product-quantity" min={1} max={this.currProduct().quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
-                        </div>
-                    </div>
-                </div>
-            )
-        }
-        else {
-            return (
-                <div>
-                    <div className="mb-2">
-                        <Button variant="outline-primary" className="w-100" disabled>Non disponibile</Button>
-                    </div>
-                </div>
-            )
-        }
+        const in_cart_quantity = this.getQuantityInCartOf(this.currProduct().barcode);
+        let in_cart_message = "";
+        let user_available_quantity = this.currProduct().quantity - in_cart_quantity;
+
+        if (in_cart_quantity > 0) { in_cart_message = `${in_cart_quantity} unità nel carrello`; } 
+        
+        return (
+            <section aria-label="Aggiungi al carrello" className="w-100 h-100">
+            <div className="d-flex justify-content-center justify-md-content-end align-items-center h-100">
+                {
+                    (() => {
+                        if (user_available_quantity > 0 && this.state.logged) { // Prodotto disponibile
+                            const button_aria_label = in_cart_quantity > 0 ? `Aggiungi al carrello. ${in_cart_quantity} unità nel carrello` : "Aggiungi al carrello"
+
+                            return (
+                                <div>
+                                    <div className="mb-2">
+                                        <Button variant="outline-primary" className="w-100" id="button-add_to_cart" aria-label={button_aria_label}
+                                                onClick={() => this.addToCard(this.currProduct().barcode, this.input.quantity.current.value())}>Aggiungi al carrello</Button>
+                                    </div>
+                                    <div className="d-flex justify-content-center">
+                                        <div className="w-75">
+                                            <NumberInput ref={this.input.quantity} id="product-quantity" min={0} max={user_available_quantity} defaultValue={1} step={1} label="Quantità" required inline no-controls />
+                                        </div>
+                                    </div>
+                                    <div className="text-center" aria-hidden="true">
+                                        {in_cart_message}
+                                    </div>
+                                </div>
+                            );
+                        }
+                        else if (user_available_quantity === 0) { // Prodotto terminato
+                            const button_aria_label = in_cart_quantity > 0 ? `Disponibilità insufficienti. ${in_cart_quantity} unità nel carrello` : "Prodotto non disponibile"
+
+                            return (
+                                <div>
+                                    <div className="mb-2">
+                                        <Button variant="outline-primary" className="w-100" aria-label={button_aria_label} disabled>Non disponibile</Button>
+                                    </div>
+                                    <div className="text-center" aria-hidden="true">
+                                        {in_cart_message}
+                                    </div>
+                                </div>
+                            );
+                        }
+                    })()
+                }
+            </div>
+            </section>
+        );
     }
 
+    async addToCard(barcode, quantity) {
+        if (quantity <= 0) { return; }
+        $("#button-add_to_cart").prop("disabled", true);
+
+        await api_request({ 
+            method: "POST", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/`,
+            data: {
+                barcode: barcode, quantity: parseInt(quantity)
+            }
+        });
+
+        window.location = `${process.env.REACT_APP_BASE_PATH}/shop/cart`;
+    }
+
+    /* Dato un barcode, restituisce la quantità del prodotto già in carrello */
+    getQuantityInCartOf(barcode) {
+        if (!this.state.cart_data) { return 0; }
+
+        const product_index = this.state.cart_data.findIndex((cart_entry) => cart_entry.product.barcode === barcode);
+
+        if (product_index < 0) { return 0; }
+        else { return this.state.cart_data[product_index].quantity; }
+    }
+    
     viewProductAtIndex(index) {
         this.setState({ product_index: index });
         updateURLQuery("barcode", this.state.item.products[index].barcode);
