@@ -7,7 +7,6 @@ export function updateURLQuery(key, value) {
 
 export function removeQueryFromURL(key) {
     let url = new URL(window.location.href);
-    console.log(url);
     url.searchParams.delete(key);
 
     window.history.replaceState("", "", url);
