@@ -1,6 +1,7 @@
 import MainPage from "./Main";
 import ItemPage from "./Item";
 import CartPage from "./Cart";
+import CheckoutPage from "./Checkout";
 
 let routes = [
     {
@@ -14,6 +15,10 @@ let routes = [
     {
         path: "/shop/cart",
         element: <CartPage />,
+    },
+    {
+        path: "/shop/checkout",
+        element: <CheckoutPage />,
     }
 ]
 
