@@ -10,6 +10,8 @@ import { centToPrice } from "../../../utilities/currency"
 import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
 import css from "./checkout.module.css";
 import CheckoutEntry from "./components/CheckoutEntry";
+import TextInput from "../../../components/form/TextInput";
+import UserValidator from "../../../utilities/validation/UserValidation";
 
 class Checkout extends React.Component {
     constructor(props) {
@@ -21,15 +23,25 @@ class Checkout extends React.Component {
             error_message: ""
         };
 
+        this.input = {
+            delivery: {
+                street: React.createRef(),
+                number: React.createRef(),
+                city: React.createRef(),
+                postal_code: React.createRef()
+            }
+        }
+
         isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}` } } );
     }
     
     componentDidMount() {
         (async () => {
+            /* Estrazione dati carrello */
             try {
                 const cart = await api_request({ 
                     method: "GET", 
-                    url: `${process.env.REACT_APP_DOMAIN}/users/customers/${await getUsername()}/cart/` 
+                    url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/cart/` 
                 });
                 
                 if (cart.length === 0) { return this.setState({ error_message: "Non hai prodotti nel carrello" }); }
@@ -38,6 +50,20 @@ class Checkout extends React.Component {
             }
             catch (err) {
                 this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello" });
+            }
+
+            /* Estrazione indirizzo utente */
+            try {
+                const user_data = await api_request({ 
+                    method: "GET", 
+                    url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/` 
+                });
+
+                // Autocompletamento indrizzo
+                this.setDeliveryAddress(user_data.address);
+
+            }
+            catch (err) {
             }
         })();
     }
@@ -72,6 +98,7 @@ class Checkout extends React.Component {
 
                             <Row className="mt-3">
                                 <section aria-label="Modalità di consegna">
+                                    {/* Selettore modalità di consegna */}
                                     <fieldset>
                                         <legend className="text-center fw-semibold">Metodo di consegna</legend>
                                         <div className={`d-flex justify-content-evenly ${css["container-shipping_method"]}`}>
@@ -95,8 +122,33 @@ class Checkout extends React.Component {
                                         </div>
                                     </fieldset>
 
-                                    <div>
-                                        { this.shippingMethodForm() }
+                                    <div className="mt-3">
+                                        {/* Form indirizzo di consegna */}
+                                        <Container fluid className={this.state.shipping_method === "delivery" ? "" : "visually-hidden"}>
+                                            <Row>
+                                                <Col xs="8">
+                                                    <TextInput ref={this.input.delivery.street} id="input-street" type="text" name="street" label="Via" detached required validation={UserValidator.street} />
+                                                </Col>
+                                                <Col xs="4">
+                                                    <TextInput ref={this.input.delivery.number} id="input-number" type="text" name="number" label="Civico" detached required validation={UserValidator.number} />
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col xs="6">
+                                                    <TextInput ref={this.input.delivery.city} id="input-city" type="text" name="city" label="Città" detached required validation={UserValidator.city} />
+                                                </Col>
+                                                <Col xs="6">
+                                                    <TextInput ref={this.input.delivery.postal_code} id="input-postal_code" type="text" name="postal_code" label="CAP" detached required validation={UserValidator.postal_code} />
+                                                </Col>
+                                            </Row>
+                                        </Container>
+
+                                        {/* Form indirizzo di ritiro */}
+                                        <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "visually-hidden"}>
+                                            <Row>
+                                                A
+                                            </Row>
+                                        </Container>
                                     </div>
                                 </section>
                             </Row>
@@ -107,6 +159,7 @@ class Checkout extends React.Component {
         </>);
     }
 
+    
     renderOrderContent() {
         const rows = [];
 
@@ -127,13 +180,11 @@ class Checkout extends React.Component {
         return total;
     }
 
-    shippingMethodForm() {
-        if (this.state.shipping_method === "delivery") {
-            return "Form indirizzo";
-        }
-        else {
-            return "Form ricerca hub"
-        }
+    setDeliveryAddress(address) {
+        this.input.delivery.street.current.value(address.street);
+        this.input.delivery.number.current.value(address.number);
+        this.input.delivery.city.current.value(address.city);
+        this.input.delivery.postal_code.current.value(address.postal_code);
     }
 }
 
