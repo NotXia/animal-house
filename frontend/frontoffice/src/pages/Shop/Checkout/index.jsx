@@ -16,6 +16,7 @@ class Checkout extends React.Component {
         super(props);
         this.state = {
             cart_content: [],
+            shipping_method: "delivery",
 
             error_message: ""
         };
@@ -50,7 +51,9 @@ class Checkout extends React.Component {
             <Navbar/>
 
             <main>
-                <Container className="mt-4">
+                <Container className="my-3">
+                    <Row><h1>Checkout</h1></Row>
+
                     <Row>
                         <Col xs="12" md="6">
                             <section aria-label="Riepilogo contenuto ordine">
@@ -58,6 +61,45 @@ class Checkout extends React.Component {
                                     { this.renderOrderContent() }
                                 </ul>
                             </section>
+                        </Col>
+
+                        <Col xs="12" md="6">
+                            <Row>
+                                <section aria-label="Totale ordine">
+                                    <p className="text-center fs-3">Totale <span className="fw-semibold fs-1">{centToPrice(this.getOrderTotal())}€</span></p>
+                                </section>
+                            </Row>
+
+                            <Row className="mt-3">
+                                <section aria-label="Modalità di consegna">
+                                    <fieldset>
+                                        <legend className="text-center fw-semibold">Metodo di consegna</legend>
+                                        <div className={`d-flex justify-content-evenly ${css["container-shipping_method"]}`}>
+                                            <div className="d-flex justify-content-center w-50">
+                                                <input id="radio-delivery" className="visually-hidden" type="radio" name="shipping_method" 
+                                                       checked={this.state.shipping_method === "delivery"} onChange={(e) => this.setState({ shipping_method: "delivery"}) } />
+                                                <label htmlFor="radio-delivery">
+                                                    <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/delivery.png`} alt="" />
+                                                    <p className="m-0 fs-5">Consegna a domicilio</p>
+                                                </label>
+                                            </div>
+                                            
+                                            <div className="w-50 d-flex justify-content-center">
+                                                <input id="radio-takeaway" className="visually-hidden" type="radio" name="shipping_method" 
+                                                       checked={this.state.shipping_method === "takeaway"} onChange={(e) => this.setState({ shipping_method: "takeaway"}) } />
+                                                <label htmlFor="radio-takeaway">
+                                                    <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/takeaway.png`} alt="" />
+                                                    <p className="m-0 fs-5">Ritiro in negozio</p>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                    <div>
+                                        { this.shippingMethodForm() }
+                                    </div>
+                                </section>
+                            </Row>
                         </Col>
                     </Row>
                 </Container>
@@ -77,6 +119,21 @@ class Checkout extends React.Component {
         }
 
         return rows;
+    }
+
+    getOrderTotal() {
+        let total = 0;
+        for (const entry of this.state.cart_content) { total += entry.product.price * entry.quantity; }
+        return total;
+    }
+
+    shippingMethodForm() {
+        if (this.state.shipping_method === "delivery") {
+            return "Form indirizzo";
+        }
+        else {
+            return "Form ricerca hub"
+        }
     }
 }
 
