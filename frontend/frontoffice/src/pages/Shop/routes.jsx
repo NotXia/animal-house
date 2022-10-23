@@ -2,6 +2,7 @@ import MainPage from "./Main";
 import ItemPage from "./Item";
 import CartPage from "./Cart";
 import CheckoutPage from "./Checkout";
+import OrderSuccessPage from "./OrderSuccess";
 
 let routes = [
     {
@@ -19,6 +20,10 @@ let routes = [
     {
         path: "/shop/checkout",
         element: <CheckoutPage />,
+    },
+    {
+        path: "/shop/checkout/success",
+        element: <OrderSuccessPage />,
     }
 ]
 
