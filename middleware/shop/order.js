@@ -13,8 +13,8 @@ const validateCreateOrder = [
     hub_validator.validateCode("body", OPTIONAL, "hub_code"),
     customer_validator.validateAddress("body", OPTIONAL, "address"),
     shop_validator.validateOrderPickupFlag("body", REQUIRED).custom(function (pickup, {req}) {
-        if (pickup && !req.body.hub_code) { throw new Error("Hub per il ritiro mancante"); }
-        if (!pickup && !req.body.address) { throw new Error("Indirizzo di consegna mancante"); }
+        if (pickup==="true" && !req.body.hub_code) { throw new Error("Hub per il ritiro mancante"); }
+        if (pickup==="false" && !req.body.address) { throw new Error("Indirizzo di consegna mancante"); }
         return true;
     }),
     utils.validatorErrorHandler
@@ -67,11 +67,23 @@ const validateRemoveOrder = [
     }
 ];
 
+const validateCheckout = [
+    shop_validator.validateOrderId("param", REQUIRED, "order_id"),
+    utils.validatorErrorHandler
+];
+
+const validateSuccess = [
+    shop_validator.validateOrderId("param", REQUIRED, "order_id"),
+    utils.validatorErrorHandler
+];
+
 
 module.exports = {
     validateCreate: validateCreateOrder,
     validateSearch: validateSearchOrder,
     validateSearchById: validateSearchOrderById,
     validateUpdate: validateUpdateOrder,
-    validateRemove: validateRemoveOrder
+    validateRemove: validateRemoveOrder,
+    validateCheckout: validateCheckout,
+    validateSuccess: validateSuccess
 }

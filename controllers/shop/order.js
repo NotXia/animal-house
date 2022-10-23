@@ -6,6 +6,7 @@ const OrderModel = require("../../models/shop/order");
 const ItemModel = require("../../models/shop/item");
 const HubModel = require("../../models/services/hub");
 const moment = require("moment");
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 /* 
     Creazione di un ordine
@@ -163,10 +164,58 @@ async function removeOrder(req, res) {
     return res.sendStatus(utils.http.NO_CONTENT);
 }
 
+async function checkoutOrder(req, res) {
+    const order_id = req.params.order_id;
+    let paymentIntent = null;
+
+    try {
+        // Estrazione ordine
+        const order = await OrderModel.findById(order_id).exec();
+        if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+
+        // Creazione richiesta di pagamento
+        paymentIntent = await stripe.paymentIntents.create({
+            amount: order.total, currency: "eur",
+            automatic_payment_methods: {
+                enabled: true,
+            },
+        });
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+  
+    res.status(utils.http.OK).send({
+        clientSecret: paymentIntent.client_secret,
+    });
+}
+
+async function successOrder(req, res) {
+    const order_id = req.params.order_id;
+
+    try {
+        // Estrazione ordine
+        const order = await OrderModel.findById(order_id).exec();
+        if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+        if (order.status != "pending") { throw error.generate.BAD_REQUEST("Ordine già pagato"); }
+
+        // Aggiornamento
+        order.status = "created";
+        await order.save();
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+  
+    res.sendStatus(utils.http.NO_CONTENT);
+}
+
 module.exports = {
     create: createOrder,
     search: searchOrder,
     searchById: searchOrderById,
     update: updateOrder,
-    remove: removeOrder
+    remove: removeOrder,
+    checkout: checkoutOrder,
+    success: successOrder
 }
