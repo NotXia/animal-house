@@ -12,6 +12,8 @@ import css from "./checkout.module.css";
 import CheckoutEntry from "./components/CheckoutEntry";
 import TextInput from "../../../components/form/TextInput";
 import UserValidator from "../../../utilities/validation/UserValidation";
+import { GeocoderAutocomplete } from '@geoapify/geocoder-autocomplete';
+import "@geoapify/geocoder-autocomplete/styles/minimal.css";
 
 class Checkout extends React.Component {
     constructor(props) {
@@ -19,6 +21,9 @@ class Checkout extends React.Component {
         this.state = {
             cart_content: [],
             shipping_method: "delivery",
+
+            curr_selected_hub: null,
+            curr_hub_list: [],
 
             error_message: ""
         };
@@ -59,12 +64,30 @@ class Checkout extends React.Component {
                     url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/` 
                 });
 
-                // Autocompletamento indrizzo
+                // Autocompletamento indrizzo di consegna
                 this.setDeliveryAddress(user_data.address);
 
+                // Autocompletamento hub di ritiro
+                const address_data = await $.ajax({
+                    method: "GET", url: "https://nominatim.openstreetmap.org/search", crossDomain: true,
+                    data: {
+                        street: `${user_data.address.number} ${user_data.address.street}`,
+                        city: `${user_data.address.city}`,
+                        postalcode: `${user_data.address.postal_code}`,
+                        country: "italy",
+                        format: "json", limit: 1
+                    }
+                });
+                await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
             }
             catch (err) {
             }
+
+            /* Inizializzazione autocompletamento indirizzi per hub */
+            const hub_address_search = new GeocoderAutocomplete(document.getElementById("autocomplete-takeaway"), process.env.REACT_APP_GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca l'hub più vicino a te", bias: "it" });
+            hub_address_search.on('select', async (location) => {
+                await this.setSuggestedHubs(location.properties.lat, location.properties.lon);
+            });
         })();
     }
 
@@ -83,6 +106,7 @@ class Checkout extends React.Component {
                     <Row>
                         <Col xs="12" md="6">
                             <section aria-label="Riepilogo contenuto ordine">
+                                {/* Contenuto ordine */}
                                 <ul className="list-group">
                                     { this.renderOrderContent() }
                                 </ul>
@@ -124,7 +148,7 @@ class Checkout extends React.Component {
 
                                     <div className="mt-3">
                                         {/* Form indirizzo di consegna */}
-                                        <Container fluid className={this.state.shipping_method === "delivery" ? "" : "visually-hidden"}>
+                                        <Container fluid className={this.state.shipping_method === "delivery" ? "" : "d-none"}>
                                             <Row>
                                                 <Col xs="8">
                                                     <TextInput ref={this.input.delivery.street} id="input-street" type="text" name="street" label="Via" detached required validation={UserValidator.street} />
@@ -144,10 +168,29 @@ class Checkout extends React.Component {
                                         </Container>
 
                                         {/* Form indirizzo di ritiro */}
-                                        <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "visually-hidden"}>
-                                            <Row>
-                                                A
-                                            </Row>
+                                        <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "d-none"}>
+                                            <div id="autocomplete-takeaway" style={{ position: "relative" }} className="w-75 mx-auto mb-2"></div>
+                                            
+                                            <p><span className="fw-semibold">Consegna a:</span> { !this.state.curr_selected_hub ? "" :
+                                                            `${this.state.curr_selected_hub.name} (${this.state.curr_selected_hub.address.street} ${this.state.curr_selected_hub.address.number}, ${this.state.curr_selected_hub.address.city})` } </p> 
+                                            
+                                            <ul className="list-group list-group-flush">
+                                                {
+                                                    this.state.curr_hub_list.map((hub) => {
+                                                        const active = this.state.curr_selected_hub?.code === hub.code ? "active" : "";
+
+                                                        return (
+                                                            <li key={hub.code} className={`list-group-item list-group-item-action list-group-item-light ${active} p-0`}>
+                                                                <label htmlFor={`radio-takeaway-${hub.code}`} className={`w-100 h-100 ${css["container-takeaway-hub"]} p-2`}>
+                                                                    <span className="fw-semibold">{hub.name}</span> {hub.address.street} {hub.address.number}, {hub.address.city} ({hub.address.postal_code})
+                                                                </label>
+                                                                <input id={`radio-takeaway-${hub.code}`} className="visually-hidden" type="radio" name="takeaway-hub" value={hub.code}
+                                                                        onChange={ () => this.setState({ curr_selected_hub: hub }) } />
+                                                            </li>
+                                                        );
+                                                    })
+                                                }
+                                            </ul>
                                         </Container>
                                     </div>
                                 </section>
@@ -185,6 +228,18 @@ class Checkout extends React.Component {
         this.input.delivery.number.current.value(address.number);
         this.input.delivery.city.current.value(address.city);
         this.input.delivery.postal_code.current.value(address.postal_code);
+    }
+
+    async setSuggestedHubs(lat, lon) {
+        const hubs = await $.ajax({
+            method: "GET", url: `${process.env.REACT_APP_DOMAIN}/hubs/`,
+            data: {
+                page_size: 5, page_number: 0,
+                lat: lat, lon: lon
+            }
+        });
+
+        this.setState({ curr_hub_list: hubs });
     }
 }
 

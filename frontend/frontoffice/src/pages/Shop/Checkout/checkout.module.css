@@ -3,9 +3,9 @@
     text-align: center;
     padding: 1rem;
     width: 100%;
-    -webkit-user-select: none; /* Safari */
-    -ms-user-select: none; /* IE 10 and IE 11 */
-    user-select: none; /* Standard syntax */
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .container-shipping_method input[type="radio"]:checked+label {
@@ -17,4 +17,11 @@
 .container-shipping_method img {
     max-height: 5rem;
     pointer-events: none;
+}
+
+.container-takeaway-hub {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
