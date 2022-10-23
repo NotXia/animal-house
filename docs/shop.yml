@@ -857,9 +857,7 @@ paths:
       - "Ordini"
       summary: "Pagamento ordine"
       description: |
-        Aggiorna un ordine come pagato.
-        
-        Nota: NON è un'implementazione sicura!
+        Aggiorna lo stato di un ordine se è stato pagato correttamente.
       parameters:
       - name: order_id
         in: path
@@ -874,6 +872,10 @@ paths:
           description: "Parametri malformati oppure ordine già pagato"
           schema:
             $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        402:
+          description: "L'ordine non è stato pagato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         404:
           description: "Ordine inesistente"
           schema:

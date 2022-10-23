@@ -180,6 +180,9 @@ async function checkoutOrder(req, res) {
                 enabled: true,
             },
         });
+
+        // Salvataggio dati pagamento
+        await OrderModel.findByIdAndUpdate(order.id, { payment_id: paymentIntent.id }, { returnNewDocument: true, new: true, strict: false });
     }
     catch (err) {
         return error.response(err, res);
@@ -199,9 +202,17 @@ async function successOrder(req, res) {
         if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
         if (order.status != "pending") { throw error.generate.BAD_REQUEST("Ordine già pagato"); }
 
-        // Aggiornamento
-        order.status = "created";
-        await order.save();
+        // Estrazione dati pagamento
+        const payment_data = await stripe.paymentIntents.retrieve(order.toJSON().payment_id);
+
+        // Aggiornamento stato ordine se il pagamento è avvenuto
+        if (payment_data.status === "succeded") {
+            order.status = "created";
+            await order.save();
+        }
+        else {
+            throw error.generate.PAYMENT_REQUIRED("Pagamento mancante");
+        }
     }
     catch (err) {
         return error.response(err, res);

@@ -49,8 +49,6 @@ router.put("/orders/:order_id", [ auth_middleware([], [ ["admin"], ["operator", 
 router.delete("/orders/:order_id", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]), shop_middleware.order.validateRemove ], shop_controller.order.remove);
 
 router.post("/orders/:order_id/checkout", [ auth_middleware([ ["customer"] ] , []), shop_middleware.order.validateCheckout ], shop_controller.order.checkout);
-
-// Nota: NON è un approccio sicuro e professionale. Andrebbe usato il webhook di Stripe
 router.post("/orders/:order_id/success", shop_middleware.order.validateSuccess, shop_controller.order.success);
 
 
