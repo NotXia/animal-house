@@ -1,6 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import Navbar from "../../../components/Navbar";
+import LoadingScreen from "../../../components/Loading";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -45,6 +46,7 @@ class Checkout extends React.Component {
             }
         }
         this.payment = React.createRef();
+        this.loading_screen = React.createRef();
 
         this.order_id = null; // Id dell'ordine attuale
 
@@ -109,6 +111,7 @@ class Checkout extends React.Component {
             </Helmet>
             
             <Navbar/>
+            <LoadingScreen ref={this.loading_screen} />
 
             <main>
                 <Container className="my-3">
@@ -317,24 +320,28 @@ class Checkout extends React.Component {
     }
 
     async checkout() {
-        try {
-            // Creazione ordine
-            const order = await api_request({
-                method: "POST",
-                url: `${process.env.REACT_APP_DOMAIN}/shop/orders/`,
-                data: this.getOrderData()
-            });
-
-            this.order_id = order.id;
-            await this.startPayment(order.id);
-        }
-        catch (err) {
-            console.log(err)
-        }
+        await this.loading_screen.current.wrap(async () => {
+            try {
+                // Creazione ordine
+                const order = await api_request({
+                    method: "POST",
+                    url: `${process.env.REACT_APP_DOMAIN}/shop/orders/`,
+                    data: this.getOrderData()
+                });
+    
+                this.order_id = order.id;
+                await this.startPayment(order.id);
+            }
+            catch (err) {
+                console.log(err)
+            }
+        });
     }
 
     async completeOrder() {
-        await this.payment.current.handlePayment(`http://localhost:3000/fo/shop/checkout/success?order_id=${encodeURIComponent(this.order_id)}`);
+        await this.loading_screen.current.wrap(async () => {
+            await this.payment.current.handlePayment(`http://localhost:3000/fo/shop/checkout/success?order_id=${encodeURIComponent(this.order_id)}`);
+        });
     }
 }
 
