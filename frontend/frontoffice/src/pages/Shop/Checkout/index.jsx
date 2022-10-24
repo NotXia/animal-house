@@ -328,6 +328,12 @@ class Checkout extends React.Component {
                     url: `${process.env.REACT_APP_DOMAIN}/shop/orders/`,
                     data: this.getOrderData()
                 });
+
+                await api_request({ 
+                    method: "PUT", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/cart/`,
+                    processData: false, contentType: "application/json",
+                    data: JSON.stringify({ cart: [] })
+                });
     
                 this.order_id = order.id;
                 await this.startPayment(order.id);
