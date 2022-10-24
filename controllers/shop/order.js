@@ -147,7 +147,7 @@ async function removeOrder(req, res) {
         if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
 
         // Gli utenti normali non possono cancellare un ordine in modo arbitrario
-        if (!req.auth.superuser && order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
+        if (!req.auth.superuser && order.status != "pending" && order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
         
         order.status = "cancelled";
         await order.save();
