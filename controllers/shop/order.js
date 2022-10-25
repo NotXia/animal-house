@@ -170,30 +170,34 @@ async function removeOrder(req, res) {
 
 async function checkoutOrder(req, res) {
     const order_id = req.params.order_id;
-    let paymentIntent = null;
+    let payment_intent = null;
 
     try {
         // Estrazione ordine
         const order = await OrderModel.findById(order_id).exec();
         if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
 
-        // Creazione richiesta di pagamento
-        paymentIntent = await stripe.paymentIntents.create({
-            amount: order.total, currency: "eur",
-            automatic_payment_methods: {
-                enabled: true,
-            },
-        });
+        if (order.toJSON().payment_id) {
+            // Pagamento in sospeso
+            payment_intent = await stripe.paymentIntents.retrieve(order.toJSON().payment_id);
+        }
+        else {
+            // Creazione richiesta di pagamento
+            payment_intent = await stripe.paymentIntents.create({
+                amount: order.total, currency: "eur",
+                automatic_payment_methods: { enabled: true },
+            });
 
-        // Salvataggio dati pagamento
-        await OrderModel.findByIdAndUpdate(order.id, { payment_id: paymentIntent.id }, { returnNewDocument: true, new: true, strict: false });
+            // Salvataggio dati pagamento
+            await OrderModel.findByIdAndUpdate(order.id, { payment_id: payment_intent.id }, { returnNewDocument: true, new: true, strict: false });
+        }
     }
     catch (err) {
         return error.response(err, res);
     }
   
     res.status(utils.http.OK).send({
-        clientSecret: paymentIntent.client_secret,
+        clientSecret: payment_intent.client_secret,
     });
 }
 
@@ -210,7 +214,7 @@ async function successOrder(req, res) {
         const payment_data = await stripe.paymentIntents.retrieve(order.toJSON().payment_id);
 
         // Aggiornamento stato ordine se il pagamento è avvenuto
-        if (payment_data.status === "succeded") {
+        if (payment_data.status === "succeeded") {
             order.status = "created";
             await order.save();
         }
