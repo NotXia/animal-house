@@ -28,12 +28,18 @@ class OrderSuccess extends React.Component {
             
             <Navbar />
 
-            <main className="mt-3">
-                <Container>
-                    <Row>
-                        Ordine creato con successo
-                    </Row>
-                </Container>
+            <main className="mt-3 w-100">
+                <div className="d-flex justify-content-center">
+                    <img src="https://thumbs.gfycat.com/ForcefulMintyKarakul-size_restricted.gif" alt="" style={{ height: "20rem" }} />
+                </div>
+    
+                <p className="text-center fs-2 fw-semibold">Grazie per aver acquistato da Animal House</p>
+
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-outline-success p-2 px-4">
+                        <span className="fs-5">Controlla lo stato dell'ordine</span>
+                    </button>
+                </div>
             </main>
         </>);
     }

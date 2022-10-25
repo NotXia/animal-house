@@ -2,7 +2,7 @@ import MainPage from "./Main";
 import ItemPage from "./Item";
 import CartPage from "./Cart";
 import CheckoutPage from "./Checkout";
-import OrderSuccessPage from "./OrderSuccess";
+import OrderSuccessPage from "./Checkout/OrderSuccess";
 
 let routes = [
     {
