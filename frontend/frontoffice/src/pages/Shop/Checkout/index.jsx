@@ -138,7 +138,7 @@ class Checkout extends React.Component {
             <main>
                 <Container className="my-3">
                     <Row><h1>Checkout</h1></Row>
-                    <Row><p className="invalid-feedback d-block fs-5 fw-semibold text-center">{this.state.error_message}</p></Row>
+                    <Row><p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p></Row>
 
                     <Row>
                         <Col xs={{span: 12, order: 2}} md={{span: 6, order: 1}}>
@@ -215,12 +215,15 @@ class Checkout extends React.Component {
 
                                                 {/* Form indirizzo di ritiro */}
                                                 <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "d-none"}>
+                                                    <a className="visually-hidden" href="#fieldset-takeaway_hub">Vai alla sezione: lista degli hub vicini</a>
+                                                    <a className="visually-hidden" href="#autocomplete-takeaway">Vai alla sezione: Cerca un indirizzo e guarda gli hub più vicini</a>
+
                                                     <div id="autocomplete-takeaway" style={{ position: "relative" }} className="w-75 mx-auto mb-2"></div>
-                                                    <p className="invalid-feedback d-block fw-semibold text-center">{this.state.takeaway_hub_error_message}</p>
+                                                    <p className="invalid-feedback d-block fw-semibold text-center" aria-live="assertive">{this.state.takeaway_hub_error_message}</p>
                                                     <p><span className="fw-semibold">Consegna a:</span> { !this.state.curr_selected_hub ? "" :
                                                                     `${this.state.curr_selected_hub.name} (${this.state.curr_selected_hub.address.street} ${this.state.curr_selected_hub.address.number}, ${this.state.curr_selected_hub.address.city})` } </p> 
                                                     
-                                                    <fieldset>
+                                                    <fieldset id="fieldset-takeaway_hub">
                                                         <legend className="visually-hidden">Hub di consegna</legend>
                                                         <ul className="list-group list-group-flush">
                                                             {
@@ -233,7 +236,7 @@ class Checkout extends React.Component {
                                                                                 <span className="fw-semibold">{hub.name}</span> {hub.address.street} {hub.address.number}, {hub.address.city} ({hub.address.postal_code})
                                                                             </label>
                                                                             <input id={`radio-takeaway-${hub.code}`} className="visually-hidden" type="radio" name="takeaway-hub" value={hub.code}
-                                                                                    onChange={ () => this.setTakeawayHub(hub) } required />
+                                                                                    onChange={ () => this.setTakeawayHub(hub) } />
                                                                         </li>
                                                                     );
                                                                 })
