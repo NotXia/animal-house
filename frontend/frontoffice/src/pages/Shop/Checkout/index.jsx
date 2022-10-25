@@ -66,15 +66,9 @@ class Checkout extends React.Component {
                 this.setState({ step: "checkout" });
 
                 /* Estrazione dati carrello */
-                try {
-                    const cart = await CartAPI.getByUsername(await getUsername());
-                    if (cart.length === 0) { return window.location = `${process.env.REACT_APP_BASE_PATH}/shop/cart`; }
-    
-                    this.setState({ order_content: cart });
-                }
-                catch (err) {
-                    this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello" });
-                }
+                const cart = await CartAPI.getByUsername(await getUsername()).catch((err) => { this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello" }); });
+                if (cart.length === 0) { return window.location = `${process.env.REACT_APP_BASE_PATH}/shop/cart`; }
+                this.setState({ order_content: cart });
 
                 /* Estrazione indirizzo utente */
                 try {
@@ -94,7 +88,7 @@ class Checkout extends React.Component {
                     });
                     await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
                 }
-                catch (err) { }
+                catch (err) { /* Volutamente vuoto */ }
 
                 /* Inizializzazione autocompletamento indirizzi per hub */
                 const hub_address_search = new GeocoderAutocomplete(document.getElementById("autocomplete-takeaway"), process.env.REACT_APP_GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca l'hub più vicino a te", bias: "it" });
@@ -104,32 +98,27 @@ class Checkout extends React.Component {
             }
             else { /* Si tratta di un ordine esistente, si passa direttamente al pagamento */
                 this.setState({ step: "payment" });
-
+                
+                let order_content = [];
+                
                 /* Estrazione contenuto ordine */
-                try {
-                    const order = await OrderAPI.getById(this.order_id);
-                    let order_content = [];
+                const order = await OrderAPI.getById(this.order_id).catch((err) => {});
+                if (order.status != "pending") { window.location = `${process.env.REACT_APP_BASE_PATH}/shop` }
 
-                    console.log(order)
-                    if (order.status != "pending") { window.location = `${process.env.REACT_APP_BASE_PATH}/shop` }
+                // Composizione della entry per ogni prodotto
+                for (const product of order.products) {
+                    const source_item = await ItemAPI.getByBarcode(product.barcode);
+                    source_item.name = product.item_name;
 
-                    // Composizione della entry per ogni prodotto
-                    for (const product of order.products) {
-                        const source_item = await ItemAPI.getByBarcode(product.barcode);
-                        source_item.name = product.item_name;
-
-                        order_content.push({
-                            source_item: source_item,
-                            product: product,
-                            quantity: product.quantity
-                        });
-                    }
-
-                    this.setState({ order_content: order_content });
-                    await this.startPayment(this.order_id);
+                    order_content.push({
+                        source_item: source_item,
+                        product: product,
+                        quantity: product.quantity
+                    });
                 }
-                catch (err) {
-                }
+
+                this.setState({ order_content: order_content });
+                await this.startPayment(this.order_id);
             }
         });
     }
@@ -152,7 +141,13 @@ class Checkout extends React.Component {
                             <section aria-label="Riepilogo contenuto ordine">
                                 {/* Contenuto ordine */}
                                 <ul className="list-group">
-                                    { this.renderOrderContent() }
+                                    { 
+                                        this.state.order_content.map((entry) => (
+                                            <li key={entry.product.barcode} className="list-group-item">
+                                                <CheckoutEntry entry={entry} />
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </section>
                         </Col>
@@ -276,26 +271,13 @@ class Checkout extends React.Component {
         </>);
     }
 
-    
-    renderOrderContent() {
-        const rows = [];
-
-        for (const entry of this.state.order_content) {
-            rows.push(                
-                <li key={entry.product.barcode} className="list-group-item">
-                    <CheckoutEntry entry={entry} />
-                </li>
-            );
-        }
-
-        return rows;
-    }
 
     getOrderTotal() {
         let total = 0;
         for (const entry of this.state.order_content) { total += entry.product.price * entry.quantity; }
         return total;
     }
+
 
     setDeliveryAddress(address) {
         this.input.delivery.street.current.value(address.street);
@@ -308,6 +290,7 @@ class Checkout extends React.Component {
         const hubs = await HubAPI.getNearestFrom(lat, lon, 5, 0);
         this.setState({ curr_hub_list: hubs });
     }
+
 
     getOrderData() {
         const products = this.state.order_content.map((cart_entry) => ({ barcode: cart_entry.product.barcode, quantity: cart_entry.quantity }));
@@ -330,19 +313,6 @@ class Checkout extends React.Component {
         return order_data;
     }
 
-    async startPayment(order_id) {
-        try {
-            const payment_data = await api_request({
-                method: "POST", url: `${process.env.REACT_APP_DOMAIN}/shop/orders/${encodeURIComponent(order_id)}/checkout`
-            });
-
-            this.setState({ clientSecret: payment_data.clientSecret, step: "payment" });
-        }
-        catch (err) {
-            console.log(err)
-        }
-    }
-
     async checkout() {
         await this.loading_screen.current.wrap(async () => {
             try {
@@ -362,6 +332,19 @@ class Checkout extends React.Component {
                 console.log(err)
             }
         });
+    }
+
+    async startPayment(order_id) {
+        try {
+            const payment_data = await api_request({
+                method: "POST", url: `${process.env.REACT_APP_DOMAIN}/shop/orders/${encodeURIComponent(order_id)}/checkout`
+            });
+
+            this.setState({ clientSecret: payment_data.clientSecret, step: "payment" });
+        }
+        catch (err) {
+            console.log(err)
+        }
     }
 
     async completeOrder() {
