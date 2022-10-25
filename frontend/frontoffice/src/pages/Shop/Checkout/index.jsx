@@ -18,6 +18,12 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "../../../components/form/CheckoutForm";
 import { updateURLQuery } from "../../../utilities/url"
+import SearchParamsHook from "../../../hooks/SearchParams";
+import CartAPI from "../../../import/api/cart";
+import CustomerAPI from "../../../import/api/customer";
+import HubAPI from "../../../import/api/hub";
+import OrderAPI from "../../../import/api/order";
+import ItemAPI from "../../../import/api/item";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -25,9 +31,9 @@ class Checkout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            cart_content: [],
-            shipping_method: "delivery",
-            step: "checkout",
+            order_content: [],
+            shipping_method: "delivery", // [ delivery, takeaway ]
+            step: "checkout", // [ checkout, payment ]
 
             curr_selected_hub: null,
             curr_hub_list: [],
@@ -48,59 +54,79 @@ class Checkout extends React.Component {
         this.payment = React.createRef();
         this.loading_screen = React.createRef();
 
-        this.order_id = null; // Id dell'ordine attuale
+        // Id dell'ordine attuale
+        this.order_id = this.props.searchParams.get("order_id"); 
 
         isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}` } } );
     }
     
     componentDidMount() {
         (async () => {
-            /* Estrazione dati carrello */
-            try {
-                const cart = await api_request({ 
-                    method: "GET", 
-                    url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/cart/` 
+            if (!this.order_id) { /* Nuovo ordine */
+                /* Estrazione dati carrello */
+                try {
+                    const cart = await CartAPI.getByUsername(await getUsername());
+                    if (cart.length === 0) { return this.setState({ error_message: "Non hai prodotti nel carrello" }); }
+    
+                    this.setState({ order_content: cart });
+                }
+                catch (err) {
+                    this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello" });
+                }
+
+                /* Estrazione indirizzo utente */
+                try {
+                    const user_data = await CustomerAPI.getAllDataByUsername(await getUsername());
+    
+                    // Autocompletamento indrizzo di consegna
+                    this.setDeliveryAddress(user_data.address);
+    
+                    // Autocompletamento hub di ritiro
+                    const address_data = await $.ajax({
+                        method: "GET", url: "https://nominatim.openstreetmap.org/search",
+                        data: {
+                            street: `${user_data.address.number} ${user_data.address.street}`,
+                            city: `${user_data.address.city}`, postalcode: `${user_data.address.postal_code}`, country: "italy",
+                            format: "json", limit: 1
+                        }
+                    });
+                    await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
+                }
+                catch (err) { }
+
+                /* Inizializzazione autocompletamento indirizzi per hub */
+                const hub_address_search = new GeocoderAutocomplete(document.getElementById("autocomplete-takeaway"), process.env.REACT_APP_GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca l'hub più vicino a te", bias: "it" });
+                hub_address_search.on('select', async (location) => {
+                    await this.setSuggestedHubs(location.properties.lat, location.properties.lon);
                 });
-                
-                if (cart.length === 0) { return this.setState({ error_message: "Non hai prodotti nel carrello" }); }
-
-                this.setState({ cart_content: cart });
             }
-            catch (err) {
-                this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello" });
-            }
+            else { /* Si tratta di un ordine esistente, si passa direttamente al pagamento */
+                /* Estrazione contenuto ordine */
+                try {
+                    const order = await OrderAPI.getById(this.order_id);
+                    let order_content = [];
 
-            /* Estrazione indirizzo utente */
-            try {
-                const user_data = await api_request({ 
-                    method: "GET", 
-                    url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/` 
-                });
+                    console.log(order)
+                    if (order.status != "pending") { window.location = `${process.env.REACT_APP_BASE_PATH}/shop` }
 
-                // Autocompletamento indrizzo di consegna
-                this.setDeliveryAddress(user_data.address);
+                    // Composizione della entry per ogni prodotto
+                    for (const product of order.products) {
+                        const source_item = await ItemAPI.getByBarcode(product.barcode);
+                        source_item.name = product.item_name;
 
-                // Autocompletamento hub di ritiro
-                const address_data = await $.ajax({
-                    method: "GET", url: "https://nominatim.openstreetmap.org/search", crossDomain: true,
-                    data: {
-                        street: `${user_data.address.number} ${user_data.address.street}`,
-                        city: `${user_data.address.city}`,
-                        postalcode: `${user_data.address.postal_code}`,
-                        country: "italy",
-                        format: "json", limit: 1
+                        order_content.push({
+                            source_item: source_item,
+                            product: product,
+                            quantity: product.quantity
+                        });
                     }
-                });
-                await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
-            }
-            catch (err) {
-            }
 
-            /* Inizializzazione autocompletamento indirizzi per hub */
-            const hub_address_search = new GeocoderAutocomplete(document.getElementById("autocomplete-takeaway"), process.env.REACT_APP_GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca l'hub più vicino a te", bias: "it" });
-            hub_address_search.on('select', async (location) => {
-                await this.setSuggestedHubs(location.properties.lat, location.properties.lon);
-            });
+                    this.setState({ order_content: order_content });
+                    this.startPayment(this.order_id);
+                }
+                catch (err) {
+                }
+            }
         })();
     }
 
@@ -250,7 +276,7 @@ class Checkout extends React.Component {
     renderOrderContent() {
         const rows = [];
 
-        for (const entry of this.state.cart_content) {
+        for (const entry of this.state.order_content) {
             rows.push(                
                 <li key={entry.product.barcode} className="list-group-item">
                     <CheckoutEntry entry={entry} />
@@ -263,7 +289,7 @@ class Checkout extends React.Component {
 
     getOrderTotal() {
         let total = 0;
-        for (const entry of this.state.cart_content) { total += entry.product.price * entry.quantity; }
+        for (const entry of this.state.order_content) { total += entry.product.price * entry.quantity; }
         return total;
     }
 
@@ -275,19 +301,12 @@ class Checkout extends React.Component {
     }
 
     async setSuggestedHubs(lat, lon) {
-        const hubs = await $.ajax({
-            method: "GET", url: `${process.env.REACT_APP_DOMAIN}/hubs/`,
-            data: {
-                page_size: 5, page_number: 0,
-                lat: lat, lon: lon
-            }
-        });
-
+        const hubs = await HubAPI.getNearestFrom(lat, lon, 5, 0);
         this.setState({ curr_hub_list: hubs });
     }
 
     getOrderData() {
-        const products = this.state.cart_content.map((cart_entry) => ({ barcode: cart_entry.product.barcode, quantity: cart_entry.quantity }));
+        const products = this.state.order_content.map((cart_entry) => ({ barcode: cart_entry.product.barcode, quantity: cart_entry.quantity }));
         let order_data = { products: products };
 
         if (this.state.shipping_method === "takeaway") {
@@ -312,6 +331,7 @@ class Checkout extends React.Component {
             const payment_data = await api_request({
                 method: "POST", url: `${process.env.REACT_APP_DOMAIN}/shop/orders/${encodeURIComponent(order_id)}/checkout`
             });
+
             this.setState({ clientSecret: payment_data.clientSecret, step: "payment" });
         }
         catch (err) {
@@ -323,19 +343,15 @@ class Checkout extends React.Component {
         await this.loading_screen.current.wrap(async () => {
             try {
                 // Creazione ordine
-                const order = await api_request({
-                    method: "POST",
-                    url: `${process.env.REACT_APP_DOMAIN}/shop/orders/`,
-                    data: this.getOrderData()
-                });
+                const order = await OrderAPI.create(this.getOrderData());
 
-                await api_request({ 
-                    method: "PUT", url: `${process.env.REACT_APP_DOMAIN}/users/customers/${encodeURIComponent(await getUsername())}/cart/`,
-                    processData: false, contentType: "application/json",
-                    data: JSON.stringify({ cart: [] })
-                });
-    
+                // Svuotamento carrello
+                await CartAPI.emptyByUser(await getUsername());
+                
+                // Aggiornamento URL
                 this.order_id = order.id;
+                updateURLQuery("order_id", order.id);
+
                 await this.startPayment(order.id);
             }
             catch (err) {
@@ -351,4 +367,4 @@ class Checkout extends React.Component {
     }
 }
 
-export default Checkout;
+export default SearchParamsHook(Checkout);
