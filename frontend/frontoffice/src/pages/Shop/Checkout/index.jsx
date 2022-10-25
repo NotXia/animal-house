@@ -67,7 +67,7 @@ class Checkout extends React.Component {
                 this.setState({ step: "checkout" });
 
                 /* Estrazione dati carrello */
-                const cart = await CartAPI.getByUsername(await getUsername()).catch((err) => { this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello" }); });
+                const cart = await CartAPI.getByUsername(await getUsername()).catch((err) => { this.setState({ error_message: "Non è stato possibile trovare i prodotti del carrello", step: null }); });
                 if (cart.length === 0) { return window.location = `${process.env.REACT_APP_BASE_PATH}/shop/cart`; }
                 this.setState({ order_content: cart });
 
@@ -103,7 +103,7 @@ class Checkout extends React.Component {
                 let order_content = [];
 
                 /* Estrazione contenuto ordine */
-                const order = await OrderAPI.getById(this.order_id).catch((err) => {});
+                const order = await OrderAPI.getById(this.order_id).catch((err) => { this.setState({ error_message: "Non è stato possibile trovare l'ordine", step: null }) });
                 if (order.status != "pending") { window.location = `${process.env.REACT_APP_BASE_PATH}/shop` }
 
                 // Composizione della entry per ogni prodotto
@@ -136,9 +136,10 @@ class Checkout extends React.Component {
             <main>
                 <Container className="my-3">
                     <Row><h1>Checkout</h1></Row>
+                    <Row><p className="invalid-feedback d-block fs-5 fw-semibold text-center">{this.state.error_message}</p></Row>
 
                     <Row>
-                        <Col xs="12" md="6">
+                        <Col xs={{span: 12, order: 2}} md={{span: 6, order: 1}}>
                             <section aria-label="Riepilogo contenuto ordine">
                                 {/* Contenuto ordine */}
                                 <ul className="list-group">
@@ -153,7 +154,7 @@ class Checkout extends React.Component {
                             </section>
                         </Col>
 
-                        <Col xs="12" md="6">
+                        <Col xs={{span: 12, order: 1}} md={{span: 6, order: 2}}>
                             <Row>
                                 <section aria-label="Totale ordine">
                                     <p className="text-center fs-3">Totale <span className="fw-semibold fs-1">{centToPrice(this.getOrderTotal())}€</span></p>
@@ -365,7 +366,7 @@ class Checkout extends React.Component {
                 await this.startPayment(order.id);
             }
             catch (err) {
-                console.log(err)
+                this.setState({ error_message: "Non è stato possibile creare l'ordine", step: null });
             }
         });
     }
@@ -379,7 +380,7 @@ class Checkout extends React.Component {
             this.setState({ clientSecret: payment_data.clientSecret, step: "payment" });
         }
         catch (err) {
-            console.log(err)
+            this.setState({ error_message: "Non è stato possibile creare l'ordine", step: null });
         }
     }
 
