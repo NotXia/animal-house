@@ -9,8 +9,13 @@ const orderSchema = mongoose.Schema({
     products: [ mongoose.Schema({
         barcode: { type: String },
         name: { type: String },
+        item_name: { type: String },
         price: { type: Number },
-        quantity: { type: Number }
+        quantity: { type: Number },
+        images: [{
+            path: { type: String, required: true },
+            description: { type: String },
+        }]
     }, { _id: false }) ],
     total: { 
         type: Number, required: true,

@@ -1116,13 +1116,24 @@ definitions:
           properties:
             barcode:
               type: string
+            item_name:
+              type: string
             name:
               type: string
             price:
               type: number
             quantity:
               type: number
-          required: [ barcode, name, price, quantity ]
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+          required: [ barcode, name, price, quantity, item_name, images ]
       total:
         type: number
       pickup:

@@ -31,9 +31,11 @@ async function createOrder(req, res) {
 
         // Estrazione prodotti dell'ordine
         for (const barcode of ordered_products_barcode) {
+            const item = await ItemModel.findOne({ "products.barcode": barcode }).exec();
             const product = await ItemModel.getProductByBarcode(barcode);
             if (!product) { throw error.generate.NOT_FOUND("Sono presenti prodotti inesistenti"); }
 
+            product.item_name = item.name;
             order_products.push(product);
         }
         
@@ -52,9 +54,11 @@ async function createOrder(req, res) {
         order_data.total = order_products.reduce((total, product) => total + parseInt(product.price)*ordered_products_quantity[product.barcode], 0);
         order_data.products = order_products.map((product) => ({
             barcode: product.barcode,
+            item_name: product.item_name,
             name: product.name,
             price: product.price,
-            quantity: ordered_products_quantity[product.barcode]
+            quantity: ordered_products_quantity[product.barcode],
+            images: product.images ? [ product.images[0] ] : []
         }));
 
         new_order = await new OrderModel(order_data).save();
