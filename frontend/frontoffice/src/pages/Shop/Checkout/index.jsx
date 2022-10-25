@@ -33,7 +33,7 @@ class Checkout extends React.Component {
         this.state = {
             order_content: [],
             shipping_method: "delivery", // [ delivery, takeaway ]
-            step: "checkout", // [ checkout, payment ]
+            step: "", // [ checkout, payment ]
 
             curr_selected_hub: null,
             curr_hub_list: [],
@@ -61,12 +61,14 @@ class Checkout extends React.Component {
     }
     
     componentDidMount() {
-        (async () => {
+        this.loading_screen.current.wrap(async () => {
             if (!this.order_id) { /* Nuovo ordine */
+                this.setState({ step: "checkout" });
+
                 /* Estrazione dati carrello */
                 try {
                     const cart = await CartAPI.getByUsername(await getUsername());
-                    if (cart.length === 0) { return this.setState({ error_message: "Non hai prodotti nel carrello" }); }
+                    if (cart.length === 0) { return window.location = `${process.env.REACT_APP_BASE_PATH}/shop/cart`; }
     
                     this.setState({ order_content: cart });
                 }
@@ -101,6 +103,8 @@ class Checkout extends React.Component {
                 });
             }
             else { /* Si tratta di un ordine esistente, si passa direttamente al pagamento */
+                this.setState({ step: "payment" });
+
                 /* Estrazione contenuto ordine */
                 try {
                     const order = await OrderAPI.getById(this.order_id);
@@ -122,12 +126,12 @@ class Checkout extends React.Component {
                     }
 
                     this.setState({ order_content: order_content });
-                    this.startPayment(this.order_id);
+                    await this.startPayment(this.order_id);
                 }
                 catch (err) {
                 }
             }
-        })();
+        });
     }
 
     render() {
