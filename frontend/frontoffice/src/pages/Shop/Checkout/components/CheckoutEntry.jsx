@@ -33,6 +33,7 @@ class CheckoutEntry extends React.Component {
         return (<>
             <Container fluid>
                 <Row>
+                    {/* Immagine */}
                     <Col xs="3" md="4" className="p-0" aria-hidden="true">
                         <Link to={`/shop/item?id=${cart_entry.source_item.id}&barcode=${cart_entry.product.barcode}`} className="text-decoration-none text-black">
                             <div className={`d-flex align-items-center justify-content-center h-100`}>
@@ -43,6 +44,7 @@ class CheckoutEntry extends React.Component {
                         </Link>
                     </Col>
 
+                    {/* Dati del prodotto */}
                     <Col xs="6" md="6">
                         <div className="d-flex justify-content-start align-items-center h-100">
                             <div>
@@ -57,6 +59,7 @@ class CheckoutEntry extends React.Component {
                         </div>
                     </Col>
 
+                    {/* Subtotale */}
                     <Col xs="3" md="2">
                         <div className="d-flex align-items-center justify-content-center h-100 text-center"
                              aria-label={`${centToPrice(cart_entry.product.price * cart_entry.quantity)}€ in totale per ${product_full_name}`}>

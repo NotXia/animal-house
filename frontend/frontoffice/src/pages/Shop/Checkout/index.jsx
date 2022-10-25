@@ -106,7 +106,7 @@ class Checkout extends React.Component {
                 const order = await OrderAPI.getById(this.order_id).catch((err) => { this.setState({ error_message: "Non è stato possibile trovare l'ordine", step: null }) });
                 if (order.status != "pending") { window.location = `${process.env.REACT_APP_BASE_PATH}/shop` }
 
-                // Composizione della entry per ogni prodotto
+                /* Composizione della entry per ogni prodotto */
                 for (const product of order.products) {
                     const source_item = await ItemAPI.getByBarcode(product.barcode);
                     source_item.name = product.item_name;
@@ -119,6 +119,8 @@ class Checkout extends React.Component {
                 }
 
                 this.setState({ order_content: order_content });
+
+                /* Avvio pagamento */
                 await this.startPayment(this.order_id);
             }
         });
@@ -214,9 +216,7 @@ class Checkout extends React.Component {
                                                 {/* Form indirizzo di ritiro */}
                                                 <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "d-none"}>
                                                     <div id="autocomplete-takeaway" style={{ position: "relative" }} className="w-75 mx-auto mb-2"></div>
-
                                                     <p className="invalid-feedback d-block fw-semibold text-center">{this.state.takeaway_hub_error_message}</p>
-
                                                     <p><span className="fw-semibold">Consegna a:</span> { !this.state.curr_selected_hub ? "" :
                                                                     `${this.state.curr_selected_hub.name} (${this.state.curr_selected_hub.address.street} ${this.state.curr_selected_hub.address.number}, ${this.state.curr_selected_hub.address.city})` } </p> 
                                                     
@@ -256,6 +256,7 @@ class Checkout extends React.Component {
                                 <Row className="mt-3">
                                     <section aria-label="Pagamento">
                                         <legend className="text-center fw-semibold fs-4">Pagamento</legend>
+                                        
                                         <div>
                                         {
                                             this.state.clientSecret && 
@@ -281,6 +282,7 @@ class Checkout extends React.Component {
     }
 
 
+    /* Restituisce il totale dell'ordine */
     getOrderTotal() {
         let total = 0;
         for (const entry of this.state.order_content) { total += entry.product.price * entry.quantity; }
@@ -288,6 +290,7 @@ class Checkout extends React.Component {
     }
 
 
+    /* Imposta l'indirizzo di consegna (a domicilio) */
     setDeliveryAddress(address) {
         this.input.delivery.street.current.value(address.street);
         this.input.delivery.number.current.value(address.number);
@@ -295,18 +298,20 @@ class Checkout extends React.Component {
         this.input.delivery.postal_code.current.value(address.postal_code);
     }
 
+    /* Imposta gli hub più vicini ad una data posizione per la consegna (ritiro in negozio) */
     async setSuggestedHubs(lat, lon) {
         const hubs = await HubAPI.getNearestFrom(lat, lon, 5, 0);
         this.setState({ curr_hub_list: hubs });
     }
 
-
+    /* Imposta un dato hub come quello per il ritiro in negozio */
     setTakeawayHub(hub) {
         this.setState({ curr_selected_hub: hub });
         this.setState({ takeaway_hub_error_message: "" });
     }
 
 
+    /* Valida l'input della modalità di consegna */
     async validateShippingMethod() {
         if (this.state.shipping_method === "delivery") {
             return (
@@ -327,6 +332,7 @@ class Checkout extends React.Component {
         }
     }
 
+    /* Restituisce i dati dell'ordine */
     getOrderData() {
         const products = this.state.order_content.map((cart_entry) => ({ barcode: cart_entry.product.barcode, quantity: cart_entry.quantity }));
         let order_data = { products: products };
@@ -348,6 +354,8 @@ class Checkout extends React.Component {
         return order_data;
     }
 
+
+    /* Crea l'ordine e procede al pagamento */
     async checkout() {
         await this.loading_screen.current.wrap(async () => {
             try {
@@ -371,6 +379,7 @@ class Checkout extends React.Component {
         });
     }
 
+    /* Avvia una sessione per il pagamento */
     async startPayment(order_id) {
         try {
             const payment_data = await api_request({
@@ -384,6 +393,7 @@ class Checkout extends React.Component {
         }
     }
 
+    /* Gestisce la transazione */
     async completeOrder() {
         await this.loading_screen.current.wrap(async () => {
             await this.payment.current.handlePayment(`http://localhost:3000/fo/shop/checkout/success?order_id=${encodeURIComponent(this.order_id)}`);
