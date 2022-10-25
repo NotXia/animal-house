@@ -40,6 +40,7 @@ class Checkout extends React.Component {
 
             clientSecret: null,
 
+            takeaway_hub_error_message: "",
             error_message: ""
         };
 
@@ -100,7 +101,7 @@ class Checkout extends React.Component {
                 this.setState({ step: "payment" });
                 
                 let order_content = [];
-                
+
                 /* Estrazione contenuto ordine */
                 const order = await OrderAPI.getById(this.order_id).catch((err) => {});
                 if (order.status != "pending") { window.location = `${process.env.REACT_APP_BASE_PATH}/shop` }
@@ -162,83 +163,90 @@ class Checkout extends React.Component {
                             {/* -- Step modalità di consegna -- */}
                             <div className={`my-3 ${this.state.step === "checkout" ? "" : "d-none"}`}> 
                                 <Row className="mt-3">
-                                    <section aria-label="Modalità di consegna">
-                                        {/* Selettore modalità di consegna */}
-                                        <fieldset>
-                                            <legend className="text-center fw-semibold fs-4">Metodo di consegna</legend>
-                                            <div className={`d-flex justify-content-evenly ${css["container-shipping_method"]}`}>
-                                                <div className="d-flex justify-content-center w-50">
-                                                    <input id="radio-delivery" className="visually-hidden" type="radio" name="shipping_method" 
-                                                        checked={this.state.shipping_method === "delivery"} onChange={(e) => this.setState({ shipping_method: "delivery"}) } />
-                                                    <label htmlFor="radio-delivery">
-                                                        <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/delivery.png`} alt="" />
-                                                        <p className="m-0 fs-5">Consegna a domicilio</p>
-                                                    </label>
-                                                </div>
+                                    <form>
+                                        <section aria-label="Modalità di consegna">
+                                            {/* Selettore modalità di consegna */}
+                                            <fieldset>
+                                                <legend className="text-center fw-semibold fs-4">Metodo di consegna</legend>
+                                                <div className={`d-flex justify-content-evenly ${css["container-shipping_method"]}`}>
+                                                    <div className="d-flex justify-content-center w-50">
+                                                        <input id="radio-delivery" className="visually-hidden" type="radio" name="shipping_method" 
+                                                            checked={this.state.shipping_method === "delivery"} onChange={(e) => this.setState({ shipping_method: "delivery"}) } />
+                                                        <label htmlFor="radio-delivery">
+                                                            <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/delivery.png`} alt="" />
+                                                            <p className="m-0 fs-5">Consegna a domicilio</p>
+                                                        </label>
+                                                    </div>
                                                 
-                                                <div className="w-50 d-flex justify-content-center">
-                                                    <input id="radio-takeaway" className="visually-hidden" type="radio" name="shipping_method" 
-                                                        checked={this.state.shipping_method === "takeaway"} onChange={(e) => this.setState({ shipping_method: "takeaway"}) } />
-                                                    <label htmlFor="radio-takeaway">
-                                                        <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/takeaway.png`} alt="" />
-                                                        <p className="m-0 fs-5">Ritiro in negozio</p>
-                                                    </label>
+                                                    <div className="w-50 d-flex justify-content-center">
+                                                        <input id="radio-takeaway" className="visually-hidden" type="radio" name="shipping_method" 
+                                                            checked={this.state.shipping_method === "takeaway"} onChange={(e) => this.setState({ shipping_method: "takeaway"}) } />
+                                                        <label htmlFor="radio-takeaway">
+                                                            <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/takeaway.png`} alt="" />
+                                                            <p className="m-0 fs-5">Ritiro in negozio</p>
+                                                        </label>
+                                                    </div>
                                                 </div>
+                                            </fieldset>
+
+                                            <div className="mt-3">
+                                                {/* Form indirizzo di consegna */}
+                                                <Container fluid className={this.state.shipping_method === "delivery" ? "" : "d-none"}>
+                                                    <Row>
+                                                        <Col xs="8">
+                                                            <TextInput ref={this.input.delivery.street} id="input-street" type="text" name="street" label="Via" detached required validation={UserValidator.street} />
+                                                        </Col>
+                                                        <Col xs="4">
+                                                            <TextInput ref={this.input.delivery.number} id="input-number" type="text" name="number" label="Civico" detached required validation={UserValidator.number} />
+                                                        </Col>
+                                                    </Row>
+                                                    <Row>
+                                                        <Col xs="6">
+                                                            <TextInput ref={this.input.delivery.city} id="input-city" type="text" name="city" label="Città" detached required validation={UserValidator.city} />
+                                                        </Col>
+                                                        <Col xs="6">
+                                                            <TextInput ref={this.input.delivery.postal_code} id="input-postal_code" type="text" name="postal_code" label="CAP" detached required validation={UserValidator.postal_code} />
+                                                        </Col>
+                                                    </Row>
+                                                </Container>
+
+                                                {/* Form indirizzo di ritiro */}
+                                                <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "d-none"}>
+                                                    <div id="autocomplete-takeaway" style={{ position: "relative" }} className="w-75 mx-auto mb-2"></div>
+
+                                                    <p className="invalid-feedback d-block fw-semibold text-center">{this.state.takeaway_hub_error_message}</p>
+
+                                                    <p><span className="fw-semibold">Consegna a:</span> { !this.state.curr_selected_hub ? "" :
+                                                                    `${this.state.curr_selected_hub.name} (${this.state.curr_selected_hub.address.street} ${this.state.curr_selected_hub.address.number}, ${this.state.curr_selected_hub.address.city})` } </p> 
+                                                    
+                                                    <fieldset>
+                                                        <legend className="visually-hidden">Hub di consegna</legend>
+                                                        <ul className="list-group list-group-flush">
+                                                            {
+                                                                this.state.curr_hub_list.map((hub) => {
+                                                                    const active = this.state.curr_selected_hub?.code === hub.code ? "active" : "";
+
+                                                                    return (
+                                                                        <li key={hub.code} className={`list-group-item list-group-item-action list-group-item-light ${active} p-0`}>
+                                                                            <label htmlFor={`radio-takeaway-${hub.code}`} className={`w-100 h-100 ${css["container-takeaway-hub"]} p-2`}>
+                                                                                <span className="fw-semibold">{hub.name}</span> {hub.address.street} {hub.address.number}, {hub.address.city} ({hub.address.postal_code})
+                                                                            </label>
+                                                                            <input id={`radio-takeaway-${hub.code}`} className="visually-hidden" type="radio" name="takeaway-hub" value={hub.code}
+                                                                                    onChange={ () => this.setTakeawayHub(hub) } required />
+                                                                        </li>
+                                                                    );
+                                                                })
+                                                            }
+                                                        </ul>
+                                                    </fieldset>
+                                                </Container>
                                             </div>
-                                        </fieldset>
+                                        </section>
 
-                                        <div className="mt-3">
-                                            {/* Form indirizzo di consegna */}
-                                            <Container fluid className={this.state.shipping_method === "delivery" ? "" : "d-none"}>
-                                                <Row>
-                                                    <Col xs="8">
-                                                        <TextInput ref={this.input.delivery.street} id="input-street" type="text" name="street" label="Via" detached required validation={UserValidator.street} />
-                                                    </Col>
-                                                    <Col xs="4">
-                                                        <TextInput ref={this.input.delivery.number} id="input-number" type="text" name="number" label="Civico" detached required validation={UserValidator.number} />
-                                                    </Col>
-                                                </Row>
-                                                <Row>
-                                                    <Col xs="6">
-                                                        <TextInput ref={this.input.delivery.city} id="input-city" type="text" name="city" label="Città" detached required validation={UserValidator.city} />
-                                                    </Col>
-                                                    <Col xs="6">
-                                                        <TextInput ref={this.input.delivery.postal_code} id="input-postal_code" type="text" name="postal_code" label="CAP" detached required validation={UserValidator.postal_code} />
-                                                    </Col>
-                                                </Row>
-                                            </Container>
-
-                                            {/* Form indirizzo di ritiro */}
-                                            <Container fluid className={this.state.shipping_method === "takeaway" ? "" : "d-none"}>
-                                                <div id="autocomplete-takeaway" style={{ position: "relative" }} className="w-75 mx-auto mb-2"></div>
-                                                
-                                                <p><span className="fw-semibold">Consegna a:</span> { !this.state.curr_selected_hub ? "" :
-                                                                `${this.state.curr_selected_hub.name} (${this.state.curr_selected_hub.address.street} ${this.state.curr_selected_hub.address.number}, ${this.state.curr_selected_hub.address.city})` } </p> 
-                                                
-                                                <ul className="list-group list-group-flush">
-                                                    {
-                                                        this.state.curr_hub_list.map((hub) => {
-                                                            const active = this.state.curr_selected_hub?.code === hub.code ? "active" : "";
-
-                                                            return (
-                                                                <li key={hub.code} className={`list-group-item list-group-item-action list-group-item-light ${active} p-0`}>
-                                                                    <label htmlFor={`radio-takeaway-${hub.code}`} className={`w-100 h-100 ${css["container-takeaway-hub"]} p-2`}>
-                                                                        <span className="fw-semibold">{hub.name}</span> {hub.address.street} {hub.address.number}, {hub.address.city} ({hub.address.postal_code})
-                                                                    </label>
-                                                                    <input id={`radio-takeaway-${hub.code}`} className="visually-hidden" type="radio" name="takeaway-hub" value={hub.code}
-                                                                            onChange={ () => this.setState({ curr_selected_hub: hub }) } />
-                                                                </li>
-                                                            );
-                                                        })
-                                                    }
-                                                </ul>
-                                            </Container>
+                                        <div className="d-flex justify-content-center mt-4">
+                                            <button className="btn btn-outline-success" type="submit" onClick={(e) => { e.preventDefault(); this.checkout() }}>Procedi al pagamento</button>
                                         </div>
-                                    </section>
-
-                                    <div className="d-flex justify-content-center mt-4">
-                                        <button className="btn btn-outline-success" onClick={() => this.checkout()}>Procedi al pagamento</button>
-                                    </div>
+                                    </form>
                                 </Row>
                             </div>
 
@@ -292,6 +300,32 @@ class Checkout extends React.Component {
     }
 
 
+    setTakeawayHub(hub) {
+        this.setState({ curr_selected_hub: hub });
+        this.setState({ takeaway_hub_error_message: "" });
+    }
+
+
+    async validateShippingMethod() {
+        if (this.state.shipping_method === "delivery") {
+            return (
+                await this.input.delivery.street.current.validate() &
+                await this.input.delivery.number.current.validate() &
+                await this.input.delivery.city.current.validate() &
+                await this.input.delivery.postal_code.current.validate()
+            );
+        }
+        else {
+            if (this.state.curr_selected_hub) {
+                return true;
+            }
+            else {
+                this.setState({ takeaway_hub_error_message: "Nessun hub selezionato" });
+                return false;
+            }
+        }
+    }
+
     getOrderData() {
         const products = this.state.order_content.map((cart_entry) => ({ barcode: cart_entry.product.barcode, quantity: cart_entry.quantity }));
         let order_data = { products: products };
@@ -316,6 +350,8 @@ class Checkout extends React.Component {
     async checkout() {
         await this.loading_screen.current.wrap(async () => {
             try {
+                if (!await this.validateShippingMethod()) { return; }
+
                 // Creazione ordine
                 const order = await OrderAPI.create(this.getOrderData());
 
