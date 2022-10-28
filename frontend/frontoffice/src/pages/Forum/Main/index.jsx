@@ -6,12 +6,15 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
 import CreatePost from "./components/CreatePost";
+import Post from "./components/Post";
+import BlogAPI from "../../../import/api/blog";
 
 
 class ForumMain extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            posts: [],
 
             error_message: ""
         };
@@ -19,7 +22,15 @@ class ForumMain extends React.Component {
     }
 
     componentDidMount() {
-
+    (async () => {
+        try {
+            const posts = await BlogAPI.getPosts(10, 0);
+            this.setState({ posts: posts });
+        }
+        catch (err) {
+            this.setState({ error_message: "Si è verificato un errore mentre cercavo i post" });
+        }
+    })();
     }
 
     render() {
@@ -32,25 +43,31 @@ class ForumMain extends React.Component {
 
             <main className="mt-3">
                 <Container>
-                    {/* Ricerca */}
-                    <Row>
-                    </Row>
-
-                    {/* Topic */}
-                    <Row>
-                    </Row>
-
-                    {/* Creazione post */}
                     <Row>
                         <Col xs="12" md={{span: 8, offset: 2}} lg={{span: 4, offset: 4}}>
-                            <section aria-label="Creazione post">
-                                <CreatePost />
-                            </section>
+                            {/* Ricerca */}
+                            <Row></Row>
+
+                            {/* Topic */}
+                            <Row></Row>
+
+
+                            {/* Creazione post */}
+                            <Row>
+                                <section aria-label="Creazione post">
+                                    <CreatePost />
+                                </section>
+                            </Row>
+
+                            {/* Visualizzazione post */}
+                            <Row>
+                                {
+                                    this.state.posts.map((post) => (
+                                        <Post post={post} />
+                                    ))
+                                }
+                            </Row>
                         </Col>
-                    </Row>
-                    
-                    {/* Visualizzazione post */}
-                    <Row>
                     </Row>
                 </Container>
             </main>

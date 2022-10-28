@@ -15,7 +15,21 @@ const BlogAPI = {
             url: `${process.env.REACT_APP_DOMAIN}/blog/posts/`,
             data: post_data
         });
-    }
+    },
+
+    getPosts: async function (page_size, page_number, authors=undefined, topic=undefined, oldest=undefined) {
+        return await $.ajax({
+            method: "GET",
+            url: `${process.env.REACT_APP_DOMAIN}/blog/posts/`,
+            data: {
+                page_size: page_size,
+                page_number: page_number,
+                authors: authors,
+                topic: topic,
+                oldest: oldest
+            }
+        });
+    },
 }
 
 export default BlogAPI;
