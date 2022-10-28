@@ -399,7 +399,7 @@ class Checkout extends React.Component {
     /* Gestisce la transazione */
     async completeOrder() {
         await this.loading_screen.current.wrap(async () => {
-            await this.payment.current.handlePayment(`http://localhost:3000/fo/shop/checkout/success?order_id=${encodeURIComponent(this.order_id)}`);
+            await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/shop/checkout/success?order_id=${encodeURIComponent(this.order_id)}`);
         });
     }
 }
