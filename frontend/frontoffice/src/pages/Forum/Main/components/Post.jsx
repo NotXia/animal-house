@@ -35,6 +35,11 @@ class CreatePost extends React.Component {
         let topic_image = null;
         if (this.state.topic?.icon) { topic_image = <img src={`data:image/*;base64,${this.state.topic.icon}`} alt="" style={{ height: "1.5rem" }} /> }
 
+        let comment_count_message;
+        if (this.state.comment_count != null) {
+            comment_count_message = this.state.comment_count === 1 ? `${this.state.comment_count} commento` : `${this.state.comment_count} commenti`
+        }
+
         return (
             <div className={`w-100 ${css["card-post"]}`}>
                 <article>
@@ -46,7 +51,7 @@ class CreatePost extends React.Component {
                     </div>
 
                     <div>
-                        { this.state.comment_count != null ? `${this.state.comment_count} commenti` : "" } 
+                        { comment_count_message } 
                     </div>
                     <div className="d-flex justify-content-between">
                         <p className="m-0" style={{ fontSize: "0.8rem" }}>{moment(post.creationDate).format("DD/MM/YY HH:mm")}</p>
