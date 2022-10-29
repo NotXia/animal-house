@@ -55,15 +55,17 @@ class ForumMain extends React.Component {
                             {/* Creazione post */}
                             <Row>
                                 {/* <section aria-label="Creazione post">
-                                    <CreatePost />
                                 </section> */}
+                                <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                    SCRIVI UN POST
+                                </button>
                             </Row>
 
                             {/* Visualizzazione post */}
                             <Row>
                                 {
                                     this.state.posts.map((post) => (
-                                        <Post post={post} />
+                                        <Post key={post.id} post={post} />
                                     ))
                                 }
                             </Row>
@@ -71,6 +73,21 @@ class ForumMain extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header" style={{ border: "none" }}>
+                            <h1 className="modal-title fs-5" id="exampleModalLabel">Scrivi un post</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div className="p-4">
+                            <CreatePost />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </>);
     }
 }
