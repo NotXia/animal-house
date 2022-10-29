@@ -1,4 +1,4 @@
-import { api_request } from "../auth.js";
+import { api_request, getUsername } from "../auth.js";
 import $ from "jquery";
 
 const OrderAPI = {
@@ -14,6 +14,18 @@ const OrderAPI = {
         return await api_request({
             method: "GET",
             url: `${process.env.REACT_APP_DOMAIN}/shop/orders/${encodeURIComponent(order_id)}`,
+        });
+    },
+
+    getMyOrders: async function (page_size, page_number) {
+        return await api_request({
+            method: "GET",
+            url: `${process.env.REACT_APP_DOMAIN}/shop/orders`,
+            data: {
+                page_size: page_size,
+                page_number: page_number,
+                customer: await getUsername()
+            }
         });
     }
 }

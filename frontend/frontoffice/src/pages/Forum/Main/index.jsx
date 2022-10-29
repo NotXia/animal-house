@@ -54,9 +54,9 @@ class ForumMain extends React.Component {
 
                             {/* Creazione post */}
                             <Row>
-                                <section aria-label="Creazione post">
+                                {/* <section aria-label="Creazione post">
                                     <CreatePost />
-                                </section>
+                                </section> */}
                             </Row>
 
                             {/* Visualizzazione post */}
