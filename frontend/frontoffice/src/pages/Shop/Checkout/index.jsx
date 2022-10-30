@@ -88,14 +88,11 @@ class Checkout extends React.Component {
                         }
                     });
 
-                    if (address_data[0].lat && address_data[0].lon) {
-                        await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
-                    }
-                    else {
-                        await this.setSuggestedHubs(41.89024784119525, 12.492276806383584);
-                    }
+                    await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
                 }
-                catch (err) { /* Volutamente vuoto */ }
+                catch (err) {
+                    await this.setSuggestedHubs(41.89024784119525, 12.492276806383584);
+                }
 
                 /* Inizializzazione autocompletamento indirizzi per hub */
                 const hub_address_search = new GeocoderAutocomplete(document.getElementById("autocomplete-takeaway"), process.env.REACT_APP_GEOAPIFY_KEY, { lang: "it", placeholder: "Cerca l'hub più vicino a te", bias: "it" });
