@@ -185,7 +185,7 @@ async function checkoutOrder(req, res) {
             // Creazione richiesta di pagamento
             payment_intent = await stripe.paymentIntents.create({
                 amount: order.total, currency: "eur",
-                automatic_payment_methods: { enabled: true },
+                automatic_payment_methods: { enabled: false },
             });
 
             // Salvataggio dati pagamento
