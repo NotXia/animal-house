@@ -1,5 +1,8 @@
 import React from "react";
 import $ from "jquery";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import TextInput from "../../../../components/form/TextInput";
 import BlogAPI from "../../../../import/api/blog";
 import FileAPI from "../../../../import/api/file";
@@ -59,6 +62,33 @@ class CreatePost extends React.Component {
                         <input id="input-images_file" className="form-control" type="file" onChange={(e) => this.fileUploadHandler(e)} accept="image/png, image/gif, image/jpeg" multiple />
                     </div>
 
+                    <div>
+                        {
+                            this.state.uploaded_images.map((image, index) => (
+                                <Row className="my-2" key={`${image.path}.${index}`}>
+                                    <Col xs="4">
+                                        <div className="d-flex justify-content-center align-items-center w-100" style={{height: "10rem"}}>
+                                            <img src={image.path} alt="" style={{maxWidth: "100%", maxHeight: "100%"}} />
+                                        </div>
+                                    </Col>
+                                    <Col xs="7">
+                                        <div className="d-flex justify-content-center align-items-center h-100 w-100">
+                                            <div className="form-floating h-100 w-100">
+                                                <textarea className="form-control h-100 w-100" placeholder="Descrivi immagine" id={`textarea-description-${index}`} 
+                                                          onChange={(e) => this.updateDescriptionAtIndex(index, e.target.value)} defaultValue="">{image.description}</textarea>
+                                                <label htmlFor={`textarea-description-${index}`}>Descrizione</label>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col xs="1">
+                                        <div className="d-flex justify-content-center align-items-center h-100 w-100">
+                                            <button type="button" className="btn-close" aria-label="Close" onClick={() => { this.deleteImageAtIndex(index) }}></button>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            ))
+                        }
+                    </div>
 
                     <div className="d-flex justify-content-end mt-2">
                         <button className="btn btn-outline-primary">Invia</button>
@@ -73,6 +103,7 @@ class CreatePost extends React.Component {
             title: this.input.title.current.value(),
             content: this.input.content.current.value,
             topic: this.input.topic.current.value,
+            images: this.state.uploaded_images.map((image) => ({ path: image.relative_path, description: image.description ? description : " " }))
         }
     }
 
@@ -94,6 +125,7 @@ class CreatePost extends React.Component {
         let curr_images = this.state.uploaded_images;
         uploaded_images.forEach((image_path) => { 
             curr_images.push({
+                relative_path: image_path,
                 path: `${process.env.REACT_APP_DOMAIN}/tmp/${image_path}`,
                 description: ""
             })
@@ -101,9 +133,22 @@ class CreatePost extends React.Component {
         console.log(curr_images)
         this.setState({ uploaded_images: curr_images })
 
-
-
         $("#input-images_file").val("");
+    }
+
+    deleteImageAtIndex(index) {
+        console.log(index);
+        let curr_images = this.state.uploaded_images;
+        curr_images.splice(index, 1);
+
+        this.setState({ uploaded_images: curr_images });
+    }
+
+    updateDescriptionAtIndex(index, description) {
+        let curr_images = this.state.uploaded_images;
+        curr_images[index].description = description;
+
+        this.setState({ uploaded_images: curr_images });
     }
 }
 
