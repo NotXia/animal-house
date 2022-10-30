@@ -87,7 +87,13 @@ class Checkout extends React.Component {
                             format: "json", limit: 1
                         }
                     });
-                    await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
+
+                    if (address_data[0].lat && address_data[0].lon) {
+                        await this.setSuggestedHubs(address_data[0].lat, address_data[0].lon);
+                    }
+                    else {
+                        await this.setSuggestedHubs(41.89024784119525, 12.492276806383584);
+                    }
                 }
                 catch (err) { /* Volutamente vuoto */ }
 
