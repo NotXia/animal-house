@@ -805,6 +805,84 @@ paths:
         500:
           description: "Errore lato server"
 
+  /shop/orders/{order_id}/checkout:
+    post:
+      tags:
+      - "Ordini"
+      summary: "Sessione di pagamento"
+      description: |
+        Avvia una sessione di pagamento per un ordine.
+
+        Richiede permessi [ ["customer"] ], []
+      produces:
+      - "application/json"
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Creato con successo"
+          schema:
+            type: object
+            properties:
+              clientSecret:
+                type: string
+                description: "Client secret di Stripe"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /shop/orders/{order_id}/success:
+    post:
+      tags:
+      - "Ordini"
+      summary: "Pagamento ordine"
+      description: |
+        Aggiorna lo stato di un ordine se è stato pagato correttamente.
+      parameters:
+      - name: order_id
+        in: path
+        description: "Id dell'ordine"
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        204:
+          description: "Ordine aggiornato con successo"
+        400:
+          description: "Parametri malformati oppure ordine già pagato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        402:
+          description: "L'ordine non è stato pagato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Ordine inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
 
   /users/customers/{username}/cart/:
     get:
@@ -1038,13 +1116,24 @@ definitions:
           properties:
             barcode:
               type: string
+            item_name:
+              type: string
             name:
               type: string
             price:
               type: number
             quantity:
               type: number
-          required: [ barcode, name, price, quantity ]
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  path:
+                    type: string
+                  description:
+                    type: string
+          required: [ barcode, name, price, quantity, item_name, images ]
       total:
         type: number
       pickup:
