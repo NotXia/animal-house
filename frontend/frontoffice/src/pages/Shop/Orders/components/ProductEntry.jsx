@@ -30,9 +30,11 @@ class ProductEntry extends React.Component {
 
         return (
             <Container>
-                <Row>
-                    <Col xs="4" md="2">
-                        <img src={image_path} alt="" style={{ height: "5rem" }} />
+                <Row >
+                    <Col xs="4" md="2">                        
+                        <div className="d-flex justify-content-center align-items-center" style={{height: "6rem"}}>
+                            <img src={image_path} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                        </div>
                     </Col>
 
                     <Col xs="8" md="10">
@@ -40,7 +42,6 @@ class ProductEntry extends React.Component {
                             <div>
                                 <p className="m-0">{product.item_name} ({product.name})</p>
                                 <p className="m-0">Quantità: {product.quantity}</p>
-
                             </div>
                         </div>
                     </Col>
