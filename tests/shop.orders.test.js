@@ -136,8 +136,8 @@ describe("Ricerca ordine", function () {
             .query({ page_size: 10, page_number: 0, customer: customer1.username })
             .set({ Authorization: `Bearer ${customer1.token}` }).expect(200);
         expect(res.body.length).toEqual(2);
-        expect(res.body[0].id).toEqual(order1.id);
-        expect(res.body[1].id).toEqual(order2.id);
+        expect(res.body[0].id).toEqual(order2.id);
+        expect(res.body[1].id).toEqual(order1.id);
     });
 
     test("Ricerca come cliente - Solo processati", async function () {
