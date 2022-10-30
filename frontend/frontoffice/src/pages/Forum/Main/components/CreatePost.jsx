@@ -75,7 +75,7 @@ class CreatePost extends React.Component {
                                         <div className="d-flex justify-content-center align-items-center h-100 w-100">
                                             <div className="form-floating h-100 w-100">
                                                 <textarea className="form-control h-100 w-100" placeholder="Descrivi immagine" id={`textarea-description-${index}`} 
-                                                          onChange={(e) => this.updateDescriptionAtIndex(index, e.target.value)} defaultValue="">{image.description}</textarea>
+                                                          onChange={(e) => this.updateDescriptionAtIndex(index, e.target.value)}>{image.description}</textarea>
                                                 <label htmlFor={`textarea-description-${index}`}>Descrizione</label>
                                             </div>
                                         </div>

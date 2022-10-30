@@ -1,5 +1,8 @@
 import React from "react";
 import $ from "jquery";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import BlogAPI from "../../../../import/api/blog";
 import css from "./post.module.css";
 import moment from "moment";
@@ -43,12 +46,34 @@ class CreatePost extends React.Component {
         return (
             <div className={`w-100 ${css["card-post"]}`}>
                 <article>
-                    <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
-                    <p>@{post.author}</p>
+                    <Row>
+                        <Col xs={post.images.length > 0 ? "8" : "12"}>
+                            <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
+                            <p>@{post.author}</p>
 
-                    <div className={`text-truncate ${css["container-content"]} my-2`}>
-                        <p className={`fs-6`}>{post.content}</p>
-                    </div>
+                            <div className={`text-truncate ${css["container-content"]} my-2`}>
+                                <p className={`fs-6`}>{post.content}</p>
+                            </div>
+                        </Col>
+
+                        {
+                            (() => {
+                                if (post.images.length > 0) {
+                                    return (
+                                        <Col xs="4">
+                                            <div class="d-flex justify-content-center">
+                                                <img src={`${process.env.REACT_APP_DOMAIN}${post.images[0].path}`} alt={post.images[0].description} 
+                                                    style={{ width: "100%" }} />
+                                            </div>
+                                            <div className="fs-6 text-center fst-italic">{post.images.length > 1 ? `${post.images.length} foto` : ""}</div>
+                                        </Col>
+                                    );
+                                }
+                                return null;
+                            })()
+                        }
+                    </Row>
+
 
                     <div>
                         { comment_count_message } 
