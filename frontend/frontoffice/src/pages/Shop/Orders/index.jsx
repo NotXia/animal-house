@@ -1,6 +1,5 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -9,7 +8,7 @@ import { isAuthenticated } from "../../../import/auth.js"
 import OrderAPI from "../../../import/api/order.js"
 import OrderRow from "./components/OrderRow"
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 const AH_OPENING_YEAR = 2015;
 
 class OrdersPage extends React.Component {
