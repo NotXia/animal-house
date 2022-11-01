@@ -19,7 +19,7 @@ class OrderStatus extends React.Component {
     render() {
         return (
             <span className="fs-4">
-                <div className="d-flex align-items-center">
+                <div className="d-inline-flex align-items-center">
                     <img src={ this.getStatusIcon(this.props.status, this.props.type) } alt="" style={{ height: "1.8rem" }} className="me-2" />
                     { this.getStatusText(this.props.status, this.props.type) }
                 </div>

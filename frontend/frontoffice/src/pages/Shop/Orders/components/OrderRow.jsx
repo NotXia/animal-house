@@ -31,7 +31,7 @@ class OrderRow extends React.Component {
         const order = this.state.order;
 
         return (
-            <Container className={css["container-order"]}>
+            <Container className={`${css["container-order"]} p-2 p-lg-3`}>
                 <Row>
                     <Col xs={{ span: 12, order: 2 }} md={{ span: 9, order: 1 }}>
                         {/* Dati ordine */}
@@ -56,8 +56,10 @@ class OrderRow extends React.Component {
                     </Col>
 
                     {/* Operazioni */}
-                    <Col xs={{ span: 12, order: 1 }} md={{ span: 3, order: 2 }}>
-                        <OrderStatus status={order.status} type={order.pickup ? "takeway" : "delivery"} />
+                    <Col xs={{ span: 12, order: 1 }} md={{ span: 3, order: 2 }} className="mb-3 mb-md-0">
+                        <div className="text-center w-100">
+                            <OrderStatus status={order.status} type={order.pickup ? "takeway" : "delivery"} />
+                        </div>
                         
                         <div>
                             { this.renderOperations(order.status, order.pickup ? "takeway" : "delivery") }
@@ -102,7 +104,7 @@ class OrderRow extends React.Component {
                     );
                 }
                 else {
-                    this.loadHubData(this.state.order.hub_code);
+                    if (!this.state.hub_data) { this.loadHubData(this.state.order.hub_code); }
                     return (
                         <div>
                             <p className="m-0">L'ordine è pronto al ritiro</p>
