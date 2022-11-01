@@ -27,6 +27,13 @@ const OrderAPI = {
                 customer: await getUsername()
             }
         });
+    },
+
+    deleteOrder: async function (order_id) {
+        return await api_request({
+            method: "DELETE",
+            url: `${process.env.REACT_APP_DOMAIN}/shop/orders/${encodeURIComponent(order_id)}`
+        });
     }
 }
 
