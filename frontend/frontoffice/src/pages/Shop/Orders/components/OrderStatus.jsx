@@ -31,8 +31,8 @@ class OrderStatus extends React.Component {
         switch (status) {
             case "pending":     return "In attesa di pagamento";
             case "created":     return "Ordine creato";
-            case "processed":   return "Ordine processato";
-            case "ready":       return type ==="delivery" ? "In spedizione" : "Pronto per il ritiro";
+            case "processed":   return "Ordine in transito";
+            case "ready":       return type ==="delivery" ? "In consegna" : "Pronto per il ritiro";
             case "delivered":   return type ==="delivery" ? "Consegnato" : "Ritirato";
             case "cancelled":   return "Cancellato";
         }
@@ -42,7 +42,7 @@ class OrderStatus extends React.Component {
         switch (status) {
             case "pending":     return `${process.env.REACT_APP_DOMAIN}/img/icons/payment.png`;
             case "created":     return `${process.env.REACT_APP_DOMAIN}/img/icons/order-created.png`;
-            case "processed":   return `${process.env.REACT_APP_DOMAIN}/img/icons/gears.png`;
+            case "processed":   return `${process.env.REACT_APP_DOMAIN}/img/icons/airplane.png`;
             case "ready":       return type ==="delivery" ? `${process.env.REACT_APP_DOMAIN}/img/icons/delivery.png` : `${process.env.REACT_APP_DOMAIN}/img/icons/store.png`;
             case "delivered":   return `${process.env.REACT_APP_DOMAIN}/img/icons/package.png`;
             case "cancelled":   return `${process.env.REACT_APP_DOMAIN}/img/icons/cross.png`;
