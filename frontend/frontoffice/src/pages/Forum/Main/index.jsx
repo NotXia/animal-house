@@ -75,14 +75,14 @@ class ForumMain extends React.Component {
             </main>
 
             <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                     <div className="modal-content">
                         <div className="modal-header" style={{ border: "none" }}>
                             <h1 className="modal-title fs-5" id="exampleModalLabel">Scrivi un post</h1>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
-                        <div className="p-4">
+                        <div className="p-4 modal-body">
                             <CreatePost />
                         </div>
                     </div>
