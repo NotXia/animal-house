@@ -45,6 +45,9 @@ class OrdersPage extends React.Component {
 
             <main className="mt-3">
                 <Container>
+                    <Row>
+                        <h1>Ordini effettuati</h1>
+                    </Row>
                     {
                         this.state.orders.map((order) => (
                             <Row key={order.id} className="mb-5">
