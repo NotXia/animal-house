@@ -19,6 +19,8 @@ class OrderRow extends React.Component {
         this.state = {
             order: this.props.order,
             hub_data: null,
+
+            delete_confirm: false,
             
             error_message: ""
         };
@@ -74,10 +76,16 @@ class OrderRow extends React.Component {
         switch (order_status) {
             case "pending":
                 return (
-                    <div className="d-flex justify-content-center">
-                        <div className="d-grid">
+                    <div className="">
+                        <div className="d-flex justify-content-center">
                             <Link to={`/shop/checkout?order_id=${this.state.order.id}`}><button className="btn btn-outline-primary mt-2 text-truncate">Continua con il pagamento</button></Link>
-                            <button className="btn btn-outline-danger btn-sm mt-2 text-truncate" onClick={() => { this.deleteOrder(); }}>Cancella ordine</button>
+                        </div>
+                        <div className="d-flex justify-content-center">
+                            <button className={`btn btn-outline-danger btn-sm mt-2 text-truncate ${this.state.delete_confirm ? "d-none" : ""}`} onClick={() => { this.setState({ delete_confirm: true }) }}>Cancella ordine</button>
+                            <div className={this.state.delete_confirm ? "" : "d-none"}>
+                                    <button className={`btn btn-outline-danger mt-2 text-truncate`} onClick={() => { this.deleteOrder(); }}>Conferma cancellazione</button>
+                                    <button className={`btn btn-primary mt-2 text-truncate ms-2`} onClick={() => { this.setState({ delete_confirm: false }) }}>Annulla</button>
+                            </div>
                         </div>
                     </div>
                 );
@@ -85,7 +93,13 @@ class OrderRow extends React.Component {
                 return (
                     <div>
                         <p className="m-0">Abbiamo ricevuto il tuo ordine e verrà presto processato.</p>
-                        <div className="d-flex justify-content-center"><button className="btn btn-outline-danger btn-sm mt-2 text-truncate" onClick={() => { this.deleteOrder(); }}>Cancella ordine</button></div>
+                        <div className="d-flex justify-content-center">
+                            <button className={`btn btn-outline-danger btn-sm mt-2 text-truncate ${this.state.delete_confirm ? "d-none" : ""}`} onClick={() => { this.setState({ delete_confirm: true }) }}>Cancella ordine</button>
+                            <div className={this.state.delete_confirm ? "" : "d-none"}>
+                                    <button className={`btn btn-outline-danger mt-2 text-truncate`} onClick={() => { this.deleteOrder(); }}>Conferma cancellazione</button>
+                                    <button className={`btn btn-primary mt-2 text-truncate ms-2`} onClick={() => { this.setState({ delete_confirm: false }) }}>Annulla</button>
+                            </div>
+                        </div>
                     </div>
                 );
             case "processed":
