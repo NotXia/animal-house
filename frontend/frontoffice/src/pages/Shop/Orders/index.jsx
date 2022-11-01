@@ -5,7 +5,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
-import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { isAuthenticated } from "../../../import/auth.js"
 import OrderAPI from "../../../import/api/order.js"
 import OrderRow from "./components/OrderRow"
 
@@ -50,6 +50,9 @@ class OrdersPage extends React.Component {
 
             <main className="mt-3">
                 <Container>
+                    <Row>
+                        <p className="text-center fs-5 invalid-feedback d-block m-0">{ this.state.error_message }</p>
+                    </Row>
                     <Row>
                         <h1>Ordini effettuati</h1>
                     </Row>
