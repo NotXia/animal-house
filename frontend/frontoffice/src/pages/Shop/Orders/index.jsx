@@ -4,19 +4,20 @@ import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Navbar from "../../../components/Navbar";
 import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
 import OrderAPI from "../../../import/api/order.js"
 import OrderRow from "./components/OrderRow"
 
 const PAGE_SIZE = 5;
+const AH_OPENING_YEAR = 2015;
 
 class OrdersPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             orders: [],
+            selected_year: new Date().getFullYear(),
 
             curr_page: -1,
             pagination_end: false,
@@ -53,13 +54,38 @@ class OrdersPage extends React.Component {
                         <h1>Ordini effettuati</h1>
                     </Row>
 
+                    <section aria-label="Selettore anno ordine">
+                        <Row className="my-2 mb-4">
+                            <Col xs="12" md="4" lg="2">
+                                <label htmlFor="select-order-year">Ordini dell'anno</label>
+                                <select id="select-order-year" className="form-select" defaultValue={new Date().getFullYear()} onChange={(e) => { this.fetchOrdersOfYear(e.target.value) }}>
+                                    <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+                                    {
+                                    (() => {
+                                        let years = [];
+                                        const curr_year = new Date().getFullYear();
+
+                                        for (let year=curr_year-1; year>=AH_OPENING_YEAR; year--) {
+                                            years.push(<option key={year} value={year}>{year}</option>);
+                                        }
+
+                                        return years;
+                                    })()
+                                    }
+                                </select>
+                            </Col>
+                        </Row>
+                    </section>
+                    
+                    <section aria-label="Lista degli ordini">
                     {
                         this.state.orders.map((order) => (
-                            <Row key={order.id} className="mb-5">
+                            <Row key={order.id} className="mb-3">
                                 <OrderRow order={order} />
                             </Row>
                         ))
                     }
+                    </section>
                     
                     <Row className={this.state.fetching ? "d-block" : "d-none"}>
                         <div className="d-flex justify-content-center mb-4">
@@ -68,9 +94,26 @@ class OrdersPage extends React.Component {
                             </div>
                         </div>
                     </Row>
+
+                    <Row className={!this.state.fetching && this.state.orders.length === 0 ? "d-block" : "d-none"}>
+                        <div className="d-flex justify-content-center mb-4">
+                            <p className="fs-4">Non hai fatto ordini nel {this.state.selected_year}</p>
+                        </div>
+                    </Row>
                 </Container>
             </main>
         </>);
+    }
+
+    async fetchOrdersOfYear(year) {
+        if (year === this.state.selected_year) { return; }
+
+        this.setState({ 
+            orders: [], 
+            curr_page: -1, 
+            pagination_end: false,
+            selected_year: year
+        }, this.fetchOrders);
     }
 
     async fetchOrders() {
@@ -79,7 +122,7 @@ class OrdersPage extends React.Component {
         try {
             this.setState({ fetching: true });
             
-            const orders = await OrderAPI.getMyOrders(PAGE_SIZE, this.state.curr_page+1);
+            const orders = await OrderAPI.getMyOrdersOfYear(PAGE_SIZE, this.state.curr_page+1, this.state.selected_year);
             this.setState({ 
                 orders: this.state.orders.concat(orders), 
                 curr_page: this.state.curr_page+1, 
