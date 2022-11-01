@@ -1,11 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import $ from "jquery";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
 import SearchParamsHook from "../../../hooks/SearchParams";
+import { Link } from "react-router-dom";
 
 
 class OrderSuccess extends React.Component {
@@ -36,9 +34,11 @@ class OrderSuccess extends React.Component {
                 <p className="text-center fs-2 fw-semibold">Grazie per aver acquistato da Animal House</p>
 
                 <div className="d-flex justify-content-center">
-                    <button className="btn btn-outline-success p-2 px-4">
-                        <span className="fs-5">Controlla lo stato dell'ordine</span>
-                    </button>
+                    <Link to="/shop/orders">
+                        <button className="btn btn-outline-success p-2 px-4">
+                            <span className="fs-5">Controlla lo stato dell'ordine</span>
+                        </button>
+                    </Link>
                 </div>
             </main>
         </>);
