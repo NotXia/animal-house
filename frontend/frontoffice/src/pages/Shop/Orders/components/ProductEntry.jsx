@@ -21,8 +21,6 @@ class ProductEntry extends React.Component {
     render() {
         const product = this.props.product;
 
-        console.log(product)
-
         let image_path = `${process.env.REACT_APP_DOMAIN}/shop/images/default.png`;
         if (product.images && product.images[0]) {
             image_path = `${process.env.REACT_APP_DOMAIN}${product.images[0].path}`;
