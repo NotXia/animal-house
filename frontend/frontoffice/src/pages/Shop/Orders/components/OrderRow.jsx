@@ -39,7 +39,7 @@ class OrderRow extends React.Component {
                         {/* Dati ordine */}
                         <Row>
                             <div className="d-flex justify-content-between px-3">
-                                <span className="fs-5">Ordinato il {moment(order.creationDate).format("DD/MM/YYYY")} alle {moment(order.creationDate).format("HH:MM")}</span>
+                                <span className="fs-5">Ordinato il {moment(order.creationDate).format("DD/MM/YYYY")} alle {moment(order.creationDate).format("HH:mm")}</span>
                                 <span className="fs-5 m-0">{centToPrice(order.total)}€</span>
                             </div>
                         </Row>
