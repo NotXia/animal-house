@@ -43,7 +43,7 @@ class CreatePost extends React.Component {
                 <form className="w-100" onSubmit={(e) => { e.preventDefault(); this.createPost(); } }>
                     <TextInput ref={this.input.title} id="__createpost-title" name="title" type="text" label="Titolo" required />
                     
-                    <textarea ref={this.input.content} className="form-control w-100" placeholder="Contenuto del post" style={{height: "7rem", resize: "none"}}></textarea>
+                    <textarea ref={this.input.content} className="form-control w-100" placeholder="Contenuto del post" style={{height: "7rem", resize: "none"}} defaultValue=""></textarea>
                     
                     <div className="form-floating mt-2">
                         <select ref={this.input.topic} className="form-select" aria-label="Topic del post" defaultValue="null">
@@ -75,7 +75,7 @@ class CreatePost extends React.Component {
                                         <div className="d-flex justify-content-center align-items-center h-100 w-100">
                                             <div className="form-floating h-100 w-100">
                                                 <textarea className="form-control h-100 w-100" placeholder="Descrivi immagine" id={`textarea-description-${index}`} 
-                                                          onChange={(e) => this.updateDescriptionAtIndex(index, e.target.value)}>{image.description}</textarea>
+                                                          onChange={(e) => this.updateDescriptionAtIndex(index, e.target.value)} defaultValue={image.description}></textarea>
                                                 <label htmlFor={`textarea-description-${index}`}>Descrizione</label>
                                             </div>
                                         </div>
@@ -103,7 +103,7 @@ class CreatePost extends React.Component {
             title: this.input.title.current.value(),
             content: this.input.content.current.value,
             topic: this.input.topic.current.value,
-            images: this.state.uploaded_images.map((image) => ({ path: image.relative_path, description: image.description ? description : " " }))
+            images: this.state.uploaded_images.map((image) => ({ path: image.relative_path, description: image.description ? image.description : " " }))
         }
     }
 
@@ -121,6 +121,7 @@ class CreatePost extends React.Component {
             upload_data.append(`file${i}`, $("#input-images_file")[0].files[i]);
         }
         uploaded_images = await FileAPI.upload(upload_data).catch((err) => { this.setState({ error_message: "Non è stato possibile caricare le immagini" }); });
+        console.log(uploaded_images)
 
         let curr_images = this.state.uploaded_images;
         uploaded_images.forEach((image_path) => { 

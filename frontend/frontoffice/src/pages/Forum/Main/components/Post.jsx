@@ -61,7 +61,7 @@ class CreatePost extends React.Component {
                                 if (post.images.length > 0) {
                                     return (
                                         <Col xs="4">
-                                            <div class="d-flex justify-content-center">
+                                            <div className="d-flex justify-content-center">
                                                 <img src={`${process.env.REACT_APP_DOMAIN}${post.images[0].path}`} alt={post.images[0].description} 
                                                     style={{ width: "100%" }} />
                                             </div>
