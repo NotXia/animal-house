@@ -6,6 +6,7 @@ import Col from "react-bootstrap/Col";
 import BlogAPI from "../../../../import/api/blog";
 import css from "./post.module.css";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 
 class CreatePost extends React.Component {
@@ -44,49 +45,51 @@ class CreatePost extends React.Component {
         }
 
         return (
-            <div className={`w-100 ${css["card-post"]}`}>
-                <article>
-                    <Row>
-                        <Col xs={post.images.length > 0 ? "8" : "12"}>
-                            <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
-                            <p>@{post.author}</p>
+            <Link to={`/forum/post?post_id=${post.id}`} style={{ textDecoration: "none", color: "black" }}>
+                <div className={`w-100 ${css["card-post"]}`}>
+                    <article>
+                        <Row>
+                            <Col xs={post.images.length > 0 ? "8" : "12"}>
+                                <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
+                                <p>@{post.author}</p>
 
-                            <div className={`text-truncate ${css["container-content"]} my-2`}>
-                                <p className={`fs-6`}>{post.content}</p>
-                            </div>
-                        </Col>
+                                <div className={`text-truncate ${css["container-content"]} my-2`}>
+                                    <p className={`fs-6`}>{post.content}</p>
+                                </div>
+                            </Col>
 
-                        {
-                            (() => {
-                                if (post.images.length > 0) {
-                                    return (
-                                        <Col xs="4">
-                                            <div className="d-flex justify-content-center">
-                                                <img src={`${process.env.REACT_APP_DOMAIN}${post.images[0].path}`} alt={post.images[0].description} 
-                                                    style={{ width: "100%" }} />
-                                            </div>
-                                            <div className="fs-6 text-center fst-italic">{post.images.length > 1 ? `${post.images.length} foto` : ""}</div>
-                                        </Col>
-                                    );
-                                }
-                                return null;
-                            })()
-                        }
-                    </Row>
+                            {
+                                (() => {
+                                    if (post.images.length > 0) {
+                                        return (
+                                            <Col xs="4">
+                                                <div className="d-flex justify-content-center">
+                                                    <img src={`${process.env.REACT_APP_DOMAIN}${post.images[0].path}`} alt={post.images[0].description} 
+                                                        style={{ width: "100%" }} />
+                                                </div>
+                                                <div className="fs-6 text-center fst-italic">{post.images.length > 1 ? `${post.images.length} foto` : ""}</div>
+                                            </Col>
+                                        );
+                                    }
+                                    return null;
+                                })()
+                            }
+                        </Row>
 
 
-                    <div>
-                        { comment_count_message } 
-                    </div>
-                    <div className="d-flex justify-content-between">
-                        <p className="m-0" style={{ fontSize: "0.8rem" }}>{moment(post.creationDate).format("DD/MM/YY HH:mm")}</p>
-                        
-                        <div className="d-flex align-items-center">
-                            {topic_image} <span className="ms-2">{this.state.topic?.name}</span>
+                        <div>
+                            { comment_count_message } 
                         </div>
-                    </div>
-                </article>
-            </div>
+                        <div className="d-flex justify-content-between">
+                            <p className="m-0" style={{ fontSize: "0.8rem" }}>{moment(post.creationDate).format("DD/MM/YY HH:mm")}</p>
+                            
+                            <div className="d-flex align-items-center">
+                                {topic_image} <span className="ms-2">{this.state.topic?.name}</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </Link>
         );
     }
 }

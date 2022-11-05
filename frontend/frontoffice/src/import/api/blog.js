@@ -38,6 +38,12 @@ const BlogAPI = {
             }
         });
     },
+    getPostById: async function (post_id) {
+        return await $.ajax({
+            method: "GET",
+            url: `${process.env.REACT_APP_DOMAIN}/blog/posts/${encodeURIComponent(post_id)}`,
+        });
+    },
 
     getCommentNumberOf: async function (post_id) {
         let comments;
