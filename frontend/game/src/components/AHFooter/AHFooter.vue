@@ -14,7 +14,7 @@
     import "bootstrap/dist/css/bootstrap.min.css";
 
     export default {
-        name: "footer",
+        name: "ah_footer",
     }
 </script>
 
