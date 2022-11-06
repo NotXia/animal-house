@@ -1,13 +1,13 @@
 import $ from "jquery";
 import { DOMAIN } from "../const";
 
-const ServiceAPI = {
-    getServices: async function () {
+const SpeciesAPI = {
+    getSpecies: async function () {
         return await $.ajax({ 
             method: "GET", 
-            url: `${DOMAIN}/services/` 
+            url: `${DOMAIN}/animals/species/` 
         });
     },
 }
 
-export default ServiceAPI;
+export default SpeciesAPI;
