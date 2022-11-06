@@ -42,13 +42,15 @@
                 <h1>Servizi</h1>
             </div>
 
-            <div class="row">
-                <ul>
-                    <li class="list-group-item my-2" v-for="service in services_list" :key="service.id">
-                        <ServiceRow :service="service" />
-                    </li>
-                </ul>
-            </div>
+            <section aria-label="Lista dei servizi">
+                <div class="row">
+                    <ul>
+                        <li class="list-group-item my-2" v-for="service in services_list" :key="service.id">
+                            <ServiceRow :service="service" />
+                        </li>
+                    </ul>
+                </div>
+            </section>
         </div>
 
     </main>
