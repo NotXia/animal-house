@@ -67,6 +67,24 @@ const BlogAPI = {
 
         return comments_count;
     },
+
+    getCommentsOf: async function (post_id, page_size, page_number) {
+        return await $.ajax({
+            method: "GET",
+            url: `${process.env.REACT_APP_DOMAIN}/blog/posts/${encodeURIComponent(post_id)}/comments/`,
+            data: {
+                page_number: page_number,
+                page_size: page_size
+            }
+        });
+    },
+    addCommentToPost: async function (post_id, comment) {
+        return await api_request({
+            method: "POST",
+            url: `${process.env.REACT_APP_DOMAIN}/blog/posts/${encodeURIComponent(post_id)}/comments/`,
+            data: { content: comment }
+        });
+    },
 }
 
 export default BlogAPI;
