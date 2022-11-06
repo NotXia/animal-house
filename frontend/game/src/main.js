@@ -8,7 +8,7 @@ let routes = [];
 routes = routes.concat(home_routes);
 routes = routes.concat(services_routes);
 
-routes.push({ path: "/:pathMatch(.*)*", beforeEnter: (to, from, next) => { window.location.replace("/not-found.html") } }); // Gestione not found (lasciare come ultimo route)
+routes.push({ path: "/:pathMatch(.*)*", beforeEnter: (to, from, next) => { window.location.replace(`${process.env.VUE_APP_DOMAIN}/not-found.html`) } }); // Gestione not found (lasciare come ultimo route)
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes
