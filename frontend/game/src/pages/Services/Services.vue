@@ -3,35 +3,38 @@
     import "bootstrap/dist/css/bootstrap.min.css";
     import Navbar from "../../components/Navbar/Navbar.vue";
     import AHFooter from "../../components/AHFooter/AHFooter.vue";
+    import Loading from "../../components/Loading/Loading.vue";
     import ServiceAPI from "modules/api/service";
     import SpeciesAPI from "modules/api/species";
     import ServiceRow from "./components/ServiceRow.vue";
 
     export default {
         name: "services",
-        components: { Navbar, AHFooter, ServiceRow },
+        components: { Navbar, AHFooter, Loading, ServiceRow },
         data() {
             return {
                 services_list: [],
                 species_list: [],
-                curr_species_filter: null
+                curr_species_filter: null,
+                loading: false,
+
+                error_message: ""
             }
         },
-        mounted() {
-            this.fetchServices();
+        
+        async mounted() {
+            try {
+                this.loading = true;
+                this.services_list = await ServiceAPI.getServices();
+                this.species_list = await SpeciesAPI.getSpecies();
+            }
+            catch (err) {
+                this.error_message = "Si è verificato un errore durante il caricamento della pagina";
+            }
+            this.loading = false;
         },
 
         methods: {
-            async fetchServices() {
-                try {
-                    this.services_list = await ServiceAPI.getServices();
-                    this.species_list = await SpeciesAPI.getSpecies();
-                }
-                catch (err) {
-                    console.log(err)
-                }
-            },
-
             speciesFilterHandler(e) {
                 if (this.curr_species_filter === e.target.value) {
                     this.curr_species_filter = null;
@@ -57,11 +60,12 @@
 
 <template>
     <Navbar />
-
+    <Loading v-if="this.loading" />
     <main>
         <div class="container">
             <div class="row">
                 <h1>Servizi</h1>
+                <p class="text-center text-danger fw-semibold fs-5" v-if="error_message">{{ this.error_message }}</p>
             </div>
 
             <section aria-label="Filtro servizi">
