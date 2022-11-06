@@ -3,7 +3,7 @@
     import "bootstrap/dist/css/bootstrap.min.css";
     import Navbar from "../../components/Navbar/Navbar.vue";
     import AHFooter from "../../components/AHFooter/AHFooter.vue";
-    import ServiceAPI from "../../import/api/service";
+    import ServiceAPI from "modules/api/service";
     import ServiceRow from "./components/ServiceRow.vue";
 
     export default {
