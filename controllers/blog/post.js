@@ -147,7 +147,7 @@ async function insertComment(req, res) {
         content : req.body.content
     };
     try {
-        updated_post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } }, { new: true });
+        updated_post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : { $each: [comment], $position: 0 } } }, { new: true });
         if (!updated_post) { throw error.generate.NOT_FOUND("Post inesistente"); }
     } catch (err) {
         return error.response(err, res);
