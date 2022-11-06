@@ -55,6 +55,7 @@
     "jquery": "^3.6.1",
     "jquery-ui": "^1.13.2",
     "jsonwebtoken": "^8.5.1",
+    "modules": "file:frontend/modules",
     "moment": "^2.29.4",
     "moment-range": "^4.0.2",
     "mongoose": "^6.3.2",
