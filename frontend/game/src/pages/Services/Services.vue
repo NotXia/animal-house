@@ -21,10 +21,11 @@
                 error_message: ""
             }
         },
-        
+
         async mounted() {
             try {
                 this.loading = true;
+                
                 this.services_list = await ServiceAPI.getServices();
                 this.species_list = await SpeciesAPI.getSpecies();
             }
@@ -51,8 +52,8 @@
             filteredServices() {
                 if (!this.curr_species_filter) { return this.services_list; }
 
-                let services = this.services_list.filter((service) => service.target.includes(this.curr_species_filter))
-                return services;
+                // Seleziona i servizi con target quello selezionato o senza target (vanno bene per tutte le specie)
+                return this.services_list.filter((service) => (service.target.length === 0) || (service.target.includes(this.curr_species_filter)))
             }
         }
     }
@@ -61,6 +62,7 @@
 <template>
     <Navbar />
     <Loading v-if="this.loading" />
+    
     <main>
         <div class="container">
             <div class="row">
@@ -68,6 +70,7 @@
                 <p class="text-center text-danger fw-semibold fs-5" v-if="error_message">{{ this.error_message }}</p>
             </div>
 
+            <!-- Filtro servizi -->
             <section aria-label="Filtro servizi">
                 <div class="row">
                     <fieldset>
@@ -86,6 +89,7 @@
                 </div>
             </section>
 
+            <!-- Lista servizi -->
             <section aria-label="Lista dei servizi">
                 <div class="row">
                     <ul>
