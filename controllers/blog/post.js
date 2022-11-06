@@ -154,7 +154,7 @@ async function insertComment(req, res) {
     }
     return res.status(utils.http.CREATED)
                 .location(`${req.baseUrl}/posts/${req.params.post_id}/comments/${updated_post.comments.length-1}`)
-                .json( updated_post.getCommentByIndexData(updated_post.comments.length-1) );
+                .json( updated_post.getCommentByIndexData(0) );
 }
 
 // Ricerca dei commenti dato un id di un post
