@@ -89,13 +89,10 @@ class AnimalCard extends React.Component {
                         <div className="mt-2 d-flex justify-content-center">
                             <button className="btn btn-outline-success mx-1">Salva</button>
                             {
-                                (() => {
-                                    if (!this.props.onCreate) {
-                                        return (
-                                            <button className="btn btn-outline-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`}>Cancella</button>
-                                        )
-                                    }
-                                })()
+                                !this.props.onCreate &&
+                                (
+                                    <button className="btn btn-outline-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`}>Rimuovi</button>
+                                )
                             }
                         </div>
                     </form>
@@ -106,19 +103,19 @@ class AnimalCard extends React.Component {
                         if (!this.props.onCreate) {
                             // Modale conferma cancellazione
                             return (
-                                <div className="modal fade" id={`modal-delete-${animal_id}`} tabindex="-1" aria-labelledby={`modal-delete-${animal_id}-title`} aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <p class="modal-title fs-5" id={`modal-delete-${animal_id}-title`}>Conferma rimozione</p>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
+                                <div className="modal fade" id={`modal-delete-${animal_id}`} tabIndex="-1" aria-labelledby={`modal-delete-${animal_id}-title`} aria-hidden="true">
+                                    <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                        <div className="modal-content">
+                                            <div className="modal-header">
+                                                <p className="modal-title fs-5" id={`modal-delete-${animal_id}-title`}>Conferma rimozione</p>
+                                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
                                             </div>
-                                            <div class="modal-body">
+                                            <div className="modal-body">
                                                 Confermi di rimuovere {this.state.animal.name} dai tuoi animali?
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onClick={() => this.handleDelete()}>Conferma</button>
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                                <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={() => this.handleDelete()}>Conferma</button>
                                             </div>
                                         </div>
                                     </div>
@@ -154,7 +151,7 @@ class AnimalCard extends React.Component {
         const animal_data = {
             name: this.input.name.current.value(),
             species: this.input.species.current.value,
-            image_path: await FileAPI.uploadRaw(this.input.profile.current.files)
+            image_path: this.input.profile.current.files.length > 0 ? await FileAPI.uploadRaw(this.input.profile.current.files) : this.state.animal.image_path
         }
 
         let new_animal = null;
@@ -163,6 +160,8 @@ class AnimalCard extends React.Component {
             if (this.state.animal) { // Animale già esistente (da aggiornare)
                 new_animal = await AnimalAPI.updateAnimalById(this.state.animal.id, animal_data);
                 this.props.onUpdate(new_animal);
+
+                this.setState({ animal: new_animal, mode: "read" });
             }
             else { // Animale da creare
                 new_animal = await AnimalAPI.createAnimalForUser(await getUsername(), animal_data);
@@ -171,8 +170,6 @@ class AnimalCard extends React.Component {
         }
         catch (err) {
         }
-        
-        // this.setState({ animal: new_animal, mode: "view" });
     }
 
     async handleDelete() {

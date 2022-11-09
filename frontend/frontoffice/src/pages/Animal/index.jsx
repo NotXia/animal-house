@@ -85,7 +85,10 @@ class Animals extends React.Component {
     }
 
     handleUpdatedAnimal(updated_animal) {
+        let animals = this.state.animals;
+        animals[animals.findIndex((animal) => animal.id === updated_animal.id)] = updated_animal;
 
+        this.setState({ animals: animals });
     }
 
     handleDeletedAnimal(deleted_animal) {
