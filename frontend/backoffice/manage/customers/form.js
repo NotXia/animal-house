@@ -1,4 +1,4 @@
-import {Error} from "../../import/Error.js";
+import { Error } from "../../import/Error.js";
 import { setReadOnly, removeReadOnly } from "/js/utilities.js";
 import * as Mode from "./mode.js";
 import { FileUpload } from "/admin/import/FileUpload.js";

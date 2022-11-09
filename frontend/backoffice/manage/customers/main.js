@@ -4,7 +4,7 @@ import * as Mode from "./mode.js";
 import * as Form from "./form.js";
 import { createSuccessPopup } from "../../import/successPopup.js";
 import { updateURLQuery } from "../../import/url.js";
-// import {Error} from "../../import/Error.js";
+import { Error } from "../../import/Error.js";
 import { api_request } from "/js/auth.js";
 
 let NavbarHandler;
