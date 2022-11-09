@@ -60,7 +60,7 @@ class AnimalCard extends React.Component {
                     <form onSubmit={(e) => { e.preventDefault(); this.handleForm(); }}>
                         <div className="position-relative" style={{ height: "6rem", width: "6rem", padding: 0, margin: "auto" }}>
                             <div style={{ borderRadius: "50%", padding: 0, margin: "auto", overflow: "hidden" }}>
-                                <img src={this.state.profile_src} alt="" className="w-100 h-100" />
+                                <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
                             </div>
 
                             <div className="position-absolute bottom-0 end-0">
@@ -130,7 +130,7 @@ class AnimalCard extends React.Component {
             return (<>
                 <div className="border rounded px-3 py-4 w-100">
                     <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
-                        <img src={this.state.profile_src} alt="" className="w-100 h-100" />
+                        <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
                     </div>
 
                     <div className="mt-2 text-center">
