@@ -44,6 +44,7 @@ class AnimalCard extends React.Component {
 
     render() {
         let picture_src = `${process.env.REACT_APP_DOMAIN}/animals/images/default.png`;
+        const animal_id = this.state.animal?.id ?? Date.now();
 
         if (this.state.mode === "write") {
             return (<>
@@ -54,14 +55,14 @@ class AnimalCard extends React.Component {
                         </div>
 
                         <div className="mt-2">
-                            <TextInput ref={this.input.name} id={`_input-name-${this.state.animal?.id}`} name={`name-${this.state.animal?.id}`} type="text" label="Nome" required />
+                            <TextInput ref={this.input.name} id={`_input-name-${animal_id}`} name={`name-${animal_id}`} type="text" label="Nome" required />
 
-                            <label htmlFor={`_input-species-${this.state.animal?.id}`}>Specie</label>
-                            <select ref={this.input.species} id={`_input-species-${this.state.animal?.id}`} className="form-select" defaultValue={this.state.animal?.species ?? ""} required>
+                            <label htmlFor={`_input-species-${animal_id}`}>Specie</label>
+                            <select ref={this.input.species} id={`_input-species-${animal_id}`} className="form-select" defaultValue={this.state.animal?.species ?? ""} required>
                                 <option value="" disabled>Seleziona una specie</option>
                                 {
                                     this.state.species.map((species) => (
-                                        <option key={`${species.name}-${this.state.animal?.id}`} value={species.name}>{species.name}</option>
+                                        <option key={`${species.name}-${animal_id}`} value={species.name}>{species.name}</option>
                                     ))
                                 }
                             </select>

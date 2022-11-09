@@ -12,6 +12,7 @@ class Animals extends React.Component {
         super(props);
         this.state = {
             animals: [],
+            current_create_card: null,
 
             error_message: ""
         };
@@ -52,7 +53,7 @@ class Animals extends React.Component {
 
                     <div className="row">
                         <div className="d-flex justify-content-end w-100">
-                            <button className="btn btn-outline-primary px-4 py-2">Aggiungi un nuovo animale</button>
+                            <button className="btn btn-outline-primary px-4 py-2" disabled={this.state.current_create_card ? true : false} onClick={() => { this.startCreateAnimal(); }}>Aggiungi un nuovo animale</button>
                         </div>
                     </div>
 
@@ -60,12 +61,12 @@ class Animals extends React.Component {
                         {
                             this.state.animals.map((animal) => (
                                 <div key={animal.id} className="col-12 col-md-6 col-lg-4 my-3">
-                                    <AnimalCard animal={animal} onCreate={this.handleCreatedAnimal} onUpdate={this.handleUpdatedAnimal} onDelete={this.handleDeletedAnimal} />
+                                    <AnimalCard animal={animal} onUpdate={this.handleUpdatedAnimal} onDelete={this.handleDeletedAnimal} />
                                 </div>
                             ))
                         }
                         <div className="col-12 col-md-6 col-lg-4">
-                            <AnimalCard onCreate={this.handleCreatedAnimal} onUpdate={this.handleUpdatedAnimal} onDelete={this.handleDeletedAnimal} />
+                            { this.state.current_create_card }
                         </div>
                     </div>
                 </div>
@@ -77,7 +78,10 @@ class Animals extends React.Component {
         let animals = this.state.animals;
         animals.push(created_animal);
 
-        this.setState({ animals: animals });
+        this.setState({ 
+            animals: animals,
+            current_create_card: null
+        });
     }
 
     handleUpdatedAnimal(updated_animal) {
@@ -85,7 +89,11 @@ class Animals extends React.Component {
     }
 
     handleDeletedAnimal(deleted_animal) {
+    }
 
+    
+    startCreateAnimal() {
+        this.setState({ current_create_card: (<AnimalCard key={`create-animal-${Date.now()}`} onCreate={this.handleCreatedAnimal} />) });
     }
 }
 
