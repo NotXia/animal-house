@@ -2,7 +2,6 @@ import {Error} from "../../import/Error.js";
 import { setReadOnly, removeReadOnly } from "/js/utilities.js";
 import * as Mode from "./mode.js";
 import { FileUpload } from "/admin/import/FileUpload.js";
-import { WEEKS } from "/js/utilities.js";
 
 /**
  * Rende il form read-only
@@ -19,6 +18,22 @@ export function readOnlyForm() {
     // Disattiva i radio selezione genere (tranne quello selezionato)
     $("input[id^=data-gender]:not(:checked)").prop("disabled", true);
     $("input[id^=data-gender]:checked").prop("disabled", false);
+}
+
+/**
+ * Rende il form editabile
+ */
+export function enableForm() {
+    for (const selector of $("[id^=data-]")) {
+        $(selector).prop("readonly", false);
+        $(selector).attr("aria-readonly", false);
+    }
+    $("#data-picture").prop("disabled", false);
+    $("#data-password").prop("disabled", false);
+    removeReadOnly("#customer-form > * input:radio, #customer-form > * input:checkbox");
+
+    // Radio selezione genere
+    $("input[id^=data-gender]").prop("disabled", false)
 }
 
 /**
