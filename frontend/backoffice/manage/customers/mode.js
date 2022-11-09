@@ -20,6 +20,21 @@ export function start() {
     Form.resetButtons();
 }
 
+export function creation() {
+    current = CREATE;
+    $("#customer-form").show();
+    $("#enable_modify-container").hide();
+    $("#modify-container").hide();
+    $("#create-container").show();
+    Form.enableForm();
+    Error.clearErrors();
+    Form.resetButtons();
+    $("#create-btn").attr("type", "submit");
+    $("#data-enabled").prop("checked", true);
+    Utils.setReadOnly("#data-enabled");
+    $("#data-username").focus();
+}
+
 export function view() {
     current = VIEW;
     $("#customer-form").show();
@@ -29,6 +44,21 @@ export function view() {
     Form.readOnlyForm();
     Error.clearErrors();
     Form.resetButtons();
+    $("#data-username").focus();
+}
+
+export function modify() {
+    current = MODIFY;
+    $("#operator-form").show();
+    $("#enable_modify-container").hide();
+    $("#modify-container").show();
+    $("#create-container").hide();
+    Form.enableForm();
+    Error.clearErrors();
+    Form.resetButtons();
+    $("#data-username").prop("readonly", true);
+    $("#data-username").attr("aria-readonly", true);
+    $("#save-btn").attr("type", "submit");
     $("#data-username").focus();
 }
 
