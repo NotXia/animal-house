@@ -98,6 +98,14 @@ class AnimalCard extends React.Component {
                                     </div>
                                 )
                             }
+                                                        {
+                                this.props.onCreate &&
+                                (
+                                    <div>
+                                        <button type="button" className="btn btn-outline-secondary mx-1" onClick={() => this.props.onCreateAbort()} aria-label="Annulla inserimento">Annulla</button>
+                                    </div>
+                                )
+                            }
                         </div>
                     </form>
                 </div>

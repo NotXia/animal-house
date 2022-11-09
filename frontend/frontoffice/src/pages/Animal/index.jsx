@@ -99,7 +99,8 @@ class Animals extends React.Component {
 
     
     startCreateAnimal() {
-        this.setState({ current_create_card: (<AnimalCard key={`create-animal-${Date.now()}`} onCreate={this.handleCreatedAnimal} />) }, () => {
+        this.setState({ current_create_card: (<AnimalCard key={`create-animal-${Date.now()}`} onCreate={this.handleCreatedAnimal} 
+                                                          onCreateAbort={() => { this.setState({ current_create_card: null }) }} />) }, () => {
             $("#card-create-animal").trigger("focus");
         });
     }
