@@ -69,10 +69,46 @@ class AnimalCard extends React.Component {
                         </div>
 
                         <div className="mt-2 d-flex justify-content-center">
-                            <button className="btn btn-outline-success">Salva</button>
+                            <button className="btn btn-outline-success mx-1">Salva</button>
+                            {
+                                (() => {
+                                    if (!this.props.onCreate) {
+                                        return (
+                                            <button className="btn btn-outline-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`}>Cancella</button>
+                                        )
+                                    }
+                                })()
+                            }
                         </div>
                     </form>
                 </div>
+                
+                {
+                    (() => {
+                        if (!this.props.onCreate) {
+                            // Modale conferma cancellazione
+                            return (
+                                <div className="modal fade" id={`modal-delete-${animal_id}`} tabindex="-1" aria-labelledby={`modal-delete-${animal_id}-title`} aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <p class="modal-title fs-5" id={`modal-delete-${animal_id}-title`}>Conferma rimozione</p>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Confermi di rimuovere {this.state.animal.name} dai tuoi animali?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onClick={() => this.handleDelete()}>Conferma</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
+                    })()
+                }
             </>);
         }
         else if (this.state.mode === "read") {
@@ -89,7 +125,8 @@ class AnimalCard extends React.Component {
                     </div>
 
                     <div className="mt-2 d-flex justify-content-center">
-                        <button className="btn btn-outline-secondary">Modifica</button>
+                        <button className="btn btn-outline-secondary" 
+                                onClick={() => this.setState({ mode: "write" }, () => this.input.name.current.value(this.state.animal.name))}>Modifica</button>
                     </div>
                 </div>
             </>);
@@ -114,6 +151,16 @@ class AnimalCard extends React.Component {
         }
         
         // this.setState({ animal: new_animal, mode: "view" });
+    }
+
+    async handleDelete() {
+        try {
+            await AnimalAPI.deleteAnimalById(this.state.animal.id);
+            this.props.onDelete(this.state.animal);
+        }
+        catch (err) {
+
+        }
     }
 }
 

@@ -65,7 +65,7 @@ class Animals extends React.Component {
                                 </div>
                             ))
                         }
-                        <div className="col-12 col-md-6 col-lg-4">
+                        <div className="col-12 col-md-6 col-lg-4 my-3">
                             { this.state.current_create_card }
                         </div>
                     </div>
@@ -89,6 +89,8 @@ class Animals extends React.Component {
     }
 
     handleDeletedAnimal(deleted_animal) {
+        let animals = this.state.animals.filter((animal) => animal.id != deleted_animal.id);
+        this.setState({ animals: animals });
     }
 
     

@@ -25,6 +25,13 @@ const CartAPI = {
             data: animal_data
         });
     },
+
+    deleteAnimalById: async function (animal_id) {
+        return await api_request({ 
+            method: "DELETE", 
+            url: `${DOMAIN}/animals/${encodeURIComponent(animal_id)}`
+        });
+    },
 }
 
 export default CartAPI;
