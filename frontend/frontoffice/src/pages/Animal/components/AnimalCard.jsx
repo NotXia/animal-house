@@ -3,6 +3,7 @@ import $ from "jquery";
 import TextInput from "../../../components/form/TextInput";
 import SpeciesAPI from "modules/api/species";
 import AnimalAPI from "modules/api/animals";
+import FileAPI from "modules/api/file";
 import { getUsername } from "modules/auth";
 
 
@@ -11,8 +12,11 @@ class AnimalCard extends React.Component {
         super(props);
         this.state = {
             mode: "",
-            animal: null,
+
             species: [],
+            
+            animal: null,
+            profile_src: `${process.env.REACT_APP_DOMAIN}/animals/images/default.png`,
 
             error_message: ""
         };
@@ -20,6 +24,7 @@ class AnimalCard extends React.Component {
         this.input = {
             name: React.createRef(),
             species: React.createRef(),
+            profile: React.createRef(),
         }
     }
 
@@ -35,7 +40,11 @@ class AnimalCard extends React.Component {
         })()
 
         if (this.props.animal) {
-            this.setState({ animal: this.props.animal, mode: "read" });
+            this.setState({ 
+                animal: this.props.animal, 
+                profile_src: `${process.env.REACT_APP_DOMAIN}${this.props.animal.image_path ? this.props.animal.image_path : "/animals/images/default.png" }`,
+                mode: "read" 
+            });
         }
         else {
             this.setState({ mode: "write" });
@@ -43,15 +52,24 @@ class AnimalCard extends React.Component {
     }
 
     render() {
-        let picture_src = `${process.env.REACT_APP_DOMAIN}/animals/images/default.png`;
         const animal_id = this.state.animal?.id ?? Date.now();
 
         if (this.state.mode === "write") {
             return (<>
                 <div className="border rounded px-3 py-4 w-100">
                     <form onSubmit={(e) => { e.preventDefault(); this.handleForm(); }}>
-                        <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
-                            <img src={picture_src} alt="" className="w-100 h-100" />
+                        <div className="position-relative" style={{ height: "6rem", width: "6rem", padding: 0, margin: "auto" }}>
+                            <div style={{ borderRadius: "50%", padding: 0, margin: "auto", overflow: "hidden" }}>
+                                <img src={this.state.profile_src} alt="" className="w-100 h-100" />
+                            </div>
+
+                            <div className="position-absolute bottom-0 end-0">
+                                <button className="btn btn-link p-0" onClick={() => this.input.profile.current.click()} type="button"
+                                        aria-label={this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }>
+                                    <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/camera.png`} alt="" style={{ height: "1.5rem", width: "1.5rem" }} />
+                                </button>
+                            </div>
+                            <input ref={this.input.profile} className="visually-hidden" type="file" accept="image/*" onChange={(e) => this.handleProfilePreview(e)} />
                         </div>
 
                         <div className="mt-2">
@@ -112,11 +130,10 @@ class AnimalCard extends React.Component {
             </>);
         }
         else if (this.state.mode === "read") {
-            console.log(this.state.animal)
             return (<>
                 <div className="border rounded px-3 py-4 w-100">
                     <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
-                        <img src={picture_src} alt="" className="w-100 h-100" />
+                        <img src={this.state.profile_src} alt="" className="w-100 h-100" />
                     </div>
 
                     <div className="mt-2 text-center">
@@ -136,7 +153,8 @@ class AnimalCard extends React.Component {
     async handleForm() {
         const animal_data = {
             name: this.input.name.current.value(),
-            species: this.input.species.current.value
+            species: this.input.species.current.value,
+            image_path: await FileAPI.uploadRaw(this.input.profile.current.files)
         }
 
         let new_animal = null;
@@ -152,7 +170,6 @@ class AnimalCard extends React.Component {
             }
         }
         catch (err) {
-            
         }
         
         // this.setState({ animal: new_animal, mode: "view" });
@@ -165,6 +182,14 @@ class AnimalCard extends React.Component {
         }
         catch (err) {
 
+        }
+    }
+
+    handleProfilePreview(e) {
+        const [file] = e.target.files;
+
+        if (file) {
+            this.setState({ profile_src: URL.createObjectURL(file) });
         }
     }
 }
