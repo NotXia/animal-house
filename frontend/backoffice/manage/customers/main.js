@@ -3,10 +3,9 @@ import { Loading } from "/admin/import/Loading.js";
 import * as Mode from "./mode.js";
 import * as Form from "./form.js";
 import { createSuccessPopup } from "../../import/successPopup.js";
+import { updateURLQuery } from "../../import/url.js";
 // import {Error} from "../../import/Error.js";
-// import * as Form from "./form.js";
-// import { api_request, getUsername } from "/js/auth.js";
-// import { updateURLQuery } from "../../import/url.js";
+import { api_request } from "/js/auth.js";
 
 let NavbarHandler;
 let LoadingHandler;
@@ -89,5 +88,76 @@ $(async function () {
             }
         });
 
+        /* Ricerca di un cliente */
+        $("#search_user_form").on("submit", async function(e) {
+            e.preventDefault();
+            const to_search_username = this.username.value;
+
+            await LoadingHandler.wrap(async function() {
+                try {
+                    // Aggiornamento query dell'URL
+                    updateURLQuery("username", to_search_username);
+
+                    // Ricerca e caching cliente
+                    const customer_data = await api_request({
+                        type: "GET",
+                        url: `users/customers/${encodeURIComponent(to_search_username)}`
+                    });
+                    customer_cache = customer_data;
+
+                    // Visualizzazione dati
+                    Form.loadCustomerData(customer_data);
+                    Mode.view();
+                } catch (err) {
+                    if (err.status === 404) { Mode.error("Utente inesistente"); }
+                    else { console.log(err);Mode.error("Si è verificato un errore"); }
+                }
+            });
+        });
+
+        /* Anteprima immagine di profilo caricata */
+        $("#data-picture").on("change", function (e) {
+            let reader = new FileReader();
+            reader.onload = function (e) { $("#profile-picture").attr("src", e.target.result); }
+            reader.readAsDataURL(this.files[0]);
+        });
+
+        /* Passaggio alla modalità creazione di un cliente */
+        $("#start_create-btn").on("click", function (e) {
+            Form.resetForm();
+            Mode.creation();
+        });
+
+        /* Passaggio alla modalità modifica di un cliente */
+        $("#modify-btn").on("click", function (e) {
+            Mode.modify();
+        });
+
+        /* Annulla le modifiche */
+        $("#revert-btn").on("click", function (e) {
+            Form.loadCustomerData(customer_cache);
+            Mode.view();
+        });
+
+        /* Cancellazione di un cliente */
+        $("#delete-btn").on("click", async function (e) {
+            await LoadingHandler.wrap(async function() {
+                try {
+                    await api_request({
+                        type: "DELETE",
+                        url: `/users/customers/${encodeURIComponent(customer_cache.username)}`
+                    });
+                    createSuccessPopup("#container-success", `Cliente ${customer_cache.username} eliminato con successo`);
+                } catch (err) {
+                    Mode.error(err.responseJSON ? err.responseJSON.message : "Si è verificato un errore");
+                }
+            });
+        });
+
+        // Ricerca eventuale utente richiesto dalla query
+        if (url_query.username) {
+            $("#search-user-input").val(url_query.username);
+            $("#search_user_form").submit();
+        }
     });
 });
