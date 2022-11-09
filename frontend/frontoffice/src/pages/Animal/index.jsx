@@ -52,7 +52,7 @@ class Animals extends React.Component {
                     </div>
 
                     <div className="row">
-                        <div className="d-flex justify-content-end w-100">
+                        <div className="d-flex justify-content-center justify-content-md-end w-100">
                             <button className="btn btn-outline-primary px-4 py-2" disabled={this.state.current_create_card ? true : false} onClick={() => { this.startCreateAnimal(); }}>Aggiungi un nuovo animale</button>
                         </div>
                     </div>
