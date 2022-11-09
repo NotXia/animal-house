@@ -141,13 +141,18 @@ class AnimalCard extends React.Component {
 
         let new_animal = null;
 
-        if (this.state.animal) { // Animale già esistente (da aggiornare)
-            new_animal = await AnimalAPI.updateAnimalById(this.state.animal.id, animal_data);
-            this.props.onUpdate(new_animal);
+        try {
+            if (this.state.animal) { // Animale già esistente (da aggiornare)
+                new_animal = await AnimalAPI.updateAnimalById(this.state.animal.id, animal_data);
+                this.props.onUpdate(new_animal);
+            }
+            else { // Animale da creare
+                new_animal = await AnimalAPI.createAnimalForUser(await getUsername(), animal_data);
+                this.props.onCreate(new_animal);
+            }
         }
-        else { // Animale da creare
-            new_animal = await AnimalAPI.createAnimalForUser(await getUsername(), animal_data);
-            this.props.onCreate(new_animal);
+        catch (err) {
+            
         }
         
         // this.setState({ animal: new_animal, mode: "view" });
