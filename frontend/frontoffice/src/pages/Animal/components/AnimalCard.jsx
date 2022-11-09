@@ -59,21 +59,22 @@ class AnimalCard extends React.Component {
                 <div className="border rounded px-3 py-4 w-100">
                     <form onSubmit={(e) => { e.preventDefault(); this.handleForm(); }}>
                         <div className="position-relative" style={{ height: "6rem", width: "6rem", padding: 0, margin: "auto" }}>
-                            <div style={{ borderRadius: "50%", padding: 0, margin: "auto", overflow: "hidden" }}>
+                            <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
                                 <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
                             </div>
 
                             <div className="position-absolute bottom-0 end-0">
-                                <button className="btn btn-link p-0" onClick={() => this.input.profile.current.click()} type="button"
-                                        aria-label={this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }>
+                                <button className="btn btn-link p-0" onClick={() => this.input.profile.current.click()} type="button">
+                                    <span className="visually-hidden">{this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }</span>
                                     <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/camera.png`} alt="" style={{ height: "1.5rem", width: "1.5rem" }} />
                                 </button>
                             </div>
-                            <input ref={this.input.profile} className="visually-hidden" type="file" accept="image/*" onChange={(e) => this.handleProfilePreview(e)} />
+                            <input ref={this.input.profile} className="visually-hidden" type="file" accept="image/*" onChange={(e) => this.handleProfilePreview(e)} 
+                                   aria-label={this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }  aria-hidden="true" />
                         </div>
 
                         <div className="mt-2">
-                            <TextInput ref={this.input.name} id={`_input-name-${animal_id}`} name={`name-${animal_id}`} type="text" label="Nome" required />
+                            <TextInput ref={this.input.name} id={`_input-name-${animal_id}`} name={`name-${animal_id}`} type="text" label="Nome" validation={() => ""} required />
 
                             <label htmlFor={`_input-species-${animal_id}`}>Specie</label>
                             <select ref={this.input.species} id={`_input-species-${animal_id}`} className="form-select" defaultValue={this.state.animal?.species ?? ""} required>
@@ -91,7 +92,10 @@ class AnimalCard extends React.Component {
                             {
                                 !this.props.onCreate &&
                                 (
-                                    <button className="btn btn-outline-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`}>Rimuovi</button>
+                                    <div>
+                                        <button type="button" className="btn btn-outline-secondary mx-1" onClick={() => this.handleUpdateAbort()} aria-label="Annulla modifiche">Annulla</button>
+                                        <button type="button" className="btn btn-outline-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`} aria-label="Rimuovi dai miei animali">Rimuovi</button>
+                                    </div>
                                 )
                             }
                         </div>
@@ -134,13 +138,13 @@ class AnimalCard extends React.Component {
                     </div>
 
                     <div className="mt-2 text-center">
-                        <p className="fw-semibold fs-5">{this.state.animal.name}</p>
-                        <p className="fs-6">{this.state.animal.species}</p>
+                        <p className="fw-semibold fs-5 mb-0"><span className="visually-hidden">Nome:</span> {this.state.animal.name}</p>
+                        <p className="fs-6"><span className="visually-hidden">Specie:</span>{this.state.animal.species}</p>
                     </div>
 
                     <div className="mt-2 d-flex justify-content-center">
                         <button className="btn btn-outline-secondary" 
-                                onClick={() => this.setState({ mode: "write" }, () => this.input.name.current.value(this.state.animal.name))}>Modifica</button>
+                                onClick={() => this.setState({ mode: "write" }, () => this.input.name.current.value(this.state.animal.name))} aria-label={`Modifica ${this.state.animal.name}`}>Modifica</button>
                     </div>
                 </div>
             </>);
@@ -188,6 +192,14 @@ class AnimalCard extends React.Component {
         if (file) {
             this.setState({ profile_src: URL.createObjectURL(file) });
         }
+    }
+
+    handleUpdateAbort() {
+        this.setState({ 
+            profile_src: `${process.env.REACT_APP_DOMAIN}${this.props.animal.image_path ? this.props.animal.image_path : "/animals/images/default.png" }`,
+            mode: "read"
+        });
+
     }
 }
 

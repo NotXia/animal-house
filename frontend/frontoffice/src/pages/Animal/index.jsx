@@ -66,6 +66,7 @@ class Animals extends React.Component {
                             ))
                         }
                         <div className="col-12 col-md-6 col-lg-4 my-3">
+                            <div id="card-create-animal" class="visually-hidden" tabIndex={0}>Aggiungi un nuovo animale</div>
                             { this.state.current_create_card }
                         </div>
                     </div>
@@ -98,7 +99,9 @@ class Animals extends React.Component {
 
     
     startCreateAnimal() {
-        this.setState({ current_create_card: (<AnimalCard key={`create-animal-${Date.now()}`} onCreate={this.handleCreatedAnimal} />) });
+        this.setState({ current_create_card: (<AnimalCard key={`create-animal-${Date.now()}`} onCreate={this.handleCreatedAnimal} />) }, () => {
+            $("#card-create-animal").trigger("focus");
+        });
     }
 }
 
