@@ -231,7 +231,6 @@ class AnimalCard extends React.Component {
     /* Restituisce l'icona di una specie */
     renderSpeciesIcon(species) {
         const species_data = this.state.species.find((s) => s.name === species);
-        console.log(species, species_data)
         return species_data ? <img src={`data:image/*;base64,${species_data.logo}`} alt="" style={{height: "1.7rem"}} /> : "";
     }
 }
