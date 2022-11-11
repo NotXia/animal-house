@@ -146,8 +146,11 @@ class AnimalCard extends React.Component {
                     </div>
 
                     <div className="mt-2 text-center">
-                        <p className="fw-semibold fs-5 mb-0"><span className="visually-hidden">Nome:</span> {this.state.animal.name}</p>
-                        <p className="fs-6"><span className="visually-hidden">Specie:</span>{this.state.animal.species}</p>
+                        <p className="fw-semibold fs-5 mb-0 text-truncate"><span className="visually-hidden">Nome:</span> {this.state.animal.name}</p>
+                        <div className="fs-6 d-flex align-items-center justify-content-center">
+                            <span className="me-1">{this.renderSpeciesIcon(this.state.animal.species)}</span>
+                            <span className="visually-hidden">Specie:</span>{this.state.animal.species}
+                        </div>
                     </div>
 
                     <div className="mt-2 d-flex justify-content-center">
@@ -207,7 +210,12 @@ class AnimalCard extends React.Component {
             profile_src: `${process.env.REACT_APP_DOMAIN}${this.props.animal.image_path ? this.props.animal.image_path : "/animals/images/default.png" }`,
             mode: "read"
         });
+    }
 
+    renderSpeciesIcon(species) {
+        const species_data = this.state.species.find((s) => s.name === species);
+        console.log(species, species_data)
+        return species_data ? <img src={`data:image/*;base64,${species_data.logo}`} alt="" style={{height: "1.7rem"}} /> : "";
     }
 }
 
