@@ -35,7 +35,7 @@ class AnimalCard extends React.Component {
                 this.setState({ species: species });
             }
             catch (err) {
-
+                this.setState({ error_message: "Non è stato possibile caricare i dati" });
             }
         })()
 
@@ -57,6 +57,8 @@ class AnimalCard extends React.Component {
         if (this.state.mode === "write") {
             return (<>
                 <div className="border rounded px-3 py-4 w-100">
+                    <p className="text-center text-danger fw-semibold">{this.state.error_message}</p>
+
                     <form onSubmit={(e) => { e.preventDefault(); this.handleForm(); }}>
                         <div className="position-relative" style={{ height: "6rem", width: "6rem", padding: 0, margin: "auto" }}>
                             {/* Immagine animale */}
@@ -146,10 +148,14 @@ class AnimalCard extends React.Component {
         else if (this.state.mode === "read") {
             return (<>
                 <div className="border rounded px-3 py-4 w-100">
+                    <p className="text-center text-danger fw-semibold">{this.state.error_message}</p>
+                    
+                    {/* Immagine di profilo */}
                     <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
                         <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
                     </div>
 
+                    {/* Dati animale */}
                     <div className="mt-2 text-center">
                         <p className="fw-semibold fs-5 mb-0 text-truncate"><span className="visually-hidden">Nome:</span> {this.state.animal.name}</p>
                         <div className="fs-6 d-flex align-items-center justify-content-center">
@@ -158,6 +164,7 @@ class AnimalCard extends React.Component {
                         </div>
                     </div>
 
+                    {/* Bottoni */}
                     <div className="mt-2 d-flex justify-content-center">
                         <button className="btn btn-outline-secondary" 
                                 onClick={() => this.setState({ mode: "write" }, () => this.input.name.current.value(this.state.animal.name))} aria-label={`Modifica ${this.state.animal.name}`}>Modifica</button>
@@ -189,6 +196,7 @@ class AnimalCard extends React.Component {
             }
         }
         catch (err) {
+            this.setState({ error_message: "Non è stato possibile eseguire l'operazione" });
         }
     }
 
@@ -199,7 +207,7 @@ class AnimalCard extends React.Component {
             this.props.onDelete(this.state.animal);
         }
         catch (err) {
-
+            this.setState({ error_message: "Non è stato possibile eseguire la cancellazione" });
         }
     }
 

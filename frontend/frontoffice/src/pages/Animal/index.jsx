@@ -32,7 +32,7 @@ class Animals extends React.Component {
             this.setState({ animals: animals })
         }
         catch (err) {
-
+            this.setState({ error_message: "Non è stato possibile trovare gli animali" });
         }
     })();
     }
@@ -49,6 +49,7 @@ class Animals extends React.Component {
                 <div className="container">
                     <div className="row">
                         <h1>I miei animali</h1>
+                        <p className="text-center text-danger fw-semibold fs-5">{this.state.error_message}</p>
                     </div>
 
                     <section aria-label="Aggiungi un nuovo animale">
