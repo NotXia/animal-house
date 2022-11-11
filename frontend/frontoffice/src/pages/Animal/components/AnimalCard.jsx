@@ -59,10 +59,12 @@ class AnimalCard extends React.Component {
                 <div className="border rounded px-3 py-4 w-100">
                     <form onSubmit={(e) => { e.preventDefault(); this.handleForm(); }}>
                         <div className="position-relative" style={{ height: "6rem", width: "6rem", padding: 0, margin: "auto" }}>
+                            {/* Immagine animale */}
                             <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
                                 <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
                             </div>
 
+                            {/* Upload immagine */}
                             <div className="position-absolute bottom-0 end-0">
                                 <button className="btn btn-link p-0" onClick={() => this.input.profile.current.click()} type="button">
                                     <span className="visually-hidden">{this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }</span>
@@ -73,6 +75,7 @@ class AnimalCard extends React.Component {
                                    aria-label={this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }  aria-hidden="true" />
                         </div>
 
+                        {/* Input form */}
                         <div className="mt-2">
                             <TextInput ref={this.input.name} id={`_input-name-${animal_id}`} name={`name-${animal_id}`} type="text" label="Nome" validation={() => ""} required />
 
@@ -90,6 +93,7 @@ class AnimalCard extends React.Component {
                         <div className="mt-2 d-flex justify-content-center">
                             <button className="btn btn-outline-success mx-1">Salva</button>
                             {
+                                // Visualizzato solo in fase di modifica
                                 !this.props.onCreate &&
                                 (
                                     <div>
@@ -98,7 +102,8 @@ class AnimalCard extends React.Component {
                                     </div>
                                 )
                             }
-                                                        {
+                            {
+                                // Visualizzato solo in fase di creazione
                                 this.props.onCreate &&
                                 (
                                     <div>
@@ -162,17 +167,17 @@ class AnimalCard extends React.Component {
         }
     }
 
+    /* Gestisce creazione e modifica */
     async handleForm() {
+        let new_animal = null;
         const animal_data = {
             name: this.input.name.current.value(),
             species: this.input.species.current.value,
             image_path: this.input.profile.current.files.length > 0 ? await FileAPI.uploadRaw(this.input.profile.current.files) : this.state.animal.image_path
         }
 
-        let new_animal = null;
-
         try {
-            if (this.state.animal) { // Animale già esistente (da aggiornare)
+            if (this.state.animal) { // Animale già esistente (aggiornamento)
                 new_animal = await AnimalAPI.updateAnimalById(this.state.animal.id, animal_data);
                 this.props.onUpdate(new_animal);
 
@@ -187,6 +192,7 @@ class AnimalCard extends React.Component {
         }
     }
 
+    /* Gestisce la cancellazione */
     async handleDelete() {
         try {
             await AnimalAPI.deleteAnimalById(this.state.animal.id);
@@ -197,6 +203,7 @@ class AnimalCard extends React.Component {
         }
     }
 
+    /* Gestisce l'anteprima dell'immagine profilo */
     handleProfilePreview(e) {
         const [file] = e.target.files;
 
@@ -205,6 +212,7 @@ class AnimalCard extends React.Component {
         }
     }
 
+    /* Gestisce il rollback delle modifiche */
     handleUpdateAbort() {
         this.setState({ 
             profile_src: `${process.env.REACT_APP_DOMAIN}${this.props.animal.image_path ? this.props.animal.image_path : "/animals/images/default.png" }`,
@@ -212,6 +220,7 @@ class AnimalCard extends React.Component {
         });
     }
 
+    /* Restituisce l'icona di una specie */
     renderSpeciesIcon(species) {
         const species_data = this.state.species.find((s) => s.name === species);
         console.log(species, species_data)
