@@ -51,25 +51,29 @@ class Animals extends React.Component {
                         <h1>I miei animali</h1>
                     </div>
 
-                    <div className="row">
-                        <div className="d-flex justify-content-center justify-content-md-end w-100">
-                            <button className="btn btn-outline-primary px-4 py-2" disabled={this.state.current_create_card ? true : false} onClick={() => { this.startCreateAnimal(); }}>Aggiungi un nuovo animale</button>
+                    <section aria-label="Aggiungi un nuovo animale">
+                        <div className="row">
+                            <div className="d-flex justify-content-center justify-content-md-end w-100">
+                                <button className="btn btn-outline-primary px-4 py-2" disabled={this.state.current_create_card ? true : false} onClick={() => { this.startCreateAnimal(); }}>Aggiungi un nuovo animale</button>
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div className="row">
-                        {
-                            this.state.animals.map((animal) => (
-                                <div key={animal.id} className="col-12 col-md-6 col-lg-4 my-3">
-                                    <AnimalCard animal={animal} onUpdate={this.handleUpdatedAnimal} onDelete={this.handleDeletedAnimal} />
-                                </div>
-                            ))
-                        }
-                        <div className="col-12 col-md-6 col-lg-4 my-3">
-                            <div id="card-create-animal" class="visually-hidden" tabIndex={0}>Aggiungi un nuovo animale</div>
-                            { this.state.current_create_card }
+                    <section aria-label="Lista dei miei animali">
+                        <div className="row">
+                            {
+                                this.state.animals.map((animal) => (
+                                    <div key={animal.id} className="col-12 col-md-6 col-lg-4 my-3">
+                                        <AnimalCard animal={animal} onUpdate={this.handleUpdatedAnimal} onDelete={this.handleDeletedAnimal} />
+                                    </div>
+                                ))
+                            }
+                            <div className="col-12 col-md-6 col-lg-4 my-3">
+                                <div id="card-create-animal" class="visually-hidden" tabIndex={0}>Aggiungi un nuovo animale</div>
+                                { this.state.current_create_card }
+                            </div>
                         </div>
-                    </div>
+                    </section>
                 </div>
             </main>
         </>);
