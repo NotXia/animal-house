@@ -101,7 +101,7 @@ $(async function () {
                     // Ricerca e caching cliente
                     const customer_data = await api_request({
                         type: "GET",
-                        url: `users/customers/${encodeURIComponent(to_search_username)}`
+                        url: `/users/customers/${encodeURIComponent(to_search_username)}`
                     });
                     customer_cache = customer_data;
 
