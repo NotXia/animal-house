@@ -62,9 +62,7 @@ class AnimalCard extends React.Component {
                     <form onSubmit={(e) => { e.preventDefault(); this.handleForm(); }}>
                         <div className="position-relative" style={{ height: "6rem", width: "6rem", padding: 0, margin: "auto" }}>
                             {/* Immagine animale */}
-                            <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
-                                <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
-                            </div>
+                            { this.renderPicture() }
 
                             {/* Upload immagine */}
                             <div className="position-absolute bottom-0 end-0">
@@ -151,9 +149,7 @@ class AnimalCard extends React.Component {
                     <p className="text-center text-danger fw-semibold">{this.state.error_message}</p>
                     
                     {/* Immagine di profilo */}
-                    <div style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
-                        <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
-                    </div>
+                    { this.renderPicture() }
 
                     {/* Dati animale */}
                     <div className="mt-2 text-center">
@@ -232,6 +228,16 @@ class AnimalCard extends React.Component {
     renderSpeciesIcon(species) {
         const species_data = this.state.species.find((s) => s.name === species);
         return species_data ? <img src={`data:image/*;base64,${species_data.logo}`} alt="" style={{height: "1.7rem"}} /> : "";
+    }
+
+    /* Restituisce l'immagine di profilo dell'animale */
+    renderPicture() {
+        return (
+            <div className="d-flex justify-content-center align-items-center" 
+                 style={{ borderRadius: "50%", height: "6rem", width: "6rem", padding: 0, margin: "auto", overflow: "hidden" }}>
+                <img src={this.state.profile_src} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
+            </div>
+        );
     }
 }
 
