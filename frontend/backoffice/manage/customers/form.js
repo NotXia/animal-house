@@ -73,6 +73,8 @@ async function uploadProfilePicture() {
             Mode.error(err.responseJSON.message);
         }
     }
+
+    return uploaded_image;
 }
 
 /**
