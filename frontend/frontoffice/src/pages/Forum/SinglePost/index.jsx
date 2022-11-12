@@ -35,7 +35,7 @@ class SinglePost extends React.Component {
         try {
             const post = await BlogAPI.getPostById(this.post_id);
             const comments = await BlogAPI.getCommentsOf(this.post_id, COMMENT_PAGE_SIZE, 0);
-            const username = await getUsername();
+            const username = await getUsername().catch((err) => "");
 
             this.setState({ 
                 post: post,
