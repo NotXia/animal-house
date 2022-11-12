@@ -116,9 +116,11 @@ class Cart extends React.Component {
                                 <div className={`${css["container-checkout"]}`}>
                                     <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
                                     <div className="d-flex justify-content-center">
-                                        <Button variant="outline-primary" className="mb-1">
-                                            <span className="fs-6">Procedi con l'ordine</span>
-                                        </Button>
+                                        <Link to={`/shop/checkout`} className="text-decoration-none text-black">
+                                            <Button variant="outline-primary" className="mb-1">
+                                                <span className="fs-6">Procedi con l'ordine</span>
+                                            </Button>
+                                        </Link>
                                     </div>
                                 </div>
                             </section>

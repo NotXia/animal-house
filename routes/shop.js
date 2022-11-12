@@ -48,6 +48,8 @@ router.get("/orders/:order_id", [ auth_middleware([ ["customer"] ], [ ["admin"],
 router.put("/orders/:order_id", [ auth_middleware([], [ ["admin"], ["operator", "warehouse"] ]), shop_middleware.order.validateUpdate ], shop_controller.order.update);
 router.delete("/orders/:order_id", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator", "warehouse"] ]), shop_middleware.order.validateRemove ], shop_controller.order.remove);
 
+router.post("/orders/:order_id/checkout", [ auth_middleware([ ["customer"] ] , []), shop_middleware.order.validateCheckout ], shop_controller.order.checkout);
+router.post("/orders/:order_id/success", shop_middleware.order.validateSuccess, shop_controller.order.success);
 
 
 module.exports = router;

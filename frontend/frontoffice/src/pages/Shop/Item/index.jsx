@@ -205,7 +205,7 @@ class ShopItem extends React.Component {
                                 <div>
                                     <div className="mb-2">
                                         <Button variant="outline-primary" className="w-100" id="button-add_to_cart" aria-label={button_aria_label}
-                                                onClick={() => this.addToCard(this.currProduct().barcode, this.input.quantity.current.value())}>Aggiungi al carrello</Button>
+                                                onClick={() => this.addToCart(this.currProduct().barcode, this.input.quantity.current.value())}>Aggiungi al carrello</Button>
                                     </div>
                                     <div className="d-flex justify-content-center">
                                         <div className="w-75">
@@ -239,7 +239,7 @@ class ShopItem extends React.Component {
         );
     }
 
-    async addToCard(barcode, quantity) {
+    async addToCart(barcode, quantity) {
         if (quantity <= 0) { return; }
         $("#button-add_to_cart").prop("disabled", true);
 

@@ -6,6 +6,7 @@ const OrderModel = require("../../models/shop/order");
 const ItemModel = require("../../models/shop/item");
 const HubModel = require("../../models/services/hub");
 const moment = require("moment");
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 /* 
     Creazione di un ordine
@@ -30,9 +31,11 @@ async function createOrder(req, res) {
 
         // Estrazione prodotti dell'ordine
         for (const barcode of ordered_products_barcode) {
+            const item = await ItemModel.findOne({ "products.barcode": barcode }).exec();
             const product = await ItemModel.getProductByBarcode(barcode);
             if (!product) { throw error.generate.NOT_FOUND("Sono presenti prodotti inesistenti"); }
 
+            product.item_name = item.name;
             order_products.push(product);
         }
         
@@ -51,9 +54,11 @@ async function createOrder(req, res) {
         order_data.total = order_products.reduce((total, product) => total + parseInt(product.price)*ordered_products_quantity[product.barcode], 0);
         order_data.products = order_products.map((product) => ({
             barcode: product.barcode,
+            item_name: product.item_name,
             name: product.name,
             price: product.price,
-            quantity: ordered_products_quantity[product.barcode]
+            quantity: ordered_products_quantity[product.barcode],
+            images: product.images ? [ product.images[0] ] : []
         }));
 
         new_order = await new OrderModel(order_data).save();
@@ -81,12 +86,12 @@ async function searchOrder(req, res) {
             "$lte": moment(req.query.end_date).endOf("day").format(),
         }; 
     }
-    
+
     try {
         orders = await OrderModel.find(query)
-                            .sort({ creationDate: "desc" })
-                            .limit(req.query.page_size)
-                            .skip(req.query.page_number)
+                            .sort({ creationDate: "desc", _id: "asc" })
+                            .skip(parseInt(req.query.page_number)*parseInt(req.query.page_size))
+                            .limit(parseInt(req.query.page_size))
                             .exec();
 
         orders = orders.map((order) => order.getData());
@@ -146,7 +151,7 @@ async function removeOrder(req, res) {
         if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
 
         // Gli utenti normali non possono cancellare un ordine in modo arbitrario
-        if (!req.auth.superuser && order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
+        if (!req.auth.superuser && order.status != "pending" && order.status != "created") { throw error.generate.FORBIDDEN("L'ordine è già in lavorazione"); }
         
         order.status = "cancelled";
         await order.save();
@@ -163,10 +168,73 @@ async function removeOrder(req, res) {
     return res.sendStatus(utils.http.NO_CONTENT);
 }
 
+async function checkoutOrder(req, res) {
+    const order_id = req.params.order_id;
+    let payment_intent = null;
+
+    try {
+        // Estrazione ordine
+        const order = await OrderModel.findById(order_id).exec();
+        if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+
+        if (order.toJSON().payment_id) {
+            // Pagamento in sospeso
+            payment_intent = await stripe.paymentIntents.retrieve(order.toJSON().payment_id);
+        }
+        else {
+            // Creazione richiesta di pagamento
+            payment_intent = await stripe.paymentIntents.create({
+                amount: order.total, currency: "eur",
+                automatic_payment_methods: { enabled: false },
+            });
+
+            // Salvataggio dati pagamento
+            await OrderModel.findByIdAndUpdate(order.id, { payment_id: payment_intent.id }, { returnNewDocument: true, new: true, strict: false });
+        }
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+  
+    res.status(utils.http.OK).send({
+        clientSecret: payment_intent.client_secret,
+    });
+}
+
+async function successOrder(req, res) {
+    const order_id = req.params.order_id;
+
+    try {
+        // Estrazione ordine
+        const order = await OrderModel.findById(order_id).exec();
+        if (!order) { throw error.generate.NOT_FOUND("Ordine inesistente"); }
+        if (order.status != "pending") { throw error.generate.BAD_REQUEST("Ordine già pagato"); }
+
+        // Estrazione dati pagamento
+        const payment_data = await stripe.paymentIntents.retrieve(order.toJSON().payment_id);
+
+        // Aggiornamento stato ordine se il pagamento è avvenuto
+        if (payment_data.status === "succeeded") {
+            order.status = "created";
+            await order.save();
+        }
+        else {
+            throw error.generate.PAYMENT_REQUIRED("Pagamento mancante");
+        }
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+  
+    res.sendStatus(utils.http.NO_CONTENT);
+}
+
 module.exports = {
     create: createOrder,
     search: searchOrder,
     searchById: searchOrderById,
     update: updateOrder,
-    remove: removeOrder
+    remove: removeOrder,
+    checkout: checkoutOrder,
+    success: successOrder
 }
