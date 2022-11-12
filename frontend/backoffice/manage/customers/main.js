@@ -6,11 +6,13 @@ import { createSuccessPopup } from "../../import/successPopup.js";
 import { updateURLQuery } from "../../import/url.js";
 import { Error } from "../../import/Error.js";
 import { api_request } from "/js/auth.js";
+import * as AnimalRow from "./view/animalRow.js"
 
 let NavbarHandler;
 let LoadingHandler;
 
 let customer_cache = {}; // Mantiene i dati del cliente attualmente visualizzato
+let animals_cache;
 
 // Estrazione valori dalla query dell'url
 const url_query = new Proxy(new URLSearchParams(window.location.search), {
@@ -74,7 +76,7 @@ $(async function () {
                         }
 
                         customer_cache = res_customer;
-                        Form.loadCustomerData(res_customer);
+                        Form.loadCustomerData(customer_cache);
                         Mode.view();
                     }
                     catch (err) {
@@ -107,6 +109,7 @@ $(async function () {
 
                     // Visualizzazione dati
                     Form.loadCustomerData(customer_data);
+                    await showAnimals(customer_cache.username);
                     Mode.view();
                 } catch (err) {
                     if (err.status === 404) { Mode.error("Utente inesistente"); }
@@ -159,5 +162,36 @@ $(async function () {
             $("#search-user-input").val(url_query.username);
             $("#search_user_form").submit();
         }
+
     });
 });
+
+/* Caricamento degli animali dell'utente */
+async function showAnimals(username) {
+    animals_cache = await fetchAnimals(username);
+    displayAnimals(animals_cache);
+}
+
+/* Estrae tutti gli animali dell'utente */
+async function fetchAnimals(username) {
+    try {
+        let animals = await api_request({
+            type: "GET", url: `/users/customers/${encodeURIComponent(username)}/animals/`
+        })
+
+        // Ordinamento alfabetico
+        animals.sort((a1, a2) => a1.name.toLowerCase().localeCompare(a2.name.toLowerCase()));
+
+        return animals;
+    } catch (err) {
+        Mode.error(err.responseJSON.message ? err.responseJSON.message : "Si è verificato un errore");
+    }
+}
+
+function displayAnimals(animalsList) {
+    $("#animals-container").html("");
+
+    for (const animal of animalsList) {
+        $("#animals-container").append(AnimalRow.render(animal));
+    }
+}

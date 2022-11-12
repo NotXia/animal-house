@@ -228,12 +228,19 @@
                 </div>
 
                 <div class="row mb-2">
-                    <div class="col-sm-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-                        <h2 class="form-check-label fs-6 fw-semibold">Animali</h2>
-                        <label data-feedback-for="animals" class="invalid-feedback d-block" aria-live="polite"></label>
+                    <h2 class="fs-6 fw-semibold">Animali</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 30%" class="text-center">Immagine</th>
+                                <th scope="col" style="width: 35%">Nome</th>
+                                <th scope="col" style="width: 35%">Specie</th>
+                            </tr>
+                        </thead>
+                        <tbody id="animals-container">
 
-                        <div class="accordion" id="animals-accordion"></div>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </form>
