@@ -44,6 +44,12 @@ const BlogAPI = {
             url: `${process.env.REACT_APP_DOMAIN}/blog/posts/${encodeURIComponent(post_id)}`,
         });
     },
+    deletePostById: async function (post_id) {
+        return await api_request({
+            method: "DELETE",
+            url: `${process.env.REACT_APP_DOMAIN}/blog/posts/${encodeURIComponent(post_id)}`,
+        });
+    },
 
     getCommentNumberOf: async function (post_id) {
         let comments;

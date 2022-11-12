@@ -8,6 +8,7 @@ import Navbar from "../../../components/Navbar";
 import BlogAPI from "../../../import/api/blog";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import Comment from "./components/Comment";
+import { getUsername } from "../../../import/auth"
 
 
 const COMMENT_PAGE_SIZE = 100;
@@ -18,6 +19,8 @@ class SinglePost extends React.Component {
         this.state = {
             post: {},
             comments: [],
+            username: "",
+
             error_message: ""
         };
         
@@ -30,11 +33,15 @@ class SinglePost extends React.Component {
     componentDidMount() {
     (async () => {
         try {
-            
             const post = await BlogAPI.getPostById(this.post_id);
             const comments = await BlogAPI.getCommentsOf(this.post_id, COMMENT_PAGE_SIZE, 0);
-            
-            this.setState({ post: post, comments: comments });
+            const username = await getUsername();
+
+            this.setState({ 
+                post: post,
+                comments: comments,
+                username: username
+            });
         }
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore mentre cercavo il post" });
@@ -49,13 +56,32 @@ class SinglePost extends React.Component {
             </Helmet>
             
             <Navbar />
-
             <main className="mt-3">
                 <Container>
                     <Row>
                         <div className="col-12 col-md-8">
                             <Row>
-                                <h1>{this.state.post.title}</h1>
+                                <div className="d-flex justify-content-between">
+                                    <h1>{this.state.post.title}</h1>
+
+                                    {
+                                        this.state.post.author === this.state.username &&
+                                        (
+                                            <span className="dropdown">
+                                                <div className="d-flex align-items-center justify-content-center h-100">
+                                                    <button className="btn btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-three-dots" viewBox="0 0 16 16">
+                                                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                                            </svg>
+                                                    </button>
+                                                    <ul className="dropdown-menu">
+                                                        <li><button className="dropdown-item btn btn-danger" onClick={() => this.deletePost()}>Cancella post</button></li>
+                                                    </ul>
+                                                </div>
+                                            </span>
+                                        )
+                                    }
+                                </div>
                             </Row>
 
                             <Row>
@@ -141,6 +167,16 @@ class SinglePost extends React.Component {
         }
         catch (err) {
             console.log(err)
+        }
+    }
+
+    async deletePost() {
+        try {
+            await BlogAPI.deletePostById(this.state.post.id);
+            window.location.href = "/fo/forum/";
+        }
+        catch (err) {
+
         }
     }
 }
