@@ -81,7 +81,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-12 col-md-10">
                         <div class="row">
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-6">
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
                                         <label for="data-username" class="fs-6 fw-semibold">Username</label>
@@ -90,21 +90,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-6">
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
                                         <label for="data-password" class="fs-6 fw-semibold">Password</label>
                                         <input id="data-password" type="password" class="form-control" name="password">
                                         <label for="data-password" data-feedback-for="password" class="invalid-feedback d-block" aria-live="polite"></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-12 col-md-4">
-                                <div class="d-flex justify-content-start mb-2">
-                                    <div class="w-100">
-                                        <label for="data-email" class="fs-6 fw-semibold">Email</label>
-                                        <input id="data-email" type="email" class="form-control" name="email">
-                                        <label for="data-email" data-feedback-for="email" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -135,9 +126,9 @@
                             <div class="col-sm-12 col-md-6">
                                 <div class="d-flex justify-content-start mb-2">
                                     <div class="w-100">
-                                        <label for="data-address" class="fs-6 fw-semibold">Indirizzo</label>
-                                        <input id="data-address" type="text" class="form-control" name="address">
-                                        <label for="data-address" data-feedback-for="address" class="invalid-feedback d-block" aria-live="polite"></label>
+                                        <label for="data-email" class="fs-6 fw-semibold">Email</label>
+                                        <input id="data-email" type="email" class="form-control" name="email">
+                                        <label for="data-email" data-feedback-for="email" class="invalid-feedback d-block" aria-live="polite"></label>
                                     </div>
                                 </div>
                             </div>
@@ -151,6 +142,47 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-address_street" class="fs-6 fw-semibold">Indirizzo</label>
+                                        <input id="data-address_street" type="text" class="form-control" name="address_street">
+                                        <label for="data-address_street" data-feedback-for="address_street" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-2">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-address_number" class="fs-6 fw-semibold">Numero civico</label>
+                                        <input id="data-address_number" type="text" class="form-control" name="address_number">
+                                        <label for="data-address_number" data-feedback-for="address_number" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-address_city" class="fs-6 fw-semibold">Città</label>
+                                        <input id="data-address_city" type="text" class="form-control" name="address_city">
+                                        <label for="data-address_city" data-feedback-for="address_city" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-2">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-address_postal-code" class="fs-6 fw-semibold">CAP</label>
+                                        <input id="data-address_postal-code" type="text" class="form-control" name="address_postal-code">
+                                        <label for="data-address_postal-code" data-feedback-for="address_postal-code" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
                         
                         <div class="row">
                             <div class="col-sm-12 col-md-12 order-1">

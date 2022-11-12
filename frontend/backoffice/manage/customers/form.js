@@ -86,13 +86,18 @@ export async function getCustomerData() {
         email: $("#data-email").val(),
         name: $("#data-name").val(),
         surname: $("#data-surname").val(),
-        address: $("#data-address").val(),
+        address: {
+            street: $("#data-address_street").val(),
+            number: $("#data-address_number").val(),
+            city: $("#data-address_city").val(),
+            postal_code: $("#data-address_postal-code").val(),
+        },
         phone: $("#data-phone").val(),
         enabled: $("#data-enabled").is(":checked"),
         gender: $("input:radio[name=gender]:checked").val(),
         picture: await uploadProfilePicture(),
     };
-
+    
     return form_data;
 }
 
@@ -107,7 +112,10 @@ export function loadCustomerData(data) {
     $("#data-email").val(data.email);
     $("#data-name").val(data.name);
     $("#data-surname").val(data.surname);
-    $("#data-address").val(data.address);
+    $("#data-address_street").val(data.address.street);
+    $("#data-address_number").val(data.address.number);
+    $("#data-address_city").val(data.address.city);
+    $("#data-address_postal-code").val(data.address.postal_code);
     $("#data-phone").val(data.phone);
     $("input:radio[name=gender]").filter(`[value=${data.gender}]`).prop("checked", true);
     $("input:checkbox[name=enabled]").prop("checked", data.enabled);
