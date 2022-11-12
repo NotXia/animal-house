@@ -100,7 +100,7 @@ class AnimalCard extends React.Component {
                                 (
                                     <div>
                                         <button type="button" className="btn btn-outline-secondary mx-1" onClick={() => this.handleUpdateAbort()} aria-label="Annulla modifiche">Annulla</button>
-                                        <button type="button" className="btn btn-outline-danger btn-sm mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`} aria-label="Rimuovi dai miei animali">Rimuovi</button>
+                                        <button type="button" className="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target={`#modal-delete-${animal_id}`} aria-label="Rimuovi dai miei animali">Rimuovi</button>
                                     </div>
                                 )
                             }
