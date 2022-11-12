@@ -180,7 +180,7 @@ class AnimalCard extends React.Component {
         const animal_data = {
             name: this.input.name.current.value(),
             species: this.input.species.current.value,
-            image_path: this.input.profile.current.files.length > 0 ? await FileAPI.uploadRaw(this.input.profile.current.files) : this.state.animal.image_path
+            image_path: this.input.profile.current.files.length > 0 ? await FileAPI.uploadRaw(this.input.profile.current.files) : (this.state.animal?.image_path ?? "")
         }
 
         try {
