@@ -25,7 +25,7 @@ class ServiceSelector extends React.Component {
         };
     }
     
-    componentDidMount() {
+    componentDidUpdate() {
     (async () => {
         try {
             let services = await ServiceAPI.getServices(this.props.hub);
