@@ -23,6 +23,20 @@ const BookingAPI = {
             data: appointment
         });
     },
+
+    startPaymentById: async function (appointment_id) {
+        return await api_request({ 
+            method: "POST", 
+            url: `${DOMAIN}/appointments/${encodeURIComponent(appointment_id)}/checkout`
+        });
+    },
+
+    confirmPayment: async function (appointment_id) {
+        return await api_request({ 
+            method: "POST", 
+            url: `${DOMAIN}/appointments/${encodeURIComponent(appointment_id)}/success`
+        });
+    },
 }
 
 export default BookingAPI;

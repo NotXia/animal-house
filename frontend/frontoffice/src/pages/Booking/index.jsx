@@ -1,6 +1,5 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import $ from "jquery"
 import Navbar from "../../components/Navbar";
 import { getUsername, isAuthenticated } from "modules/auth.js";
 import SearchParamsHook from "../../hooks/SearchParams";
@@ -13,6 +12,11 @@ import HubAPI from "modules/api/hub";
 import moment from "moment";
 import { centToPrice } from "modules/currency";
 import BookingAPI from "modules/api/booking";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckoutForm from "../../components/form/CheckoutForm";
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 
 class Booking extends React.Component {
@@ -24,12 +28,16 @@ class Booking extends React.Component {
             service: undefined,
             hub: undefined,
             slot: undefined,
-            
 
             step: "",
+
+            created_appointment: null,
+            stripe_client_secret: null,
             
             error_message: "",
         };
+
+        this.payment = React.createRef();
 
         isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}`; } } );
     }
@@ -112,12 +120,30 @@ class Booking extends React.Component {
                                 }
 
                                 <div className="mt-2 d-flex justify-content-center">
-                                    <button className="btn btn-outline-primary" onClick={() => this.createAppointment()}>Procedi al pagamento</button>
+                                    <button className="btn btn-outline-primary" onClick={() => this.checkoutAppointment()}>Procedi al pagamento</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <div className={`row ${this.state.step === "payment" ? "" : "d-none"}`}>
+                        <h2>Completa il pagamento</h2>
+                        <p className="text-center fs-5 fw-semibold">Totale: {centToPrice(this.state.created_appointment?.price)}€</p>
+                        <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                            {
+                                this.state.stripe_client_secret && 
+                                (
+                                    <Elements options={{ clientSecret: this.state.stripe_client_secret }} stripe={stripePromise}>
+                                        <CheckoutForm ref={this.payment} />
+                                    </Elements>
+                                )
+                            }
+
+                            <div className="d-flex justify-content-center mt-4">
+                                <button className="btn btn-outline-success" onClick={() => this.completeCheckout()}>Completa pagamento</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
         </>);
@@ -157,7 +183,7 @@ class Booking extends React.Component {
         this.setState({ step: "checkout" });
     }
     
-    async createAppointment() {
+    async checkoutAppointment() {
         const appointment_data = {
             time_slot: this.state.slot.time,
             service_id: this.state.service.id,
@@ -167,7 +193,19 @@ class Booking extends React.Component {
             hub: this.state.hub.code,
         };
 
-        await BookingAPI.createAppointment(appointment_data);
+        try {
+            const new_appointment = await BookingAPI.createAppointment(appointment_data);
+            const payment_data = await BookingAPI.startPaymentById(new_appointment.id);
+
+            this.setState({ stripe_client_secret: payment_data.clientSecret, step: "payment", created_appointment: new_appointment });
+        }
+        catch (err) {
+            this.setState({ error_message: "Non è stato possibile creare l'appuntamento" });
+        }
+    }
+
+    async completeCheckout() {
+        await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/appointments/book/success?appointment_id=${encodeURIComponent(this.state.created_appointment.id)}`);
     }
 }
 
