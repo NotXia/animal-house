@@ -2,6 +2,9 @@
  * 
  * Selettore dell'animale
  * 
+ * Attributi
+ * - species            Specie degli animali da visualizzare
+ * 
  * Callback
  * - onSelected(animal)     Richiamato quando viene selezionato un servizio
  * 
@@ -26,6 +29,7 @@ class ServiceSelector extends React.Component {
     (async () => {
         try {
             let animals = await AnimalAPI.getUserAnimals(await getUsername());
+            animals = animals.filter((animal) => !this.props.species || this.props.species.includes(animal.species));
             
             this.setState({ animals: animals });
         }
