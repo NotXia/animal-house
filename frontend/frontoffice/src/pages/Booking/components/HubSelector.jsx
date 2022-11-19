@@ -65,8 +65,12 @@ class HubSelector extends React.Component {
             });
 
             let hubs = await HubAPI.getNearestFrom(address_data[0].lat, address_data[0].lon, 1000, 0, this.props.service);
+
+            this.map.invalidateSize(); // Per evitare problemi di render della mappa
             
-            this.map.flyTo([address_data[0].lat, address_data[0].lon], 12, { duration: 1 });
+            if (hubs.length > 0) {
+                this.map.flyTo([hubs[0].position.coordinates[1], hubs[0].position.coordinates[0]], 12, { duration: 1 });
+            }
             this.setState({ hubs: hubs });
         }
         catch (err) {
