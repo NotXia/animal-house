@@ -25,7 +25,8 @@ class ServiceSelector extends React.Component {
         };
     }
     
-    componentDidUpdate() {
+    componentDidUpdate(prev_props, prev_states) {
+        if (JSON.stringify(prev_props) === JSON.stringify(this.props)) { return; }
     (async () => {
         try {
             let services = await ServiceAPI.getServices(this.props.hub);

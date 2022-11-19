@@ -48,7 +48,9 @@ class HubSelector extends React.Component {
         this.map = null;
     }
     
-    componentDidMount() {
+    componentDidUpdate(prev_props, prev_state) {
+        if (JSON.stringify(prev_props) === JSON.stringify(this.props)) { return; }
+
     (async () => {
         try {
             // Estrazione indirizzo cliente
