@@ -6,7 +6,7 @@
  * - service        Id del servizio che l'hub deve poter erogare
  * 
  * Callback
- * - onSelected(hub)     Richiamato quando viene selezionato un servizio
+ * - onSelected(hub)     Richiamato quando viene selezionato un hub
  * 
  */
 
