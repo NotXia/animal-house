@@ -12,7 +12,13 @@ const HubAPI = {
                 service_id: service_id
             }
         });
-    }
+    },
+
+    getByCode: async function (code) {
+        return await $.ajax({
+            method: "GET", url: `${DOMAIN}/hubs/${encodeURIComponent(code)}`
+        });
+    },
 }
 
 export default HubAPI;

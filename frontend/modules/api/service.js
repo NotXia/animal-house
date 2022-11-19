@@ -11,6 +11,13 @@ const ServiceAPI = {
             }
         });
     },
+
+    getServiceById: async function (service_id) {
+        return await $.ajax({ 
+            method: "GET", 
+            url: `${DOMAIN}/services/${encodeURIComponent(service_id)}`
+        });
+    },
 }
 
 export default ServiceAPI;

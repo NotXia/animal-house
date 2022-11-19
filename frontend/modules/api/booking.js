@@ -15,6 +15,14 @@ const BookingAPI = {
             }
         });
     },
+
+    createAppointment: async function (appointment) {
+        return await api_request({ 
+            method: "POST", 
+            url: `${DOMAIN}/appointments/`,
+            data: appointment
+        });
+    },
 }
 
 export default BookingAPI;
