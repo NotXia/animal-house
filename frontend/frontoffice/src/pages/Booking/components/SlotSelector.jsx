@@ -36,8 +36,14 @@ class SlotSelector extends React.Component {
                         onChange={(e) => this.fetchAvailabilities(e.target.value)} />
                 </label>
 
-                <div className="d-flex justify-content-center mt-2">
+                <div className="d-flex justify-content-center mt-3">
                     <div>
+                        {
+                            this.state.selected_date != "" && this.state.availabilities.length === 0 &&
+                            (
+                                <p className="fs-4">Non sono presenti disponibilità per questa data</p>
+                            )
+                        }
                         {
                             this.getAvailableStartTimes().map((slot) => (
                                 <button key={slot} className="btn btn-outline-primary fs-5 p-2 px-4 m-2" onClick={() => this.handleSlotSelection(slot)} >
