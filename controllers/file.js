@@ -44,7 +44,7 @@ async function claimImages(images_name, dest_path) {
  */
 async function deleteImages(images_name, source_path) {
     for (const image of images_name) {
-        await fs.promises.unlink(path.join(source_path, image));
+        await fs.promises.unlink(path.join(source_path, image)).catch(() => {});
     }
 }
 

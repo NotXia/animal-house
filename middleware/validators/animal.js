@@ -9,7 +9,7 @@ module.exports.validateAnimalSpecies =      (source, required=true, field_name="
 module.exports.validateAnimalName =         (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateAnimalWeight =       (source, required=true, field_name="weight") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
 module.exports.validateAnimalHeight =       (source, required=true, field_name="height") => { return utils.handleRequired(validator[source](field_name), required).isInt({ min: 0 }).withMessage("Valore invalido"); }
-module.exports.validateAnimalImagePath =    (source, required=true, field_name="image_path") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
+module.exports.validateAnimalImagePath =    (source, required=true, field_name="image_path") => { return utils.handleRequired(validator[source](field_name), required).trim(); }
 module.exports.validateListOfAnimalsId = function (source, required=true, field_name="animals_id") { 
     return [
         utils.handleRequired(validator[source](field_name), required).isArray().withMessage("Formato non valido"),
