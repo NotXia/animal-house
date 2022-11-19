@@ -2,10 +2,13 @@ import $ from "jquery";
 import { DOMAIN } from "../const";
 
 const ServiceAPI = {
-    getServices: async function () {
+    getServices: async function (hub_code=undefined) {
         return await $.ajax({ 
             method: "GET", 
-            url: `${DOMAIN}/services/` 
+            url: `${DOMAIN}/services/`,
+            data: {
+                hub_code: hub_code
+            }
         });
     },
 }
