@@ -49,7 +49,7 @@ class HubSelector extends React.Component {
     }
     
     componentDidUpdate(prev_props, prev_state) {
-        if (JSON.stringify(prev_props) === JSON.stringify(this.props)) { return; }
+        this.map.invalidateSize(); // Per evitare problemi di render della mappa
 
     (async () => {
         try {
@@ -66,7 +66,7 @@ class HubSelector extends React.Component {
 
             let hubs = await HubAPI.getNearestFrom(address_data[0].lat, address_data[0].lon, 1000, 0, this.props.service);
 
-            this.map.invalidateSize(); // Per evitare problemi di render della mappa
+            if (JSON.stringify(prev_state.hubs) === JSON.stringify(hubs)) { return; }
             
             if (hubs.length > 0) {
                 this.map.flyTo([hubs[0].position.coordinates[1], hubs[0].position.coordinates[0]], 12, { duration: 1 });
