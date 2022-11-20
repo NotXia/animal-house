@@ -42,6 +42,8 @@ class ServiceSelector extends React.Component {
     render() {
         return (
             <div className="container-fluid">
+                <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
+
                 <div className="row">
                     {
                         this.state.animals.map((animal) => {

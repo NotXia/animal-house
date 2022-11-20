@@ -31,6 +31,8 @@ class SlotSelector extends React.Component {
     render() {
         return (
             <div className="w-100">
+                <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
+
                 <label className="w-100 text-center">
                     Cerca disponibilità per il giorno
                     <input type="date" className="w-100 text-center fs-5" min={new Date().toISOString().split("T")[0]} 

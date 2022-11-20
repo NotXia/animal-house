@@ -97,6 +97,7 @@ class Booking extends React.Component {
                 <div className="container">
                     <div className="row">
                         <h1>Crea appuntamento</h1>
+                        <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
                     </div>
 
                     {/* Selezione animale */}

@@ -102,7 +102,9 @@ class HubSelector extends React.Component {
     render() {
         return (
             <div className="container-fluid" style={{ height: this.props.style.height }}>
-                <div  className={`d-flex justify-content-center`}>
+                <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
+
+                <div className={`d-flex justify-content-center`}>
                     <div id="__loading-hub-selector" className="spinner-border" role="status">
                         <span className="visually-hidden">Caricamento degli hub</span>
                     </div>

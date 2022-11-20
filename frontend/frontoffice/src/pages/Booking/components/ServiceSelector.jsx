@@ -50,6 +50,8 @@ class ServiceSelector extends React.Component {
     render() {
         return (
             <div className="list-group w-100">
+                <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
+
                 <div className={`d-flex justify-content-center ${this.state.loading ? "" : "d-none"}`}>
                     <div className="spinner-border" role="status">
                         <span className="visually-hidden">Caricamento dei servizi</span>
