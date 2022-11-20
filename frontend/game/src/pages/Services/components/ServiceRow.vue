@@ -24,7 +24,7 @@
 
             <div class="col-4 col-lg-2">
                 <div class="d-flex justify-content-center align-items-center h-100 w-100">
-                    <a class="btn btn-outline-primary" :href="`/fo/book?service=${service.id}`">Prenota ora</a>
+                    <a class="btn btn-outline-primary" :href="`/fo/appointments/book?service=${service.id}`">Prenota ora</a>
                 </div>
             </div>
         </div>

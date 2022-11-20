@@ -2,7 +2,7 @@ import Services from "./Services.vue";
 
 let routes = [
     {
-        path: "/services",
+        path: "/services-list",
         name: "services",
         component: Services
     }
