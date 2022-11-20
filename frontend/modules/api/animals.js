@@ -32,6 +32,13 @@ const CartAPI = {
             url: `${DOMAIN}/animals/${encodeURIComponent(animal_id)}`
         });
     },
+
+    getAnimalById: async function (animal_id) {
+        return await api_request({ 
+            method: "GET", 
+            url: `${DOMAIN}/animals/${encodeURIComponent(animal_id)}`
+        });
+    },
 }
 
 export default CartAPI;
