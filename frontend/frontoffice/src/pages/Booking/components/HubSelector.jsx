@@ -4,6 +4,7 @@
  * 
  * Attributi
  * - service        Id del servizio che l'hub deve poter erogare
+ * - visible        Indica se la mappa è attualmente visibile
  * 
  * Callback
  * - onSelected(hub)     Richiamato quando viene selezionato un hub
@@ -31,13 +32,15 @@ const SELECTED_HUB_ICON = new L.icon({
     iconSize: [35, 35]
 });
 
+const MAP_CENTER = [42.744388161339, 12.0809380292276]
+
 
 class HubSelector extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             hubs: [],
-
+            user_coordinates: { lat: MAP_CENTER[0], lon: MAP_CENTER[1] },
             selected_hub: "",
 
             error_message: "",
@@ -46,15 +49,11 @@ class HubSelector extends React.Component {
         this.map = null;
     }
     
-    componentDidUpdate(prev_props, prev_state) {
-        this.map.invalidateSize(); // Per evitare problemi di render della mappa
-
-    (async () => {
-        $("#__loading-hub-selector").show();
-
+    async componentDidMount() {
         try {
             // Estrazione indirizzo cliente
             const user_data = await CustomerAPI.getAllDataByUsername(await getUsername());
+
             const address_data = await $.ajax({
                 method: "GET", url: "https://nominatim.openstreetmap.org/search",
                 data: {
@@ -64,10 +63,30 @@ class HubSelector extends React.Component {
                 }
             });
 
-            let hubs = await HubAPI.getNearestFrom(address_data[0].lat, address_data[0].lon, 1000, 0, this.props.service);
+            this.setState({ user_coordinates: { lat: address_data[0].lat, lon: address_data[0].lon } });
+        }
+        catch (err) {
+            this.setState({ user_coordinates: { lat: MAP_CENTER[0], lon: MAP_CENTER[1] } });
+        }
+    }
 
-            if (JSON.stringify(prev_state.hubs) === JSON.stringify(hubs)) { return; }
-            
+    async componentDidUpdate(prev_props, prev_state) {
+        if (!this.props.visible) { return; }
+
+        this.map.invalidateSize(); // Per evitare problemi di render della mappa
+        
+        $("#__loading-hub-selector").show();
+        
+        try {
+            let hubs = await HubAPI.getNearestFrom(this.state.user_coordinates.lat, this.state.user_coordinates.lon, 1000, 0, this.props.service);
+
+            if (JSON.stringify(prev_props) === JSON.stringify(this.props) &&
+                (prev_state.user_coordinates.lat === this.state.user_coordinates.lat && prev_state.user_coordinates.lon === this.state.user_coordinates.lon) &&
+                JSON.stringify(prev_state.hubs) === JSON.stringify(hubs)) { 
+
+                return $("#__loading-hub-selector").hide();
+            }
+
             if (hubs.length > 0) {
                 this.map.flyTo([hubs[0].position.coordinates[1], hubs[0].position.coordinates[0]], 12, { duration: 1 });
             }
@@ -78,14 +97,13 @@ class HubSelector extends React.Component {
         }
 
         $("#__loading-hub-selector").hide();
-    })()
     }
 
     render() {
         return (
             <div className="container-fluid" style={{ height: this.props.style.height }}>
-                <div id="__loading-hub-selector" className={`d-flex justify-content-center`}>
-                    <div className="spinner-border" role="status">
+                <div  className={`d-flex justify-content-center`}>
+                    <div id="__loading-hub-selector" className="spinner-border" role="status">
                         <span className="visually-hidden">Caricamento degli hub</span>
                     </div>
                 </div>
@@ -93,7 +111,7 @@ class HubSelector extends React.Component {
                 <div className="row" style={{ height: this.props.style.height }}>
                     <div className="col-12 col-md-6">
                         <div style={{ height: this.props.style.height, width: "100%" }}>
-                            <MapContainer center={[42.744388161339, 12.0809380292276]} zoom={5} style={{ width: "100%", height: "100%" }} >
+                            <MapContainer center={MAP_CENTER} zoom={5} style={{ width: "100%", height: "100%" }} >
                                 <MapPositionController setMap={(map) => this.map = map} />
                                 <TileLayer
                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

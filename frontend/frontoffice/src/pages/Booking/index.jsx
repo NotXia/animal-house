@@ -99,7 +99,7 @@ class Booking extends React.Component {
 
                     <div className={`row ${this.state.step === "hub" ? "" : "d-none"}`}>
                         <h2>Scegli la sede in cui erogare il servizio</h2>
-                        <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} />
+                        <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} visible={this.state.step === "hub"} />
 
                         <div className="d-flex justify-content-center justify-content-md-end mt-2">
                             <button className="btn btn-outline-secondary" onClick={() => this.revertToServiceStep()}>Indietro</button>
