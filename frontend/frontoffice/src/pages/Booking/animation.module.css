@@ -1,0 +1,15 @@
+.fade-in {
+    transition: opacity 0.5s ease;
+}
+
+.step-visible {
+    visibility: visible;
+    opacity: 1;
+    max-height: 100%;
+}
+  
+.step-hidden {
+    visibility: hidden;
+    opacity: 0;
+    max-height: 0;
+}

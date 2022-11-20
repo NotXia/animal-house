@@ -16,6 +16,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "../../components/form/CheckoutForm";
 import Loading from "../../components/Loading";
+import animation_css from "./animation.module.css";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -83,12 +84,12 @@ class Booking extends React.Component {
                         <h1>Crea appuntamento</h1>
                     </div>
 
-                    <div className={`row ${this.state.step === "animal" ? "" : "d-none"}`}>
+                    <div className={`row ${this.state.step === "animal" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli per chi vuoi prenotare</h2>
                         <PetSelector species={this.state.species} onSelected={(animal) => this.selectAnimal(animal)} />
                     </div>
 
-                    <div className={`row ${this.state.step === "service" ? "" : "d-none"}`}>
+                    <div className={`row ${this.state.step === "service" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli il servizio</h2>
                         <ServiceSelector hub={this.state.hub?.code} species={this.state.species} onSelected={(service) => this.selectService(service)} />
 
@@ -97,7 +98,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
-                    <div className={`row ${this.state.step === "hub" ? "" : "d-none"}`}>
+                    <div className={`row ${this.state.step === "hub" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli la sede in cui erogare il servizio</h2>
                         <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} visible={this.state.step === "hub"} />
 
@@ -106,7 +107,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
-                    <div className={`row ${this.state.step === "slot" ? "" : "d-none"}`}>
+                    <div className={`row ${this.state.step === "slot" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli il giorno in cui vuoi venire</h2>
                         <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
                             <SlotSelector service={this.state.service?.id} hub={this.state.hub?.code} onSelected={(slot) => this.selectSlot(slot)} />
@@ -117,7 +118,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
-                    <div className={`row ${this.state.step === "checkout" ? "" : "d-none"}`}>
+                    <div className={`row ${this.state.step === "checkout" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <div className="d-flex justify-content-center">
                             <div>
                                 <h2 className="text-center">Riepilogo</h2>
@@ -144,7 +145,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
-                    <div className={`row ${this.state.step === "payment" ? "" : "d-none"}`}>
+                    <div className={`row ${this.state.step === "payment" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Completa il pagamento</h2>
                         <p className="text-center fs-5 fw-semibold">Totale: {centToPrice(this.state.created_appointment?.price)}€</p>
                         <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
