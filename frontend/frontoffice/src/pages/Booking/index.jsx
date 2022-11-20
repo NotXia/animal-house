@@ -86,17 +86,29 @@ class Booking extends React.Component {
                     <div className={`row ${this.state.step === "service" ? "" : "d-none"}`}>
                         <h2>Scegli il servizio</h2>
                         <ServiceSelector hub={this.state.hub?.code} species={this.state.species} onSelected={(service) => this.selectService(service)} />
+
+                        <div className="d-flex justify-content-center justify-content-md-end mt-2">
+                            <button className="btn btn-outline-secondary" onClick={() => this.revertToAnimalStep()}>Indietro</button>
+                        </div>
                     </div>
 
                     <div className={`row ${this.state.step === "hub" ? "" : "d-none"}`}>
                         <h2>Scegli la sede in cui erogare il servizio</h2>
                         <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} />
+
+                        <div className="d-flex justify-content-center justify-content-md-end mt-2">
+                            <button className="btn btn-outline-secondary" onClick={() => this.revertToServiceStep()}>Indietro</button>
+                        </div>
                     </div>
 
                     <div className={`row ${this.state.step === "slot" ? "" : "d-none"}`}>
                         <h2>Scegli il giorno in cui vuoi venire</h2>
                         <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
                             <SlotSelector service={this.state.service?.id} hub={this.state.hub?.code} onSelected={(slot) => this.selectSlot(slot)} />
+                        </div>
+
+                        <div className="d-flex justify-content-center justify-content-md-end mt-2">
+                            <button className="btn btn-outline-secondary" onClick={() => this.revertToHubStep()}>Indietro</button>
                         </div>
                     </div>
 
@@ -121,6 +133,7 @@ class Booking extends React.Component {
 
                                 <div className="mt-2 d-flex justify-content-center">
                                     <button className="btn btn-outline-primary" onClick={() => this.checkoutAppointment()}>Procedi al pagamento</button>
+                                    <button className="btn btn-outline-secondary ms-2" onClick={() => this.revertToSlotStep()}>Indietro</button>
                                 </div>
                             </div>
                         </div>
@@ -149,40 +162,60 @@ class Booking extends React.Component {
         </>);
     }
 
+
     selectAnimal(animal) {
         this.setState({ species: animal.species, animal: animal }, this.gotoServiceStep);
-    }
-
-    gotoServiceStep() {
-        if (this.state.service) { return this.gotoHubStep(); }
-        this.setState({ step: "service" });
     }
     
     selectService(service) {
         this.setState({ service: service }, this.gotoHubStep);
     }
 
-    gotoHubStep() {
-        if (this.state.hub) { return this.gotoSlotStep(); }
-        this.setState({ step: "hub" });
-    }
-
     selectHub(hub) {
         this.setState({ hub: hub }, this.gotoSlotStep);
-    }
-
-    gotoSlotStep() {
-        this.setState({ step: "slot" });
     }
 
     selectSlot(slot) {
         this.setState({ slot: slot }, this.gotoCheckoutStep);
     }
 
+
+    gotoServiceStep() {
+        if (this.state.service) { return this.gotoHubStep(); }
+        this.setState({ step: "service" });
+    }    
+
+    gotoHubStep() {
+        if (this.state.hub) { return this.gotoSlotStep(); }
+        this.setState({ step: "hub" });
+    }    
+
+    gotoSlotStep() {
+        this.setState({ step: "slot" });
+    }    
+
     gotoCheckoutStep() {
         this.setState({ step: "checkout" });
     }
+  
     
+    revertToAnimalStep() {
+        this.setState({ step: "animal", animal: undefined, species: undefined });
+    }
+    
+    revertToServiceStep() {
+        this.setState({ step: "service", service: undefined });
+    }    
+
+    revertToHubStep() {
+        this.setState({ step: "hub", hub: undefined });
+    }
+
+    revertToSlotStep() {
+        this.setState({ step: "slot", slot: undefined });
+    }
+
+
     async checkoutAppointment() {
         const appointment_data = {
             time_slot: this.state.slot.time,
