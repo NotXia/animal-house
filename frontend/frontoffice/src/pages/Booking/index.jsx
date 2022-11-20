@@ -101,88 +101,100 @@ class Booking extends React.Component {
 
                     {/* Selezione animale */}
                     <div className={`row ${this.state.step === "animal" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
-                        <h2>Scegli per chi vuoi prenotare</h2>
-                        <PetSelector species={this.state.species} onSelected={(animal) => this.selectAnimal(animal)} />
+                        <section aria-label="Scegli per quale animale prenotare">
+                            <h2>Scegli per chi vuoi prenotare</h2>
+                            <PetSelector species={this.state.species} onSelected={(animal) => this.selectAnimal(animal)} />
+                        </section>
                     </div>
 
                     {/* Selezione servizio */}
                     <div className={`row ${this.state.step === "service" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
-                        <h2>Scegli il servizio</h2>
-                        <ServiceSelector hub={this.state.hub?.code} species={this.state.species} onSelected={(service) => this.selectService(service)} />
+                        <section aria-label="Scegli il servizio da prenotare">
+                            <h2>Scegli il servizio</h2>
+                            <ServiceSelector hub={this.state.hub?.code} species={this.state.species} onSelected={(service) => this.selectService(service)} />
 
-                        <div className="d-flex justify-content-center justify-content-md-end mt-2">
-                            <button className="btn btn-outline-secondary" onClick={() => this.revertToAnimalStep()}>Indietro</button>
-                        </div>
+                            <div className="d-flex justify-content-center justify-content-md-end mt-2">
+                                <button className="btn btn-outline-secondary" onClick={() => this.revertToAnimalStep()}>Indietro</button>
+                            </div>
+                        </section>
                     </div>
 
                     {/* Selezione hub */}
                     <div className={`row ${this.state.step === "hub" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
-                        <h2>Scegli la sede in cui erogare il servizio</h2>
-                        <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} visible={this.state.step === "hub"} />
+                        <section aria-label="Scegli l'hub in cui richiedere il servizio">
+                            <h2>Scegli la sede in cui erogare il servizio</h2>
+                            <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} visible={this.state.step === "hub"} />
 
-                        <div className="d-flex justify-content-center justify-content-md-end mt-2">
-                            <button className="btn btn-outline-secondary" onClick={() => this.revertToServiceStep()}>Indietro</button>
-                        </div>
+                            <div className="d-flex justify-content-center justify-content-md-end mt-2">
+                                <button className="btn btn-outline-secondary" onClick={() => this.revertToServiceStep()}>Indietro</button>
+                            </div>
+                        </section>
                     </div>
 
                     {/* Selezione slot orario */}
                     <div className={`row ${this.state.step === "slot" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
-                        <h2>Scegli il giorno in cui vuoi venire</h2>
-                        <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-                            <SlotSelector service={this.state.service?.id} hub={this.state.hub?.code} onSelected={(slot) => this.selectSlot(slot)} />
-                        </div>
+                        <section aria-label="Scegli il giorno e l'ora dell'appuntamento">
+                            <h2>Scegli il giorno in cui vuoi venire</h2>
+                            <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                                <SlotSelector service={this.state.service?.id} hub={this.state.hub?.code} onSelected={(slot) => this.selectSlot(slot)} />
+                            </div>
 
-                        <div className="d-flex justify-content-center justify-content-md-end mt-2">
-                            <button className="btn btn-outline-secondary" onClick={() => this.revertToHubStep()}>Indietro</button>
-                        </div>
+                            <div className="d-flex justify-content-center justify-content-md-end mt-2">
+                                <button className="btn btn-outline-secondary" onClick={() => this.revertToHubStep()}>Indietro</button>
+                            </div>
+                        </section>
                     </div>
 
                     {/* Riepilogo */}
                     <div className={`row ${this.state.step === "checkout" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
-                        <div className="d-flex justify-content-center">
-                            <div>
-                                <h2 className="text-center">Riepilogo</h2>
-                                <p className="fs-4 m-0 text-center fw-semibold">{moment(this.state.slot?.time.start).format("DD/MM/YYYY")} alle {moment(this.state.slot?.time.start).format("HH:mm")}</p>
-                                <p className="fs-5 mb-2">Prenotazione per: <span className="fw-semibold">{this.state.animal?.name}</span></p>
-                                <p className="fs-5 m-0">Servizio: <span className="fw-semibold">{this.state.service?.name}</span></p>
-                                <p className="fs-5 m-0">Durata: <span className="fw-semibold">{this.state.service?.duration} minuti</span></p>
-                                <p className="fs-5 mb-2">Prezzo: <span className="fw-semibold">{centToPrice(this.state.service?.price)}€</span></p>
-                                <p className="fs-5 m-0">Modalità: <span className="fw-semibold">{this.state.service?.online ? "Online" : "In sede"}</span></p>
-                                {
-                                    !this.state.service?.online &&
-                                    (
-                                        <p className="fs-5 m-0">
-                                            Indirizzo hub: <span className="fw-semibold">{this.state.hub?.address.street} {this.state.hub?.address.number} ({this.state.hub?.address.city})</span>
-                                        </p>
-                                    )
-                                }
+                        <section aria-label="Riepilogo appuntamento">
+                            <div className="d-flex justify-content-center">
+                                <div>
+                                    <h2 className="text-center">Riepilogo</h2>
+                                    <p className="fs-4 m-0 text-center fw-semibold">{moment(this.state.slot?.time.start).format("DD/MM/YYYY")} alle {moment(this.state.slot?.time.start).format("HH:mm")}</p>
+                                    <p className="fs-5 mb-2">Prenotazione per: <span className="fw-semibold">{this.state.animal?.name}</span></p>
+                                    <p className="fs-5 m-0">Servizio: <span className="fw-semibold">{this.state.service?.name}</span></p>
+                                    <p className="fs-5 m-0">Durata: <span className="fw-semibold">{this.state.service?.duration} minuti</span></p>
+                                    <p className="fs-5 mb-2">Prezzo: <span className="fw-semibold">{centToPrice(this.state.service?.price)}€</span></p>
+                                    <p className="fs-5 m-0">Modalità: <span className="fw-semibold">{this.state.service?.online ? "Online" : "In sede"}</span></p>
+                                    {
+                                        !this.state.service?.online &&
+                                        (
+                                            <p className="fs-5 m-0">
+                                                Indirizzo hub: <span className="fw-semibold">{this.state.hub?.address.street} {this.state.hub?.address.number} ({this.state.hub?.address.city})</span>
+                                            </p>
+                                        )
+                                    }
 
-                                <div className="mt-2 d-flex justify-content-center">
-                                    <button className="btn btn-outline-primary" onClick={() => this.checkoutAppointment()}>Procedi al pagamento</button>
-                                    <button className="btn btn-outline-secondary ms-2" onClick={() => this.revertToSlotStep()}>Indietro</button>
+                                    <div className="mt-2 d-flex justify-content-center">
+                                        <button className="btn btn-outline-primary" onClick={() => this.checkoutAppointment()}>Procedi al pagamento</button>
+                                        <button className="btn btn-outline-secondary ms-2" onClick={() => this.revertToSlotStep()}>Indietro</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
 
                     {/* Pagamento */}
                     <div className={`row ${this.state.step === "payment" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
-                        <h2>Completa il pagamento</h2>
-                        <p className="text-center fs-5 fw-semibold">Totale: {centToPrice(this.state.created_appointment?.price)}€</p>
-                        <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-                            {
-                                this.state.stripe_client_secret && 
-                                (
-                                    <Elements options={{ clientSecret: this.state.stripe_client_secret }} stripe={stripePromise}>
-                                        <CheckoutForm ref={this.payment} />
-                                    </Elements>
-                                )
-                            }
+                        <section aria-label="Pagamento dell'appuntamento">
+                            <h2>Completa il pagamento</h2>
+                            <p className="text-center fs-5 fw-semibold">Totale: {centToPrice(this.state.created_appointment?.price)}€</p>
+                            <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                                {
+                                    this.state.stripe_client_secret && 
+                                    (
+                                        <Elements options={{ clientSecret: this.state.stripe_client_secret }} stripe={stripePromise}>
+                                            <CheckoutForm ref={this.payment} />
+                                        </Elements>
+                                    )
+                                }
 
-                            <div className="d-flex justify-content-center mt-4">
-                                <button className="btn btn-outline-success" onClick={() => this.completePayment()}>Completa pagamento</button>
+                                <div className="d-flex justify-content-center mt-4">
+                                    <button className="btn btn-outline-success" onClick={() => this.completePayment()}>Completa pagamento</button>
+                                </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
                     
                 </div>

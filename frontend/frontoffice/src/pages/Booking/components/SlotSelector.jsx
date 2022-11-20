@@ -44,7 +44,7 @@ class SlotSelector extends React.Component {
                         </div>
                     </div>
 
-                    <div>
+                    <div aria-live="polite">
                         {
                             this.state.selected_date != "" && this.state.availabilities.length === 0 &&
                             (
@@ -53,7 +53,8 @@ class SlotSelector extends React.Component {
                         }
                         {
                             this.getAvailableStartTimes().map((slot) => (
-                                <button key={slot} className="btn btn-outline-primary fs-5 p-2 px-4 m-2" onClick={() => this.handleSlotSelection(slot)} >
+                                <button key={slot} className="btn btn-outline-primary fs-5 p-2 px-4 m-2" onClick={() => this.handleSlotSelection(slot)} 
+                                        aria-label={`Prenota per le ${moment(slot).format("HH:mm")}`}>
                                     {moment(slot).format("HH:mm")}
                                 </button>
                             ))

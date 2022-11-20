@@ -109,7 +109,7 @@ class HubSelector extends React.Component {
                 </div>
 
                 <div className="row" style={{ height: this.props.style.height }}>
-                    <div className="col-12 col-md-6">
+                    <div className="col-12 col-md-6" aria-hidden="true">
                         <div style={{ height: this.props.style.height, width: "100%" }}>
                             <MapContainer center={MAP_CENTER} zoom={5} style={{ width: "100%", height: "100%" }} >
                                 <MapPositionController setMap={(map) => this.map = map} />

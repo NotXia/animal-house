@@ -60,7 +60,7 @@ class OrderSuccess extends React.Component {
 
                         <section aria-label="Promemoria dell'appuntamento">
                             <p className="fs-4 m-0 text-center">
-                                Ecco un promemoria dell'appuntamemento
+                                Ecco un promemoria dell'appuntamento
                             </p>
 
                             {
