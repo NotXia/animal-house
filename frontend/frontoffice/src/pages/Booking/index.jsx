@@ -51,6 +51,7 @@ class Booking extends React.Component {
             const service_url = this.props.searchParams.get("service");
             const hub_url = this.props.searchParams.get("hub");
     
+            // Appuntamento già esistente (salta direttamente al pagamento)
             if (appointment_url) {
                 try {
                     const appointment = await BookingAPI.getAppointmentById(appointment_url);
@@ -62,6 +63,7 @@ class Booking extends React.Component {
                 return;
             }
 
+            // Servizio già scelto
             if (service_url) {
                 const service = await ServiceAPI.getServiceById(service_url);
     
@@ -71,6 +73,7 @@ class Booking extends React.Component {
                 });
             }
     
+            // Hub già scelto
             if (hub_url) {
                 const hub = await HubAPI.getByCode(hub_url);
     
@@ -96,11 +99,13 @@ class Booking extends React.Component {
                         <h1>Crea appuntamento</h1>
                     </div>
 
+                    {/* Selezione animale */}
                     <div className={`row ${this.state.step === "animal" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli per chi vuoi prenotare</h2>
                         <PetSelector species={this.state.species} onSelected={(animal) => this.selectAnimal(animal)} />
                     </div>
 
+                    {/* Selezione servizio */}
                     <div className={`row ${this.state.step === "service" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli il servizio</h2>
                         <ServiceSelector hub={this.state.hub?.code} species={this.state.species} onSelected={(service) => this.selectService(service)} />
@@ -110,6 +115,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
+                    {/* Selezione hub */}
                     <div className={`row ${this.state.step === "hub" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli la sede in cui erogare il servizio</h2>
                         <HubSelector service={this.state.service?.id} onSelected={(hub) => this.selectHub(hub)} style={{ height: "20rem" }} visible={this.state.step === "hub"} />
@@ -119,6 +125,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
+                    {/* Selezione slot orario */}
                     <div className={`row ${this.state.step === "slot" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Scegli il giorno in cui vuoi venire</h2>
                         <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
@@ -130,6 +137,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
+                    {/* Riepilogo */}
                     <div className={`row ${this.state.step === "checkout" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <div className="d-flex justify-content-center">
                             <div>
@@ -157,6 +165,7 @@ class Booking extends React.Component {
                         </div>
                     </div>
 
+                    {/* Pagamento */}
                     <div className={`row ${this.state.step === "payment" ? animation_css["step-visible"] : animation_css["step-hidden"]} ${animation_css["fade-in"]}`}>
                         <h2>Completa il pagamento</h2>
                         <p className="text-center fs-5 fw-semibold">Totale: {centToPrice(this.state.created_appointment?.price)}€</p>
