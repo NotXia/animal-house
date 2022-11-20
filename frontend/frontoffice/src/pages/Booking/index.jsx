@@ -15,6 +15,7 @@ import BookingAPI from "modules/api/booking";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "../../components/form/CheckoutForm";
+import Loading from "../../components/Loading";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -38,30 +39,33 @@ class Booking extends React.Component {
         };
 
         this.payment = React.createRef();
+        this.loading = React.createRef();
 
         isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}`; } } );
     }
     
-    async componentDidMount() {
-        const service_url = this.props.searchParams.get("service");
-        const hub_url = this.props.searchParams.get("hub");
-
-        if (service_url) {
-            const service = await ServiceAPI.getServiceById(service_url);
-
-            this.setState({ 
-                service: service,
-                species: service.target 
-            });
-        }
-
-        if (hub_url) {
-            const hub = await HubAPI.getByCode(hub_url);
-
-            this.setState({ hub: hub });
-        }
-
-        this.setState({ step: "animal" });
+    componentDidMount() {
+        this.loading.current.wrap(async () => {
+            const service_url = this.props.searchParams.get("service");
+            const hub_url = this.props.searchParams.get("hub");
+    
+            if (service_url) {
+                const service = await ServiceAPI.getServiceById(service_url);
+    
+                this.setState({ 
+                    service: service,
+                    species: service.target 
+                });
+            }
+    
+            if (hub_url) {
+                const hub = await HubAPI.getByCode(hub_url);
+    
+                this.setState({ hub: hub });
+            }
+    
+            this.setState({ step: "animal" });
+        });
     }
 
     render() {
@@ -71,6 +75,7 @@ class Booking extends React.Component {
             </Helmet>
 
             <Navbar />
+            <Loading ref={this.loading} />
             
             <main className="mt-3">
                 <div className="container">
@@ -157,6 +162,7 @@ class Booking extends React.Component {
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </main>
         </>);
@@ -217,28 +223,32 @@ class Booking extends React.Component {
 
 
     async checkoutAppointment() {
-        const appointment_data = {
-            time_slot: this.state.slot.time,
-            service_id: this.state.service.id,
-            customer: await getUsername(),
-            animal_id: this.state.animal.id,
-            operator: this.state.slot.operator_username,
-            hub: this.state.hub.code,
-        };
-
-        try {
-            const new_appointment = await BookingAPI.createAppointment(appointment_data);
-            const payment_data = await BookingAPI.startPaymentById(new_appointment.id);
-
-            this.setState({ stripe_client_secret: payment_data.clientSecret, step: "payment", created_appointment: new_appointment });
-        }
-        catch (err) {
-            this.setState({ error_message: "Non è stato possibile creare l'appuntamento" });
-        }
+        this.loading.current.wrap(async () => {
+            const appointment_data = {
+                time_slot: this.state.slot.time,
+                service_id: this.state.service.id,
+                customer: await getUsername(),
+                animal_id: this.state.animal.id,
+                operator: this.state.slot.operator_username,
+                hub: this.state.hub.code,
+            };
+    
+            try {
+                const new_appointment = await BookingAPI.createAppointment(appointment_data);
+                const payment_data = await BookingAPI.startPaymentById(new_appointment.id);
+    
+                this.setState({ stripe_client_secret: payment_data.clientSecret, step: "payment", created_appointment: new_appointment });
+            }
+            catch (err) {
+                this.setState({ error_message: "Non è stato possibile creare l'appuntamento" });
+            }
+        });
     }
 
     async completeCheckout() {
-        await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/appointments/book/success?appointment_id=${encodeURIComponent(this.state.created_appointment.id)}`);
+        this.loading.current.wrap(async () => {
+            await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/appointments/book/success?appointment_id=${encodeURIComponent(this.state.created_appointment.id)}`);
+        });
     }
 }
 

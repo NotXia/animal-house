@@ -23,6 +23,7 @@ class SlotSelector extends React.Component {
             availabilities: [],
             selected_date: "",
 
+            loading: false,
             error_message: "",
         };
     }
@@ -37,6 +38,12 @@ class SlotSelector extends React.Component {
                 </label>
 
                 <div className="d-flex justify-content-center mt-3">
+                    <div className={`${this.state.loading ? "" : "d-none"}`}>
+                        <div className="spinner-border" role="status">
+                            <span className="visually-hidden">Caricamento dei servizi</span>
+                        </div>
+                    </div>
+
                     <div>
                         {
                             this.state.selected_date != "" && this.state.availabilities.length === 0 &&
@@ -58,6 +65,8 @@ class SlotSelector extends React.Component {
     }
 
     async fetchAvailabilities(date) {
+        this.setState({ loading: true, availabilities: [] });
+
         try {
             date = moment(date, "YYYY-MM-DD").format()
             const availabilities = await BookingAPI.getAvailabilitiesOfDate(date, this.props.hub, this.props.service);
@@ -67,6 +76,8 @@ class SlotSelector extends React.Component {
         catch (err) {
             this.setState({ error_message: "Non è stato possibile trovare disponibilità" })
         }
+
+        this.setState({ loading: false });
     }
 
     getAvailableStartTimes() {

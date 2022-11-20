@@ -21,6 +21,7 @@ class ServiceSelector extends React.Component {
         this.state = {
             services: [],
 
+            loading: false,
             error_message: "",
         };
     }
@@ -28,6 +29,8 @@ class ServiceSelector extends React.Component {
     componentDidUpdate(prev_props, prev_states) {
         if (JSON.stringify(prev_props) === JSON.stringify(this.props)) { return; }
     (async () => {
+        this.setState({ loading: true });
+
         try {
             let services = await ServiceAPI.getServices(this.props.hub);
             
@@ -39,12 +42,20 @@ class ServiceSelector extends React.Component {
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore" });
         }
+
+        this.setState({ loading: false });
     })()
     }
 
     render() {
         return (
             <div className="list-group w-100">
+                <div className={`d-flex justify-content-center ${this.state.loading ? "" : "d-none"}`}>
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Caricamento dei servizi</span>
+                    </div>
+                </div>
+
                 {
                     this.state.services.map((service) => (
                         <button key={service.id} type="button" className="list-group-item list-group-item-action" onClick={() => this.handleServiceSelection(service)}>

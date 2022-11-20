@@ -11,6 +11,7 @@
  */
 
 import React from "react";
+import $ from "jquery";
 import HubAPI from "modules/api/hub";
 import CustomerAPI from "modules/api/customer";
 import { getUsername } from "modules/auth";
@@ -37,9 +38,6 @@ class HubSelector extends React.Component {
         this.state = {
             hubs: [],
 
-            map_center_lat: 0,
-            map_center_lon: 0,
-
             selected_hub: "",
 
             error_message: "",
@@ -52,6 +50,8 @@ class HubSelector extends React.Component {
         this.map.invalidateSize(); // Per evitare problemi di render della mappa
 
     (async () => {
+        $("#__loading-hub-selector").show();
+
         try {
             // Estrazione indirizzo cliente
             const user_data = await CustomerAPI.getAllDataByUsername(await getUsername());
@@ -76,12 +76,20 @@ class HubSelector extends React.Component {
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore" });
         }
+
+        $("#__loading-hub-selector").hide();
     })()
     }
 
     render() {
         return (
             <div className="container-fluid" style={{ height: this.props.style.height }}>
+                <div id="__loading-hub-selector" className={`d-flex justify-content-center`}>
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Caricamento degli hub</span>
+                    </div>
+                </div>
+
                 <div className="row" style={{ height: this.props.style.height }}>
                     <div className="col-12 col-md-6">
                         <div style={{ height: this.props.style.height, width: "100%" }}>
