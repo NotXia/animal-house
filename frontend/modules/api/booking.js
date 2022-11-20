@@ -37,6 +37,13 @@ const BookingAPI = {
             url: `${DOMAIN}/appointments/${encodeURIComponent(appointment_id)}/success`
         });
     },
+
+    getAppointmentById: async function (appointment_id) {
+        return await api_request({ 
+            method: "GET", 
+            url: `${DOMAIN}/appointments/${encodeURIComponent(appointment_id)}`
+        });
+    }
 }
 
 export default BookingAPI;

@@ -47,9 +47,21 @@ class Booking extends React.Component {
     
     componentDidMount() {
         this.loading.current.wrap(async () => {
+            const appointment_url = this.props.searchParams.get("appointment");
             const service_url = this.props.searchParams.get("service");
             const hub_url = this.props.searchParams.get("hub");
     
+            if (appointment_url) {
+                try {
+                    const appointment = await BookingAPI.getAppointmentById(appointment_url);
+                    if (appointment.paid) { window.location = `${process.env.REACT_APP_BASE_PATH}/appointments`; }
+                    
+                    await this.startPayment(appointment);
+                }
+                catch(err) { this.setState({ error_message: "Non è stato possibile trovare l'appuntamento" }); }
+                return;
+            }
+
             if (service_url) {
                 const service = await ServiceAPI.getServiceById(service_url);
     
@@ -159,7 +171,7 @@ class Booking extends React.Component {
                             }
 
                             <div className="d-flex justify-content-center mt-4">
-                                <button className="btn btn-outline-success" onClick={() => this.completeCheckout()}>Completa pagamento</button>
+                                <button className="btn btn-outline-success" onClick={() => this.completePayment()}>Completa pagamento</button>
                             </div>
                         </div>
                     </div>
@@ -236,9 +248,8 @@ class Booking extends React.Component {
     
             try {
                 const new_appointment = await BookingAPI.createAppointment(appointment_data);
-                const payment_data = await BookingAPI.startPaymentById(new_appointment.id);
-    
-                this.setState({ stripe_client_secret: payment_data.clientSecret, step: "payment", created_appointment: new_appointment });
+                
+                await this.startPayment(new_appointment);
             }
             catch (err) {
                 this.setState({ error_message: "Non è stato possibile creare l'appuntamento" });
@@ -246,7 +257,18 @@ class Booking extends React.Component {
         });
     }
 
-    async completeCheckout() {
+    async startPayment(appointment) {
+        try {
+            const payment_data = await BookingAPI.startPaymentById(appointment.id);
+
+            this.setState({ stripe_client_secret: payment_data.clientSecret, step: "payment", created_appointment: appointment });
+        }
+        catch (err) {
+            this.setState({ error_message: "Non è stato possibile creare avviare il pagamento" });
+        }
+    }
+
+    async completePayment() {
         this.loading.current.wrap(async () => {
             await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/appointments/book/success?appointment_id=${encodeURIComponent(this.state.created_appointment.id)}`);
         });
