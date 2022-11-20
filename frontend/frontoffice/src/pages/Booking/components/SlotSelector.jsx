@@ -84,8 +84,12 @@ class SlotSelector extends React.Component {
         let available_days = new Set();
 
         this.state.availabilities.forEach((availability) => available_days.add(availability.time.start));
+        
+        // Ordinamento orari
+        let slots = Array.from(available_days);
+        slots.sort((s1, s2) => moment(s1).diff(moment(s2)));
 
-        return Array.from(available_days);
+        return slots;
     }
 
     handleSlotSelection(slot_start) {
