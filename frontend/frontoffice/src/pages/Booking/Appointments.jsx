@@ -2,10 +2,7 @@ import React from "react";
 import { Helmet } from "react-helmet";
 import Navbar from "../../components/Navbar";
 import { getUsername, isAuthenticated } from "modules/auth.js";
-import ServiceAPI from "modules/api/service";
-import HubAPI from "modules/api/hub";
 import moment from "moment";
-import { centToPrice } from "modules/currency";
 import BookingAPI from "modules/api/booking";
 import Loading from "../../components/Loading";
 import AppointmentRow from "./components/AppointmentRow";
@@ -62,21 +59,35 @@ class Appointments extends React.Component {
                         <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
                     </div>
 
-                    <div className="row"><h2>Oggi</h2></div>
-                    <div className="row mb-3">
-                        { this.renderAppointments(this.state.appointments_today) }
-                    </div>
+                    {
+                        this.state.appointments_today.length > 0 &&
+                        <section aria-label="Appuntamenti di oggi">
+                            <div className="row"><h2>Oggi</h2></div>
+                            <div className="row mb-3">
+                                { this.renderAppointments(this.state.appointments_today) }
+                            </div>
+                        </section>
+                    }
 
-                    <div className="row"><h2>Domani</h2></div>
-                    <div className="row mb-3">
-                        { this.renderAppointments(this.state.appointments_tomorrow) }
-                    </div>
+                    {
+                        this.state.appointments_tomorrow.length > 0 &&
+                        <section aria-label="Appuntamenti di domani">
+                            <div className="row"><h2>Domani</h2></div>
+                            <div className="row mb-3">
+                                { this.renderAppointments(this.state.appointments_tomorrow) }
+                            </div>
+                        </section>
+                    }
 
-                    <div className="row"><h2>Prossimamente</h2></div>
-                    <div className="row mb-3">
-                        { this.renderAppointments(this.state.appointments_other) }
-                    </div>
-
+                    {
+                        this.state.appointments_other.length > 0 &&
+                        <section aria-label="Appuntamenti successivi">
+                            <div className="row"><h2>Prossimamente</h2></div>
+                            <div className="row mb-3">
+                                { this.renderAppointments(this.state.appointments_other) }
+                            </div>
+                        </section>
+                    }
                 </div>
             </main>
         </>);
