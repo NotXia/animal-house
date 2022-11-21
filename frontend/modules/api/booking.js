@@ -43,6 +43,23 @@ const BookingAPI = {
             method: "GET", 
             url: `${DOMAIN}/appointments/${encodeURIComponent(appointment_id)}`
         });
+    },
+
+    deleteAppointmentById: async function (appointment_id) {
+        return await api_request({ 
+            method: "DELETE", 
+            url: `${DOMAIN}/appointments/${encodeURIComponent(appointment_id)}`
+        });
+    },
+
+    getAppointmentsOf: async function (username) {
+        return await api_request({ 
+            method: "GET", 
+            url: `${DOMAIN}/appointments/`,
+            data: {
+                username: username
+            }
+        });
     }
 }
 
