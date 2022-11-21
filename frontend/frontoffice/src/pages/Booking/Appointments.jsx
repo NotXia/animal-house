@@ -28,7 +28,7 @@ class Appointments extends React.Component {
         this.loading.current.wrap(async () => {
             try {
                 let appointments = await BookingAPI.getAppointmentsOf(await getUsername());
-                appointments = appointments.filter((appointment) => moment(appointment.time_slot.start).isSameOrAfter(moment(), "day"));
+                appointments = appointments.filter((appointment) => moment(appointment.time_slot.start).isSameOrAfter(moment(), "day")); // Rimuove gli appuntamenti vecchi
                 appointments.sort((a1, a2) => moment(a1.time_slot.start).diff(moment(a2.time_slot.start)));
 
                 this.setState({
@@ -59,6 +59,7 @@ class Appointments extends React.Component {
                         <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
                     </div>
 
+                    {/* Appuntamenti di oggi */}
                     {
                         this.state.appointments_today.length > 0 &&
                         <section aria-label="Appuntamenti di oggi">
@@ -69,6 +70,7 @@ class Appointments extends React.Component {
                         </section>
                     }
 
+                    {/* Appuntamenti di domani */}
                     {
                         this.state.appointments_tomorrow.length > 0 &&
                         <section aria-label="Appuntamenti di domani">
@@ -79,6 +81,7 @@ class Appointments extends React.Component {
                         </section>
                     }
 
+                    {/* Appuntamenti rimanenti */}
                     {
                         this.state.appointments_other.length > 0 &&
                         <section aria-label="Appuntamenti successivi">
@@ -102,9 +105,9 @@ class Appointments extends React.Component {
     }
 
     deleteAppointment(deleted_appointment) {
-        let appointments_today = this.state.appointments_today.filter((appointment) => appointment.id != deleted_appointment.id);
+        let appointments_today =    this.state.appointments_today.filter((appointment) => appointment.id != deleted_appointment.id);
         let appointments_tomorrow = this.state.appointments_tomorrow.filter((appointment) => appointment.id != deleted_appointment.id);
-        let appointments_other = this.state.appointments_other.filter((appointment) => appointment.id != deleted_appointment.id);
+        let appointments_other =    this.state.appointments_other.filter((appointment) => appointment.id != deleted_appointment.id);
 
         this.setState({
             appointments_today: appointments_today,

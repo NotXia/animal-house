@@ -4,10 +4,9 @@ import HubAPI from "modules/api/hub";
 import AnimalAPI from "modules/api/animals";
 import BookingAPI from "modules/api/booking";
 import moment from "moment";
-import { centToPrice } from "modules/currency";
 
 
-class Appointments extends React.Component {
+class AppointmentCard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -79,6 +78,7 @@ class Appointments extends React.Component {
                 </div>
             </div>
 
+            {/* Modale conferma cancellazione */}
             <div className="modal fade" id={`__modal-delete-${this.props.appointment.id}`} tabIndex="-1" aria-labelledby={`__modal-label-delete-${this.props.appointment.id}`} aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div className="modal-content">
@@ -113,4 +113,4 @@ class Appointments extends React.Component {
     }
 }
 
-export default Appointments;
+export default AppointmentCard;
