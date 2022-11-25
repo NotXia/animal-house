@@ -25,13 +25,15 @@ class ServiceSelector extends React.Component {
         };
     }
     
-    componentDidMount() {
+    componentDidUpdate() {
     (async () => {
         try {
             let animals = await AnimalAPI.getUserAnimals(await getUsername());
             animals = animals.filter((animal) => !this.props.species || this.props.species.includes(animal.species));
             
-            this.setState({ animals: animals });
+            if (JSON.stringify(animals) != JSON.stringify(this.state.animals)) {
+                this.setState({ animals: animals });
+            }
         }
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore" });
