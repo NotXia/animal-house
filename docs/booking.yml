@@ -230,6 +230,82 @@ paths:
             $ref: "definitions/utils.yml#/definitions/ErrorMessage"
         500:
           description: "Internal server error"
+
+  /appointments/{appointment_id}/checkout:
+    post:
+      tags:
+      - "Appointments"
+      summary: "Sessione di pagamento"
+      description: |
+        Avvia una sessione di pagamento per un appuntamento.
+
+        Richiede permessi [ ["customer"] ], []
+      produces:
+      - "application/json"
+      parameters:
+      - name: appointment_id
+        in: path
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        200:
+          description: "Creato con successo"
+          schema:
+            type: object
+            properties:
+              clientSecret:
+                type: string
+                description: "Client secret di Stripe"
+        400:
+          description: "Parametri malformati"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Permessi insufficienti"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Appuntamento inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
+
+  /appointments/{appointment_id}/success:
+    post:
+      tags:
+      - "Appointments"
+      summary: "Pagamento appuntamento"
+      description: |
+        Aggiorna lo stato di un appuntamento se è stato pagato correttamente.
+      parameters:
+      - name: appointment_id
+        in: path
+        required: true
+        type: string
+        format: ObjectId
+      responses:
+        204:
+          description: "Appuntamento aggiornato con successo"
+        400:
+          description: "Parametri malformati oppure appuntamento già pagato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        402:
+          description: "L'appuntamento non è stato pagato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Appuntamento inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Errore lato server"
     
 definitions:
   BookingData:
@@ -257,7 +333,9 @@ definitions:
         type: string
       hub:
         type: string
-    required: [ id, time_slot, service_id, customer, animal_id, operator, hub ]
+      paid:
+        type: boolean
+    required: [ id, time_slot, service_id, customer, animal_id, operator, hub, paid ]
 
   TimeSlot:
     type: object

@@ -11,7 +11,11 @@ const bookingScheme = mongoose.Schema({
     customer: { type: String, required: true },
     animal_id: { type: ObjectId, ref: AnimalModel.collection.collectionName, required: true },
     operator: { type: String, required: true },
-    hub: { type: String, required: true }
+    hub: { type: String, required: true },
+
+    price: { type: Number, required: true, default: 0 },
+    paid: { type: Boolean, required: true, default: false },
+    payment_id: { type: String, default: "" },
 });
 
 bookingScheme.methods.getData = function() {
@@ -22,7 +26,9 @@ bookingScheme.methods.getData = function() {
         customer: this.customer,
         animal_id: this.animal_id,
         operator: this.operator,
-        hub: this.hub
+        hub: this.hub,
+        price: this.price,
+        paid: this.paid
     };
 };
 

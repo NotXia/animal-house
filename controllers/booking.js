@@ -7,6 +7,7 @@ const BookingModel = require("../models/services/booking");
 const UserModel = require("../models/auth/user");
 const AnimalModel = require("../models/animals/animal");
 const { matchedData } = require('express-validator');
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 /* Inserimento appuntamento */
 async function insertAppointment(req, res) {
@@ -32,6 +33,9 @@ async function insertAppointment(req, res) {
         if(!await operator.isAvailableAt(newAppointment.time_slot.start, newAppointment.time_slot.end, newAppointment.hub)) {
             throw error.generate.BAD_REQUEST({ field: newAppointment.time_slot, message: "Slot non disponibile" });
         }
+
+        // Salvataggio prezzo
+        newAppointment.price = (await ServiceModel.findById(newAppointment.service_id).exec()).price;
 
         let toInsertAppointment = await new BookingModel(newAppointment).save();
         return res.status(utils.http.CREATED)
@@ -119,10 +123,74 @@ async function deleteAppointment(req, res) {
     }
 }
 
+async function checkout(req, res) {
+    const appointment_id = req.params.appointment_id;
+    let payment_intent = null;
+
+    try {
+        // Estrazione appuntamento
+        const appointment = await BookingModel.findById(appointment_id).exec();
+        if (!appointment) { throw error.generate.NOT_FOUND("Appuntamento inesistente"); }
+
+        if (appointment.payment_id) {
+            // Pagamento in sospeso
+            payment_intent = await stripe.paymentIntents.retrieve(appointment.payment_id);
+        }
+        else {
+            // Creazione richiesta di pagamento
+            payment_intent = await stripe.paymentIntents.create({
+                amount: appointment.price, currency: "eur",
+                automatic_payment_methods: { enabled: false },
+            });
+
+            // Salvataggio dati pagamento
+            appointment.payment_id = payment_intent.id;
+            await appointment.save();
+        }
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+  
+    res.status(utils.http.OK).send({
+        clientSecret: payment_intent.client_secret,
+    });
+}
+
+async function paymentSuccess(req, res) {
+    const appointment_id = req.params.appointment_id;
+
+    try {
+        // Estrazione appuntamento
+        const appointment = await BookingModel.findById(appointment_id).exec();
+        if (!appointment) { throw error.generate.NOT_FOUND("Appuntamento inesistente"); }
+        if (appointment.paid) { throw error.generate.BAD_REQUEST("Appuntamento già pagato"); }
+
+        // Estrazione dati pagamento
+        const payment_data = await stripe.paymentIntents.retrieve(appointment.payment_id);
+
+        // Aggiornamento stato ordine se il pagamento è avvenuto
+        if (payment_data.status === "succeeded") {
+            appointment.paid = true;
+            await appointment.save();
+        }
+        else {
+            throw error.generate.PAYMENT_REQUIRED("Pagamento mancante");
+        }
+    }
+    catch (err) {
+        return error.response(err, res);
+    }
+  
+    res.sendStatus(utils.http.NO_CONTENT);
+}
+
 module.exports = {
     insertAppointment: insertAppointment,
     searchAvailabilities: searchAvailabilities,
     getAppointmentById: getAppointmentById,
     getAppointmentsByUser: getAppointmentsByUser,
-    deleteAppointment: deleteAppointment
+    deleteAppointment: deleteAppointment,
+    checkout: checkout,
+    paymentSuccess: paymentSuccess
 }
