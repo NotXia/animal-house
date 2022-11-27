@@ -116,7 +116,7 @@ class CreatePost extends React.Component {
             this.resetForm();
         }
         catch (err) {
-            console.log(err)
+            this.setState({ error_message: "Si è verificato un errore mentre creavo il post" });
         }
     }
 
