@@ -23,6 +23,8 @@ class CreatePost extends React.Component {
             content: React.createRef(),
             topic: React.createRef()
         }
+
+        this.form = React.createRef();
     }
 
     componentDidMount() {
@@ -40,7 +42,7 @@ class CreatePost extends React.Component {
     render() {
         return (
             <div className="d-flex justify-content-center w-100">
-                <form className="w-100" onSubmit={(e) => { e.preventDefault(); this.createPost(); } }>
+                <form ref={this.form} className="w-100" onSubmit={(e) => { e.preventDefault(); this.createPost(); } }>
                     <TextInput ref={this.input.title} id="__createpost-title" name="title" type="text" label="Titolo" required />
                     
                     <textarea ref={this.input.content} className="form-control w-100" placeholder="Contenuto del post" style={{height: "7rem", resize: "none"}} defaultValue=""></textarea>
@@ -111,9 +113,10 @@ class CreatePost extends React.Component {
         try {
             const post = await BlogAPI.createPost(this.getPostData());
             this.props.onCreate(post);
+            this.resetForm();
         }
         catch (err) {
-
+            console.log(err)
         }
     }
 
@@ -152,6 +155,11 @@ class CreatePost extends React.Component {
         curr_images[index].description = description;
 
         this.setState({ uploaded_images: curr_images });
+    }
+
+    resetForm() {
+        this.form.current.reset();
+        this.setState({ uploaded_images: [] });
     }
 }
 

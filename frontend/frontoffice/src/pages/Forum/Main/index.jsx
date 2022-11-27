@@ -26,6 +26,8 @@ class ForumMain extends React.Component {
 
             error_message: ""
         };
+
+        this.create_form = React.createRef();
     }
 
     componentDidMount() {
@@ -50,6 +52,11 @@ class ForumMain extends React.Component {
         });
 
         this.new_post_modal = new Modal(document.querySelector("#modal-create_post"));
+        document.querySelector("#modal-create_post").addEventListener("hidden.bs.modal", event => {
+            this.create_form.current.resetForm();
+        });
+          
+        
     })();
     }
 
@@ -116,7 +123,7 @@ class ForumMain extends React.Component {
                         </div>
 
                         <div className="p-4 modal-body">
-                            <CreatePost onCreate={(post) => this.onPostCreate(post)}/>
+                            <CreatePost ref={this.create_form} onCreate={(post) => this.onPostCreate(post)}/>
                         </div>
                     </div>
                 </div>
