@@ -108,8 +108,13 @@ class CreatePost extends React.Component {
     }
 
     async createPost() {
-        const post = await BlogAPI.createPost(this.getPostData());
-        console.log(post);
+        try {
+            const post = await BlogAPI.createPost(this.getPostData());
+            this.props.onCreate(post);
+        }
+        catch (err) {
+
+        }
     }
 
     async fileUploadHandler(e) {
@@ -121,7 +126,6 @@ class CreatePost extends React.Component {
             upload_data.append(`file${i}`, $("#input-images_file")[0].files[i]);
         }
         uploaded_images = await FileAPI.upload(upload_data).catch((err) => { this.setState({ error_message: "Non è stato possibile caricare le immagini" }); });
-        console.log(uploaded_images)
 
         let curr_images = this.state.uploaded_images;
         uploaded_images.forEach((image_path) => { 
@@ -131,14 +135,12 @@ class CreatePost extends React.Component {
                 description: ""
             })
         });
-        console.log(curr_images)
         this.setState({ uploaded_images: curr_images })
 
         $("#input-images_file").val("");
     }
 
     deleteImageAtIndex(index) {
-        console.log(index);
         let curr_images = this.state.uploaded_images;
         curr_images.splice(index, 1);
 

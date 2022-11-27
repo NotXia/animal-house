@@ -8,6 +8,7 @@ import Navbar from "../../../components/Navbar";
 import CreatePost from "./components/CreatePost";
 import Post from "./components/Post";
 import BlogAPI from "../../../import/api/blog";
+import { Modal } from "bootstrap";
 
 
 const PAGE_SIZE = 10;
@@ -40,13 +41,15 @@ class ForumMain extends React.Component {
         }
 
 
-        window.addEventListener("scroll", (event) => {
+        window.addEventListener("scroll", (_) => {
             let scroll_percent = ($(window).scrollTop() / ($(document).height() - $(window).height()));
 
             if (scroll_percent > 0.7) {
                 this.loadNextPage();
             }
         });
+
+        this.new_post_modal = new Modal(document.querySelector("#modal-create_post"));
     })();
     }
 
@@ -85,7 +88,7 @@ class ForumMain extends React.Component {
                             {/* Creazione post */}
                             <section aria-label="Creazione post" className="w-100">
                                 <Row>
-                                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-create_post">
                                         SCRIVI UN POST
                                     </button>
                                 </Row>
@@ -104,16 +107,16 @@ class ForumMain extends React.Component {
                 </Container>
             </main>
 
-            <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id="modal-create_post" tabIndex="-1" aria-labelledby="modal-create_post-label" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                     <div className="modal-content">
                         <div className="modal-header" style={{ border: "none" }}>
-                            <h1 className="modal-title fs-5" id="exampleModalLabel">Scrivi un post</h1>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h1 className="modal-title fs-5" id="modal-create_post-label">Scrivi un post</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                         </div>
 
                         <div className="p-4 modal-body">
-                            <CreatePost />
+                            <CreatePost onCreate={(post) => this.onPostCreate(post)}/>
                         </div>
                     </div>
                 </div>
@@ -154,6 +157,18 @@ class ForumMain extends React.Component {
             this.loadNextPage();
         });
 
+    }
+
+    onPostCreate(post) {
+        this.new_post_modal.hide();
+
+        if (!this.state.selected_topic || post.topic === this.state.selected_topic) {
+            let new_posts = this.state.posts;
+            new_posts.unshift(post);
+
+
+            this.setState({ posts: new_posts });
+        }
     }
 }
 
