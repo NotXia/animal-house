@@ -107,3 +107,8 @@ package-lock.json
 
 docs/pdf/
 public/js/keys.js
+
+public/shop/images
+public/posts/images
+public/tmp
+public/animals/images

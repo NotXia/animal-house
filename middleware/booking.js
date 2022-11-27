@@ -73,6 +73,24 @@ const validateDeleteAppointment = [
 
         return next();
     }
+];
+
+const validateCheckout  = [
+    booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        let err = await booking_validator.verifyAppointmentOwnership(req.params.appointment_id, req.auth.username);
+        if (err) { return next(err); }
+
+        return next();
+    }
+];
+
+const validateSuccess = [
+    booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
+    utils.validatorErrorHandler
 ]
 
 module.exports = {
@@ -80,5 +98,7 @@ module.exports = {
     validateSearchAvailabilities: validateSearchAvailabilities,
     validateGetAppointmentById: validateGetAppointmentById,
     validateGetAppointmentsByUser: validateGetAppointmentsByUser,
-    validateDeleteAppointment: validateDeleteAppointment
+    validateDeleteAppointment: validateDeleteAppointment,
+    validateCheckout: validateCheckout,
+    validateSuccess: validateSuccess
 }

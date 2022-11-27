@@ -3,6 +3,7 @@ import ItemPage from "./Item";
 import CartPage from "./Cart";
 import CheckoutPage from "./Checkout";
 import OrderSuccessPage from "./Checkout/OrderSuccess";
+import OrdersPage from "./Orders";
 
 let routes = [
     {
@@ -24,6 +25,10 @@ let routes = [
     {
         path: "/shop/checkout/success",
         element: <OrderSuccessPage />,
+    },
+    {
+        path: "/shop/orders",
+        element: <OrdersPage />,
     }
 ]
 

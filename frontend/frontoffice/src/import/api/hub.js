@@ -10,6 +10,11 @@ const HubAPI = {
                 lat: lat, lon: lon
             }
         });
+    },
+    getByCode: async function (code) {
+        return await $.ajax({
+            method: "GET", url: `${process.env.REACT_APP_DOMAIN}/hubs/${encodeURIComponent(code)}`
+        });
     }
 }
 

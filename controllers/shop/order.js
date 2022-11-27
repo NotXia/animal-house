@@ -86,12 +86,12 @@ async function searchOrder(req, res) {
             "$lte": moment(req.query.end_date).endOf("day").format(),
         }; 
     }
-    
+
     try {
         orders = await OrderModel.find(query)
-                            .sort({ creationDate: "desc" })
-                            .limit(req.query.page_size)
-                            .skip(req.query.page_number)
+                            .sort({ creationDate: "desc", _id: "asc" })
+                            .skip(parseInt(req.query.page_number)*parseInt(req.query.page_size))
+                            .limit(parseInt(req.query.page_size))
                             .exec();
 
         orders = orders.map((order) => order.getData());
@@ -185,7 +185,7 @@ async function checkoutOrder(req, res) {
             // Creazione richiesta di pagamento
             payment_intent = await stripe.paymentIntents.create({
                 amount: order.total, currency: "eur",
-                automatic_payment_methods: { enabled: true },
+                automatic_payment_methods: { enabled: false },
             });
 
             // Salvataggio dati pagamento
