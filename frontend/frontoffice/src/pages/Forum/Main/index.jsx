@@ -82,8 +82,6 @@ class ForumMain extends React.Component {
                             {/* Ricerca */}
                             <Row></Row>
 
-
-
                             {/* Creazione post */}
                             <section aria-label="Creazione post" className="w-100">
                                 <Row>

@@ -153,6 +153,20 @@ export async function isOperator() {
 /**
  * Indica se l'utente è un operatore
  */
-export  async function getUsername() {
+export async function getUsername() {
     return (await getTokenData()).username;
+}
+
+export async function isAdmin() {
+    try {
+        const user_data = await api_request({
+            type: "GET",
+            url: `${DOMAIN}/users/operators/${encodeURIComponent(await getUsername())}`
+        });
+
+        return user_data.permissions.includes("admin");
+    }
+    catch (err) {
+        return false;
+    }
 }

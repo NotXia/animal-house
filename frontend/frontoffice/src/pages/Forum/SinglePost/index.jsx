@@ -8,7 +8,7 @@ import Navbar from "../../../components/Navbar";
 import BlogAPI from "../../../import/api/blog";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import Comment from "./components/Comment";
-import { getUsername } from "../../../import/auth"
+import { getUsername, isAdmin } from "modules/auth.js";
 
 
 const COMMENT_PAGE_SIZE = 10;
@@ -20,6 +20,7 @@ class SinglePost extends React.Component {
             post: {},
             comments: [],
             username: "",
+            is_admin: true,
 
             next_page: 0,
 
@@ -38,11 +39,13 @@ class SinglePost extends React.Component {
             const post = await BlogAPI.getPostById(this.post_id);
             const comments = await BlogAPI.getCommentsOf(this.post_id, COMMENT_PAGE_SIZE, 0);
             const username = await getUsername().catch((err) => "");
+            const is_admin = await isAdmin();
 
             this.setState({ 
                 post: post,
                 comments: comments,
                 username: username,
+                is_admin: is_admin,
                 next_page: 1
             });
         }
@@ -77,7 +80,7 @@ class SinglePost extends React.Component {
                                     <h1>{this.state.post.title}</h1>
 
                                     {
-                                        this.state.post.author === this.state.username &&
+                                        ((this.state.post.author === this.state.username) || this.state.is_admin) &&
                                         (
                                             <span className="dropdown">
                                                 <div className="d-flex align-items-center justify-content-center h-100">
