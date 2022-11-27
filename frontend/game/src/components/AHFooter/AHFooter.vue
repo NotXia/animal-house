@@ -3,6 +3,7 @@
         <div class="w-100 text-center">
             <router-link to="/" class="link-dark mx-2">Home</router-link>
             <router-link to="/services-list" class="link-dark mx-2">Servizi</router-link>
+            <router-link to="/hubs-list" class="link-dark mx-2">Sedi</router-link>
             <hr>
             Animal House
         </div>
