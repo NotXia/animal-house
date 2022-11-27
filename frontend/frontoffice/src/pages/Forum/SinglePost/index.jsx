@@ -77,7 +77,10 @@ class SinglePost extends React.Component {
                         <div className="col-12 col-md-8">
                             <Row>
                                 <div className="d-flex justify-content-between">
-                                    <h1>{this.state.post.title}</h1>
+                                    <div>
+                                        <h1 className="m-0">{this.state.post.title}</h1>
+                                        <p>@{this.state.post.author}</p>
+                                    </div>
 
                                     {
                                         ((this.state.post.author === this.state.username) || this.state.is_admin) &&
