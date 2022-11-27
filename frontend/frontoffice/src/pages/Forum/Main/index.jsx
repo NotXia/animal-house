@@ -15,6 +15,7 @@ class ForumMain extends React.Component {
         super(props);
         this.state = {
             posts: [],
+            next_page: 0,
 
             error_message: ""
         };
@@ -25,11 +26,21 @@ class ForumMain extends React.Component {
     (async () => {
         try {
             const posts = await BlogAPI.getPosts(10, 0);
-            this.setState({ posts: posts });
+
+            this.setState({ posts: posts, next_page: 1 });
         }
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore mentre cercavo i post" });
         }
+
+
+        window.addEventListener("scroll", (event) => {
+            let scroll_percent = ($(window).scrollTop() / ($(document).height() - $(window).height()));
+
+            if (scroll_percent > 0.7) {
+                this.loadNextPage();
+            }
+        });
     })();
     }
 
@@ -53,13 +64,13 @@ class ForumMain extends React.Component {
 
 
                             {/* Creazione post */}
-                            <Row>
-                                {/* <section aria-label="Creazione post">
-                                </section> */}
-                                <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                    SCRIVI UN POST
-                                </button>
-                            </Row>
+                            <section aria-label="Creazione post" className="w-100">
+                                <Row>
+                                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                        SCRIVI UN POST
+                                    </button>
+                                </Row>
+                            </section>
 
                             {/* Visualizzazione post */}
                             <Row>
@@ -89,6 +100,26 @@ class ForumMain extends React.Component {
                 </div>
             </div>
         </>);
+    }
+
+    async loadNextPage() {
+        try {
+            if (this.curr_fetch_request) { // Richiesta già effettuata
+                await this.curr_fetch_request;
+                this.curr_fetch_request = null;
+            }
+            else {
+                this.curr_fetch_request = BlogAPI.getPosts(10, this.state.next_page).then((posts) => {
+                    this.setState({ 
+                        posts: this.state.posts.concat(posts),
+                        next_page: this.state.next_page + 1
+                    });
+                });
+            }
+        }
+        catch (err) {
+            this.setState({ error_message: "Si è verificato un errore mentre cercavo i post" });
+        }
     }
 }
 
