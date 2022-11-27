@@ -131,7 +131,6 @@ class ForumMain extends React.Component {
             }
             else {
                 this.curr_fetch_request = BlogAPI.getPosts(PAGE_SIZE, this.state.next_page, undefined, this.state.selected_topic).then((posts) => {
-                    console.log(posts, this.state.selected_topic)
                     this.setState({ 
                         posts: this.state.posts.concat(posts),
                         next_page: this.state.next_page + 1
