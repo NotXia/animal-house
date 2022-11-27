@@ -48,13 +48,13 @@ async function searchPosts(req, res) {
         if (req.query.title) { query.title = {"$regex" : `.*${req.query.title}.*`, "$options" : "i"}; }
 
         // Composizione criterio di
-        let sort_criteria = { creationDate: "desc" };
-        if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
+        let sort_criteria = { creationDate: "desc", _id: "asc" };
+        if (req.query.oldest) { sort_criteria = { creationDate: "asc", _id: "asc" }; }
     
         let posts = await PostModel.find(query)
                             .sort(sort_criteria)
+                            .skip(req.query.page_number*req.query.page_size)
                             .limit(req.query.page_size)
-                            .skip(req.query.page_number)
                             .exec();
 
         posts = posts.map((post) => post.getData());
