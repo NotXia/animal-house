@@ -11,7 +11,7 @@ import Comment from "./components/Comment";
 import { getUsername } from "../../../import/auth"
 
 
-const COMMENT_PAGE_SIZE = 100;
+const COMMENT_PAGE_SIZE = 10;
 
 class SinglePost extends React.Component {
     constructor(props) {
@@ -20,6 +20,8 @@ class SinglePost extends React.Component {
             post: {},
             comments: [],
             username: "",
+
+            next_page: 0,
 
             error_message: ""
         };
@@ -40,12 +42,22 @@ class SinglePost extends React.Component {
             this.setState({ 
                 post: post,
                 comments: comments,
-                username: username
+                username: username,
+                next_page: 1
             });
         }
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore mentre cercavo il post" });
         }
+
+
+        $("#container-comments").on("scroll", (event) => {
+            let scroll_percent = ($("#container-comments").scrollTop() / ($("#container-comments")[0].scrollHeight - $("#container-comments").height()));
+
+            if (scroll_percent > 0.6) {
+                this.loadNextCommentPage();
+            }
+        });
     })();
     }
 
@@ -136,7 +148,7 @@ class SinglePost extends React.Component {
                                 </form>
                             </Row>
 
-                            <Row className="mt-2 overflow-auto" style={{ maxHeight: "30rem" }}>
+                            <Row className="mt-2 overflow-auto" style={{ maxHeight: "30rem" }} id="container-comments">
                                 {
                                     this.state.comments.map((comment) => (
                                         <div key={`comment-${comment.index}-${comment.creationDate}`} className="my-2">
@@ -177,6 +189,26 @@ class SinglePost extends React.Component {
         }
         catch (err) {
 
+        }
+    }
+
+    async loadNextCommentPage() {
+        try {
+            if (this.curr_fetch_request) { // Richiesta già effettuata
+                await this.curr_fetch_request;
+                this.curr_fetch_request = null;
+            }
+            else {
+                this.curr_fetch_request = BlogAPI.getCommentsOf(this.post_id, COMMENT_PAGE_SIZE, this.state.next_page).then((comments) => {
+                    this.setState({ 
+                        comments: this.state.comments.concat(comments),
+                        next_page: this.state.next_page + 1
+                    });
+                });
+            }
+        }
+        catch (err) {
+            this.setState({ error_message: "Si è verificato un errore mentre cercavo i commenti" });
         }
     }
 }
