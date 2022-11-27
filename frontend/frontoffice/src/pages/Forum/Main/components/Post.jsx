@@ -46,7 +46,7 @@ class CreatePost extends React.Component {
 
         return (
             <Link to={`/forum/post?post_id=${post.id}`} style={{ textDecoration: "none", color: "black" }}>
-                <div className={`w-100 ${css["card-post"]}`}>
+                <div className={`w-100 border border-dark rounded p-4 my-2`}>
                     <article>
                         <Row>
                             <Col xs={post.images.length > 0 ? "8" : "12"}>
@@ -54,7 +54,7 @@ class CreatePost extends React.Component {
                                 <p>@{post.author}</p>
 
                                 <div className={`text-truncate ${css["container-content"]} my-2`}>
-                                    <p className={`fs-6`}>{post.content}</p>
+                                    <p className={`fs-6 text-truncate`}>{post.content}</p>
                                 </div>
                             </Col>
 
@@ -64,8 +64,7 @@ class CreatePost extends React.Component {
                                         return (
                                             <Col xs="4">
                                                 <div className="d-flex justify-content-center">
-                                                    <img src={`${process.env.REACT_APP_DOMAIN}${post.images[0].path}`} alt={post.images[0].description} 
-                                                        style={{ width: "100%" }} />
+                                                    <img src={`${process.env.REACT_APP_DOMAIN}${post.images[0].path}`} alt={post.images[0].description} style={{ width: "100%" }} />
                                                 </div>
                                                 <div className="fs-6 text-center fst-italic">{post.images.length > 1 ? `${post.images.length} foto` : ""}</div>
                                             </Col>

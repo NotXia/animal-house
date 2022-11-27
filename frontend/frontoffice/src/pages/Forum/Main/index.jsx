@@ -88,18 +88,20 @@ class ForumMain extends React.Component {
                     </Row>
 
                     <Row>
-                        <Col xs="12" md={{span: 8, offset: 2}} lg={{span: 4, offset: 4}}>
+                        <Col xs="12" md={{span: 8, offset: 2}} lg={{span: 6, offset: 3}}>
                             {/* Ricerca */}
                             <Row></Row>
 
                             {/* Creazione post */}
-                            <section aria-label="Creazione post" className="w-100">
                                 <Row>
-                                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-create_post">
-                                        SCRIVI UN POST
-                                    </button>
+                                    <section aria-label="Creazione post" className="w-100">
+                                        <div className="d-flex justify-content-center">
+                                            <button type="button" className="btn btn-primary w-75" data-bs-toggle="modal" data-bs-target="#modal-create_post">
+                                                SCRIVI UN POST
+                                            </button>
+                                        </div>
+                                    </section>
                                 </Row>
-                            </section>
 
                             {/* Visualizzazione post */}
                             <Row>
