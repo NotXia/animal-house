@@ -10,24 +10,30 @@ import Post from "./components/Post";
 import BlogAPI from "../../../import/api/blog";
 
 
+const PAGE_SIZE = 10;
+
+
 class ForumMain extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             posts: [],
+            topics: [],
+            
             next_page: 0,
+            selected_topic: undefined,
 
             error_message: ""
         };
-
     }
 
     componentDidMount() {
     (async () => {
         try {
-            const posts = await BlogAPI.getPosts(10, 0);
+            const posts = await BlogAPI.getPosts(PAGE_SIZE, 0, undefined, this.state.selected_topic);
+            const topics = await BlogAPI.getTopics();
 
-            this.setState({ posts: posts, next_page: 1 });
+            this.setState({ posts: posts, next_page: 1, topics: topics });
         }
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore mentre cercavo i post" });
@@ -54,13 +60,28 @@ class ForumMain extends React.Component {
 
             <main className="mt-3">
                 <Container>
+                    {/* Topic */}
+                    <Row>
+                        <div className="d-flex justify-content-center overflow-auto mb-3">
+                            {
+                                this.state.topics.map((topic) => (
+                                    <label type="radio" key={topic.name} className={`btn btn-outline-primary mx-1 ${topic.name === this.state.selected_topic ? "active" : ""}`} aria-label={`Argomento: ${topic.name}`}>
+                                        <div className="d-flex align-items-center justify-content-center">
+                                            <img src={`data:image/*;base64,${topic.icon}`} alt="" style={{ height: "2rem" }} className="me-1" />
+                                            {topic.name}
+                                        </div>
+                                        <input type="radio" name="topic" className="visually-hidden" onClick={() => this.filterTopic(topic.name)} />
+                                    </label>
+                                ))
+                            }
+                        </div>
+                    </Row>
+
                     <Row>
                         <Col xs="12" md={{span: 8, offset: 2}} lg={{span: 4, offset: 4}}>
                             {/* Ricerca */}
                             <Row></Row>
 
-                            {/* Topic */}
-                            <Row></Row>
 
 
                             {/* Creazione post */}
@@ -109,17 +130,33 @@ class ForumMain extends React.Component {
                 this.curr_fetch_request = null;
             }
             else {
-                this.curr_fetch_request = BlogAPI.getPosts(10, this.state.next_page).then((posts) => {
+                this.curr_fetch_request = BlogAPI.getPosts(PAGE_SIZE, this.state.next_page, undefined, this.state.selected_topic).then((posts) => {
+                    console.log(posts, this.state.selected_topic)
                     this.setState({ 
                         posts: this.state.posts.concat(posts),
                         next_page: this.state.next_page + 1
                     });
+
+                    this.curr_fetch_request = null;
                 });
             }
         }
         catch (err) {
             this.setState({ error_message: "Si è verificato un errore mentre cercavo i post" });
         }
+    }
+
+    filterTopic(topic) {
+        if (this.state.selected_topic === topic) { topic = undefined; } // Deselezione
+
+        this.setState({
+            selected_topic: topic,
+            next_page: 0,
+            posts: []
+        }, () => {
+            this.loadNextPage();
+        });
+
     }
 }
 
