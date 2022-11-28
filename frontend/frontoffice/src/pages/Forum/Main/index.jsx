@@ -9,6 +9,7 @@ import CreatePost from "./components/CreatePost";
 import Post from "./components/Post";
 import BlogAPI from "../../../import/api/blog";
 import { Modal } from "bootstrap";
+import { isAuthenticated } from "modules/auth.js"
 
 
 const PAGE_SIZE = 10;
@@ -20,6 +21,8 @@ class ForumMain extends React.Component {
         this.state = {
             posts: [],
             topics: [],
+
+            is_logged: false,
             
             next_page: 0,
             selected_topic: undefined,
@@ -56,7 +59,7 @@ class ForumMain extends React.Component {
             this.create_form.current.resetForm();
         });
           
-        
+        this.setState({ is_logged: await isAuthenticated() })
     })();
     }
 
@@ -72,19 +75,21 @@ class ForumMain extends React.Component {
                 <Container>
                     {/* Topic */}
                     <Row>
-                        <div className="d-flex justify-content-center overflow-auto mb-3">
-                            {
-                                this.state.topics.map((topic) => (
-                                    <label type="radio" key={topic.name} className={`btn btn-outline-primary mx-1 ${topic.name === this.state.selected_topic ? "active" : ""}`} aria-label={`Argomento: ${topic.name}`}>
-                                        <div className="d-flex align-items-center justify-content-center">
-                                            <img src={`data:image/*;base64,${topic.icon}`} alt="" style={{ height: "2rem" }} className="me-1" />
-                                            {topic.name}
-                                        </div>
-                                        <input type="radio" name="topic" className="visually-hidden" onClick={() => this.filterTopic(topic.name)} />
-                                    </label>
-                                ))
-                            }
-                        </div>
+                        <section aria-label="Selettore argomento">
+                            <div className="d-flex justify-content-center overflow-auto mb-3">
+                                {
+                                    this.state.topics.map((topic) => (
+                                        <label type="radio" key={topic.name} className={`btn btn-outline-primary mx-1 ${topic.name === this.state.selected_topic ? "active" : ""}`}>
+                                            <div className="d-flex align-items-center justify-content-center">
+                                                <img src={`data:image/*;base64,${topic.icon}`} alt="" style={{ height: "2rem" }} className="me-1" />
+                                                <span className="visually-hidden">Argomento: </span>{topic.name}
+                                            </div>
+                                            <input type="radio" name="topic" className="visually-hidden" onClick={() => this.filterTopic(topic.name)} aria-hidden="true" />
+                                        </label>
+                                    ))
+                                }
+                            </div>
+                        </section>
                     </Row>
 
                     <Row>
@@ -93,6 +98,8 @@ class ForumMain extends React.Component {
                             <Row></Row>
 
                             {/* Creazione post */}
+                            {
+                                this.state.is_logged &&
                                 <Row>
                                     <section aria-label="Creazione post" className="w-100">
                                         <div className="d-flex justify-content-center">
@@ -102,20 +109,24 @@ class ForumMain extends React.Component {
                                         </div>
                                     </section>
                                 </Row>
+                            }
 
                             {/* Visualizzazione post */}
                             <Row>
-                                {
-                                    this.state.posts.map((post) => (
-                                        <Post key={post.id} post={post} />
-                                    ))
-                                }
+                                <section aria-label="Lista dei post">
+                                    {
+                                        this.state.posts.map((post) => (
+                                            <Post key={post.id} post={post} />
+                                        ))
+                                    }
+                                </section>
                             </Row>
                         </Col>
                     </Row>
                 </Container>
             </main>
-
+            
+            {/* Modale creazione post */}
             <div className="modal fade" id="modal-create_post" tabIndex="-1" aria-labelledby="modal-create_post-label" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                     <div className="modal-content">
@@ -174,7 +185,6 @@ class ForumMain extends React.Component {
         if (!this.state.selected_topic || post.topic === this.state.selected_topic) {
             let new_posts = this.state.posts;
             new_posts.unshift(post);
-
 
             this.setState({ posts: new_posts });
         }
