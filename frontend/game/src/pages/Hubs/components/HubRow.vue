@@ -12,16 +12,16 @@ import { computed } from "vue";
 </script>
 
 <template>
-    <div class="d-flex justify-content-between border-top border-bottom py-3 px-2">
+    <div class="d-flex justify-content-between p-3">
         <div class="visually-hidden">
             <p>Hub {{ hub.name }}.</p>
             <p>Indirizzo: {{ hub.address.street }} {{ hub.address.number }}, {{ hub.address.city }}</p>
         </div>
 
         <div aria-hidden="true">
-            <p class="m-0 fw-semibold fs-5">{{ hub.name }}</p>
-            <p class="m-0 fs-6">{{ hub.address.city }}</p>
-            <p class="m-0 fs-6">{{ hub.address.street }} {{ hub.address.number }}</p>
+            <p class="m-0 fw-semibold fs-5 text-start">{{ hub.name }}</p>
+            <p class="m-0 fs-6 text-start">{{ hub.address.city }}</p>
+            <p class="m-0 fs-6 text-start">{{ hub.address.street }} {{ hub.address.number }}</p>
         </div>
 
         <div>

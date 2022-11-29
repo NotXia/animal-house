@@ -132,7 +132,12 @@
                 <div class="col-12 col-md-4 overflow-auto" style="max-height: 70vh">
                     <ul>
                         <li class="list-group-item" v-for="hub in hubs" :key="hub.code">
-                            <HubRow :hub="hub" />
+                            <div class="visually-hidden"><HubRow :hub="hub" /></div>
+
+                            <button class="btn button-hub p-0 m-0 w-100 border-top border-bottom" style="border-radius: 0;" aria-hidden="true"
+                                    @click="this.map.flyTo([hub.position.coordinates[1], hub.position.coordinates[0]], 13, { duration: 0.8 });">
+                                <HubRow :hub="hub" />
+                            </button>
                         </li>
                     </ul>
                 </div>
@@ -144,4 +149,7 @@
 </template>
 
 <style scoped>
+    .button-hub:hover {
+        background-color: #f0f0f0;
+    }
 </style>
