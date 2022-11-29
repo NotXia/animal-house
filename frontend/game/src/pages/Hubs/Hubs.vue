@@ -104,7 +104,6 @@
                 }
             }
             catch (err) {
-                console.log(err)
                 this.error_message = "Si è verificato un errore durante il caricamento della pagina";
             }
             
@@ -125,22 +124,26 @@
             </div>
             
             <div class="row">
-                <div class="col-12 col-md-8">
+                
+                <div class="col-12 col-md-8" aria-hidden="true">
                     <div id="map-hub" style="height: 70vh; width: 100%;"></div>
                 </div>
 
                 <div class="col-12 col-md-4 overflow-auto" style="max-height: 70vh">
-                    <ul>
-                        <li class="list-group-item" v-for="hub in hubs" :key="hub.code">
-                            <div class="visually-hidden"><HubRow :hub="hub" /></div>
-
-                            <button class="btn button-hub p-0 m-0 w-100 border-top border-bottom" style="border-radius: 0;" aria-hidden="true"
-                                    @click="this.map.flyTo([hub.position.coordinates[1], hub.position.coordinates[0]], 13, { duration: 0.8 });">
-                                <HubRow :hub="hub" />
-                            </button>
-                        </li>
-                    </ul>
+                    <section aria-label="Lista degli hub">
+                        <ul>
+                            <li class="list-group-item" v-for="hub in hubs" :key="hub.code">
+                                <div class="visually-hidden"><HubRow :hub="hub" /></div>
+    
+                                <button class="btn button-hub p-0 m-0 w-100 border-top border-bottom" style="border-radius: 0;" aria-hidden="true"
+                                        @click="this.map.flyTo([hub.position.coordinates[1], hub.position.coordinates[0]], 13, { duration: 0.8 });">
+                                    <HubRow :hub="hub" />
+                                </button>
+                            </li>
+                        </ul>
+                    </section>
                 </div>
+
             </div>
         </div>
     </main>
