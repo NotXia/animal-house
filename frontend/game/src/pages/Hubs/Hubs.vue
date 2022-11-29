@@ -10,6 +10,7 @@
     import HubAPI from "modules/api/hub";
     import { getUsername, isAuthenticated } from "modules/auth";
     import $ from "jquery";
+    import HubRow from "./components/HubRow.vue";
 
     const CENTER = { lat: 42.744388161339, lon: 12.0809380292276 }
     const HUB_MARKER_ICON = new L.Icon({
@@ -19,7 +20,7 @@
 
     export default {
         name: "hubs",
-        components: { Navbar, AHFooter, Loading },
+        components: { Navbar, AHFooter, Loading, HubRow },
         data() {
             return {
                 hubs: [],
@@ -110,16 +111,15 @@
                     <div id="map-hub" style="height: 70vh; width: 100%;"></div>
                 </div>
 
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-4 overflow-auto" style="max-height: 70vh">
                     <ul>
-                        <li class="list-group-item my-2" v-for="hub in hubs" :key="hub.code">
-                            {{ hub.code }}
+                        <li class="list-group-item" v-for="hub in hubs" :key="hub.code">
+                            <HubRow :hub="hub" />
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
-
     </main>
 
     <AHFooter />
