@@ -38,7 +38,20 @@
                 this.marker_layer.clearLayers();
 
                 for (const hub of this.hubs) {
-                    this.marker_layer.addLayer(new L.marker([hub.position.coordinates[1], hub.position.coordinates[0]], { icon: HUB_MARKER_ICON, keyboard: false }))
+                    const marker = new L.marker(
+                        [hub.position.coordinates[1], hub.position.coordinates[0]], 
+                        { icon: HUB_MARKER_ICON, keyboard: false }
+                    ).on("click", async () => {
+                        this.loading = true;
+                        
+                        // Riorganizza gli hub in base alla posizione di quello cliccato
+                        this.hubs = await HubAPI.getNearestFrom(hub.position.coordinates[1], hub.position.coordinates[0], 100);
+                        this.map.flyTo([hub.position.coordinates[1], hub.position.coordinates[0]], 13, { duration: 0.8 });
+
+                        this.loading = false;
+                    });
+                    
+                    this.marker_layer.addLayer(marker);
                 }
             }
         },
