@@ -50,7 +50,7 @@
 
                         this.loading = false;
                     });
-                    
+
                     this.marker_layer.addLayer(marker);
                 }
             }
@@ -66,6 +66,11 @@
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 }).addTo(this.map);
+
+                this.map.on("moveend", async () => {
+                    const map_center = this.map.getCenter();
+                    this.hubs = await HubAPI.getNearestFrom(map_center.lat, map_center.lng, 100);
+                });
 
                 // Creazione livello per i marker
                 this.marker_layer = new L.LayerGroup();
