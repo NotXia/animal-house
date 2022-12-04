@@ -153,8 +153,6 @@ paths:
         Gestisce la ricerca di un post tramite il suo id.
 
         Un utente per ricercare un post deve avere fatto l'accesso.
-
-        Richiede permessi [ ["post_write"], ["admin"] ]
       produces:
       - "application/json"
       parameters:
