@@ -84,6 +84,9 @@ class ProfilePage extends React.Component {
 
             <main className="mt-3">
                 <div className="container">
+                    <div className="row">
+                        <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
+                    </div>
                     {
                         this.state.profile &&
                         <div>
