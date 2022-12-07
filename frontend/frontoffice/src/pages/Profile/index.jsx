@@ -5,6 +5,7 @@ import Loading from "../../components/Loading";
 import SearchParamsHook from "../../hooks/SearchParams";
 import UserAPI from "modules/api/user.js";
 import ServiceAPI from "modules/api/service.js";
+import AnimalAPI from "modules/api/animals.js";
 
 
 class ProfilePage extends React.Component {
@@ -31,7 +32,6 @@ class ProfilePage extends React.Component {
         this.loading.current.wrap(async () => {
             try {
                 const profile = await UserAPI.getProfile(this.props.searchParams.get("username"));
-                console.log(profile)
                 const is_operator = profile.role ? true : false;
                 this.setState({ profile: profile, is_operator: is_operator });
 
@@ -41,7 +41,9 @@ class ProfilePage extends React.Component {
                     this.setState({ services: services });
                 }
                 else {
-
+                    // Estrazione animali del cliente
+                    const animals = await AnimalAPI.getUserAnimals(profile.username);
+                    this.setState({ animals: animals });
                 }
 
             }
@@ -69,7 +71,7 @@ class ProfilePage extends React.Component {
                                 {/* Immagine di profilo */}
                                 <div className="col-12 col-md-6">
                                     <div className="d-flex justify-content-center justify-content-md-end align-items-center h-100">
-                                        <div className="d-flex justify-content-center align-items-center overflow-hidden border" style={{ maxHeight: "12rem", maxWidth: "12rem", borderRadius: "50%" }}>
+                                        <div className="d-flex justify-content-center align-items-center overflow-hidden border" style={{ height: "12rem", width: "12rem", borderRadius: "50%" }}>
                                             <img src={`${process.env.REACT_APP_DOMAIN}${this.state.profile.picture}`} alt={`Immagine di profilo di ${this.state.profile.username}`} 
                                                 style={{ maxHeight: "100%", maxWidth: "100%" }} />
                                         </div>
@@ -100,8 +102,26 @@ class ProfilePage extends React.Component {
                                         
                             {/* Animali */}
                             {
-                                <div className="row">
-                                </div>
+                                !this.state.is_operator &&
+                                <section aria-label="Animali dell'utente" className="mt-5">
+                                    <h2 className="fs-5 fw-semibold text-center">Animali di {this.state.profile.name}</h2>
+                                    <div className="row">
+                                        <div className="d-flex justify-content-center overflow-auto">
+                                            {
+                                                this.state.animals.map((animal) => (
+                                                    <div key={animal.id} className="d-flex align-items-center border rounded p-2 mx-2">
+                                                        <div className="d-flex justify-content-center justify-content-md-end align-items-center overflow-hidden border" style={{ height: "4rem", width: "4rem", borderRadius: "50%" }}>
+                                                            <div className="d-flex justify-content-center align-items-center w-100 h-100">
+                                                                <img src={`${process.env.REACT_APP_DOMAIN}${animal.image_path}`} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                                                            </div>
+                                                        </div>
+                                                        <span className="ms-2 text-truncate">{ animal.name }</span>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
+                                </section>
                             }
 
                             {/* Servizi */}
