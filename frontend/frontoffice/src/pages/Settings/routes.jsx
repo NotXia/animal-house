@@ -1,8 +1,8 @@
-import ProfilePage from "./index";
+import ProfilePage from "./Profile";
 
 let routes = [
     {
-        path: "/profile",
+        path: "/settings/profile",
         element: <ProfilePage />,
     }
 ]

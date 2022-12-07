@@ -1,13 +1,13 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import Navbar from "../../../components/Navbar";
-import Loading from "../../../components/Loading";
-import SearchParamsHook from "../../../hooks/SearchParams";
+import Navbar from "../../components/Navbar";
+import Loading from "../../components/Loading";
+import SearchParamsHook from "../../hooks/SearchParams";
 import UserAPI from "modules/api/user.js";
 import ServiceAPI from "modules/api/service.js";
 import AnimalAPI from "modules/api/animals.js";
 import BlogAPI from "modules/api/blog.js";
-import Post from "../../Forum/Main/components/Post";
+import Post from "../Forum/Main/components/Post";
 
 
 const POST_PAGE_SIZE = 5;

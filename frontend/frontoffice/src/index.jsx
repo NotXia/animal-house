@@ -11,6 +11,7 @@ import forum_routes from "./pages/Forum/routes";
 import booking_routes from "./pages/Booking/routes";
 import animal_routes from "./pages/Animal/routes";
 import profile_routes from "./pages/Profile/routes";
+import settings_routes from "./pages/Settings/routes";
 
 
 let routes = [];
@@ -23,6 +24,7 @@ routes = routes.concat(forum_routes);
 routes = routes.concat(booking_routes);
 routes = routes.concat(animal_routes);
 routes = routes.concat(profile_routes);
+routes = routes.concat(settings_routes);
 
 routes.push({ path: "/*", loader: () => { window.location.href="/not-found.html" } }); // Gestione not found (lasciare come ultimo route)
 const router = createBrowserRouter(routes, { basename: process.env.REACT_APP_BASE_PATH });
