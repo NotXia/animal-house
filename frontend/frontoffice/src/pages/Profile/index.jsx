@@ -6,6 +6,11 @@ import SearchParamsHook from "../../hooks/SearchParams";
 import UserAPI from "modules/api/user.js";
 import ServiceAPI from "modules/api/service.js";
 import AnimalAPI from "modules/api/animals.js";
+import BlogAPI from "modules/api/blog.js";
+import Post from "../Forum/Main/components/Post";
+
+
+const POST_PAGE_SIZE = 5;
 
 
 class ProfilePage extends React.Component {
@@ -15,6 +20,9 @@ class ProfilePage extends React.Component {
             profile: null,
             is_operator: null,
 
+            posts: [],
+            next_page: 1,
+
             services: [],
 
             animals: [],
@@ -22,6 +30,7 @@ class ProfilePage extends React.Component {
             error_message: ""
         };
 
+        this.curr_fetch_request = null;
         this.loading = React.createRef();
     }
 
@@ -46,10 +55,21 @@ class ProfilePage extends React.Component {
                     this.setState({ animals: animals });
                 }
 
+                // Estrazione post utente
+                const posts = await BlogAPI.getPosts(POST_PAGE_SIZE, 0, profile.username);
+                this.setState({ posts: posts });
             }
             catch (err) {
                 this.setState({ error_message: "Non è stato possibile trovare l'utente" });
             }
+
+            window.addEventListener("scroll", (_) => {
+                let scroll_percent = ($(window).scrollTop() / ($(document).height() - $(window).height()));
+    
+                if (scroll_percent > 0.7) {
+                    this.loadPostNextPage();
+                }
+            });
         });
     }
 
@@ -67,38 +87,40 @@ class ProfilePage extends React.Component {
                     {
                         this.state.profile &&
                         <div>
-                            <div className="row">
-                                {/* Immagine di profilo */}
-                                <div className="col-12 col-md-6">
-                                    <div className="d-flex justify-content-center justify-content-md-end align-items-center h-100">
-                                        <div className="d-flex justify-content-center align-items-center overflow-hidden border" style={{ height: "12rem", width: "12rem", borderRadius: "50%" }}>
-                                            <img src={`${process.env.REACT_APP_DOMAIN}${this.state.profile.picture}`} alt={`Immagine di profilo di ${this.state.profile.username}`} 
-                                                style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                            <section aria-label="Dati dell'utente">
+                                <div className="row">
+                                    {/* Immagine di profilo */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex justify-content-center justify-content-md-end align-items-center h-100">
+                                            <div className="d-flex justify-content-center align-items-center overflow-hidden border" style={{ height: "12rem", width: "12rem", borderRadius: "50%" }}>
+                                                <img src={`${process.env.REACT_APP_DOMAIN}${this.state.profile.picture}`} alt={`Immagine di profilo di ${this.state.profile.username}`} 
+                                                    style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Anagrafica */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex align-items-center h-100">
+                                            <div>
+                                                <h1 className="fs-2 fw-semibold m-0"><span className="visually-hidden">Profilo di</span> @{this.state.profile.username}</h1>
+                                                <p className="fs-4 mb-0">{this.state.profile.name} {this.state.profile.surname}</p>
+
+                                                {
+                                                    this.state.is_operator && // Si tratta di un operatore
+                                                    <div>
+                                                        <p className="fs-5">{this.state.profile.role}</p>
+
+                                                        <h2 className="fs-5 fw-semibold">Contatti</h2>
+                                                        <p className="m-0">Email: {this.state.profile.email}</p>
+                                                        <p className="m-0">Telefono: {this.state.profile.phone}</p>
+                                                    </div>
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Anagrafica */}
-                                <div className="col-12 col-md-6">
-                                    <div className="d-flex align-items-center h-100">
-                                        <div>
-                                            <h1 className="fs-2 fw-semibold m-0"><span className="visually-hidden">Profilo di</span> @{this.state.profile.username}</h1>
-                                            <p className="fs-4 mb-0">{this.state.profile.name} {this.state.profile.surname}</p>
-
-                                            {
-                                                this.state.is_operator && // Si tratta di un operatore
-                                                <div>
-                                                    <p className="fs-5">{this.state.profile.role}</p>
-
-                                                    <h2 className="fs-5 fw-semibold">Contatti</h2>
-                                                    <p className="m-0">Email: {this.state.profile.email}</p>
-                                                    <p className="m-0">Telefono: {this.state.profile.phone}</p>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            </section>
                                         
                             {/* Animali */}
                             {
@@ -128,7 +150,7 @@ class ProfilePage extends React.Component {
                             {
                                 this.state.is_operator &&
                                 <section aria-label="Servizi dell'operatore" className="mt-5">
-                                    <h2 className="fs-5 fw-semibold text-center">Servizi di {this.state.profile.name} {this.state.profile.surname}</h2>
+                                    <h2 className="fs-5 fw-semibold text-center">Servizi offerti da {this.state.profile.name}</h2>
                                     <div className="row">
                                         <div className="d-flex justify-content-center overflow-auto">
                                             {
@@ -142,11 +164,50 @@ class ProfilePage extends React.Component {
                                     </div>
                                 </section>
                             }
+
+                            {/* Post */}
+                            {
+                                this.state.posts.length > 0 &&
+                                <section aria-label="Post dell'utente" className="mt-5">
+                                    <h2 className="fs-5 fw-semibold text-center">Ultimi post di {this.state.profile.name}</h2>
+                                    {
+                                        this.state.posts.map((post) => (
+                                            <div key={post.id} className="row">
+                                                <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                                                    <Post post={post} />
+                                                </div>
+                                            </div>
+                                        ))
+                                    }
+                                </section>
+                            }
                         </div>
                     }
                 </div>
             </main>
         </>);
+    }
+
+    async loadPostNextPage() {
+        try {
+            if (this.curr_fetch_request) { // Richiesta già effettuata
+                await this.curr_fetch_request;
+                this.curr_fetch_request = null;
+            }
+            else {
+                this.curr_fetch_request = BlogAPI.getPosts(POST_PAGE_SIZE, this.state.next_page, this.state.profile.username).then((posts) => {
+                    this.setState({ 
+                        posts: this.state.posts.concat(posts),
+                        next_page: this.state.next_page + 1
+                    });
+
+                    this.curr_fetch_request = null;
+                });
+            }
+        }
+        catch (err) {
+            this.setState({ error_message: "Si è verificato un errore mentre cercavo i post" });
+        }
     }
 }
 
