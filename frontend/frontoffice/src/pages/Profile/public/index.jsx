@@ -1,13 +1,13 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import Navbar from "../../components/Navbar";
-import Loading from "../../components/Loading";
-import SearchParamsHook from "../../hooks/SearchParams";
+import Navbar from "../../../components/Navbar";
+import Loading from "../../../components/Loading";
+import SearchParamsHook from "../../../hooks/SearchParams";
 import UserAPI from "modules/api/user.js";
 import ServiceAPI from "modules/api/service.js";
 import AnimalAPI from "modules/api/animals.js";
 import BlogAPI from "modules/api/blog.js";
-import Post from "../Forum/Main/components/Post";
+import Post from "../../Forum/Main/components/Post";
 
 
 const POST_PAGE_SIZE = 5;
@@ -134,7 +134,8 @@ class ProfilePage extends React.Component {
                                                     <div key={animal.id} className="d-flex align-items-center border rounded p-2 mx-2">
                                                         <div className="d-flex justify-content-center justify-content-md-end align-items-center overflow-hidden border" style={{ height: "4rem", width: "4rem", borderRadius: "50%" }}>
                                                             <div className="d-flex justify-content-center align-items-center w-100 h-100">
-                                                                <img src={`${process.env.REACT_APP_DOMAIN}${animal.image_path}`} alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                                                                <img src={animal.image_path ? `${process.env.REACT_APP_DOMAIN}${animal.image_path}` : `${process.env.REACT_APP_DOMAIN}/animals/images/default.png` } 
+                                                                     alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
                                                             </div>
                                                         </div>
                                                         <span className="ms-2 text-truncate">{ animal.name }</span>

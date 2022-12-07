@@ -1,9 +1,9 @@
-import ProfilePage from "./index";
+import PublicProfilePage from "./public/index";
 
 let routes = [
     {
         path: "/profile",
-        element: <ProfilePage />,
+        element: <PublicProfilePage />,
     },
 ]
 
