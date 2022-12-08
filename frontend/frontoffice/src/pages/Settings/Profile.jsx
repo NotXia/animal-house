@@ -59,98 +59,90 @@ class ProfilePage extends React.Component {
 
     render() {
         return (<>
-            <Helmet>
-                <title>Profilo</title>
-            </Helmet>
-            
-            <Navbar />
             <Loading ref={this.loading} />
 
-            <main className="mt-3">
-                <div className="container">
-                    <div className="row">
-                        <h1 className="text-center">Impostazioni profilo</h1>
-                        <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
-                    </div>
-                    {
-                        this.state.profile &&
-                        <form onSubmit={(e) => this.updateUser(e)}>
-                            <div className="row">
-                                {/* Immagine di profilo */}
-                                <div className="col-12 col-md-5">
-                                    <section aria-label="Immagine di profilo">
-                                        <div className="d-flex justify-content-center justify-content-md-end h-100">
-                                            <div className="d-flex justify-content-center align-items-center overflow-hidden border" style={{ height: "10rem", width: "10rem", borderRadius: "50%" }}>
-                                                <img src={`${process.env.REACT_APP_DOMAIN}${this.state.profile_picture}`} alt={`Immagine di profilo`} 
-                                                        style={{ maxHeight: "100%", maxWidth: "100%" }} />
-                                            </div>
+            <div className="container">
+                <div className="row">
+                    <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
+                </div>
+                {
+                    this.state.profile &&
+                    <form onSubmit={(e) => this.updateUser(e)}>
+                        <div className="row">
+                            {/* Immagine di profilo */}
+                            <div className="col-12 col-md-4 order-1 order-md-2">
+                                <section aria-label="Immagine di profilo">
+                                    <div className="d-flex justify-content-center justify-content-md-start h-100">
+                                        <div className="d-flex justify-content-center align-items-center overflow-hidden border" style={{ height: "10rem", width: "10rem", borderRadius: "50%" }}>
+                                            <img src={`${process.env.REACT_APP_DOMAIN}${this.state.profile_picture}`} alt={`Immagine di profilo`} 
+                                                    style={{ maxHeight: "100%", maxWidth: "100%" }} />
                                         </div>
-
-                                        <div className="d-flex justify-content-center justify-content-md-end h-100 my-2">
-                                            <div className="input-group" style={{ width: "10rem" }}>
-                                                <input type="file" className="form-control" aria-label="Carica immagine di profilo" accept="image/*" onChange={(e) => this.handleImagePreview(e)}/>
-                                            </div>
-                                        </div>
-                                    </section>
-                                </div>
-
-                                {/* Anagrafica */}
-                                <div className="col-12 col-md-5">
-
-                                    <section aria-label="Dati anagrafici">
-                                        <div className="row">
-                                            <h2 className="fs-4">Dati anagrafici</h2>
-                                            
-                                            <p><span className="fw-semibold">Username</span> {this.state.profile.username}</p>
-
-                                            <div className="col-12 col-md-6">
-                                                <TextInput ref={this.input.name} id="data-name" type="text" name="name" label="Nome" validation={UserValidation.name} required/>
-                                            </div>
-                                            <div className="col-12 col-md-6">
-                                                <TextInput ref={this.input.surname} id="data-surname" type="text" name="surname" label="Cognome" validation={UserValidation.surname} required/>
-                                            </div>
-                                        </div>
-                                    </section>
-
-
-                                    <section aria-label="Email e telefono">
-                                        <div className="row mt-3">
-                                            <h2 className="fs-4">Informazioni di contatto</h2>
-
-                                            <TextInput ref={this.input.email} id="data-email" type="email" name="email" label="Email" validation={UserValidation.email} required/>
-                                            <TextInput ref={this.input.phone} id="data-phone" type="text" name="phone" label="Telefono" validation={UserValidation.phone} required/>
-                                        </div>
-                                    </section>
-
-                                    <section aria-label="Indirizzo">
-                                        <div className="row mt-3">
-                                            <h2 className="fs-4">Informazioni di spedizione</h2>
-                                            
-                                            <div className="col-12 col-md-8">
-                                                <TextInput ref={this.input.address.street} id="data-street" type="text" name="street" label="Via" validation={UserValidation.street} required/>
-                                            </div>
-                                            <div className="col-12 col-md-4">
-                                                <TextInput ref={this.input.address.number} id="data-number" type="text" name="number" label="Civico" validation={UserValidation.number} required/>
-                                            </div>
-                                            <div className="col-12 col-md-6">
-                                                <TextInput ref={this.input.address.city} id="data-city" type="text" name="city" label="Città" validation={UserValidation.city} required/>
-                                            </div>
-                                            <div className="col-12 col-md-6">
-                                                <TextInput ref={this.input.address.postal_code} id="data-postal_code" type="text" name="postal_code" label="CAP" validation={UserValidation.postal_code} required/>
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    <div className="d-flex justify-content-center mt-2">
-                                        <button className="btn btn-outline-success mx-1" type="submit">Salva</button>
-                                        <button className="btn btn-outline-secondary mx-1" type="button" onClick={() => this.handleReset()}>Annulla</button>
                                     </div>
+
+                                    <div className="d-flex justify-content-center justify-content-md-start h-100 my-2">
+                                        <div className="input-group" style={{ width: "10rem" }}>
+                                            <input type="file" className="form-control" aria-label="Carica immagine di profilo" accept="image/*" onChange={(e) => this.handleImagePreview(e)}/>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            {/* Anagrafica */}
+                            <div className="col-12 col-md-8 order-2 order-md-1">
+
+                                <section aria-label="Dati anagrafici">
+                                    <div className="row">
+                                        <h3 className="fs-4">Dati anagrafici</h3>
+                                        
+                                        <p><span className="fw-semibold">Username</span> {this.state.profile.username}</p>
+
+                                        <div className="col-12 col-md-6">
+                                            <TextInput ref={this.input.name} id="data-name" type="text" name="name" label="Nome" validation={UserValidation.name} required/>
+                                        </div>
+                                        <div className="col-12 col-md-6">
+                                            <TextInput ref={this.input.surname} id="data-surname" type="text" name="surname" label="Cognome" validation={UserValidation.surname} required/>
+                                        </div>
+                                    </div>
+                                </section>
+
+
+                                <section aria-label="Email e telefono">
+                                    <div className="row mt-3">
+                                        <h3 className="fs-4">Informazioni di contatto</h3>
+
+                                        <TextInput ref={this.input.email} id="data-email" type="email" name="email" label="Email" validation={UserValidation.email} required/>
+                                        <TextInput ref={this.input.phone} id="data-phone" type="text" name="phone" label="Telefono" validation={UserValidation.phone} required/>
+                                    </div>
+                                </section>
+
+                                <section aria-label="Indirizzo">
+                                    <div className="row mt-3">
+                                        <h3 className="fs-4">Informazioni di spedizione</h3>
+                                        
+                                        <div className="col-12 col-md-8">
+                                            <TextInput ref={this.input.address.street} id="data-street" type="text" name="street" label="Via" validation={UserValidation.street} required/>
+                                        </div>
+                                        <div className="col-12 col-md-4">
+                                            <TextInput ref={this.input.address.number} id="data-number" type="text" name="number" label="Civico" validation={UserValidation.number} required/>
+                                        </div>
+                                        <div className="col-12 col-md-6">
+                                            <TextInput ref={this.input.address.city} id="data-city" type="text" name="city" label="Città" validation={UserValidation.city} required/>
+                                        </div>
+                                        <div className="col-12 col-md-6">
+                                            <TextInput ref={this.input.address.postal_code} id="data-postal_code" type="text" name="postal_code" label="CAP" validation={UserValidation.postal_code} required/>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div className="d-flex justify-content-center mt-2">
+                                    <button className="btn btn-outline-success mx-1" type="submit">Salva</button>
+                                    <button className="btn btn-outline-secondary mx-1" type="button" onClick={() => this.handleReset()}>Annulla</button>
                                 </div>
                             </div>
-                        </form>
-                    }
-                </div>
-            </main>
+                        </div>
+                    </form>
+                }
+            </div>
         </>);
     }
 
