@@ -16,6 +16,14 @@ const UserAPI = {
             url: `${DOMAIN}/users/customers/${encodeURIComponent(username)}`   
         });
     },
+
+    update: async function (username, updated_data) {
+        return await api_request({ 
+            method: "PUT", 
+            url: `${DOMAIN}/users/customers/${encodeURIComponent(username)}`,
+            data: updated_data
+        });
+    },
 }
 
 export default UserAPI;
