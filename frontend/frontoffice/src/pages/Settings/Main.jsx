@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import Navbar from "../../components/Navbar";
 import { isAuthenticated, isOperator } from "modules/auth";
 import ProfileSettingsPage from "./Profile";
+import SecuritySettingsPage from "./Security";
 
 
 class SettingsPage extends React.Component {
@@ -43,6 +44,7 @@ class SettingsPage extends React.Component {
 
                         <div className="col-12 col-md-10">
                             { this.state.page === "profile" && <ProfileSettingsPage /> }
+                            { this.state.page === "security" && <SecuritySettingsPage /> }
                         </div>
                     </div>
                 </div>

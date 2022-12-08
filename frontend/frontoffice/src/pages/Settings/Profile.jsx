@@ -1,10 +1,8 @@
 import React from "react";
-import { Helmet } from "react-helmet";
-import Navbar from "../../components/Navbar";
 import Loading from "../../components/Loading";
 import UserAPI from "modules/api/user.js";
 import FileAPI from "modules/api/file.js";
-import { getUsername, isAuthenticated, isOperator } from "modules/auth";
+import { getUsername } from "modules/auth";
 import TextInput from "../../components/form/TextInput";
 import UserValidation from "../../utilities/validation/UserValidation";
 
@@ -37,9 +35,6 @@ class ProfilePage extends React.Component {
         this.current_uploaded_profile_image = undefined;
 
         this.old_profile = null;
-
-        isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}`; } } );
-        isOperator().then(is_operator => { if (is_operator) { window.location = `/`; } } );
     }
 
 
