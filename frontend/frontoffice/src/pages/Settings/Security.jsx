@@ -40,7 +40,7 @@ class ProfilePage extends React.Component {
                         <div className="col-12 col-md-6 offset-md-3">
                             <section aria-label="Modifica password">
                                 <div className="row mt-3">
-                                    <h3 className="fs-4">Modifica password</h3>
+                                    <h2 className="fs-4">Modifica password</h2>
 
                                     <TextInput ref={this.input.password1} id="data-password1" type="password" name="password1" label="Nuova password" validation={UserValidation.password} required/>
                                     <div className="mt-2">

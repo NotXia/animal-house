@@ -92,7 +92,7 @@ class ProfilePage extends React.Component {
 
                                 <section aria-label="Dati anagrafici">
                                     <div className="row">
-                                        <h3 className="fs-4">Dati anagrafici</h3>
+                                        <h2 className="fs-4">Dati anagrafici</h2>
                                         
                                         <p><span className="fw-semibold">Username</span> {this.state.profile.username}</p>
 
@@ -108,7 +108,7 @@ class ProfilePage extends React.Component {
 
                                 <section aria-label="Email e telefono">
                                     <div className="row mt-3">
-                                        <h3 className="fs-4">Informazioni di contatto</h3>
+                                        <h2 className="fs-4">Informazioni di contatto</h2>
 
                                         <TextInput ref={this.input.email} id="data-email" type="email" name="email" label="Email" validation={UserValidation.email} required/>
                                         <TextInput ref={this.input.phone} id="data-phone" type="text" name="phone" label="Telefono" validation={UserValidation.phone} required/>
@@ -117,7 +117,7 @@ class ProfilePage extends React.Component {
 
                                 <section aria-label="Indirizzo">
                                     <div className="row mt-3">
-                                        <h3 className="fs-4">Informazioni di spedizione</h3>
+                                        <h2 className="fs-4">Informazioni di spedizione</h2>
                                         
                                         <div className="col-12 col-md-8">
                                             <TextInput ref={this.input.address.street} id="data-street" type="text" name="street" label="Via" validation={UserValidation.street} required/>

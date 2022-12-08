@@ -34,12 +34,14 @@ class SettingsPage extends React.Component {
 
                     <div className="row">
                         <div className="col-12 col-md-2">
-                            <div className="d-flex justify-content-center align-items-start mt-4">
-                                <div className="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
-                                    <button className="nav-link active" data-bs-toggle="pill" role="tab" aria-selected="true" onClick={() => this.setState({ page: "profile" })}>Profilo</button>
-                                    <button className="nav-link" data-bs-toggle="pill" role="tab" aria-selected="false" onClick={() => this.setState({ page: "security" })}>Sicurezza</button>
+                            <nav aria-label="Navigazione voci impostazioni">
+                                <div className="d-flex justify-content-center align-items-start mt-4">
+                                    <div className="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+                                        <button className="nav-link active" data-bs-toggle="pill" role="tab" aria-selected="true" onClick={() => this.setState({ page: "profile" })}>Profilo</button>
+                                        <button className="nav-link" data-bs-toggle="pill" role="tab" aria-selected="false" onClick={() => this.setState({ page: "security" })}>Sicurezza</button>
+                                    </div>
                                 </div>
-                            </div>
+                            </nav>
                         </div>
 
                         <div className="col-12 col-md-10">
