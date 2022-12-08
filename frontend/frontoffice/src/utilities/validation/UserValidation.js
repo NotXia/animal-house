@@ -33,7 +33,7 @@ export default class UserValidation {
     }
 
     static async email(value, required) {
-        const isValidEmail = function (email) { return String(email.toLowerCase()).match( /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ ); }
+        const isValidEmail = function (email) { return String(email.toLowerCase()).match( /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ ); }
 
         if (required && value.trim().length === 0)   { return `Email mancante`; }
         else if (!isValidEmail(value))               { return `Email non valida`; }
