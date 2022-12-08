@@ -4,7 +4,7 @@ import UserAPI from "modules/api/user.js";
 import { getUsername } from "modules/auth";
 import TextInput from "../../components/form/TextInput";
 import UserValidation from "../../utilities/validation/UserValidation";
-
+import Alert from "../../components/Alert";
 
 class ProfilePage extends React.Component {
     constructor(props) {
@@ -14,6 +14,7 @@ class ProfilePage extends React.Component {
         };
 
         this.loading = React.createRef();
+        this.success_alert = React.createRef();
 
         this.input = {
             password1: React.createRef(),
@@ -25,6 +26,9 @@ class ProfilePage extends React.Component {
     render() {
         return (<>
             <Loading ref={this.loading} />
+            <Alert ref={this.success_alert} type="success">
+                Password modificata con successo
+            </Alert>
 
             <div className="container">
                 <div className="row">
@@ -70,6 +74,7 @@ class ProfilePage extends React.Component {
                 await UserAPI.update(await getUsername(), data);
 
                 this.setState({ error_message: ""});
+                this.success_alert.current.show();
             }
             catch (err) {
                 this.setState({ error_message: "Non è stato possibile aggiornare la password" })

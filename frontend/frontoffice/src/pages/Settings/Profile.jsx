@@ -5,6 +5,7 @@ import FileAPI from "modules/api/file.js";
 import { getUsername } from "modules/auth";
 import TextInput from "../../components/form/TextInput";
 import UserValidation from "../../utilities/validation/UserValidation";
+import Alert from "../../components/Alert";
 
 
 class ProfilePage extends React.Component {
@@ -18,6 +19,7 @@ class ProfilePage extends React.Component {
         };
 
         this.loading = React.createRef();
+        this.success_alert = React.createRef();
 
         this.input = {
             username: React.createRef(),
@@ -55,6 +57,9 @@ class ProfilePage extends React.Component {
     render() {
         return (<>
             <Loading ref={this.loading} />
+            <Alert ref={this.success_alert} type="success">
+                Dati aggiornati con successo
+            </Alert>
 
             <div className="container">
                 <div className="row">
@@ -208,6 +213,7 @@ class ProfilePage extends React.Component {
                 
                 // Aggiornamento form
                 this.setState({ profile: updated_profile }, () => this.loadProfile());
+                this.success_alert.current.show();
             }
             catch (err) {
                 this.setState({ error_message: "Non è stato possibile aggiornare il profilo" })
