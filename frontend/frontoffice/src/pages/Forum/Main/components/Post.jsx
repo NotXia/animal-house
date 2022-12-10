@@ -4,7 +4,6 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import BlogAPI from "../../../../import/api/blog";
-import css from "./post.module.css";
 import moment from "moment";
 import { Link } from "react-router-dom";
 
@@ -64,7 +63,7 @@ class CreatePost extends React.Component {
                                     <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
                                     <p>@{post.author}</p>
 
-                                    <div className={`text-truncate ${css["container-content"]} my-2`}>
+                                    <div className={`text-truncate my-2`}>
                                         <p className={`fs-6 text-truncate`}>{post.content}</p>
                                     </div>
                                 </Col>
