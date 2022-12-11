@@ -14,11 +14,167 @@
             if (!await isOperator()) { window.location.href = "/"; } 
         });
     </script>
+
+    <style>
+        .section-logo {
+            max-height: 2rem;
+            max-width: 2rem;
+            margin-right: 0.5rem;
+        }
+    </style>
     
     <title>Dashboard</title>
 </head>
 <body>
-    <a href="/admin/logout.html">Logout</a>
+    <header>
+        <div id="navbar-placeholder"></div>
+    </header>
+
+    <main class="mt-3">
+        <div class="container">
+            <div class="row"> <h1>La mia dashboard</h1> </div>
+            
+            <div class="row my-3 d-none" id="container-user">
+                <section aria-label="Gestione anagrafiche utenti">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center">
+                            <img src="/img/icons/user.png" alt="" class="section-logo"/>
+                            <h2 class="m-0">Gestione utenti</h2> 
+                        </div> 
+                    </div>
+    
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/customers">Anagrafica clienti</a>
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/operators">Anagrafica operatori</a>
+                    </div>
+                </section>
+            </div>
+
+            <div class="row my-3 d-none" id="container-animal">
+                <section aria-label="Gestione animali">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center">
+                            <img src="/img/icons/animal.png" alt="" class="section-logo"/>
+                            <h2 class="m-0">Gestione animali</h2> 
+                        </div> 
+                    </div>
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/animals/species">Anagrafica specie</a>
+                    </div>
+                </section>
+            </div>
+    
+            <div class="row my-3 d-none" id="container-forum">
+                <section aria-label="Gestione forum">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/icons/forum.png" alt="" class="section-logo"/>
+                        <h2 class="m-0">Gestione forum</h2> 
+                    </div> 
+    
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/blog/topics">Anagrafica topic</a>
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/fo/forum">Vai al forum</a>
+                    </div>
+                </section>
+            </div>
+    
+    
+            <div class="row my-3 d-none" id="container-hub">
+                <section aria-label="Gestione hub">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/icons/store.png" alt="" class="section-logo"/>
+                        <h2 class="m-0">Gestione hub</h2> 
+                    </div> 
+    
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/hubs">Anagrafica hub</a>
+                    </div>
+                </section>
+            </div>
+    
+            <div class="row my-3 d-none" id="container-service">
+                <section aria-label="Gestione servizi">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/icons/service.png" alt="" class="section-logo"/>
+                        <h2 class="m-0">Anagrafica servizi</h2> 
+                    </div> 
+    
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/services">Gestione servizi</a>
+                    </div>
+                </section>
+            </div>
+    
+            <div class="row my-3 d-none" id="container-shop">
+                <section aria-label="Gestione shop">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/icons/shop.png" alt="" class="section-logo"/>
+                        <h2 class="m-0">Gestione shop</h2> 
+                    </div> 
+    
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/shop/categories">Anagrafica categorie</a>
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/shop/items">Anagrafica prodotti</a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div id="loading-container"></div>
 </body>
+
+<script type="module">
+
+import { api_request, getUsername } from "/js/auth.js";
+import { Navbar } from "/admin/import/Navbar.js";
+import { Loading } from "/admin/import/Loading.js";
+
+
+function hasPermission(required_list, permissions) {
+    for (const required_permission of required_list) {
+        if (permissions.includes(required_permission)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+$(document).ready(async function() {
+    let NavbarHandler = new Navbar("navbar-placeholder");
+    let LoadingHandler = new Loading("loading-container");
+    await LoadingHandler.render();
+
+    await LoadingHandler.wrap(async function () {
+        await NavbarHandler.render();
+
+        // Estrazione permessi
+        const user_data = await api_request({
+            method: "GET",
+            url: `/users/operators/${encodeURIComponent(await getUsername())}`
+        });
+        const permissions = user_data.permissions;
+
+        const permission_map = {
+            user:       ["admin"],
+            animal:     ["admin"],
+            forum:      ["admin"],
+            hub:        ["admin"],
+            service:    ["admin"],
+            shop:       ["admin", "shop_write"],
+        }
+
+        for (const page in permission_map) {
+            const required_permission = permission_map[page];
+            if (hasPermission(required_permission, permissions)) {
+                $(`#container-${page}`).removeClass("d-none");
+                continue;
+            }
+        }
+    });
+});
+
+</script>
 
 </html>
