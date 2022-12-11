@@ -14,13 +14,13 @@ async function init() {
     else { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`); }
 
     try {
-        await new PermissionModel({ name: "admin", urls: [""] }).save();
-        await new PermissionModel({ name: "operator", urls: [""] }).save();
-        await new PermissionModel({ name: "customer", urls: [""] }).save();
-        await new PermissionModel({ name: "post_write", urls: [""] }).save();
-        await new PermissionModel({ name: "comment_write", urls: [""] }).save();
-        await new PermissionModel({ name: "warehouse", urls: [""] }).save();
-        await new PermissionModel({ name: "shop_write", urls: [""] }).save();
+        await new PermissionModel({ name: "admin", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "operator", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "customer", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "post_write", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "comment_write", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "warehouse", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "shop_write", urls: [""] }).save().catch(err => {});
     } catch(err) {}
 
     try {
@@ -74,6 +74,5 @@ async function init() {
     await mongoose.connection.close();
     await mongoose.disconnect();
 };
-
 
 module.exports = init;
