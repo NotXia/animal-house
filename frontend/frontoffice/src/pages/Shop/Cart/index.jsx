@@ -12,6 +12,7 @@ import { isAuthenticated, getUsername, api_request } from "../../../import/auth.
 import css from "./cart.module.css";
 import { Link } from "react-router-dom";
 import CartEntry from "./components/CartEntry";
+import Footer from "../../../components/Footer";
 
 class Cart extends React.Component {
     constructor(props) {
@@ -128,6 +129,8 @@ class Cart extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

@@ -5,6 +5,7 @@ import Navbar from "../../components/Navbar";
 import AnimalAPI from "modules/api/animals";
 import { isAuthenticated, getUsername } from "modules/auth";
 import AnimalCard from "./components/AnimalCard";
+import Footer from "../../components/Footer";
 
 
 class Animals extends React.Component {
@@ -77,6 +78,8 @@ class Animals extends React.Component {
                     </section>
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 

@@ -12,6 +12,7 @@ import Collapse from "react-bootstrap/Collapse";
 import category_css from "./category.module.css";
 import { updateURLQuery, removeQueryFromURL } from "../../../utilities/url";
 import SearchParamsHook from "../../../hooks/SearchParams";
+import Footer from "../../../components/Footer";
 
 const PAGE_SIZE = 24;
 
@@ -186,6 +187,8 @@ class ShopMain extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

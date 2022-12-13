@@ -9,6 +9,7 @@ import BlogAPI from "../../../import/api/blog";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import Comment from "./components/Comment";
 import { getUsername, isAdmin } from "modules/auth.js";
+import Footer from "../../../components/Footer";
 
 
 const COMMENT_PAGE_SIZE = 10;
@@ -191,6 +192,8 @@ class SinglePost extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

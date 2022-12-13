@@ -6,6 +6,7 @@ import moment from "moment";
 import BookingAPI from "modules/api/booking";
 import Loading from "../../components/Loading";
 import AppointmentRow from "./components/AppointmentRow";
+import Footer from "../../components/Footer";
 
 
 class Appointments extends React.Component {
@@ -93,6 +94,8 @@ class Appointments extends React.Component {
                     }
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 

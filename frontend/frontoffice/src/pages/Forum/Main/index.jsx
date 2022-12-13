@@ -10,6 +10,7 @@ import Post from "./components/Post";
 import BlogAPI from "../../../import/api/blog";
 import { Modal } from "bootstrap";
 import { isAuthenticated } from "modules/auth.js"
+import Footer from "../../../components/Footer";
 
 
 const PAGE_SIZE = 10;
@@ -126,6 +127,8 @@ class ForumMain extends React.Component {
                 </Container>
             </main>
             
+            <Footer />
+
             {/* Modale creazione post */}
             <div className="modal fade" id="modal-create_post" tabIndex="-1" aria-labelledby="modal-create_post-label" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
