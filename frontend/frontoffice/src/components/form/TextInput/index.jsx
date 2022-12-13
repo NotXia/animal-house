@@ -78,7 +78,7 @@ export default class TextInput extends React.Component {
             <div>
                 {input_html}
                 <label id={feedback_container_id} data-feedback-for={this.props.name} htmlFor={this.props.id} className="invalid-feedback d-block ms-1" aria-live="assertive">{this.state.error_message}</label>
-                <label htmlFor={this.props.id} className="visually-hidden" aria-live="assertive">{success_message}</label>
+                <label htmlFor={this.props.id} className="visually-hidden" aria-live="assertive" aria-hidden={success_message === ""}>{success_message}</label>
             </div>
         </>);
     }
