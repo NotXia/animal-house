@@ -31,7 +31,7 @@ export default class NavbarComponent extends React.Component {
     render() {
         return (<>
             <nav>
-                <Navbar bg="light" expand="lg">
+                <Navbar expand="lg" style={{ backgroundColor: "#ffa545" }}>
                     <Container fluid>
                         <Navbar.Brand href="#home">
                             <div className="d-flex justify-content-center align-items-center">
@@ -51,29 +51,29 @@ export default class NavbarComponent extends React.Component {
                             {
                                 this.state.username &&
                                 <div className="justify-content-end">
-                                <div className="dropdown d-inline-block">
-                                    <button className="btn btn-outline-light dropdown-toggle text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <div className="d-inline-block">
-                                            <div className="d-flex align-items-center">
-                                                <span className="align-top me-2">{ this.state.name } { this.state.surname }</span>
-                                                <div className="d-flex align-items-center justify-content-center rounded-circle overflow-hidden">
-                                                    <img src={`${this.state.picture}`} alt="Immagine di profilo" 
-                                                        style={{ maxHeight: "2.2rem", maxWidth: "2.2rem" }} />
+                                    <div className="dropdown d-inline-block">
+                                        <button className="btn dropdown-toggle text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <div className="d-inline-block">
+                                                <div className="d-flex align-items-center">
+                                                    <span className="align-top me-2">{ this.state.name } { this.state.surname }</span>
+                                                    <div className="d-flex align-items-center justify-content-center border border-dark rounded-circle overflow-hidden">
+                                                        <img src={`${this.state.picture}`} alt="Immagine di profilo" 
+                                                            style={{ maxHeight: "2.2rem", maxWidth: "2.2rem" }} />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </button>
-                                    <ul className="dropdown-menu dropdown-menu-end">
-                                        <li><span className="dropdown-item-text fw-bold" aria-label="Username corrente">{ this.state.username }</span></li>
-                                        <div className="dropdown-divider"></div>
-                                        <li><a className="dropdown-item" href={`/fo/profile?username=${this.state.username}`}>Profilo</a></li>
-                                        <li><a className="dropdown-item" href="/fo/my-animals">I miei animali</a></li>
-                                        <li><a className="dropdown-item" href="/fo/appointments">I miei appuntamenti</a></li>
-                                        <li><a className="dropdown-item" href="/fo/shop/orders">I miei ordini</a></li>
-                                        <li><a className="dropdown-item" href="/fo/settings">Impostazioni</a></li>
-                                        <li><a className="dropdown-item" href="/fo/logout">Logout</a></li>
-                                    </ul>
-                                </div>
+                                        </button>
+                                        <ul className="dropdown-menu dropdown-menu-end">
+                                            <li><span className="dropdown-item-text fw-bold" aria-label="Username corrente">{ this.state.username }</span></li>
+                                            <div className="dropdown-divider"></div>
+                                            <li><a className="dropdown-item" href={`/fo/profile?username=${this.state.username}`}>Profilo</a></li>
+                                            <li><a className="dropdown-item" href="/fo/my-animals">I miei animali</a></li>
+                                            <li><a className="dropdown-item" href="/fo/appointments">I miei appuntamenti</a></li>
+                                            <li><a className="dropdown-item" href="/fo/shop/orders">I miei ordini</a></li>
+                                            <li><a className="dropdown-item" href="/fo/settings">Impostazioni</a></li>
+                                            <li><a className="dropdown-item" href="/fo/logout">Logout</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             }
                         </Navbar.Collapse>
