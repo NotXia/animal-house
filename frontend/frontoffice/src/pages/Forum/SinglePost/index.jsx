@@ -81,7 +81,7 @@ class SinglePost extends React.Component {
                                         {/* Intestazione post */}
                                         <div>
                                             <h1 className="m-0">{this.state.post.title}</h1>
-                                            <p>@{this.state.post.author}</p>
+                                            <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>
                                         </div>
 
                                         {/* Operazioni su post */}
