@@ -132,19 +132,21 @@ class ProfilePage extends React.Component {
                                     <h2 className="fs-5 fw-semibold text-center">Animali di {this.state.profile.name}</h2>
                                     <div className="row">
                                         <div className="d-flex justify-content-center overflow-auto">
-                                            {
-                                                this.state.animals.map((animal) => (
-                                                    <div key={animal.id} className="d-flex align-items-center border rounded p-2 mx-2">
-                                                        <div className="d-flex justify-content-center justify-content-md-end align-items-center overflow-hidden border" style={{ height: "4rem", width: "4rem", borderRadius: "50%" }}>
-                                                            <div className="d-flex justify-content-center align-items-center w-100 h-100">
-                                                                <img src={animal.image_path ? `${process.env.REACT_APP_DOMAIN}${animal.image_path}` : `${process.env.REACT_APP_DOMAIN}/animals/images/default.png` } 
-                                                                     alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                                            <div className="d-flex" style={{ maxWidth: "100%" }}>
+                                                {
+                                                    this.state.animals.map((animal) => (
+                                                        <div key={animal.id} className="d-flex align-items-center border rounded p-2 mx-2">
+                                                            <div className="d-flex justify-content-center justify-content-md-end align-items-center overflow-hidden border" style={{ height: "4rem", width: "4rem", borderRadius: "50%" }}>
+                                                                <div className="d-flex justify-content-center align-items-center w-100 h-100">
+                                                                    <img src={animal.image_path ? `${process.env.REACT_APP_DOMAIN}${animal.image_path}` : `${process.env.REACT_APP_DOMAIN}/animals/images/default.png` } 
+                                                                        alt="" style={{ maxHeight: "100%", maxWidth: "100%" }} />
+                                                                </div>
                                                             </div>
+                                                            <span className="ms-2 text-truncate">{ animal.name }</span>
                                                         </div>
-                                                        <span className="ms-2 text-truncate">{ animal.name }</span>
-                                                    </div>
-                                                ))
-                                            }
+                                                    ))
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </section>
@@ -157,6 +159,7 @@ class ProfilePage extends React.Component {
                                     <h2 className="fs-5 fw-semibold text-center">Servizi offerti da {this.state.profile.name}</h2>
                                     <div className="row">
                                         <div className="d-flex justify-content-center overflow-auto">
+                                            <div className="d-flex" style={{ maxWidth: "100%" }}>
                                             {
                                                 this.state.services.map((service) => (
                                                     <div key={service.id} className="border rounded p-2 mx-2">
@@ -164,6 +167,7 @@ class ProfilePage extends React.Component {
                                                     </div>
                                                 ))
                                             }
+                                            </div>
                                         </div>
                                     </div>
                                 </section>
