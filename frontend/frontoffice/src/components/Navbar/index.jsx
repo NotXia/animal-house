@@ -2,7 +2,8 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import { isAuthenticated } from "modules/auth"
+import { isAuthenticated, getUsername } from "modules/auth"
+import UserAPI from "modules/api/user";
 
 export default class NavbarComponent extends React.Component {
     constructor(props) {
@@ -16,10 +17,13 @@ export default class NavbarComponent extends React.Component {
 
     async componentDidMount() {
         if (await isAuthenticated()) {
+            const user = await UserAPI.getProfile(await getUsername());
+
             this.setState({
-                name: "Sandro",
-                surname: "Gallo",
-                username: "sandrone.gallone"
+                name: user.name,
+                surname: user.surname,
+                username: user.username,
+                picture: user.picture ? `${process.env.REACT_APP_DOMAIN}${user.picture}` : `${process.env.REACT_APP_DOMAIN}/profiles/images/default.png`
             });
         }
     }
@@ -53,7 +57,7 @@ export default class NavbarComponent extends React.Component {
                                             <div className="d-flex align-items-center">
                                                 <span className="align-top me-2">{ this.state.name } { this.state.surname }</span>
                                                 <div className="d-flex align-items-center justify-content-center rounded-circle overflow-hidden">
-                                                    <img src={`${process.env.REACT_APP_DOMAIN}/profiles/images/default.png`} alt="Immagine di profilo" 
+                                                    <img src={`${this.state.picture}`} alt="Immagine di profilo" 
                                                         style={{ maxHeight: "2.2rem", maxWidth: "2.2rem" }} />
                                                 </div>
                                             </div>
