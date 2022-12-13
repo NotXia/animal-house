@@ -9,6 +9,7 @@
                 <div class="navbar-nav">
                     <router-link to="/" class="nav-link active">Home</router-link>
                     <router-link to="/services-list" class="nav-link active">Servizi</router-link>
+                    <router-link to="/hubs-list" class="nav-link active">Sedi</router-link>
                 </div>
             </div>
         </div>
