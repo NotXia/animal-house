@@ -24,6 +24,7 @@ export default class NavbarComponent extends React.Component {
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="me-auto">
                                 <Nav.Link href="/fo">Home</Nav.Link>
+                                <Nav.Link href="/fo/forum">Forum</Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </Container>

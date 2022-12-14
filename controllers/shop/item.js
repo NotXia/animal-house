@@ -89,6 +89,7 @@ async function searchItem(req, res) {
     // Composizione della query
     if (req.query.category) { query_criteria.category = req.query.category; } // Non c'è bisogno di controllare l'esistenza
     if (req.query.name) { query_criteria.name = new RegExp(`${req.query.name}`, "i"); }
+    if (req.query.species) { query_criteria["products.target_species"] = req.query.species; }
     
     // Determina il criterio di ordinamento
     if (req.query.price_asc === "true")    { sort_criteria = { "min_price": 1, "relevance": -1, "_id": -1 }; }

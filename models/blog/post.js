@@ -26,11 +26,11 @@ const postSchema = mongoose.Schema({
         creationDate: {
             type: Date,
             required: true,
-            default: new Date()
+            default: () => new Date()
         },
         updateDate: {
             type: Date,
-            default: new Date()
+            default: () => new Date()
         }
     }],
     topic: { 
@@ -52,7 +52,7 @@ const postSchema = mongoose.Schema({
     creationDate: {
         type: Date,
         required: true,
-        default: new Date()
+        default: () => new Date()
     }
 });
 
