@@ -146,6 +146,10 @@ paths:
         in: query
         description: "Ordina per nome in ordine alfabetico inverso"
         type: boolean
+      - name: species
+        in: query
+        description: "Specie animale target"
+        type: string
       responses:
         200:
           description: "OK"
