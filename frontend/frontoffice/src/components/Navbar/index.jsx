@@ -41,11 +41,11 @@ export default class NavbarComponent extends React.Component {
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="me-auto">
-                                <Nav.Link href="/">Home</Nav.Link>
-                                <Nav.Link href="/fo/shop">Shop</Nav.Link>
-                                <Nav.Link href="/services-list">Servizi</Nav.Link>
-                                <Nav.Link href="/hubs-list">Sedi</Nav.Link>
-                                <Nav.Link href="/fo/forum">Forum</Nav.Link>
+                                <Nav.Link className="text-dark" href="/">Home</Nav.Link>
+                                <Nav.Link className="text-dark" href="/fo/shop">Shop</Nav.Link>
+                                <Nav.Link className="text-dark" href="/services-list">Servizi</Nav.Link>
+                                <Nav.Link className="text-dark" href="/hubs-list">Sedi</Nav.Link>
+                                <Nav.Link className="text-dark" href="/fo/forum">Forum</Nav.Link>
                             </Nav>
 
                             <div className="justify-content-end">
