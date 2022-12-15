@@ -21,15 +21,18 @@ class ShopMain extends React.Component {
         super(props);
         this.state = {
             shop_categories: [],
+            shop_species: [],
             shop_items: [],
 
             filter_name: undefined,
             filter_category: undefined,
+            filter_species: undefined,
             price_asc: false, price_desc: false, name_asc: false, name_desc: false,
 
             item_fetching: false,
 
             category_collapse_open: false,
+            species_collapse_open: false,
             sort_collapse_open: false,
 
             error_message: ""
@@ -47,12 +50,18 @@ class ShopMain extends React.Component {
         $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/categories/` })
         .then( (categories) => this.setState({ shop_categories: categories }) )
         .catch((err) => { this.setState({ error_message: "Si è verificato un errore durante il caricamento della pagina" }) });
+
+        // Inizializzazione specie
+        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/animals/species/` })
+        .then( (species) => this.setState({ shop_species: species }) )
+        .catch((err) => { this.setState({ error_message: "Si è verificato un errore durante il caricamento della pagina" }) });
         
         const search_query = this.props.searchParams.get("search"),
               category_query = this.props.searchParams.get("category"),
+              species_query = this.props.searchParams.get("species"),
               order_query = this.props.searchParams.get("order");
 
-        if (search_query || category_query || order_query) {
+        if (search_query || category_query || order_query || species_query) {
             let filter = {};
             
             // Composizione del filtro
@@ -62,6 +71,7 @@ class ShopMain extends React.Component {
             }
             if (category_query) { filter.filter_category = category_query; }
             if (order_query) {filter[order_query] = true; }
+            if (species_query) {filter.filter_species = species_query; }
 
             this.setState(filter, this.updateDisplayedItems);
         }
@@ -135,6 +145,45 @@ class ShopMain extends React.Component {
                                         </div>
                                     </Collapse>
                                 </div>
+
+                                {/* Selettore specie */}
+                                <div className="mt-2 mt-md-3">
+                                    {/* Collapse su schermi < md e lista di bottoni su schermi >= md */}
+                                    <Button variant="secondary" className="d-md-none w-100" 
+                                            onClick={() => this.setState({species_collapse_open: !this.state.species_collapse_open })} 
+                                            aria-controls="collapse-species" aria-expanded={this.state.species_collapse_open}>
+                                        Filtra animale{ this.state.filter_species ? `: ${this.state.filter_species}` : "" }
+                                    </Button>
+                                    <Collapse in={this.state.species_collapse_open}>
+                                        <div id="#collapse-species" className="d-md-block">
+                                            <fieldset>
+                                                <legend className="fs-5 d-none d-md-block" aria-label="Filtra per specie">Specie</legend>
+                                                <div> <span className="visually-hidden">{this.state.filter_species ? `Attualmente stai guardando la specie ${this.state.filter_species}` : `Attualmente non stai filtrando per nessuna specie`}</span> </div>
+                                                <ul className="nav nav-pills">
+                                                    {
+                                                        this.state.shop_species.map((species, index) => {
+                                                            const active = this.state.filter_species == species.name;
+                                                            const active_class = active ? "active" : "";
+
+                                                            return (
+                                                                <li className="nav-item w-100 mb-1 mb-md-3" key={species.name}>
+                                                                    <button className={`${category_css["btn-category"]} w-100 ${active_class}`} type="button" aria-selected={active}
+                                                                            onClick={() => this.filterSpecies(species.name)}>
+                                                                        <div className="d-flex justify-content-start align-items-center">
+                                                                            <img src={`data:image/*;base64,${species.logo}`} alt="" className="ah-icon" />
+                                                                            <span className="text-truncate">{species.name}</span>
+                                                                        </div>
+                                                                    </button>
+                                                                </li>
+                                                            );
+                                                        })
+                                                    }
+                                                </ul>
+                                            </fieldset>
+                                        </div>
+                                    </Collapse>
+                                </div>
+
                             </nav>
                         </Col>
 
@@ -238,6 +287,19 @@ class ShopMain extends React.Component {
         else { removeQueryFromURL("category"); }
     }
 
+    // Aggiunge un filtro per categoria
+    filterSpecies(species) {
+        let filter_species = species;
+        if (this.state.filter_species == species) { filter_species = undefined; }
+        
+        this.resetDisplayedItems();
+        this.setState({ filter_species: filter_species, category_collapse_open: false }, this.updateDisplayedItems);
+        
+        // Aggiornamento url
+        if (filter_species) { updateURLQuery("species", filter_species); }
+        else { removeQueryFromURL("species"); }
+    }
+
     // Cambia l'ordinamento
     changeOrderRule(order_method) {
         let order = { price_asc: false, price_desc: false, name_asc: false, name_desc: false }
@@ -271,7 +333,8 @@ class ShopMain extends React.Component {
                         price_asc: this.state.price_asc,
                         price_desc: this.state.price_desc,
                         name_asc: this.state.name_asc,
-                        name_desc: this.state.name_desc
+                        name_desc: this.state.name_desc,
+                        species: this.state.filter_species
                     }
                 });
 

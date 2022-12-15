@@ -1,5 +1,6 @@
 const { query } = require("express-validator");
 const validator = require("../validators/shop");
+const animal_validator = require("../validators/animal");
 const { REQUIRED, OPTIONAL } = require("../validators/utils");
 const utils = require("../utils");
 
@@ -21,6 +22,7 @@ const validateSearchItems = [
     query("name_asc").optional().isBoolean().withMessage("Formato non valido"),
     query("name_desc").optional().isBoolean().withMessage("Formato non valido"),
     validator.validateCategoryName("query", OPTIONAL, "category"),
+    animal_validator.validateAnimalSpecies("query", OPTIONAL, "species"),
     validator.validateItemName("query", OPTIONAL),
     utils.validatorErrorHandler
 ];
