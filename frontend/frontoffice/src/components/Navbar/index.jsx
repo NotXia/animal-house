@@ -33,7 +33,7 @@ export default class NavbarComponent extends React.Component {
             <nav>
                 <Navbar expand="lg" style={{ backgroundColor: "#ffa545" }}>
                     <Container fluid>
-                        <Navbar.Brand href="#home">
+                        <Navbar.Brand href="/">
                             <div className="d-flex justify-content-center align-items-center">
                                 <img src={`${process.env.REACT_APP_DOMAIN}/logos/logo.png`} alt="" style={{height: "2rem"}} />
                             </div>
