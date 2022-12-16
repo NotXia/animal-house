@@ -1,5 +1,8 @@
 import React from "react";
 import { Helmet } from 'react-helmet'
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+
 
 class Homepage extends React.Component {
     constructor(props) {
@@ -13,8 +16,12 @@ class Homepage extends React.Component {
             <Helmet>
                 <title>Homepage</title>
             </Helmet>
+
+            <Navbar />
             
             <h1>Homepage</h1>
+
+            <Footer />
             </>
         );
     }

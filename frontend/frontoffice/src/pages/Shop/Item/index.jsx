@@ -19,6 +19,7 @@ import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
 import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
 import { updateURLQuery } from "../../../utilities/url";
+import Footer from "../../../components/Footer";
 
 let __relevance_increased= false;
 
@@ -153,6 +154,8 @@ class ShopItem extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

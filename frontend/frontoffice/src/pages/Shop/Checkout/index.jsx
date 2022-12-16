@@ -24,6 +24,7 @@ import CustomerAPI from "../../../import/api/customer";
 import HubAPI from "../../../import/api/hub";
 import OrderAPI from "../../../import/api/order";
 import ItemAPI from "../../../import/api/item";
+import Footer from "../../../components/Footer";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -284,6 +285,8 @@ class Checkout extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

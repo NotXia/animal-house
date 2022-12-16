@@ -8,6 +8,7 @@ import ServiceAPI from "modules/api/service.js";
 import AnimalAPI from "modules/api/animals.js";
 import BlogAPI from "modules/api/blog.js";
 import Post from "../Forum/Main/components/Post";
+import Footer from "../../components/Footer";
 
 
 const POST_PAGE_SIZE = 5;
@@ -193,6 +194,8 @@ class ProfilePage extends React.Component {
                     }
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 

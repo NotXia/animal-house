@@ -17,6 +17,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "../../components/form/CheckoutForm";
 import Loading from "../../components/Loading";
 import animation_css from "./animation.module.css";
+import Footer from "../../components/Footer";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -200,6 +201,8 @@ class Booking extends React.Component {
                     
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 
