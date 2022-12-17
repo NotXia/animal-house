@@ -21,6 +21,9 @@
         <div class="container">
             
             <div class="row mb-2">
+                <div class="d-flex justify-content-center">
+                    <img :src="`${DOMAIN}/logos/logo.png`" alt="" style="height: 6rem;">
+                </div>
                 <h1 class="text-uppercase text-center fw-semibold" style="font-size: 5rem">
                     Animal House
                 </h1>
