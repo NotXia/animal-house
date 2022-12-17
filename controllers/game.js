@@ -202,7 +202,6 @@ async function quizAnswer(req, res) {
                 total_questions: quiz_instance.questions.length,
                 points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO
             };
-            console.log(next_question)
         }
         else { // Fine partita
             next_question = null;
