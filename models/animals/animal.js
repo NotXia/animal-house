@@ -23,7 +23,7 @@ animalScheme.methods.getData = function() {
         name: this.name,
         weight: this.weight,
         height: this.height,
-        image_path: this.image_path ? path.join(process.env.CUSTOMER_ANIMAL_IMAGES_BASE_URL, this.image_path) : ""
+        image_path: this.image_path ? path.join(process.env.CUSTOMER_ANIMAL_IMAGES_BASE_URL, this.image_path) : process.env.PROFILE_ANIMAL_IMAGES_DEFAULT_URL
     };
 };
 
