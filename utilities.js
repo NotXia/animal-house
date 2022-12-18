@@ -63,9 +63,23 @@ async function translate(text, source_lang="EN", dest_lang="IT") {
     return translation;
 }
 
+function shuffle(array) {
+    let currentIndex = array.length,  randomIndex;
+  
+    while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+  
+    return array;
+}
+
 module.exports = {
     createTime: createTime,
     translate: translate,
+    shuffle: shuffle,
 
     http: http_code,
 

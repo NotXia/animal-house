@@ -2,7 +2,7 @@ require('dotenv').config();
 const utils = require("../utilities");
 const error = require("../error_handler");
 const axios = require("axios").default;
-const { translate } = require("../utilities");
+const { translate, shuffle } = require("../utilities");
 const QuizModel = require("../models/games/quiz.js");
 const QuizRankModel = require("../models/games/quiz_rank.js");
 
@@ -145,7 +145,7 @@ function quizInit(is_guest) {
 
                     return {
                         text: await translate(question.question, "EN", "IT"),
-                        answers: answers,
+                        answers: shuffle(answers),
                         correct_answer: correct_answer
                     }
                 })
@@ -198,16 +198,13 @@ async function quizAnswer(req, res) {
             next_question = {
                 question: quiz_instance.questions[quiz_instance.current_question].text,
                 answers: quiz_instance.questions[quiz_instance.current_question].answers,
-                index: quiz_instance.current_question,
-                total_questions: quiz_instance.questions.length,
-                points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO
             };
         }
         else { // Fine partita
             next_question = null;
-            if (quiz_instance.username) { // Non è guest
-                let player = await QuizRankModel.findOne({ username: quiz_instance.username });
-                if (!player) { player = new QuizRankModel({ username: quiz_instance.username, points: 0 }); }
+            if (quiz_instance.player_username) { // Non è guest
+                let player = await QuizRankModel.findOne({ player: quiz_instance.player_username });
+                if (!player) { player = new QuizRankModel({ player: quiz_instance.player_username, points: 0 }); }
 
                 player.points += quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO;
                 await player.save();
@@ -218,6 +215,8 @@ async function quizAnswer(req, res) {
             correct: is_correct,
             points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO,
             correct_answers: quiz_instance.correct_answers,
+            index: quiz_instance.current_question,
+            total_questions: quiz_instance.questions.length,
             next_question: next_question
         });
     } catch (err) {
