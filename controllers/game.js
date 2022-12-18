@@ -133,7 +133,7 @@ function quizInit(is_guest) {
             // Estrazione domande
             let questions = (await axios({
                 method: "GET",
-                url: "https://opentdb.com/api.php?amount=5&category=27&difficulty=medium&type=multiple"
+                url: "https://opentdb.com/api.php?amount=5&category=27&type=multiple"
             })).data;
 
             // Parsing formato
