@@ -9,8 +9,8 @@ router.get("/animals/facts/", game_middleware.validateAnimalFact, game_controlle
 router.get("/animals/images/", game_middleware.validateAnimalImage, game_controller.getAnimalImage);
 
 router.post("/quiz", auth_middleware(), game_controller.quizInit(false));
-router.get("/quiz/guest", game_controller.quizInit(true));
-router.get("/quiz/:quiz_id", game_middleware.validateQuizAnswer, game_controller.quizAnswer);
+router.post("/quiz/guest", game_controller.quizInit(true));
+router.put("/quiz/:quiz_id", game_middleware.validateQuizAnswer, game_controller.quizAnswer);
 
 
 module.exports = router;
