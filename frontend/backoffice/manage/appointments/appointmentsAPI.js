@@ -10,3 +10,9 @@ export async function getAppointmentsByUsername(username) {
 
     return appointments;
 }
+
+export async function deleteAppointmentsById(id) {
+    await api_request({ 
+        type: "DELETE", url: `/appointments/${encodeURIComponent(id)}`,
+    });
+}

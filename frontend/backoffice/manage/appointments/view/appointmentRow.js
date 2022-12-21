@@ -1,10 +1,12 @@
-export async function renderAppointment(appointment) {
+import * as AppointmentAPI from "../appointmentsAPI.js";
+
+export async function renderAppointment(container, appointment) {
     const service = await $.ajax({ method: "GET", url: `/services/${encodeURIComponent(appointment.service_id)}` });
     const animal = await $.ajax({ method: "GET", url: `/animals/${encodeURIComponent(appointment.animal_id)}` });
     const customer = await $.ajax({ method: "GET", url: `/users/profiles/${encodeURIComponent(appointment.customer)}` });
 
-    return `
-        <div class="col-12 col-md-4">
+    $(container).append(`
+        <div class="col-12 col-md-4" id="container-${appointment.id}">
             <div class="m-2 border rounded p-2 px-3">
                 <div class="d-flex justify-content-between">
                     <p class="m-0 fs-5 fw-semibold">${moment(appointment.time_slot.start).format("HH:mm")} - ${moment(appointment.time_slot.end).format("HH:mm")}</p>
@@ -26,7 +28,30 @@ export async function renderAppointment(appointment) {
                     </div>
                     <span class="m-0 text-truncate">${customer.name} ${customer.surname}</span>
                 </div>
+
+                <div class="d-flex justify-content-end mt-2">
+                    <button class="btn btn-outline-danger btn-sm mx-1" id="button-start-delete-${appointment.id}">Cancella</button>
+                    <button class="btn btn-outline-danger btn-sm mx-1" id="button-delete-${appointment.id}" style="display: none">Conferma cancellazione</button>
+                    <button class="btn btn-outline-secondary btn-sm mx-1" id="button-abort-${appointment.id}" style="display: none">Annulla</button>
+                </div>
             </div>
         </div>
-    `;
+    `);
+
+    $(`#button-start-delete-${appointment.id}`).on("click", async () => {
+        $(`#button-start-delete-${appointment.id}`).hide();
+        $(`#button-delete-${appointment.id}`).show();
+        $(`#button-abort-${appointment.id}`).show();
+    });
+
+    $(`#button-delete-${appointment.id}`).on("click", async () => {
+        await AppointmentAPI.deleteAppointmentsById(appointment.id);
+        $(`#container-${appointment.id}`).html("");
+    });
+
+    $(`#button-abort-${appointment.id}`).on("click", async () => {
+        $(`#button-start-delete-${appointment.id}`).show();
+        $(`#button-delete-${appointment.id}`).hide();
+        $(`#button-abort-${appointment.id}`).hide();
+    });
 }

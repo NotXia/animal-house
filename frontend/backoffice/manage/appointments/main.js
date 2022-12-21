@@ -25,17 +25,17 @@ $(async function () {
 
         if (appointment_today.length > 0) {
             $("#container-appointments-today").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti di oggi">Oggi</h2>`);
-            for (const appointment of appointment_today) { $("#container-appointments-today").append(await renderAppointment(appointment)); }
+            for (const appointment of appointment_today) { await renderAppointment($("#container-appointments-today"), appointment); }
         }
 
         if (appointment_tomorrow.length > 0) {
             $("#container-appointments-tomorrow").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti di domani">Domani</h2>`);
-            for (const appointment of appointment_tomorrow) { $("#container-appointments-tomorrow").append(await renderAppointment(appointment)); }
+            for (const appointment of appointment_tomorrow) { await renderAppointment($("#container-appointments-tomorrow"), appointment); }
         }
 
         if (appointment_future.length > 0) {
             $("#container-appointments-future").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti futuri">Prossimamente</h2>`);
-            for (const appointment of appointment_future) { $("#container-appointments-future").append(await renderAppointment(appointment)); }
+            for (const appointment of appointment_future) { await renderAppointment($("#container-appointments-future"), appointment); }
         }
     });
 })
