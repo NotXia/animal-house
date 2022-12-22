@@ -252,7 +252,6 @@ function hangmanInit(is_guest) {
             word = (await axios({
                 method: "GET", url: "https://random-word-form.herokuapp.com/random/animal"
             })).data[0];
-            console.log(word)
             word = await translate(word, "EN", "IT");
         } catch (err) {
             word = randomOfArray(["cane", "gatto", "criceto", "aquila reale"]);
@@ -295,7 +294,7 @@ async function hangmanAttempt(req, res) {
 
         const wrong_attempts = hangman_instance.attempts.length - hangman_instance.correct_attempts;
         const word_characters = [...new Set(hangman_instance.word.split(""))];
-        const attempted_characters = new Set(hangman_instance.attempts);
+        const attempted_characters = new Set(hangman_instance.attempts.concat(" ")); // Aggiungere spazio come carattere tentato per sicurezza
 
         if (wrong_attempts < HANGMAN_MAX_WRONG_ATTEMPS && !word_characters.every((char) => attempted_characters.has(char))) { // Partita ancora in corso
             return res.status(utils.http.OK).json({ 
@@ -305,7 +304,7 @@ async function hangmanAttempt(req, res) {
             });
         }
         else { // Fine partita
-            const points = HANGMAN_MAX_POINTS - (HANGMAN_MAX_POINTS/HANGMAN_MAX_WRONG_ATTEMPS)*wrong_attempts;
+            const points = Math.round(HANGMAN_MAX_POINTS - (HANGMAN_MAX_POINTS/HANGMAN_MAX_WRONG_ATTEMPS)*wrong_attempts);
 
             if (hangman_instance.player_username) { // Salvataggio classifica se non è guest
                 let player = await HangmanRankModel.findOne({ player: hangman_instance.player_username });
