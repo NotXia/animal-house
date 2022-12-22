@@ -12,8 +12,8 @@ router.post("/quiz", auth_middleware(), game_controller.quizInit(false));
 router.post("/quiz/guest", game_controller.quizInit(true));
 router.put("/quiz/:quiz_id", game_middleware.validateQuizAnswer, game_controller.quizAnswer);
 
-router.get("/hangman", auth_middleware(), game_controller.hangmanInit(false));
-router.get("/hangman/guest", game_controller.hangmanInit(true));
-router.get("/hangman/:game_id", game_middleware.validateHangmanAnswer, game_controller.hangmanAttempt);
+router.post("/hangman", auth_middleware(), game_controller.hangmanInit(false));
+router.post("/hangman/guest", game_controller.hangmanInit(true));
+router.put("/hangman/:game_id", game_middleware.validateHangmanAnswer, game_controller.hangmanAttempt);
 
 module.exports = router;

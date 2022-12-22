@@ -257,7 +257,6 @@ function hangmanInit(is_guest) {
         } catch (err) {
             word = randomOfArray(["cane", "gatto", "criceto", "aquila reale"]);
         }
-        console.log(word)
 
         try {
             // Creazione partita
@@ -281,7 +280,7 @@ function hangmanInit(is_guest) {
 }
 
 async function hangmanAttempt(req, res) {
-    const user_attempt = req.query.attempt.toLowerCase();
+    const user_attempt = req.body.attempt.toLowerCase()[0];
 
     try {
         const hangman_instance = await HangmanModel.findById(req.params.game_id);
@@ -295,8 +294,10 @@ async function hangmanAttempt(req, res) {
         }
 
         const wrong_attempts = hangman_instance.attempts.length - hangman_instance.correct_attempts;
+        const word_characters = [...new Set(hangman_instance.word.split(""))];
+        const attempted_characters = new Set(hangman_instance.attempts);
 
-        if (wrong_attempts < HANGMAN_MAX_WRONG_ATTEMPS) { // Partita ancora in corso
+        if (wrong_attempts < HANGMAN_MAX_WRONG_ATTEMPS && !word_characters.every((char) => attempted_characters.has(char))) { // Partita ancora in corso
             return res.status(utils.http.OK).json({ 
                 word: _shadowWord(hangman_instance.word, hangman_instance.attempts),
                 attempts: hangman_instance.attempts,

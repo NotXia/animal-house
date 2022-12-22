@@ -21,7 +21,7 @@ const validateQuizAnswer = [
 
 const validateHangmanAnswer = [
     validator.param("game_id").exists().notEmpty().isMongoId(),
-    validator.query("attempt").exists().notEmpty(),
+    validator.body("attempt").exists().notEmpty(),
     utils.validatorErrorHandler
 ]
 
