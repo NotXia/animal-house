@@ -20,6 +20,24 @@ const GameAPI = {
                 }
             });
         },
+    },
+    hangman: {
+        async startGame(is_guest) {
+            if (is_guest) {
+                return await $.ajax({ method: "POST", url: `${DOMAIN}/games/hangman/guest` });
+            }
+            else {
+                return await api_request({ method: "POST", url: `${DOMAIN}/games/hangman` });
+            }
+        },
+        async sendLetter(game_id, letter) {
+            return await $.ajax({ 
+                method: "PUT", url: `${DOMAIN}/games/hangman/${encodeURIComponent(game_id)}`,
+                data: {
+                    attempt: letter
+                }
+            });
+        },
     }
 }
 
