@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth_middleware = require("../middleware/auth");
 const game_middleware = require("../middleware/game");
 const game_controller = require("../controllers/game");
 
