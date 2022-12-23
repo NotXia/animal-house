@@ -47,7 +47,6 @@
                 this.is_loading = true;
 
                 const game_data = await GameAPI.hangman.sendLetter(this.game_id, letter);
-                console.log(game_data)
                 this.word = game_data.word;
                 this.attempts = game_data.attempts;
                 this.failed_attempts = game_data.attempts.length - game_data.correct_attempts;
