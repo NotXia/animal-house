@@ -2,7 +2,9 @@ require('dotenv').config();
 const utils = require("../utilities");
 const error = require("../error_handler");
 const axios = require("axios").default;
-const { translate } = require("../utilities");
+const { translate, shuffle } = require("../utilities");
+const QuizModel = require("../models/games/quiz.js");
+const QuizRankModel = require("../models/games/quiz_rank.js");
 
 function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
@@ -122,7 +124,110 @@ async function getAnimalImage(req, res) {
     return res.status(utils.http.OK).json({ animal: animal, image: image_url });
 }
 
+
+const CORRECT_TO_POINTS_RATIO = 25;
+
+function quizInit(is_guest) {
+    return async function(req, res) {
+        try {
+            // Estrazione domande
+            let questions = (await axios({
+                method: "GET",
+                url: "https://opentdb.com/api.php?amount=5&category=27&type=multiple"
+            })).data;
+
+            // Parsing formato
+            questions = await Promise.all(
+                questions.results.map(async (question) => {
+                    const correct_answer = await translate(question.correct_answer, "EN", "IT");
+                    const answers = [correct_answer]
+                    for (const answer of question.incorrect_answers) { answers.push(await translate(answer, "EN", "IT")); }
+
+                    return {
+                        text: await translate(question.question, "EN", "IT"),
+                        answers: shuffle(answers),
+                        correct_answer: correct_answer
+                    }
+                })
+            );
+
+            // Creazione partita
+            const quiz_instance = await new QuizModel({
+                questions: questions,
+                current_question: 0,
+                correct_answers: 0,
+                player_username: is_guest ? null : req.auth.username
+            }).save();
+
+            // Invia prima domanda
+            return res.status(utils.http.OK).json({ 
+                game_id: quiz_instance._id,
+                question: quiz_instance.questions[quiz_instance.current_question].text,
+                answers: quiz_instance.questions[quiz_instance.current_question].answers,
+                index: quiz_instance.current_question,
+                total_questions: quiz_instance.questions.length,
+                points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO
+            });
+        } catch (err) {
+            return error.response(err, res);
+        }
+    }
+}
+
+async function quizAnswer(req, res) {
+    try {
+        let is_correct = false;
+        let next_question;
+
+        // Ricerca partita
+        const quiz_instance = await QuizModel.findById(req.params.quiz_id);
+        if (!quiz_instance) { throw error.generate.NOT_FOUND("Partita inesistente"); }
+
+        // Validazione risposta
+        const current_question = quiz_instance.questions[quiz_instance.current_question];
+        if (req.body.answer === current_question.correct_answer) {
+            quiz_instance.correct_answers++;
+            is_correct = true;
+        }
+        // Passaggio alla domanda successiva
+        quiz_instance.current_question++;
+
+        await quiz_instance.save();
+        
+        if (quiz_instance.current_question < quiz_instance.questions.length) { // Partita ancora in corso
+            next_question = {
+                question: quiz_instance.questions[quiz_instance.current_question].text,
+                answers: quiz_instance.questions[quiz_instance.current_question].answers,
+            };
+        }
+        else { // Fine partita
+            next_question = null;
+            if (quiz_instance.player_username) { // Non è guest
+                let player = await QuizRankModel.findOne({ player: quiz_instance.player_username });
+                if (!player) { player = new QuizRankModel({ player: quiz_instance.player_username, points: 0 }); }
+
+                player.points += quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO;
+                await player.save();
+            }
+        }
+
+        return res.status(utils.http.OK).json({ 
+            correct: is_correct,
+            points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO,
+            correct_answers: quiz_instance.correct_answers,
+            index: quiz_instance.current_question,
+            total_questions: quiz_instance.questions.length,
+            next_question: next_question
+        });
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+
 module.exports = {
     getAnimalFact: getAnimalFact,
-    getAnimalImage: getAnimalImage
+    getAnimalImage: getAnimalImage,
+    quizInit: quizInit,
+    quizAnswer: quizAnswer
 }
