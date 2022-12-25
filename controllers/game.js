@@ -338,9 +338,9 @@ async function hangmanAttempt(req, res) {
 }
 
 
-const MEMORY_UNIQUE_CARD_PER_GAME = 4;
+const MEMORY_UNIQUE_CARD_PER_GAME = 9;
 const MEMORY_MAX_POINTS = 100;
-const MEMORY_MAX_WRONG_ATTEMPTS = 10;
+const MEMORY_MAX_WRONG_ATTEMPTS = 5;
 
 function memoryInit(is_guest) {
     return async function(req, res) {
@@ -349,7 +349,7 @@ function memoryInit(is_guest) {
             let attempts = 0;
 
             // Selezione immagini carte
-            while (card_images.size < MEMORY_UNIQUE_CARD_PER_GAME*2) {
+            while (card_images.size < MEMORY_UNIQUE_CARD_PER_GAME) {
                 if (attempts > 15) { throw error.generate.INTERNAL_SERVER_ERROR("Non è stato possibile generare la partita"); }
                 
                 try {
@@ -364,7 +364,7 @@ function memoryInit(is_guest) {
             // Raddoppio e shuffle delle carte
             const cards = shuffle([...card_images].concat([...card_images]));
 
-            // // Creazione partita
+            // Creazione partita
             const memory_instance = await new MemoryModel({
                 cards: cards.map((image_url) => ({
                     url: image_url, revealed: false
