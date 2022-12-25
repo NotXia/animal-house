@@ -1,5 +1,6 @@
 import QuizView from "./QuizView.vue";
 import HangmanView from "./HangmanView.vue";
+import MemoryView from "./MemoryView.vue";
 
 let routes = [
     {
@@ -9,8 +10,13 @@ let routes = [
     },
     {
         path: "/play/hangman",
-        name: "quiz",
+        name: "hangman",
         component: HangmanView
+    },
+    {
+        path: "/play/memory",
+        name: "memory",
+        component: MemoryView
     }
 ]
 
