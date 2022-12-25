@@ -27,7 +27,7 @@ const validateHangmanAnswer = [
 
 const validateMemoryAnswer = [
     validator.param("game_id").exists().notEmpty().isMongoId(),
-    validator.query("index").exists().isNumeric(),
+    validator.body("index").exists().isNumeric(),
     utils.validatorErrorHandler
 ];
 

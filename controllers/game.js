@@ -385,7 +385,7 @@ function memoryInit(is_guest) {
 }
 
 async function memoryAttempt(req, res) {
-    const index = req.query.index;
+    const index = req.body.index;
     let cards_prev = null;
 
     try {
