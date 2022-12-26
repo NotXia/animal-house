@@ -13,5 +13,12 @@ router.post("/quiz", auth_middleware(), game_controller.quizInit(false));
 router.post("/quiz/guest", game_controller.quizInit(true));
 router.put("/quiz/:quiz_id", game_middleware.validateQuizAnswer, game_controller.quizAnswer);
 
+router.post("/hangman", auth_middleware(), game_controller.hangmanInit(false));
+router.post("/hangman/guest", game_controller.hangmanInit(true));
+router.put("/hangman/:game_id", game_middleware.validateHangmanAnswer, game_controller.hangmanAttempt);
+
+router.post("/memory", auth_middleware(), game_controller.memoryInit(false));
+router.post("/memory/guest", game_controller.memoryInit(true));
+router.put("/memory/:game_id", game_middleware.validateMemoryAnswer, game_controller.memoryAttempt);
 
 module.exports = router;

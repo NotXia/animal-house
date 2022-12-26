@@ -5,6 +5,10 @@ const axios = require("axios").default;
 const { translate, shuffle } = require("../utilities");
 const QuizModel = require("../models/games/quiz.js");
 const QuizRankModel = require("../models/games/quiz_rank.js");
+const HangmanModel = require("../models/games/hangman.js");
+const HangmanRankModel = require("../models/games/hangman_rank.js");
+const MemoryModel = require("../models/games/memory.js");
+const MemoryRankModel = require("../models/games/memory_rank.js");
 
 function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
@@ -78,6 +82,20 @@ const fact_apis = {
     ]
 }
 
+
+async function _getAnimalImage(animal) {
+    // Scelta API
+    const api = randomOfArray(image_apis[animal]);
+
+    // Estrazione immagine
+    const res = await axios({ method: "GET", url: api.url });
+    image_url = api.get(res.data);
+
+    return image_url;
+}
+
+
+
 async function getAvailableFactsAnimals(req, res) {
     return res.status(utils.http.OK).json(Object.keys(fact_apis));
 }
@@ -115,12 +133,7 @@ async function getAnimalImage(req, res) {
         animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(image_apis));
         if (!image_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
 
-        // Scelta API
-        const api = randomOfArray(image_apis[animal]);
-
-        // Estrazione immagine
-        const res = await axios({ method: "GET", url: api.url });
-        image_url = api.get(res.data);
+        image_url = await _getAnimalImage(animal);
     } catch (err) {
         return error.response(err, res);
     }
@@ -129,7 +142,7 @@ async function getAnimalImage(req, res) {
 }
 
 
-const CORRECT_TO_POINTS_RATIO = 25;
+const QUIZ_CORRECT_TO_POINTS_RATIO = 25;
 
 function quizInit(is_guest) {
     return async function(req, res) {
@@ -170,7 +183,7 @@ function quizInit(is_guest) {
                 answers: quiz_instance.questions[quiz_instance.current_question].answers,
                 index: quiz_instance.current_question,
                 total_questions: quiz_instance.questions.length,
-                points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO
+                points: quiz_instance.correct_answers * QUIZ_CORRECT_TO_POINTS_RATIO
             });
         } catch (err) {
             return error.response(err, res);
@@ -210,14 +223,14 @@ async function quizAnswer(req, res) {
                 let player = await QuizRankModel.findOne({ player: quiz_instance.player_username });
                 if (!player) { player = new QuizRankModel({ player: quiz_instance.player_username, points: 0 }); }
 
-                player.points += quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO;
+                player.points += quiz_instance.correct_answers * QUIZ_CORRECT_TO_POINTS_RATIO;
                 await player.save();
             }
         }
 
         return res.status(utils.http.OK).json({ 
             correct: is_correct,
-            points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO,
+            points: quiz_instance.correct_answers * QUIZ_CORRECT_TO_POINTS_RATIO,
             correct_answers: quiz_instance.correct_answers,
             index: quiz_instance.current_question,
             total_questions: quiz_instance.questions.length,
@@ -229,10 +242,218 @@ async function quizAnswer(req, res) {
 }
 
 
+const HANGMAN_MAX_WRONG_ATTEMPS = 6;
+const HANGMAN_MAX_POINTS = 100;
+
+// Oscura la parola rimpiazzando le lettere non visibili
+function _shadowWord(word, visible_characters) {
+    function replaceAt(string, index, replacement) { return string.substring(0, index) + replacement + string.substring(index + replacement.length); }
+
+    for (let i=0; i<word.length; i++) {
+        if (word[i] !== " " && !visible_characters.includes(word[i].toLowerCase())) {
+            word = ["a", "e", "i", "o", "u"].includes(word[i]) ? replaceAt(word, i, "+") : replaceAt(word, i, "-");
+        }
+    }
+
+    return word;
+}
+
+function hangmanInit(is_guest) {
+    return async function(req, res) {
+        let word;
+
+        try {
+            // Estrazione parola
+            word = (await axios({
+                method: "GET", url: "https://random-word-form.herokuapp.com/random/animal"
+            })).data[0];
+            word = await translate(word, "EN", "IT");
+        } catch (err) {
+            word = randomOfArray(["cane", "gatto", "criceto", "aquila reale"]);
+        }
+
+        try {
+            // Creazione partita
+            const hangman_instance = await new HangmanModel({
+                word: word.toLowerCase(),
+                attempts: [],
+                correct_attempts: 0,
+                player_username: is_guest ? null : req.auth.username
+            }).save();
+
+            return res.status(utils.http.OK).json({ 
+                game_id: hangman_instance._id,
+                word: _shadowWord(word, []),
+                attempts: [],
+                correct_attempts: 0
+            });
+        } catch (err) {
+            return error.response(err, res);
+        }
+    }
+}
+
+async function hangmanAttempt(req, res) {
+    const user_attempt = req.body.attempt.toLowerCase()[0];
+
+    try {
+        const hangman_instance = await HangmanModel.findById(req.params.game_id);
+        if (!hangman_instance) { throw error.generate.NOT_FOUND("Partita inesistente"); }
+
+        if (!hangman_instance.attempts.includes(user_attempt)) { // Ignora lettere già provate
+            hangman_instance.attempts.push(user_attempt);
+            if (hangman_instance.word.includes(user_attempt)) { hangman_instance.correct_attempts++; }
+            
+            await hangman_instance.save();
+        }
+
+        const wrong_attempts = hangman_instance.attempts.length - hangman_instance.correct_attempts;
+        const word_characters = [...new Set(hangman_instance.word.split(""))];
+        const attempted_characters = new Set(hangman_instance.attempts.concat(" ")); // Aggiungere spazio come carattere tentato per sicurezza
+
+        if (wrong_attempts < HANGMAN_MAX_WRONG_ATTEMPS && !word_characters.every((char) => attempted_characters.has(char))) { // Partita ancora in corso
+            return res.status(utils.http.OK).json({ 
+                word: _shadowWord(hangman_instance.word, hangman_instance.attempts),
+                attempts: hangman_instance.attempts,
+                correct_attempts: hangman_instance.correct_attempts
+            });
+        }
+        else { // Fine partita
+            const points = Math.round(HANGMAN_MAX_POINTS - (HANGMAN_MAX_POINTS/HANGMAN_MAX_WRONG_ATTEMPS)*wrong_attempts);
+
+            if (hangman_instance.player_username) { // Salvataggio classifica se non è guest
+                let player = await HangmanRankModel.findOne({ player: hangman_instance.player_username });
+                if (!player) { player = new HangmanRankModel({ player: hangman_instance.player_username, points: 0 }); }
+
+                player.points += points;
+                await player.save();
+            }
+
+            return res.status(utils.http.OK).json({ 
+                word: hangman_instance.word,
+                attempts: hangman_instance.attempts,
+                correct_attempts: hangman_instance.correct_attempts,
+                points: points
+            });
+        }
+
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+
+const MEMORY_UNIQUE_CARD_PER_GAME = 9;
+const MEMORY_MAX_POINTS = 100;
+const MEMORY_MAX_WRONG_ATTEMPTS = 5;
+
+function memoryInit(is_guest) {
+    return async function(req, res) {
+        try {
+            let card_images = new Set();
+            let attempts = 0;
+
+            // Selezione immagini carte
+            while (card_images.size < MEMORY_UNIQUE_CARD_PER_GAME) {
+                if (attempts > 15) { throw error.generate.INTERNAL_SERVER_ERROR("Non è stato possibile generare la partita"); }
+                
+                try {
+                    const animal = randomOfArray(Object.keys(image_apis))
+                    const image_url = await _getAnimalImage(animal);
+    
+                    card_images.add(image_url);
+                }
+                catch (err) { attempts++; }
+            }
+            
+            // Raddoppio e shuffle delle carte
+            const cards = shuffle([...card_images].concat([...card_images]));
+
+            // Creazione partita
+            const memory_instance = await new MemoryModel({
+                cards: cards.map((image_url) => ({
+                    url: image_url, revealed: false
+                })),
+                curr_revealed_index: null,
+                wrong_attempts: 0,
+                player_username: is_guest ? null : req.auth.username
+            }).save();
+
+            return res.status(utils.http.OK).json({ 
+                game_id: memory_instance._id,
+                cards: memory_instance.getCards()
+            });
+        } catch (err) {
+            return error.response(err, res);
+        }
+    }
+}
+
+async function memoryAttempt(req, res) {
+    const index = req.body.index;
+    let cards_prev = null;
+
+    try {
+        const memory_instance = await MemoryModel.findById(req.params.game_id);
+        if (!memory_instance) { throw error.generate.NOT_FOUND("Partita inesistente"); }
+
+        if (!memory_instance.cards[index].revealed) { // Ignora carte già rivelate
+            memory_instance.cards[index].revealed = true;
+            cards_prev = memory_instance.getCards();
+
+            if (memory_instance.curr_revealed_index !== null) { // È stata rivelata una seconda carta
+                if (memory_instance.cards[index].url !== memory_instance.cards[memory_instance.curr_revealed_index].url) { // Match sbagliato
+                    memory_instance.cards[index].revealed = false;
+                    memory_instance.cards[memory_instance.curr_revealed_index].revealed = false;
+                    memory_instance.wrong_attempts++;
+                }
+                memory_instance.curr_revealed_index = null;
+            }
+            else { // Prima carta rivelata
+                memory_instance.curr_revealed_index = index;
+            }
+            
+            await memory_instance.save();
+        }
+
+        if (!memory_instance.gameEnded()) { // Partita ancora in corso
+            return res.status(utils.http.OK).json({ 
+                cards_prev: cards_prev,
+                cards: memory_instance.getCards()
+            });
+        }
+        else { // Fine partita
+            let points = MEMORY_MAX_POINTS - MEMORY_MAX_WRONG_ATTEMPTS*memory_instance.wrong_attempts;
+            points = points < 0 ? 0 : points;
+
+            if (memory_instance.player_username) { // Salvataggio classifica se non è guest
+                let player = await MemoryRankModel.findOne({ player: memory_instance.player_username });
+                if (!player) { player = new MemoryRankModel({ player: memory_instance.player_username, points: 0 }); }
+
+                player.points += points;
+                await player.save();
+            }
+
+            return res.status(utils.http.OK).json({ 
+                cards: memory_instance.getCards(),
+                points: points
+            });
+        }
+
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+
 module.exports = {
     getAvailableFactsAnimals: getAvailableFactsAnimals,
     getAnimalFact: getAnimalFact,
     getAnimalImage: getAnimalImage,
     quizInit: quizInit,
-    quizAnswer: quizAnswer
+    quizAnswer: quizAnswer,
+    hangmanInit: hangmanInit,
+    hangmanAttempt: hangmanAttempt,
+    memoryInit: memoryInit,
+    memoryAttempt: memoryAttempt
 }
