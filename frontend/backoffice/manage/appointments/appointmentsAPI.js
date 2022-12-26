@@ -1,4 +1,4 @@
-import { api_request } from "/js/auth.js";
+import { api_request, getUsername } from "/js/auth.js";
 
 export async function getAppointmentsByUsername(username) {
     let appointments = await api_request({ 
@@ -14,5 +14,19 @@ export async function getAppointmentsByUsername(username) {
 export async function deleteAppointmentsById(id) {
     await api_request({ 
         type: "DELETE", url: `/appointments/${encodeURIComponent(id)}`,
+    });
+}
+
+export async function createAppointment(customer, animal_id, service_id, hub, time_slot) {
+    await api_request({ 
+        type: "POST", url: `/appointments/`,
+        data: {
+            customer: customer,
+            animal_id: animal_id,
+            service_id: service_id,
+            operator: await getUsername(),
+            hub: hub,
+            time_slot: time_slot
+        }
     });
 }
