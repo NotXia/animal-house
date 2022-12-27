@@ -78,6 +78,9 @@ $(async function () {
         $("#input-day").on("change", async () => {
             $("#container-time_slot").html("");
             $("#error-date").html("");
+            selected_hub = null;
+            selected_slot = null;
+            $("#button-modal-submit").prop("disabled", true);
 
             const selected_date = $("#input-day").val();
             if (selected_date === "") { return; }
@@ -113,7 +116,8 @@ $(async function () {
     
                         selected_hub = availability.hub;
                         selected_slot = { start: availability.time.start, end: availability.time.end };
-                        $("#step-customer").show();                
+                        $("#step-customer").show();    
+                        tryToUnlockSubmit();
                     })
                 }
             }
@@ -127,6 +131,9 @@ $(async function () {
             e.preventDefault();
             $("#container-animals").html("");
             $("#error-customer").html("");
+            selected_username = null;
+            selected_animal = null;
+            $("#button-modal-submit").prop("disabled", true);
 
             try {
                 const username = $("#input-customer-username").val();
@@ -153,7 +160,7 @@ $(async function () {
 
                         selected_username = username;
                         selected_animal = animal;
-                        $("#button-modal-submit").prop("disabled", false);
+                        tryToUnlockSubmit();
                     });
                 }
             }
@@ -241,4 +248,12 @@ async function renderAppointments() {
         $("#container-appointments-future").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti futuri">Prossimamente</h2>`);
         for (const appointment of appointment_future) { await renderAppointment($("#container-appointments-future"), appointment); }
     }
+}
+
+function tryToUnlockSubmit() {
+    if (!selected_service || !selected_hub || !selected_slot || !selected_username || !selected_animal) {
+        return;
+    }
+
+    $("#button-modal-submit").prop("disabled", false);
 }
