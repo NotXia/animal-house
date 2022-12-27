@@ -36,7 +36,7 @@ $(async function () {
             await renderAppointments();
         }
         catch (err) {
-
+            $("#error-global").html("Non è stato possibile caricare gli appuntamenti");
         }
 
 
@@ -70,17 +70,17 @@ $(async function () {
             }
         }
         catch (err) {
-
+            $("#error-modal").html("Si è verificato un errore");
         }
 
         // Selettore time slot
         $("#input-day").attr({"min" : moment.utc().format("YYYY-MM-DD")});
         $("#input-day").on("change", async () => {
+            $("#container-time_slot").html("");
+            $("#error-date").html("");
+
             const selected_date = $("#input-day").val();
-            if (selected_date === "") { 
-                $("#container-time_slot").html("");
-                return;
-            }
+            if (selected_date === "") { return; }
 
             try {
                 // Estrazione disponibilità
@@ -94,7 +94,10 @@ $(async function () {
                 });
                 availabilities.sort((a1, a2) => a1.hub.localeCompare(a2.hub) || moment(a1.time.start).diff(moment(a2.time.start)));
 
-                $("#container-time_slot").html("");
+                if (availabilities.length === 0) { 
+                    $("#error-date").html("Non sono presenti disponibilità");
+                    return;
+                }
 
                 for (let i=0; i<availabilities.length; i++) {
                     const availability = availabilities[i];
@@ -115,23 +118,26 @@ $(async function () {
                 }
             }
             catch (err) {
-
+                $("#error-date").html("Non sono presenti disponibilità");
             }
         });
 
         // Ricerca utente e animali
         $("#form-search-username").on("submit", async (e) => {
             e.preventDefault();
+            $("#container-animals").html("");
+            $("#error-customer").html("");
 
             try {
                 const username = $("#input-customer-username").val();
                 const animals = await ($.ajax({ method: "GET", url: `/users/customers/${username}/animals/` }));
                 if (animals.length === 0) {
+                    $("#step-animal").hide();
+                    $("#error-customer").html("L'utente non ha animali");
                     return;
                 }
 
                 $("#step-animal").show();
-                $("#container-animals").html("");
 
                 for (let i=0; i<animals.length; i++) {
                     const animal = animals[i];
@@ -152,7 +158,8 @@ $(async function () {
                 }
             }
             catch (err) {
-
+                $("#step-animal").hide();
+                $("#error-customer").html("Utente inesistente");
             }
         });
         

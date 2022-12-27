@@ -33,11 +33,12 @@
             <div class="row">
                 <div class="d-flex justify-content-between">
                     <h1>Appuntamenti</h1>
-
+                    
                     <div class="my-auto">
                         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-appointment">Crea appuntamento</button>
                     </div>
                 </div>
+                <p id="error-global" class="invalid-feedback d-block w-100 text-center fw-semibold" aria-live="assertive"></p>
             </div>
 
             <div class="row" id="container-appointments-today"></div>
@@ -55,6 +56,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <p id="error-modal" class="invalid-feedback d-block w-100 text-center fw-semibold m-0" aria-live="assertive"></p>
+
                     <div>
                         <p class="fs-5 m-0 mb-1">Seleziona il servizio da prenotare</p>
                         <fieldset id="container-services"></fieldset>
@@ -63,6 +66,7 @@
                     <div id="step-time_slot" class="mt-3">
                         <p class="fs-5 m-0 mb-1">Seleziona il giorno e l'ora</p>
                         <input id="input-day" type="date" />
+                        <p id="error-date" class="invalid-feedback d-block w-100 text-center fw-semibold m-0" aria-live="assertive"></p>
                         <fieldset id="container-time_slot"></fieldset>
                     </div>
 
@@ -72,6 +76,7 @@
                             <input id="input-customer-username" type="text" class="form-control mx-1" placeholder="Cerca username" required>
                             <button class="btn btn-secondary mx-1" type="submit">Cerca</button>
                         </form>
+                        <p id="error-customer" class="invalid-feedback d-block w-100 text-center fw-semibold m-0" aria-live="assertive"></p>
                     </div>
 
                     <div id="step-animal" class="mt-3">
