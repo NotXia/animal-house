@@ -229,13 +229,14 @@ async function quizAnswer(req, res) {
 
 const HANGMAN_MAX_WRONG_ATTEMPS = 6;
 const HANGMAN_MAX_POINTS = 100;
+const HANGMAN_TO_IGNORE_CHARS = [" ", "'", ",", ".", "!", "?", "_"];
 
 // Oscura la parola rimpiazzando le lettere non visibili
 function _shadowWord(word, visible_characters) {
     function replaceAt(string, index, replacement) { return string.substring(0, index) + replacement + string.substring(index + replacement.length); }
 
     for (let i=0; i<word.length; i++) {
-        if (word[i] !== " " && !visible_characters.includes(word[i].toLowerCase())) {
+        if (!HANGMAN_TO_IGNORE_CHARS.includes(word[i]) && !visible_characters.includes(word[i].toLowerCase())) {
             word = ["a", "e", "i", "o", "u"].includes(word[i]) ? replaceAt(word, i, "+") : replaceAt(word, i, "-");
         }
     }
@@ -294,7 +295,7 @@ async function hangmanAttempt(req, res) {
 
         const wrong_attempts = hangman_instance.attempts.length - hangman_instance.correct_attempts;
         const word_characters = [...new Set(hangman_instance.word.split(""))];
-        const attempted_characters = new Set(hangman_instance.attempts.concat(" ")); // Aggiungere spazio come carattere tentato per sicurezza
+        const attempted_characters = new Set(hangman_instance.attempts.concat(HANGMAN_TO_IGNORE_CHARS)); // Aggiungere spazio e punteggiatura per sicurezza
 
         if (wrong_attempts < HANGMAN_MAX_WRONG_ATTEMPS && !word_characters.every((char) => attempted_characters.has(char))) { // Partita ancora in corso
             return res.status(utils.http.OK).json({ 
