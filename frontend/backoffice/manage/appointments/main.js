@@ -63,11 +63,17 @@ $(async function () {
             for (const service_id of services_id) {
                 const service = (await $.ajax({ method: "GET", url: `/services/${service_id}` }));
                 $("#container-services").append(`
-                    <button id="button-service-${service.id}" class="btn btn-outline-dark">${service.name} (${centToPrice(service.price)}€)</button>
+                    <input id="input-service-${service.id}" class="visually-hidden" type="radio" name="service" required />
+                    <label id="label-service-${service.id}" for="input-service-${service.id}" class="btn btn-outline-dark" >${service.name} (${centToPrice(service.price)}€)</label>
                 `);
 
-                $(`#button-service-${service.id}`).on("click", () => {
+                $(`#input-service-${service.id}`).on("change", () => {
+                    $(`label[id^="label-service-"]`).removeClass("active");
+                    $(`#label-service-${service.id}`).addClass("active");
                     selected_service = service;
+
+                    resetTimeSelector();
+                    resetCustomer();
                 });
             }
         }
@@ -80,6 +86,7 @@ $(async function () {
         $("#input-day").on("change", async () => {
             const selected_date = $("#input-day").val();
             try {
+                // Estrazione disponibilità
                 const availabilities = await $.ajax({ 
                     method: "GET", url: `/users/operators/${await getUsername()}/availabilities/`,
                     data: {
@@ -96,10 +103,14 @@ $(async function () {
                     const availability = availabilities[i];
 
                     $("#container-time_slot").append(`
-                        <button id="button-date-${i}" class="btn btn-outline-dark m-1">${moment(availability.time.start).format("HH:mm")} (${availability.hub})</button>
+                        <input id="input-date-${i}" class="visually-hidden" type="radio" name="date" required />
+                        <label id="label-date-${i}" for="input-date-${i}" class="btn btn-outline-dark">${moment(availability.time.start).format("HH:mm")} (${availability.hub})</label>
                     `);
 
-                    $(`#button-date-${i}`).on("click", () => {
+                    $(`#input-date-${i}`).on("change", () => {
+                        $(`label[id^="label-date-"]`).removeClass("active");
+                        $(`#label-date-${i}`).addClass("active");
+    
                         selected_hub = availability.hub;
                         selected_slot = { start: availability.time.start, end: availability.time.end };
                     })
@@ -124,10 +135,14 @@ $(async function () {
                     const animal = animals[i];
 
                     $("#container-animals").append(`
-                        <button id="button-animal-${i}" class="btn btn-outline-dark text-truncate">${animal.name}</button>
+                        <input id="input-animal-${i}" class="visually-hidden" type="radio" name="animal" required />
+                        <label id="label-animal-${i}" for="input-animal-${i}" class="btn btn-outline-dark text-truncate">${animal.name} (${animal.species})</label>
                     `);
 
-                    $(`#button-animal-${i}`).on("click", () => {
+                    $(`#input-animal-${i}`).on("change", () => {
+                        $(`label[id^="label-animal-"]`).removeClass("active");
+                        $(`#label-animal-${i}`).addClass("active");
+
                         selected_username = username;
                         selected_animal = animal;
                     });
@@ -152,4 +167,14 @@ $(async function () {
             }
         })
     });
-})
+});
+
+function resetTimeSelector() {
+    $("#container-time_slot").html("");
+    $("#input-day").val("");
+}
+
+function resetCustomer() {
+    $("#container-animals").html("");
+    $("#input-customer-username").val("");
+}

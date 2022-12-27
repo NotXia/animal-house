@@ -48,6 +48,7 @@
 
     <div class="modal fade" id="modal-appointment" tabindex="-1" aria-labelledby="modal-appointment-label" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modal-appointment-label">Crea appuntamento</h1>
@@ -56,33 +57,34 @@
                 <div class="modal-body">
                     <div>
                         <p class="fs-5 m-0 mb-1">Seleziona il servizio da prenotare</p>
-                        <div id="container-services"></div>
+                        <fieldset id="container-services"></fieldset>
                     </div>
 
                     <div class="mt-3">
                         <p class="fs-5 m-0 mb-1">Seleziona il giorno e l'ora</p>
                         <input id="input-day" type="date" />
-                        <div id="container-time_slot"></div>
+                        <fieldset id="container-time_slot"></fieldset>
                     </div>
 
                     <div class="mt-3">
                         <p class="fs-5 m-0 mb-1">Seleziona il cliente</p>
                         <form id="form-search-username" class="d-flex">
                             <input id="input-customer-username" type="text" class="form-control mx-1" placeholder="Cerca username" required>
-                            <button class="btn btn-secondary mx-1">Cerca</button>
+                            <button class="btn btn-secondary mx-1" type="submit">Cerca</button>
                         </form>
                     </div>
 
                     <div class="mt-3">
                         <p class="fs-5 m-0 mb-1">Seleziona l'animale</p>
-                        <div id="container-animals"></div>
+                        <fieldset id="container-animals"></fieldset>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button id="button-modal-abort" type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
-                    <button id="button-modal-submit" type="button" class="btn btn-outline-success">Crea</button>
+                    <button id="button-modal-submit" type="submit" class="btn btn-outline-success">Crea</button>
                 </div>
             </div>
+
         </div>
     </div>
   
