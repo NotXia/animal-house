@@ -9,7 +9,10 @@ export async function renderAppointment(container, appointment) {
         <div class="col-12 col-md-4" id="container-${appointment.id}">
             <div class="m-2 border rounded p-2 px-3">
                 <div class="d-flex justify-content-between">
-                    <p class="m-0 fs-5 fw-semibold">${moment(appointment.time_slot.start).format("HH:mm")} - ${moment(appointment.time_slot.end).format("HH:mm")}</p>
+                    <div>
+                        <p class="m-0 fs-5 fw-semibold">${moment(appointment.time_slot.start).format("HH:mm")} - ${moment(appointment.time_slot.end).format("HH:mm")}</p>
+                        <p class="m-0 fs-6 fw-semibold">${moment(appointment.time_slot.start).format("DD/MM/YYYY")}</p>
+                    </div>
                     <p class="m-0 fs-5 fw-semibold">${appointment.hub}</p>
                 </div>
                 <p class="fs-5">${service.name}</p>
