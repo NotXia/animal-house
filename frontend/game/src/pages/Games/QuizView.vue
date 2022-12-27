@@ -32,18 +32,28 @@
         },
 
         methods: {
+            loadQuestion(question, answers) {
+                this.question = question;
+                this.answers = answers;
+                this.$nextTick(() => {
+                    this.$refs.question.focus();
+                });
+            },
+
             async startGame() {
                 this.is_loading = true;
 
                 const game_data = await GameAPI.quiz.startGame(!await isAuthenticated());
                 this.game_id = game_data.game_id;
-                this.question = he.decode(game_data.question);
-                this.answers = game_data.answers;
+                this.game_end = false;
+
+                await this.$nextTick(); // Attende l'aggiornamento della pagina
+
+                this.loadQuestion(he.decode(game_data.question), game_data.answers);
                 this.points = game_data.points;
                 this.correct_answers = 0;
                 this.index = game_data.index;
                 this.total_questions = game_data.total_questions;
-                this.game_end = false;
 
                 this.is_loading = false;
             },
@@ -56,8 +66,7 @@
                 this.points = game_data.points;
                 this.correct_answers = game_data.correct_answers;
                 if (game_data.next_question) {
-                    this.question = he.decode(game_data.next_question.question);
-                    this.answers = game_data.next_question.answers;
+                    this.loadQuestion(he.decode(game_data.next_question.question), game_data.next_question.answers);
                 }
                 else {
                     this.game_end = true;
@@ -86,14 +95,14 @@
         <div v-if="game_id" class="d-flex align-items-center justify-content-center h-100">
             <div v-if="!game_end" class="container">
                 <div class="row" style="min-height: 20vh">
-                    <div class="text-center">
+                    <div ref="question" class="text-center" role="alert" aria-live="assertive" aria-atomic="true" :key="question">
                         <p class="fs-5 m-0">Domanda {{ index+1 }}/{{total_questions}}</p>
                         <p class="fs-3">{{ question }}</p>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-12 col-md-6" v-for="answer in answers">
+                    <div class="col-12 col-md-6" v-for="answer in answers" :key="answer">
                         <button class="btn btn-outline-primary w-100 px-2 py-4 mx-3 my-2 fs-5" :onclick="() => submitAnswer(answer)">
                             {{ answer }}
                         </button>
@@ -101,7 +110,7 @@
                 </div>
             </div>
 
-            <div v-if="game_end" class="text-center">
+            <div v-if="game_end" class="text-center" aria-live="polite" role="alert" aria-atomic="true">
                 <p class="fs-1">{{ points === 0 ? "La prossima volta andrà meglio" : "Congratulazioni!" }}</p>
                 <p class="fs-4 m-0">Hai ottenuto {{ points }} punti</p>
                 <p class="fs-4 m-0">Hai risposto correttamente a {{ correct_answers }} {{ correct_answers === 1 ? "domanda" : "domande" }} su {{ total_questions }}</p>
@@ -114,15 +123,3 @@
 
     <!-- <AHFooter /> -->
 </template>
-
-<style strict>
-
-.home-icon-small {
-    width: 25%;
-}
-
-.home-icon {
-    width: 35%;
-}
-
-</style>
