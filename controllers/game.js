@@ -230,6 +230,7 @@ async function quizAnswer(req, res) {
 const HANGMAN_MAX_WRONG_ATTEMPS = 6;
 const HANGMAN_MAX_POINTS = 100;
 const HANGMAN_TO_IGNORE_CHARS = [" ", "'", ",", ".", "!", "?", "_"];
+const HANGMAN_ALLOWED_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ',.!?_";
 
 // Oscura la parola rimpiazzando le lettere non visibili
 function _shadowWord(word, visible_characters) {
@@ -244,19 +245,31 @@ function _shadowWord(word, visible_characters) {
     return word;
 }
 
+function _allowedWord(word) {
+    for (let i=0; i<word.length; i++) {
+        if (!HANGMAN_ALLOWED_CHARS.includes(word[i].toUpperCase())) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function hangmanInit(is_guest) {
     return async function(req, res) {
         let word;
 
-        try {
-            // Estrazione parola
-            word = (await axios({
-                method: "GET", url: "https://random-word-form.herokuapp.com/random/animal"
-            })).data[0];
-            word = await translate(word, "EN", "IT");
-        } catch (err) {
-            word = randomOfArray(["cane", "gatto", "criceto", "aquila reale"]);
-        }
+        do {
+            try {
+                // Estrazione parola
+                word = (await axios({
+                    method: "GET", url: "https://random-word-form.herokuapp.com/random/animal"
+                })).data[0];
+                word = await translate(word, "EN", "IT");
+            } catch (err) {
+                word = randomOfArray(["cane", "gatto", "criceto", "aquila reale"]);
+            }
+        } while (!_allowedWord(word));  // Se la parola contiene caratteri non ammessi, ne rigenera un'altra
 
         try {
             // Creazione partita
