@@ -49,7 +49,7 @@ export async function renderAppointment(container, appointment) {
 
     $(`#button-delete-${appointment.id}`).on("click", async () => {
         await AppointmentAPI.deleteAppointmentsById(appointment.id);
-        $(`#container-${appointment.id}`).html("");
+        $(`#container-${appointment.id}`).remove();
     });
 
     $(`#button-abort-${appointment.id}`).on("click", async () => {
