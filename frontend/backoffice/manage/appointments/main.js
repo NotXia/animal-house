@@ -10,6 +10,8 @@ let NavbarHandler;
 let LoadingHandler;
 
 
+let appointments = [];
+
 let selected_service = null;
 let selected_hub = null;
 let selected_slot = null;
@@ -28,26 +30,10 @@ $(async function () {
 
         try {
             // Estrazione degli appuntamento
-            const appointments = await AppointmentsAPI.getAppointmentsByUsername(await getUsername());
+            appointments = await AppointmentsAPI.getAppointmentsByUsername(await getUsername());
             appointments.sort( (a1, a2) => moment(a1.time_slot.start).diff(moment(a2.time_slot.start)) );
-            const appointment_today = appointments.filter((appointment) => moment(appointment.time_slot.start).isSame(moment(), "day"));
-            const appointment_tomorrow = appointments.filter((appointment) => moment(appointment.time_slot.start).isSame(moment().add(1, "day"), "day"));
-            const appointment_future = appointments.filter((appointment) => moment(appointment.time_slot.start).isSameOrAfter(moment().add(2, "day"), "day"));
-    
-            if (appointment_today.length > 0) {
-                $("#container-appointments-today").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti di oggi">Oggi</h2>`);
-                for (const appointment of appointment_today) { await renderAppointment($("#container-appointments-today"), appointment); }
-            }
-    
-            if (appointment_tomorrow.length > 0) {
-                $("#container-appointments-tomorrow").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti di domani">Domani</h2>`);
-                for (const appointment of appointment_tomorrow) { await renderAppointment($("#container-appointments-tomorrow"), appointment); }
-            }
-    
-            if (appointment_future.length > 0) {
-                $("#container-appointments-future").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti futuri">Prossimamente</h2>`);
-                for (const appointment of appointment_future) { await renderAppointment($("#container-appointments-future"), appointment); }
-            }
+
+            await renderAppointments();
         }
         catch (err) {
 
@@ -177,7 +163,11 @@ $(async function () {
 
             try {
                 const new_appointment = await AppointmentsAPI.createAppointment(selected_username, selected_animal.id, selected_service.id, selected_hub, selected_slot);
-                console.log(new_appointment)
+                
+                appointments.push(new_appointment);
+                appointments.sort( (a1, a2) => moment(a1.time_slot.start).diff(moment(a2.time_slot.start)) );
+                await renderAppointments();
+
                 $("#modal-appointment").modal("hide");
             }
             catch (err) {
@@ -190,6 +180,7 @@ $(async function () {
         resetForm();
     })
 });
+
 
 function resetForm() {
     resetServiceSelector();
@@ -217,4 +208,30 @@ function resetCustomer() {
     $("#container-animals").html("");
     $("#input-customer-username").val("");
     $("#button-modal-submit").prop("disabled", true);
+}
+
+
+async function renderAppointments() {
+    const appointment_today = appointments.filter((appointment) => moment(appointment.time_slot.start).isSame(moment(), "day"));
+    const appointment_tomorrow = appointments.filter((appointment) => moment(appointment.time_slot.start).isSame(moment().add(1, "day"), "day"));
+    const appointment_future = appointments.filter((appointment) => moment(appointment.time_slot.start).isSameOrAfter(moment().add(2, "day"), "day"));
+
+    $("#container-appointments-today").html("");
+    $("#container-appointments-tomorrow").html("");
+    $("#container-appointments-future").html("");
+
+    if (appointment_today.length > 0) {
+        $("#container-appointments-today").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti di oggi">Oggi</h2>`);
+        for (const appointment of appointment_today) { await renderAppointment($("#container-appointments-today"), appointment); }
+    }
+
+    if (appointment_tomorrow.length > 0) {
+        $("#container-appointments-tomorrow").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti di domani">Domani</h2>`);
+        for (const appointment of appointment_tomorrow) { await renderAppointment($("#container-appointments-tomorrow"), appointment); }
+    }
+
+    if (appointment_future.length > 0) {
+        $("#container-appointments-future").append(`<h2 class="mt-3 mb-1" aria-label="Appuntamenti futuri">Prossimamente</h2>`);
+        for (const appointment of appointment_future) { await renderAppointment($("#container-appointments-future"), appointment); }
+    }
 }

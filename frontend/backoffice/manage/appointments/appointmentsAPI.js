@@ -18,7 +18,7 @@ export async function deleteAppointmentsById(id) {
 }
 
 export async function createAppointment(customer, animal_id, service_id, hub, time_slot) {
-    await api_request({ 
+    return await api_request({ 
         type: "POST", url: `/appointments/`,
         data: {
             customer: customer,
