@@ -56,6 +56,11 @@ $(async function () {
 
         /* Inizializzazione modale prenotazione */
 
+        $("#step-time_slot").hide();
+        $("#step-customer").hide();
+        $("#step-animal").hide();
+        $("#button-modal-submit").prop("disabled", true);
+
         // Selettore servizio
         try {
             const services_id = (await api_request({ method: "GET", url: `/users/operators/${encodeURIComponent(await getUsername())}` })).services_id;
@@ -74,6 +79,7 @@ $(async function () {
 
                     resetTimeSelector();
                     resetCustomer();
+                    $("#step-time_slot").show();
                 });
             }
         }
@@ -85,6 +91,11 @@ $(async function () {
         $("#input-day").attr({"min" : moment.utc().format("YYYY-MM-DD")});
         $("#input-day").on("change", async () => {
             const selected_date = $("#input-day").val();
+            if (selected_date === "") { 
+                $("#container-time_slot").html("");
+                return;
+            }
+
             try {
                 // Estrazione disponibilità
                 const availabilities = await $.ajax({ 
@@ -113,6 +124,7 @@ $(async function () {
     
                         selected_hub = availability.hub;
                         selected_slot = { start: availability.time.start, end: availability.time.end };
+                        $("#step-customer").show();                
                     })
                 }
             }
@@ -128,7 +140,11 @@ $(async function () {
             try {
                 const username = $("#input-customer-username").val();
                 const animals = await ($.ajax({ method: "GET", url: `/users/customers/${username}/animals/` }));
+                if (animals.length === 0) {
+                    return;
+                }
 
+                $("#step-animal").show();
                 $("#container-animals").html("");
 
                 for (let i=0; i<animals.length; i++) {
@@ -145,6 +161,7 @@ $(async function () {
 
                         selected_username = username;
                         selected_animal = animal;
+                        $("#button-modal-submit").prop("disabled", false);
                     });
                 }
             }
@@ -161,20 +178,43 @@ $(async function () {
             try {
                 const new_appointment = await AppointmentsAPI.createAppointment(selected_username, selected_animal.id, selected_service.id, selected_hub, selected_slot);
                 console.log(new_appointment)
+                $("#modal-appointment").modal("hide");
             }
             catch (err) {
-
+                console.log(err)
             }
         })
     });
+
+    $("#modal-appointment").on("hidden.bs.modal", () => {
+        resetForm();
+    })
 });
 
+function resetForm() {
+    resetServiceSelector();
+    resetTimeSelector();
+    resetCustomer();
+    $("#button-modal-submit").prop("disabled", true);
+}
+
+function resetServiceSelector() {
+    $(`label[id^="label-service-"]`).removeClass("active");
+    $(`input[id^="input-service-"]`).prop("checked", false);
+    $("#button-modal-submit").prop("disabled", true);
+}
+
 function resetTimeSelector() {
+    $("#step-time_slot").hide();
     $("#container-time_slot").html("");
     $("#input-day").val("");
+    $("#button-modal-submit").prop("disabled", true);
 }
 
 function resetCustomer() {
+    $("#step-customer").hide();
+    $("#step-animal").hide();
     $("#container-animals").html("");
     $("#input-customer-username").val("");
+    $("#button-modal-submit").prop("disabled", true);
 }
