@@ -54,8 +54,8 @@ $(async function () {
             for (const service_id of services_id) {
                 const service = (await $.ajax({ method: "GET", url: `/services/${service_id}` }));
                 $("#container-services").append(`
-                    <input id="input-service-${service.id}" class="visually-hidden" type="radio" name="service" required />
-                    <label id="label-service-${service.id}" for="input-service-${service.id}" class="btn btn-outline-dark" >${service.name} (${centToPrice(service.price)}€)</label>
+                    <input id="input-service-${service.id}" class="visually-hidden" type="radio" name="service" value="" required aria-required="true" />
+                    <label id="label-service-${service.id}" for="input-service-${service.id}" class="btn btn-outline-dark">${service.name} (${centToPrice(service.price)}€)</label>
                 `);
 
                 $(`#input-service-${service.id}`).on("change", () => {
@@ -106,7 +106,7 @@ $(async function () {
                     const availability = availabilities[i];
 
                     $("#container-time_slot").append(`
-                        <input id="input-date-${i}" class="visually-hidden" type="radio" name="date" required />
+                        <input id="input-date-${i}" class="visually-hidden" type="radio" name="date" required aria-required="true" />
                         <label id="label-date-${i}" for="input-date-${i}" class="btn btn-outline-dark">${moment(availability.time.start).format("HH:mm")} (${availability.hub})</label>
                     `);
 
@@ -150,7 +150,7 @@ $(async function () {
                     const animal = animals[i];
 
                     $("#container-animals").append(`
-                        <input id="input-animal-${i}" class="visually-hidden" type="radio" name="animal" required />
+                        <input id="input-animal-${i}" class="visually-hidden" type="radio" name="animal" required aria-required="true" />
                         <label id="label-animal-${i}" for="input-animal-${i}" class="btn btn-outline-dark text-truncate">${animal.name} (${animal.species})</label>
                     `);
 

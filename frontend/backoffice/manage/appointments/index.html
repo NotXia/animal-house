@@ -41,9 +41,11 @@
                 <p id="error-global" class="invalid-feedback d-block w-100 text-center fw-semibold" aria-live="assertive"></p>
             </div>
 
-            <div class="row" id="container-appointments-today"></div>
-            <div class="row" id="container-appointments-tomorrow"></div>
-            <div class="row" id="container-appointments-future"></div>
+            <section aria-label="Lista degli appuntamenti">
+                <div class="row" id="container-appointments-today"></div>
+                <div class="row" id="container-appointments-tomorrow"></div>
+                <div class="row" id="container-appointments-future"></div>
+            </section>
         </div>
     </main>
 
@@ -53,7 +55,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="modal-appointment-label">Crea appuntamento</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Annulla creazione"></button>
                 </div>
                 <div class="modal-body">
                     <p id="error-modal" class="invalid-feedback d-block w-100 text-center fw-semibold m-0" aria-live="assertive"></p>
