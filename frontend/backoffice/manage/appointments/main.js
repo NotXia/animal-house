@@ -29,7 +29,7 @@ $(async function () {
         await NavbarHandler.render();
 
         try {
-            // Estrazione degli appuntamento
+            // Estrazione degli appuntamenti
             appointments = await AppointmentsAPI.getAppointmentsByUsername(await getUsername());
             appointments.sort( (a1, a2) => moment(a1.time_slot.start).diff(moment(a2.time_slot.start)) );
 
@@ -170,6 +170,7 @@ $(async function () {
             }
         });
         
+        // Creazione appuntamento
         $("#button-modal-submit").on("click", async () => {
             if (!selected_service || !selected_hub || !selected_slot || !selected_username || !selected_animal) {
                 $("#error-modal").html("Ci sono dati mancanti");
