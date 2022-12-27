@@ -172,6 +172,7 @@ $(async function () {
         
         $("#button-modal-submit").on("click", async () => {
             if (!selected_service || !selected_hub || !selected_slot || !selected_username || !selected_animal) {
+                $("#error-modal").html("Ci sono dati mancanti");
                 return;
             }
 
@@ -185,7 +186,7 @@ $(async function () {
                 $("#modal-appointment").modal("hide");
             }
             catch (err) {
-                console.log(err)
+                $("#error-modal").html("Non è stato possibile creare l'appuntamento");
             }
         })
     });
