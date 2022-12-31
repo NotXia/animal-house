@@ -19,8 +19,15 @@ const validateQuizAnswer = [
     utils.validatorErrorHandler
 ];
 
+const validateHangmanAnswer = [
+    validator.param("game_id").exists().notEmpty().isMongoId(),
+    validator.body("attempt").exists().notEmpty(),
+    utils.validatorErrorHandler
+]
+
 module.exports = {
     validateAnimalFact: validateAnimalFact,
     validateAnimalImage: validateAnimalImage,
-    validateQuizAnswer: validateQuizAnswer
+    validateQuizAnswer: validateQuizAnswer,
+    validateHangmanAnswer: validateHangmanAnswer
 }

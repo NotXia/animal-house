@@ -5,6 +5,8 @@ const axios = require("axios").default;
 const { translate, shuffle } = require("../utilities");
 const QuizModel = require("../models/games/quiz.js");
 const QuizRankModel = require("../models/games/quiz_rank.js");
+const HangmanModel = require("../models/games/hangman.js");
+const HangmanRankModel = require("../models/games/hangman_rank.js");
 
 function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
@@ -125,7 +127,7 @@ async function getAnimalImage(req, res) {
 }
 
 
-const CORRECT_TO_POINTS_RATIO = 25;
+const QUIZ_CORRECT_TO_POINTS_RATIO = 25;
 
 function quizInit(is_guest) {
     return async function(req, res) {
@@ -166,7 +168,7 @@ function quizInit(is_guest) {
                 answers: quiz_instance.questions[quiz_instance.current_question].answers,
                 index: quiz_instance.current_question,
                 total_questions: quiz_instance.questions.length,
-                points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO
+                points: quiz_instance.correct_answers * QUIZ_CORRECT_TO_POINTS_RATIO
             });
         } catch (err) {
             return error.response(err, res);
@@ -206,14 +208,14 @@ async function quizAnswer(req, res) {
                 let player = await QuizRankModel.findOne({ player: quiz_instance.player_username });
                 if (!player) { player = new QuizRankModel({ player: quiz_instance.player_username, points: 0 }); }
 
-                player.points += quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO;
+                player.points += quiz_instance.correct_answers * QUIZ_CORRECT_TO_POINTS_RATIO;
                 await player.save();
             }
         }
 
         return res.status(utils.http.OK).json({ 
             correct: is_correct,
-            points: quiz_instance.correct_answers * CORRECT_TO_POINTS_RATIO,
+            points: quiz_instance.correct_answers * QUIZ_CORRECT_TO_POINTS_RATIO,
             correct_answers: quiz_instance.correct_answers,
             index: quiz_instance.current_question,
             total_questions: quiz_instance.questions.length,
@@ -225,9 +227,127 @@ async function quizAnswer(req, res) {
 }
 
 
+const HANGMAN_MAX_WRONG_ATTEMPS = 6;
+const HANGMAN_MAX_POINTS = 100;
+const HANGMAN_TO_IGNORE_CHARS = [" ", "'", ",", ".", "!", "?", "_"];
+const HANGMAN_ALLOWED_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ',.!?_";
+
+// Oscura la parola rimpiazzando le lettere non visibili
+function _shadowWord(word, visible_characters) {
+    function replaceAt(string, index, replacement) { return string.substring(0, index) + replacement + string.substring(index + replacement.length); }
+
+    for (let i=0; i<word.length; i++) {
+        if (!HANGMAN_TO_IGNORE_CHARS.includes(word[i]) && !visible_characters.includes(word[i].toLowerCase())) {
+            word = ["a", "e", "i", "o", "u"].includes(word[i]) ? replaceAt(word, i, "+") : replaceAt(word, i, "-");
+        }
+    }
+
+    return word;
+}
+
+function _allowedWord(word) {
+    for (let i=0; i<word.length; i++) {
+        if (!HANGMAN_ALLOWED_CHARS.includes(word[i].toUpperCase())) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function hangmanInit(is_guest) {
+    return async function(req, res) {
+        let word;
+
+        do {
+            try {
+                // Estrazione parola
+                word = (await axios({
+                    method: "GET", url: "https://random-word-form.herokuapp.com/random/animal"
+                })).data[0];
+                word = await translate(word, "EN", "IT");
+            } catch (err) {
+                word = randomOfArray(["cane", "gatto", "criceto", "aquila reale"]);
+            }
+        } while (!_allowedWord(word));  // Se la parola contiene caratteri non ammessi, ne rigenera un'altra
+
+        try {
+            // Creazione partita
+            const hangman_instance = await new HangmanModel({
+                word: word.toLowerCase(),
+                attempts: [],
+                correct_attempts: 0,
+                player_username: is_guest ? null : req.auth.username
+            }).save();
+
+            return res.status(utils.http.OK).json({ 
+                game_id: hangman_instance._id,
+                word: _shadowWord(word, []),
+                attempts: [],
+                correct_attempts: 0
+            });
+        } catch (err) {
+            return error.response(err, res);
+        }
+    }
+}
+
+async function hangmanAttempt(req, res) {
+    const user_attempt = req.body.attempt.toLowerCase()[0];
+
+    try {
+        const hangman_instance = await HangmanModel.findById(req.params.game_id);
+        if (!hangman_instance) { throw error.generate.NOT_FOUND("Partita inesistente"); }
+
+        if (!hangman_instance.attempts.includes(user_attempt)) { // Ignora lettere già provate
+            hangman_instance.attempts.push(user_attempt);
+            if (hangman_instance.word.includes(user_attempt)) { hangman_instance.correct_attempts++; }
+            
+            await hangman_instance.save();
+        }
+
+        const wrong_attempts = hangman_instance.attempts.length - hangman_instance.correct_attempts;
+        const word_characters = [...new Set(hangman_instance.word.split(""))];
+        const attempted_characters = new Set(hangman_instance.attempts.concat(HANGMAN_TO_IGNORE_CHARS)); // Aggiungere spazio e punteggiatura per sicurezza
+
+        if (wrong_attempts < HANGMAN_MAX_WRONG_ATTEMPS && !word_characters.every((char) => attempted_characters.has(char))) { // Partita ancora in corso
+            return res.status(utils.http.OK).json({ 
+                word: _shadowWord(hangman_instance.word, hangman_instance.attempts),
+                attempts: hangman_instance.attempts,
+                correct_attempts: hangman_instance.correct_attempts
+            });
+        }
+        else { // Fine partita
+            const points = Math.round(HANGMAN_MAX_POINTS - (HANGMAN_MAX_POINTS/HANGMAN_MAX_WRONG_ATTEMPS)*wrong_attempts);
+
+            if (hangman_instance.player_username) { // Salvataggio classifica se non è guest
+                let player = await HangmanRankModel.findOne({ player: hangman_instance.player_username });
+                if (!player) { player = new HangmanRankModel({ player: hangman_instance.player_username, points: 0 }); }
+
+                player.points += points;
+                await player.save();
+            }
+
+            return res.status(utils.http.OK).json({ 
+                word: hangman_instance.word,
+                attempts: hangman_instance.attempts,
+                correct_attempts: hangman_instance.correct_attempts,
+                points: points
+            });
+        }
+
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
+
+
 module.exports = {
     getAnimalFact: getAnimalFact,
     getAnimalImage: getAnimalImage,
     quizInit: quizInit,
-    quizAnswer: quizAnswer
+    quizAnswer: quizAnswer,
+    hangmanInit: hangmanInit,
+    hangmanAttempt: hangmanAttempt
 }
