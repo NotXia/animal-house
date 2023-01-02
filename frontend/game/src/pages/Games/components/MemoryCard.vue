@@ -6,7 +6,9 @@
         name: "MemoryCard",
         props: {
             url: String,
-            reveal: Boolean
+            reveal: Boolean,
+            label: String,
+            index: Number
         },
         computed: {
             DOMAIN() { return process.env.VUE_APP_DOMAIN; }
@@ -21,12 +23,18 @@
 
             <div class="card-front border border-dark rounded">
                 <div class="d-flex justify-content-center align-items-center w-100 h-100 overflow-hidden">
-                    <img :src="url" alt="" style="max-height: 150%; max-width: 150%">
+                    <div :class="`${reveal ? '' : 'd-none'} visually-hidden`" aria-role="alert" aria-live="assertive" aria-atomic="true">
+                        Hai rivelato {{ label }}
+                    </div>
+                    <img :src="url" alt="" aria-hidden="true" style="max-height: 150%; max-width: 150%">
                 </div>
             </div>
 
             <div class="card-back border border-dark rounded">
                 <div class="d-flex justify-content-center align-items-center w-100 h-100 overflow-hidden">
+                    <div :class="`${!reveal ? '' : 'd-none'} visually-hidden`" aria-role="alert" aria-live="assertive" aria-atomic="true">
+                        Carta {{ index }}
+                    </div>
                     <img :src="`${DOMAIN}/logos/logo.png`" alt="" style="max-height: 90%; max-width: 90%">
                 </div>
             </div>

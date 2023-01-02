@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const memorySchema = mongoose.Schema({
     cards: [{
         url: String,
+        label: String,
         revealed: Boolean
     }],
     curr_revealed_index: Number, // La carta attualmente girata
@@ -11,7 +12,7 @@ const memorySchema = mongoose.Schema({
 });
 
 memorySchema.methods.getCards = function() {
-    return this.cards.map((card) => card.revealed ? card.url : null);
+    return this.cards.map((card) => card.revealed ? {url: card.url, label: card.label} : null);
 };
 
 memorySchema.methods.gameEnded = function() {
