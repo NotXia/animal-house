@@ -21,6 +21,7 @@ const GameAPI = {
             });
         },
     },
+
     hangman: {
         async startGame(is_guest) {
             if (is_guest) {
@@ -35,6 +36,25 @@ const GameAPI = {
                 method: "PUT", url: `${DOMAIN}/games/hangman/${encodeURIComponent(game_id)}`,
                 data: {
                     attempt: letter
+                }
+            });
+        },
+    },
+
+    memory: {
+        async startGame(is_guest) {
+            if (is_guest) {
+                return await $.ajax({ method: "POST", url: `${DOMAIN}/games/memory/guest` });
+            }
+            else {
+                return await api_request({ method: "POST", url: `${DOMAIN}/games/memory` });
+            }
+        },
+        async flipCard(game_id, card_index) {
+            return await $.ajax({ 
+                method: "PUT", url: `${DOMAIN}/games/memory/${encodeURIComponent(game_id)}`,
+                data: {
+                    index: card_index
                 }
             });
         },

@@ -7,6 +7,8 @@ const QuizModel = require("../models/games/quiz.js");
 const QuizRankModel = require("../models/games/quiz_rank.js");
 const HangmanModel = require("../models/games/hangman.js");
 const HangmanRankModel = require("../models/games/hangman_rank.js");
+const MemoryModel = require("../models/games/memory.js");
+const MemoryRankModel = require("../models/games/memory_rank.js");
 
 function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
@@ -80,6 +82,19 @@ const fact_apis = {
     ]
 }
 
+
+async function _getAnimalImage(animal) {
+    // Scelta API
+    const api = randomOfArray(image_apis[animal]);
+
+    // Estrazione immagine
+    const res = await axios({ method: "GET", url: api.url });
+    image_url = api.get(res.data);
+
+    return image_url;
+}
+
+
 // Restituisce un fatto sugli animali
 async function getAnimalFact(req, res) {
     let fact = "";
@@ -113,12 +128,7 @@ async function getAnimalImage(req, res) {
         animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(image_apis));
         if (!image_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
 
-        // Scelta API
-        const api = randomOfArray(image_apis[animal]);
-
-        // Estrazione immagine
-        const res = await axios({ method: "GET", url: api.url });
-        image_url = api.get(res.data);
+        image_url = await _getAnimalImage(animal);
     } catch (err) {
         return error.response(err, res);
     }
@@ -342,6 +352,122 @@ async function hangmanAttempt(req, res) {
 }
 
 
+const MEMORY_UNIQUE_CARD_PER_GAME = 9;
+const MEMORY_MAX_POINTS = 100;
+const MEMORY_MAX_WRONG_ATTEMPTS = 5;
+
+function memoryInit(is_guest) {
+    return async function(req, res) {
+        try {
+            let selected_images = new Set();
+            let cards = [];
+            let attempts = 0;
+            let animal_count = {}; // 
+
+            // Selezione immagini carte
+            while (selected_images.size < MEMORY_UNIQUE_CARD_PER_GAME) {
+                if (attempts > 15) { throw error.generate.INTERNAL_SERVER_ERROR("Non è stato possibile generare la partita"); }
+                
+                try {
+                    const animal = randomOfArray(Object.keys(image_apis))
+                    const image_url = await _getAnimalImage(animal);
+    
+                    if (!selected_images.has(image_url)) {
+                        selected_images.add(image_url); // Marca l'immagine come usata
+
+                        if (!animal_count[animal]) { animal_count[animal] = 0; }
+                        animal_count[animal]++;
+    
+                        cards.push({
+                            url: image_url,
+                            label: `${animal}${animal_count[animal]}`
+                        });
+                    }
+                }
+                catch (err) { attempts++; }
+            }
+            
+            // Raddoppio e shuffle delle carte
+            cards = shuffle(cards.concat(cards));
+
+            // Creazione partita
+            const memory_instance = await new MemoryModel({
+                cards: cards.map((card) => ({
+                    url: card.url, 
+                    label: card.label, 
+                    revealed: false
+                })),
+                curr_revealed_index: null,
+                wrong_attempts: 0,
+                player_username: is_guest ? null : req.auth.username
+            }).save();
+
+            return res.status(utils.http.OK).json({ 
+                game_id: memory_instance._id,
+                cards: memory_instance.getCards()
+            });
+        } catch (err) {
+            return error.response(err, res);
+        }
+    }
+}
+
+async function memoryAttempt(req, res) {
+    const index = req.body.index;
+    let cards_prev = null;
+
+    try {
+        const memory_instance = await MemoryModel.findById(req.params.game_id);
+        if (!memory_instance) { throw error.generate.NOT_FOUND("Partita inesistente"); }
+
+        if (!memory_instance.cards[index].revealed) { // Ignora carte già rivelate
+            memory_instance.cards[index].revealed = true;
+            cards_prev = memory_instance.getCards();
+
+            if (memory_instance.curr_revealed_index !== null) { // È stata rivelata una seconda carta
+                if (memory_instance.cards[index].url !== memory_instance.cards[memory_instance.curr_revealed_index].url) { // Match sbagliato
+                    memory_instance.cards[index].revealed = false;
+                    memory_instance.cards[memory_instance.curr_revealed_index].revealed = false;
+                    memory_instance.wrong_attempts++;
+                }
+                memory_instance.curr_revealed_index = null;
+            }
+            else { // Prima carta rivelata
+                memory_instance.curr_revealed_index = index;
+            }
+            
+            await memory_instance.save();
+        }
+
+        if (!memory_instance.gameEnded()) { // Partita ancora in corso
+            return res.status(utils.http.OK).json({ 
+                cards_prev: cards_prev,
+                cards: memory_instance.getCards()
+            });
+        }
+        else { // Fine partita
+            let points = MEMORY_MAX_POINTS - MEMORY_MAX_WRONG_ATTEMPTS*memory_instance.wrong_attempts;
+            points = points < 0 ? 0 : points;
+
+            if (memory_instance.player_username) { // Salvataggio classifica se non è guest
+                let player = await MemoryRankModel.findOne({ player: memory_instance.player_username });
+                if (!player) { player = new MemoryRankModel({ player: memory_instance.player_username, points: 0 }); }
+
+                player.points += points;
+                await player.save();
+            }
+
+            return res.status(utils.http.OK).json({ 
+                cards: memory_instance.getCards(),
+                points: points
+            });
+        }
+
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 
 module.exports = {
     getAnimalFact: getAnimalFact,
@@ -349,5 +475,7 @@ module.exports = {
     quizInit: quizInit,
     quizAnswer: quizAnswer,
     hangmanInit: hangmanInit,
-    hangmanAttempt: hangmanAttempt
+    hangmanAttempt: hangmanAttempt,
+    memoryInit: memoryInit,
+    memoryAttempt: memoryAttempt
 }
