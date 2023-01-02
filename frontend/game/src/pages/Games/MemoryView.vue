@@ -38,7 +38,7 @@
                 this.cards = game_data.cards;
                 this.game_end = false;
                 this.flipping = false;
-                this.first_card = true,
+                this.first_card = true;
 
                 this.is_loading = false;
             },
@@ -92,7 +92,7 @@
             </section>
         </div>
 
-        <div v-if="game_id" class="d-flex justify-content-center h-100">
+        <div v-if="game_id" class="d-flex align-items-start align-items-md-center justify-content-center h-100">
             <div v-if="!game_end" class="container">
                 <div class="row p-1 mt-3">
                     <section aria-label="Carte da rivelare">
