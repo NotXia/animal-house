@@ -56,9 +56,10 @@ export default class NavbarComponent extends React.Component {
                                         <div className="d-inline-block">
                                             <div className="d-flex align-items-center">
                                                 <span className="align-top me-2">{ this.state.name } { this.state.surname }</span>
-                                                <div className="d-flex align-items-center justify-content-center border border-dark rounded-circle overflow-hidden">
-                                                    <img src={`${this.state.picture}`} alt="Immagine di profilo" 
-                                                        style={{ maxHeight: "2.2rem", maxWidth: "2.2rem" }} />
+                                                <div className="d-flex align-items-center justify-content-center border border-dark rounded-circle overflow-hidden" style={{ height: "2.2rem", width: "2.2rem" }}>
+                                                    <div className="d-flex justify-content-center align-items-center">
+                                                        <img src={`${this.state.picture}`} alt="Immagine di profilo" style={{ maxHeight: "2.2rem" }} />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
