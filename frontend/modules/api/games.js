@@ -58,6 +58,20 @@ const GameAPI = {
                 }
             });
         },
+    },
+
+    curiosity: {
+        async getAvailableAnimals() {
+            return await $.ajax({ method: "GET", url: `${DOMAIN}/games/animals/facts/list` });
+        },
+        async get(animal) {
+            return await $.ajax({ 
+                method: "GET", url: `${DOMAIN}/games/animals/facts`,
+                data: {
+                    animal: animal
+                }
+            });
+        },
     }
 }
 
