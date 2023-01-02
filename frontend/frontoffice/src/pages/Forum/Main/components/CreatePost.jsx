@@ -4,8 +4,8 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import TextInput from "../../../../components/form/TextInput";
-import BlogAPI from "../../../../import/api/blog";
-import FileAPI from "../../../../import/api/file";
+import BlogAPI from "modules/api/blog";
+import FileAPI from "modules/api/file";
 
 
 class CreatePost extends React.Component {

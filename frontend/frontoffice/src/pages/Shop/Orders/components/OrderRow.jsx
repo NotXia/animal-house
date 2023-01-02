@@ -3,14 +3,14 @@ import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { centToPrice } from "../../../../utilities/currency";
+import { centToPrice } from "modules/currency";
 import moment from "moment";
 import OrderStatus from "./OrderStatus";
 import ProductEntry from "./ProductEntry";
 import css from "./orderrow.module.css";
 import { Link } from "react-router-dom";
-import OrderAPI from "../../../../import/api/order.js"
-import HubAPI from "../../../../import/api/hub.js"
+import OrderAPI from "modules/api/order.js"
+import HubAPI from "modules/api/hub.js"
 
 
 class OrderRow extends React.Component {

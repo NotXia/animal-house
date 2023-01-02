@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 import Button from 'react-bootstrap/Button';
 import TextInput from "../../components/form/TextInput";
 import Form from 'react-bootstrap/Form';
-import { login, isAuthenticated } from "../../import/auth.js"
+import { login, isAuthenticated } from "modules/auth"
 import $ from "jquery"
 import SearchParamsHook from "../../hooks/SearchParams";
 

@@ -14,10 +14,10 @@ import Button from 'react-bootstrap/Button';
 import NumberInput from "../../../components/form/NumberInput";
 import Navbar from "../../../components/Navbar";
 import SearchParamsHook from "../../../hooks/SearchParams";
-import { centToPrice } from "../../../utilities/currency"
+import { centToPrice } from "modules/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
-import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { isAuthenticated, getUsername, api_request } from "modules/auth"
 import { updateURLQuery } from "../../../utilities/url";
 import Footer from "../../../components/Footer";
 

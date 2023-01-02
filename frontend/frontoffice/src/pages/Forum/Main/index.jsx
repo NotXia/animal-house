@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
 import CreatePost from "./components/CreatePost";
 import Post from "./components/Post";
-import BlogAPI from "../../../import/api/blog";
+import BlogAPI from "modules/api/blog";
 import { Modal } from "bootstrap";
 import { isAuthenticated } from "modules/auth.js"
 import Footer from "../../../components/Footer";
