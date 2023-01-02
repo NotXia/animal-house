@@ -1,3 +1,4 @@
+import { getUsername } from "./auth";
 import AnimalAPI from "./api/animals";
 
 /**
@@ -22,6 +23,7 @@ export async function loadUserPreferences() {
         ));
     }
     catch (err) {
+        console.log(err)
     }
 }
 
