@@ -1,7 +1,13 @@
 import QuizView from "./QuizView.vue";
 import HangmanView from "./HangmanView.vue";
+import GameView from "./GameView.vue";
 
 let routes = [
+    {
+        path: "/play",
+        name: "game",
+        component: GameView
+    },
     {
         path: "/play/quiz",
         name: "quiz",
@@ -9,7 +15,7 @@ let routes = [
     },
     {
         path: "/play/hangman",
-        name: "quiz",
+        name: "hangman",
         component: HangmanView
     }
 ]
