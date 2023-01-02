@@ -364,29 +364,43 @@ const MEMORY_MAX_WRONG_ATTEMPTS = 5;
 function memoryInit(is_guest) {
     return async function(req, res) {
         try {
-            let card_images = new Set();
+            let selected_images = new Set();
+            let cards = [];
             let attempts = 0;
+            let animal_count = {}; // 
 
             // Selezione immagini carte
-            while (card_images.size < MEMORY_UNIQUE_CARD_PER_GAME) {
+            while (selected_images.size < MEMORY_UNIQUE_CARD_PER_GAME) {
                 if (attempts > 15) { throw error.generate.INTERNAL_SERVER_ERROR("Non è stato possibile generare la partita"); }
                 
                 try {
                     const animal = randomOfArray(Object.keys(image_apis))
                     const image_url = await _getAnimalImage(animal);
     
-                    card_images.add(image_url);
+                    if (!selected_images.has(image_url)) {
+                        selected_images.add(image_url); // Marca l'immagine come usata
+
+                        if (!animal_count[animal]) { animal_count[animal] = 0; }
+                        animal_count[animal]++;
+    
+                        cards.push({
+                            url: image_url,
+                            label: `${animal}${animal_count[animal]}`
+                        });
+                    }
                 }
                 catch (err) { attempts++; }
             }
             
             // Raddoppio e shuffle delle carte
-            const cards = shuffle([...card_images].concat([...card_images]));
+            cards = shuffle(cards.concat(cards));
 
             // Creazione partita
             const memory_instance = await new MemoryModel({
-                cards: cards.map((image_url) => ({
-                    url: image_url, revealed: false
+                cards: cards.map((card) => ({
+                    url: card.url, 
+                    label: card.label, 
+                    revealed: false
                 })),
                 curr_revealed_index: null,
                 wrong_attempts: 0,
