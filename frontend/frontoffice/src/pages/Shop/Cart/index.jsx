@@ -7,8 +7,8 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from 'react-bootstrap/Button';
 import NumberInput from "../../../components/form/NumberInput";
-import { centToPrice } from "../../../utilities/currency"
-import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { centToPrice } from "modules/currency"
+import { isAuthenticated, getUsername, api_request } from "modules/auth"
 import css from "./cart.module.css";
 import { Link } from "react-router-dom";
 import CartEntry from "./components/CartEntry";

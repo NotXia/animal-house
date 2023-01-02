@@ -6,8 +6,8 @@ import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { centToPrice } from "../../../utilities/currency"
-import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { centToPrice } from "modules/currency"
+import { isAuthenticated, getUsername, api_request } from "modules/auth"
 import css from "./checkout.module.css";
 import CheckoutEntry from "./components/CheckoutEntry";
 import TextInput from "../../../components/form/TextInput";
@@ -19,11 +19,11 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "../../../components/form/CheckoutForm";
 import { updateURLQuery } from "../../../utilities/url"
 import SearchParamsHook from "../../../hooks/SearchParams";
-import CartAPI from "../../../import/api/cart";
-import CustomerAPI from "../../../import/api/customer";
-import HubAPI from "../../../import/api/hub";
-import OrderAPI from "../../../import/api/order";
-import ItemAPI from "../../../import/api/item";
+import CartAPI from "modules/api/cart";
+import CustomerAPI from "modules/api/customer";
+import HubAPI from "modules/api/hub";
+import OrderAPI from "modules/api/order";
+import ItemAPI from "modules/api/item";
 import Footer from "../../../components/Footer";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);

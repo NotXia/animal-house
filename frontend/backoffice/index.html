@@ -34,6 +34,19 @@
         <div class="container">
             <div class="row"> <h1>La mia dashboard</h1> </div>
             
+            <div class="row my-3 d-none" id="container-appointment">
+                <section aria-label="Gestione servizi">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/icons/appointment.png" alt="" class="section-logo"/>
+                        <h2 class="m-0">Gestione appuntamenti</h2> 
+                    </div> 
+    
+                    <div class="col-12">
+                        <a class="btn btn-outline-primary px-5 py-3 fs-5" href="/admin/manage/appointments">Gestione appuntamenti</a>
+                    </div>
+                </section>
+            </div>
+
             <div class="row my-3 d-none" id="container-user">
                 <section aria-label="Gestione anagrafiche utenti">
                     <div class="col-12">
@@ -157,12 +170,13 @@ $(document).ready(async function() {
         const permissions = user_data.permissions;
 
         const permission_map = {
-            user:       ["admin"],
-            animal:     ["admin"],
-            forum:      ["admin"],
-            hub:        ["admin"],
-            service:    ["admin"],
-            shop:       ["admin", "shop_write"],
+            user:           ["admin"],
+            animal:         ["admin"],
+            forum:          ["admin"],
+            hub:            ["admin"],
+            service:        ["admin"],
+            shop:           ["admin", "shop_write"],
+            appointment:    ["operator"]
         }
 
         for (const page in permission_map) {
