@@ -67,36 +67,41 @@
     <main>
         <div class="d-flex justify-content-center overflow-auto">
             <div class="d-flex" style="max-width: 100%">
-                <button v-for="animal in animals" :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact(animal.name)">
-                    <div class="d-flex justify-content-center align-items-center h-100">
-                        <img v-if="animal.logo" :src="`data:image/*;base64,${animal.logo}`" alt="" style="height: 1.5rem" class="me-1" />
-                        <span class="text-capitalize fs-5">{{ animal.name }}</span>
-                    </div>
-                </button>
+                <section aria-label="Seleziona l'animale per cui vuoi una curiosità">
+                    <button v-for="animal in animals" :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact(animal.name)"
+                            :aria-label="`Curiosità su ${animal.name}`">
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <img v-if="animal.logo" :src="`data:image/*;base64,${animal.logo}`" alt="" style="height: 1.5rem" class="me-1" />
+                            <span class="text-capitalize fs-5">{{ animal.name }}</span>
+                        </div>
+                    </button>
 
-                <button :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact()">
-                    <div class="d-flex justify-content-center align-items-center h-100">
-                        <img :src="`${DOMAIN}/img/icons/random.png`" alt="" style="height: 1.5rem" class="me-1" />
-                        <span class="text-capitalize fs-5">Casuale</span>
-                    </div>
-                </button>
+                    <button :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact()">
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <img :src="`${DOMAIN}/img/icons/random.png`" alt="" style="height: 1.5rem" class="me-1" />
+                            <span class="text-capitalize fs-5">Casuale</span>
+                        </div>
+                    </button>
+                </section>
             </div>
         </div>
-
-        <div v-if="this.fact" class="container mt-4">
-            <div class="row">
-                <div class="text-center border rounded p-2">
-                    <p class="fs-4 m-0">Lo sapevi che:</p>
-                    <p class="fs-2 m-0">{{ this.fact }}</p>
+        
+        <section aria-label="Curiosità" aria-role="alert" aria-live="polite" aria-atomi="true">
+            <div v-if="this.fact" class="container mt-4">
+                <div class="row">
+                    <div class="text-center border rounded p-2">
+                        <p class="fs-4 m-0">Lo sapevi che:</p>
+                        <p class="fs-2 m-0">{{ this.fact }}</p>
+                    </div>
+                </div>
+    
+                <div class="row mt-3">
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-outline-primary fs-5" :onclick="() => this.getFact(animal)">Prossima curiosità</button>
+                    </div>
                 </div>
             </div>
-
-            <div class="row mt-3">
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-outline-primary fs-5" :onclick="() => this.getFact(animal)">Prossima curiosità</button>
-                </div>
-            </div>
-        </div>
+        </section>
     </main>
 
     <AHFooter />
