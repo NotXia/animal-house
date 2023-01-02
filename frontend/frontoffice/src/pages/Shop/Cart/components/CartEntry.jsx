@@ -14,7 +14,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import NumberInput from "../../../../components/form/NumberInput";
-import { centToPrice } from "../../../../utilities/currency"
+import { centToPrice } from "modules/currency"
 import { Link } from "react-router-dom";
 
 class CartEntry extends React.Component {

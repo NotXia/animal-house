@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { logout } from "../../import/auth.js"
+import { logout } from "modules/auth"
 
 export default class Logout extends React.Component {
     constructor(props) {

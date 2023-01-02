@@ -3,7 +3,7 @@ import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import BlogAPI from "../../../../import/api/blog";
+import BlogAPI from "modules/api/blog";
 import moment from "moment";
 import { Link } from "react-router-dom";
 

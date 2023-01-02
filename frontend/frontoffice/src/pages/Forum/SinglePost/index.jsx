@@ -5,7 +5,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
-import BlogAPI from "../../../import/api/blog";
+import BlogAPI from "modules/api/blog";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import Comment from "./components/Comment";
 import { getUsername, isAdmin } from "modules/auth.js";
