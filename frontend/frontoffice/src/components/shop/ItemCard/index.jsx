@@ -13,6 +13,8 @@ import Col from "react-bootstrap/Col";
 import css from "./card.module.css"
 import {centToPrice} from "modules/currency"
 import { Link } from "react-router-dom";
+import { getUserPreferences } from "modules/preferences";
+import { Tooltip } from "bootstrap";
 
 export default class ItemCard extends React.Component {
     constructor(props) {
@@ -22,15 +24,19 @@ export default class ItemCard extends React.Component {
         this.available_products = props.item.products.filter((product) => product.quantity > 0);
         this.available = this.available_products.length > 0;
     }
-    
+
+    componentDidMount() {
+        [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltip => new Tooltip(tooltip));
+    }
+
     render() {
-        let unavailable_class = this.available ? "" : css["card-text-unavailable"];
-        let unavailable_text = this.available ? "" : "Non disponibile";
         let price_text = this.getItemPriceString();
+        const user_interested = this.mayUserBeInterested();
 
         return (<>
-            <Link to={`/shop/item?id=${this.props.item.id}`} className={`${css["card-link"]}`} aria-label={`${this.props.item.name}, ${price_text} ${unavailable_text}`}>
-                <div className={`${css["card-container"]}`}>
+            <Link to={`/shop/item?id=${this.props.item.id}`} className={`${css["card-link"]}`} 
+                  aria-label={`${user_interested ? "Potrebbe interessarti:" : ""} ${this.props.item.name}, ${price_text} ${this.available ? "" : "Non disponibile"}`}>
+                <div className={`${css["card-container"]} position-relative`}>
                     <Container>
                         <Row>
                             <div className={`d-flex justify-content-center align-items-center ${css["card-image-container"]}`}>
@@ -38,9 +44,29 @@ export default class ItemCard extends React.Component {
                             </div>
                         </Row>
                         <Row className="mt-2">
-                            <p className={`text-center fs-4 m-0 ${unavailable_class}`}>{this.props.item.name}</p>
-                            <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>{unavailable_text}</p>
-                            <p className={`fw-semibold text-center fs-5 m-0 ${unavailable_class}`}>{price_text}</p>
+                            {
+                                this.available &&
+                                <>
+                                    <p className={`text-center fs-4 m-0`}>{this.props.item.name}</p>
+                                    <p className={`fw-semibold text-center fs-5 m-0`}>{price_text}</p>
+                                    <div className={`position-absolute top-0 end-0 p-0 ${user_interested ? "" : "d-none"}`} aria-hidden="true">
+                                        <div className="d-flex justify-content-end m-3">
+                                            <div style={{ width: "1.5rem" }}>
+                                                <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/star.png`} alt="" style={{ width: "95%" }}
+                                                     data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Potrebbe interessarti per i tuoi animali" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            }
+                            {
+                                !this.available &&
+                                <>
+                                    <p className={`text-center fs-4 m-0 ${css["card-text-unavailable"]}`}>{this.props.item.name}</p>
+                                    <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>Non disponibile</p>
+                                    <p className={`fw-semibold text-center fs-5 m-0 ${css["card-text-unavailable"]}`}>{price_text}</p>
+                                </>
+                            }
                         </Row>
                     </Container>
                 </div>
@@ -72,6 +98,27 @@ export default class ItemCard extends React.Component {
         const price = centToPrice(min_cost_product.price);
 
         return this.available_products.length > 1 ? `A partire da ${price}€` : `${price}€`;
+    }
+
+    /**
+     * Indica se l'utente potrebbe essere interessato all'item
+     */
+    mayUserBeInterested() {
+        const user_preferences = getUserPreferences();
+        if (!user_preferences || !user_preferences.species) { return false; }
+
+        // Cerca se l'item contiene un prodotto con target uno di quelli del cliente
+        for (const product of this.props.item.products) {
+            if (product.quantity <= 0) { continue; }
+
+            for (const species of product.target_species) {
+                if (user_preferences.species.includes(species)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
