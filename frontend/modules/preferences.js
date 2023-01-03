@@ -1,19 +1,25 @@
-import { getUsername } from "./auth";
+import { getUsername, isRemembermeOn } from "./auth";
 import AnimalAPI from "./api/animals";
 
-/**
- * Operazioni sull'access token
- */
 
 const _USER_PREFERENCES_NAME = "user_preferences"
 
+
+function selectStorage() {
+    if (isRemembermeOn()) {
+        return localStorage;
+    }
+    else {
+        return sessionStorage;
+    }
+}
 
 export async function loadUserPreferences() {
     try {
         clearUserPreferences();
         const user_animals = await AnimalAPI.getUserAnimals(await getUsername());
         
-        localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(
+        selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(
             {
                 animals: user_animals,
                 species: getSpeciesFromAnimals(user_animals)
@@ -27,7 +33,7 @@ export async function loadUserPreferences() {
 
 export function getUserPreferences() {
     try {
-        let preferences = JSON.parse(localStorage.getItem(_USER_PREFERENCES_NAME));
+        let preferences = JSON.parse(selectStorage().getItem(_USER_PREFERENCES_NAME));
         return preferences ?? {};
     }
     catch (err) {
@@ -36,7 +42,7 @@ export function getUserPreferences() {
 }
 
 export function clearUserPreferences() {
-    localStorage.removeItem(_USER_PREFERENCES_NAME);
+    selectStorage().removeItem(_USER_PREFERENCES_NAME);
 }
 
 export const updateUserPreferences = {
@@ -49,7 +55,7 @@ export const updateUserPreferences = {
             curr_preferences.animals.push(animal);
             curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
 
-            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+            selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
         },
 
         update: (updated_animal) => {
@@ -69,7 +75,7 @@ export const updateUserPreferences = {
             // Aggiornamento specie
             curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
 
-            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+            selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
         },
 
         delete: (to_delete_animal) => {
@@ -80,7 +86,7 @@ export const updateUserPreferences = {
             curr_preferences.animals = curr_preferences.animals.filter((animal) => animal.id !== to_delete_animal.id);
             curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
 
-            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+            selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
         }
     }
 }
