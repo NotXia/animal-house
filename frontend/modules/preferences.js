@@ -11,14 +11,12 @@ const _USER_PREFERENCES_NAME = "user_preferences"
 export async function loadUserPreferences() {
     try {
         clearUserPreferences();
-        
         const user_animals = await AnimalAPI.getUserAnimals(await getUsername());
-        let user_species = new Set();
-
-        user_animals.forEach((animal) => user_species.add(animal.species));
+        
         localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(
             {
-                species: [...user_species]
+                animals: user_animals,
+                species: getSpeciesFromAnimals(user_animals)
             }
         ));
     }
@@ -29,13 +27,69 @@ export async function loadUserPreferences() {
 
 export function getUserPreferences() {
     try {
-        return JSON.parse(localStorage.getItem(_USER_PREFERENCES_NAME));
+        let preferences = JSON.parse(localStorage.getItem(_USER_PREFERENCES_NAME));
+        return preferences ?? {};
     }
     catch (err) {
-        return null;
+        return {};
     }
 }
 
 export function clearUserPreferences() {
     localStorage.removeItem(_USER_PREFERENCES_NAME);
+}
+
+export const updateUserPreferences = {
+    animals: {
+        create: (animal) => {
+            let curr_preferences = getUserPreferences();
+            if (!curr_preferences.animals) { curr_preferences.animals = []; }
+
+            // Aggiunta animale e aggiornamento specie
+            curr_preferences.animals.push(animal);
+            curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
+
+            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+        },
+
+        update: (updated_animal) => {
+            let curr_preferences = getUserPreferences();
+            if (!curr_preferences) { curr_preferences = {}; }
+            if (!curr_preferences.animals) { curr_preferences.animals = []; }
+
+            // Aggiornamento animale
+            for (let i=0; i<curr_preferences.animals.length; i++) {
+                const animal = curr_preferences.animals[i];
+
+                if (animal.id === updated_animal.id) {
+                    curr_preferences.animals[i] = updated_animal;
+                    break;
+                }
+            }
+            // Aggiornamento specie
+            curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
+
+            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+        },
+
+        delete: (to_delete_animal) => {
+            let curr_preferences = getUserPreferences();
+            if (!curr_preferences.animals) { curr_preferences.animals = []; }
+
+            // Cancellazione animale e aggiornamento specie
+            curr_preferences.animals = curr_preferences.animals.filter((animal) => animal.id !== to_delete_animal.id);
+            curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
+
+            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+        }
+    }
+}
+
+
+function getSpeciesFromAnimals(animals) {
+    let species = new Set();
+
+    animals.forEach((animal) => species.add(animal.species));
+
+    return [...species];
 }
