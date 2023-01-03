@@ -1,5 +1,6 @@
 import $ from "jquery";
 import { DOMAIN } from "./const";
+import { clearOnlyCustomerPreferences } from "./preferences";
 
 /**
  * Operazioni sull'access token
@@ -8,7 +9,6 @@ import { DOMAIN } from "./const";
 const _ACCESS_TOKEN_NAME = "access_token";
 const _ACCESS_TOKEN_EXPIRATION = "access_token_expiration"; 
 
-let curr_remember_me = true;
 
 let _current_refresh_request = null; // Per salvare la richiesta di refresh dei token attualmente in corso (ed evitare richieste multiple)
 
@@ -31,6 +31,10 @@ async function _requestNewToken() {
             _setAccessToken(data.access_token.value, data.access_token.expiration);
         }).catch((err) => {
             _current_refresh_request = null;
+            clearOnlyCustomerPreferences(); // Cancella preferenze se login fallito
+        }).fail((err) => {
+            _current_refresh_request = null;
+            clearOnlyCustomerPreferences(); // Cancella preferenze se login fallito
         }).always(() => {
             _current_refresh_request = null;
         });
@@ -98,7 +102,6 @@ export async function login(username, password, remember_me) {
         xhrFields: { withCredentials: true }
     }).done(function (data, textStatus, jqXHR) {
         _setAccessToken(data.access_token.value, data.access_token.expiration);
-        curr_remember_me = remember_me;
         logged = true;
     }).fail(function (jqXHR, textStatus, errorThrown) {
         logged = false;
@@ -172,8 +175,4 @@ export async function isAdmin() {
     catch (err) {
         return false;
     }
-}
-
-export function isRemembermeOn() {
-    return curr_remember_me;
 }

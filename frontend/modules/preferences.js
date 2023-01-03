@@ -1,39 +1,30 @@
-import { getUsername, isRemembermeOn } from "./auth";
+import { getUsername } from "./auth";
 import AnimalAPI from "./api/animals";
 
 
 const _USER_PREFERENCES_NAME = "user_preferences"
 
 
-function selectStorage() {
-    if (isRemembermeOn()) {
-        return localStorage;
-    }
-    else {
-        return sessionStorage;
-    }
-}
-
 export async function loadUserPreferences() {
     try {
         clearUserPreferences();
         const user_animals = await AnimalAPI.getUserAnimals(await getUsername());
         
-        selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(
+        localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(
             {
+                owner: "customer",
                 animals: user_animals,
                 species: getSpeciesFromAnimals(user_animals)
             }
         ));
     }
     catch (err) {
-        console.log(err)
     }
 }
 
 export function getUserPreferences() {
     try {
-        let preferences = JSON.parse(selectStorage().getItem(_USER_PREFERENCES_NAME));
+        let preferences = JSON.parse(localStorage.getItem(_USER_PREFERENCES_NAME));
         return preferences ?? {};
     }
     catch (err) {
@@ -42,7 +33,13 @@ export function getUserPreferences() {
 }
 
 export function clearUserPreferences() {
-    selectStorage().removeItem(_USER_PREFERENCES_NAME);
+    localStorage.removeItem(_USER_PREFERENCES_NAME);
+}
+
+export function clearOnlyCustomerPreferences() {
+    if (getUserPreferences()?.owner === "customer") {
+        clearUserPreferences();
+    }
 }
 
 export const updateUserPreferences = {
@@ -55,7 +52,7 @@ export const updateUserPreferences = {
             curr_preferences.animals.push(animal);
             curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
 
-            selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
         },
 
         update: (updated_animal) => {
@@ -75,7 +72,7 @@ export const updateUserPreferences = {
             // Aggiornamento specie
             curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
 
-            selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
         },
 
         delete: (to_delete_animal) => {
@@ -86,7 +83,7 @@ export const updateUserPreferences = {
             curr_preferences.animals = curr_preferences.animals.filter((animal) => animal.id !== to_delete_animal.id);
             curr_preferences.species = getSpeciesFromAnimals(curr_preferences.animals);
 
-            selectStorage().setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
+            localStorage.setItem(_USER_PREFERENCES_NAME, JSON.stringify(curr_preferences));
         }
     }
 }
