@@ -1,4 +1,5 @@
 import React from "react";
+import "../../scss/bootstrap.scss";
 import { Helmet } from "react-helmet";
 import { logout } from "modules/auth"
 

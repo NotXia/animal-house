@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import $ from "jquery";
 import Navbar from "../../components/Navbar";
 import AnimalAPI from "modules/api/animals";

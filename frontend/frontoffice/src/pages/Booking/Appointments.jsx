@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import Navbar from "../../components/Navbar";
 import { getUsername, isAuthenticated } from "modules/auth.js";
 import moment from "moment";
