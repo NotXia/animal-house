@@ -46,8 +46,8 @@
                     </div>
 
                     <div v-if="!username">
-                        <a class="btn btn-outline-primary text-decoration-none mx-1" :href="`${DOMAIN}/fo/signup`">Registrati</a>
-                        <a class="btn btn-outline-primary text-decoration-none mx-1" :href="`${DOMAIN}/fo/login?return=${LOCATION_HREF}`">Login</a>
+                        <a class="btn btn-primary text-decoration-none mx-1" :href="`${DOMAIN}/fo/signup`">Registrati</a>
+                        <a class="btn btn-primary text-decoration-none mx-1" :href="`${DOMAIN}/fo/login?return=${LOCATION_HREF}`">Login</a>
                     </div>
                 </div>
 
@@ -58,7 +58,6 @@
 
 <script>
     import "bootstrap"; 
-    import "bootstrap/dist/css/bootstrap.min.css";
     import { isAuthenticated, getUsername } from "modules/auth"
     import UserAPI from "modules/api/user";
 
@@ -95,3 +94,6 @@
     }
 </script>
 
+<style lang="scss">
+    @import "../../scss/bootstrap.scss";
+</style>

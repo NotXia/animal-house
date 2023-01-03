@@ -1,6 +1,5 @@
 <script>
     import "bootstrap"; 
-    import "bootstrap/dist/css/bootstrap.min.css";
     import Navbar from "../../components/Navbar/Navbar.vue";
     import AHFooter from "../../components/AHFooter/AHFooter.vue";
     import Loading from "../../components/Loading/Loading.vue";
@@ -106,3 +105,7 @@
 
     <AHFooter />
 </template>
+
+<style lang="scss">
+    @import "../../scss/bootstrap.scss";
+</style>
