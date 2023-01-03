@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 import TextInput from "../../components/form/TextInput";
 import Form from 'react-bootstrap/Form';
 import { login, isAuthenticated } from "modules/auth"
+import { loadUserPreferences } from "modules/preferences";
 import $ from "jquery"
 import SearchParamsHook from "../../hooks/SearchParams";
 
@@ -108,6 +109,8 @@ class Login extends React.Component {
         const remember_me = this.input.remember_me.current.checked;
 
         if (await login(username, password, remember_me)) {
+            await loadUserPreferences();
+
             const return_url = this.props.searchParams.get("return") ? this.props.searchParams.get("return") : "/"; // Gestisce l'indirizzo a cui tornare
             window.location.href = return_url;
         }

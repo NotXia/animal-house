@@ -11,11 +11,14 @@ export default class NavbarComponent extends React.Component {
         this.state = {
             name: null,
             surname: null,
-            username: null
+            username: null,
+            is_auth: true
         };
     }
 
     async componentDidMount() {
+        this.setState({ is_auth: await isAuthenticated() });
+
         if (await isAuthenticated()) {
             const user = await UserAPI.getProfile(await getUsername());
 
@@ -46,6 +49,10 @@ export default class NavbarComponent extends React.Component {
                                 <Nav.Link className="text-dark" href="/services-list">Servizi</Nav.Link>
                                 <Nav.Link className="text-dark" href="/hubs-list">Sedi</Nav.Link>
                                 <Nav.Link className="text-dark" href="/fo/forum">Forum</Nav.Link>
+                                {
+                                    !this.state.is_auth &&
+                                    <Nav.Link className="text-dark" href="/fo/my-animals">Presentati</Nav.Link>
+                                }
                             </Nav>
 
                             <div className="justify-content-end">

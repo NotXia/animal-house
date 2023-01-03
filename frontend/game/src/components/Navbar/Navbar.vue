@@ -16,6 +16,7 @@
                     <router-link to="/services-list" class="nav-link active">Servizi</router-link>
                     <router-link to="/hubs-list" class="nav-link active">Sedi</router-link>
                     <a :href="`${DOMAIN}/fo/forum`" class="nav-link active">Forum</a>
+                    <a v-if="!is_auth" :href="`${DOMAIN}/fo/my-animals`" class="nav-link active">Presentati</a>
                 </div>
 
                 <div class="d-flex justify-content-end w-100">
@@ -65,6 +66,7 @@
         
         data() {
             return {
+                is_auth: true,
                 username: null,
                 name: null,
                 surname: null,
@@ -78,7 +80,9 @@
         },
 
         async mounted() {
-            if (await isAuthenticated()) {
+            this.is_auth = await isAuthenticated();
+
+            if (this.is_auth) {
                 const user = await UserAPI.getProfile(await getUsername());
 
                 this.name = user.name,
