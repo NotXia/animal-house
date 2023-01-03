@@ -79,8 +79,8 @@ export default class NavbarComponent extends React.Component {
                             {
                                 !this.state.username &&
                                 <div>
-                                    <a className="btn btn-outline-primary text-decoration-none mx-1" href="/fo/signup">Registrati</a>
-                                    <a className="btn btn-outline-primary text-decoration-none mx-1" href={`/fo/login?return=${window.location.href}`}>Login</a>
+                                    <a className="btn btn-primary text-decoration-none mx-1" href="/fo/signup">Registrati</a>
+                                    <a className="btn btn-primary text-decoration-none mx-1" href={`/fo/login?return=${window.location.href}`}>Login</a>
                                 </div>
                             }
                             </div>
