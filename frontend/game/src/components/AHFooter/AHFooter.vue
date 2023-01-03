@@ -15,7 +15,6 @@
 
 <script>
     import "bootstrap"; 
-    import "bootstrap/dist/css/bootstrap.min.css";
     import moment from "moment";
 
     export default {
@@ -27,4 +26,8 @@
         }
     }
 </script>
+
+<style lang="scss">
+    @import "../../scss/bootstrap.scss";
+</style>
 

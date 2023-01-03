@@ -76,6 +76,7 @@
     "react-router-dom": "^6.4.1",
     "react-scripts": "^5.0.1",
     "sass": "^1.57.1",
+    "sass-loader": "^13.2.0",
     "stripe": "^10.15.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

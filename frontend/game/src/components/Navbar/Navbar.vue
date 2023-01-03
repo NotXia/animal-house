@@ -57,7 +57,6 @@
 
 <script>
     import "bootstrap"; 
-    import "bootstrap/dist/css/bootstrap.min.css";
     import { isAuthenticated, getUsername } from "modules/auth"
     import UserAPI from "modules/api/user";
 
@@ -91,3 +90,6 @@
     }
 </script>
 
+<style lang="scss">
+    @import "../../scss/bootstrap.scss";
+</style>
