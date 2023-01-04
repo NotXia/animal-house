@@ -94,8 +94,8 @@ class Homepage extends React.Component {
 
     async completePayment() {
         this.loading.current.wrap(async () => {
-            await this.payment.current.handlePayment(`http://localhost:3000/fo/vip/success`);
-            // await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/vip/success`);
+            // await this.payment.current.handlePayment(`http://localhost:3000/fo/vip/success`);
+            await this.payment.current.handlePayment(`${process.env.REACT_APP_DOMAIN}${process.env.REACT_APP_BASE_PATH}/vip/success`);
         });
     }
 }
