@@ -23,7 +23,7 @@ class Homepage extends React.Component {
 
     async componentDidMount() {
         try {
-            this.setState({ was_vip: CustomerAPI.isVIP() });
+            this.setState({ was_vip: await CustomerAPI.isVIP() });
 
             await CustomerAPI.completeVIPCheckout();
             this.setState({
