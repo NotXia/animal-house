@@ -103,6 +103,7 @@ userScheme.methods.getAllData = async function() {
     }
     else {
         out.address = data.customer.address;
+        out.vip_until = data.customer.vip_until;
     }
 
     return out;
@@ -123,6 +124,9 @@ userScheme.methods.getPublicData = async function() {
         out.phone = data.phone,
         out.role = data.operator.role;
         out.services_id = data.operator.services_id;
+    }
+    else {
+        out.vip_until = data.customer.vip_until;
     }
 
     return out;

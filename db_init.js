@@ -7,6 +7,7 @@ const UserModel = require("./models/auth/user");
 const OperatorModel = require("./models/auth/operator");
 const HubModel = require("./models/services/hub");
 const PermissionModel = require("./models/auth/permission");
+const PriceModel = require("./models/price");
 
 
 async function init() {
@@ -70,6 +71,11 @@ async function init() {
             }).save();
         }
     } catch(err) {}
+
+    try {
+        await new PriceModel({ name: "vip", price: 8999 }).save();
+    }
+    catch (err) {}
     
     await mongoose.connection.close();
     await mongoose.disconnect();

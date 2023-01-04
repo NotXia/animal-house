@@ -14,7 +14,13 @@ const customerScheme = mongoose.Schema({
     cart: [{ 
         barcode: { type: String },
         quantity: { type: Number },
-    }]
+    }],
+
+    vip_until: {
+        type: Date,
+        default: "2023-01-01"
+    },
+    payment_id: String
 });
 
 customerScheme.methods.getCartData = async function() {
