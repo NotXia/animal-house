@@ -8,6 +8,20 @@ const CustomerAPI = {
             method: "GET", 
             url: `${DOMAIN}/users/customers/${encodeURIComponent(username)}/` 
         });
+    },
+
+    startVIPCheckout: async function () {
+        return await api_request({ 
+            method: "POST", 
+            url: `${DOMAIN}/users/customers/vip/checkout` 
+        });
+    },
+
+    completeVIPCheckout: async function () {
+        return await api_request({ 
+            method: "POST", 
+            url: `${DOMAIN}/users/customers/vip/success` 
+        });
     }
 }
 
