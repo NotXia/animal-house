@@ -56,43 +56,45 @@ class Homepage extends React.Component {
             
             <main className="mt-3">
                 {
-                    // Per gli utenti non VIP
-                    this.state.step === "overview" &&
+                    this.state.step !== "pay" &&
                     <div className="container">
                         <div className="row text-center">
-                            <h1>Scopri la nostra offerta VIP</h1>
+                            {
+                                this.state.step === "overview" &&
+                                <h1>Scopri la nostra offerta VIP</h1>
+                            }
+                            {
+                                this.state.step === "recap" &&
+                                <>
+                                    <h1 className="m-0 fw-semibold">Grazie per essere un nostro VIP</h1>
+                                    <p className="text-center fs-3 m-0">Il tuo abbonamento scade il {moment(this.state.vip_until).format("DD/MM/YYYY")}</p>
+                                    <p className="text-center fs-4">Puoi decidere di estendere la durata in qualunque momento</p>
+                                </>
+                            }
                         </div>
                         <div className="row">
-                            <div className="col-12 col-md-6 offset-md-3 border py-2">
-                                <p className="text-center fs-2 m-0">VIP</p>
-                                <p className="text-center fs-3">{centToPrice(this.state.price)}€</p>
-
-                                <div className="d-flex justify-content-center">
-                                    <button className="btn btn-outline-primary" onClick={() => this.startPayment()}>
-                                        Ottieni VIP
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                {
-                    // Per gli utenti già VIP
-                    this.state.step === "recap" &&
-                    <div className="container">
-                        <div className="row text-center">
-                            <h1>Grazie per essere un VIP</h1>
-                        </div>
-                        <div className="row">
-                            <div className="col-12 col-md-6 offset-md-3 border py-2">
-                                <p className="text-center fs-2">Il tuo abbonamento scade il {moment(this.state.vip_until).format("DD/MM/YYYY")}</p>
-                                <p className="text-center fs-3 m-0">Puoi rinnovare quando vuoi</p>
-                                <p className="text-center fs-3">{centToPrice(this.state.price)}€</p>
+                            <div className="col-12 col-md-6 offset-md-3 border border-primary rounded py-2 text-center">
+                                <p className="fs-2 m-0 fw-semibold">VIP Animal House</p>
+                                <p className="fs-3 fw-semibold m-0">{centToPrice(this.state.price)}€</p>
+                                <p className="fs-5 muted">per un anno di abbonamento</p>
                                 
-                                <div className="d-flex justify-content-center">
-                                    <button className="btn btn-outline-primary" onClick={() => this.startPayment()}>
-                                        Rinnova VIP
+                                <h2 className="fs-5 fw-semibold m-0 text-decoration-underline">Vantaggi</h2>
+                                <ul style={{ listStyleType: "none" }}>
+                                    <li className="fs-5 m-0">Sconti esclusivi per i tuoi acquisti nello shop</li>
+                                    <li className="fs-5 m-0">Riduzione del prezzo dei servizi che prenoti</li>
+                                    <li className="fs-5 m-0">Elaborazione prioritaria dei tuoi ordini</li>
+                                    <li className="fs-5 m-0">Un addetto dedicato a te quando vieni a trovarci</li>
+                                    <li className="fs-5 m-0">Un esclusivo badge per distinguerti nel forum</li>
+                                </ul>
+
+                                <div className="d-flex justify-content-center mb-2">
+                                    <button className="btn btn-primary" onClick={() => this.startPayment()}>
+                                    {
+                                        this.state.step === "overview" && "Ottieni VIP"
+                                    }
+                                    {
+                                        this.state.step === "recap" && "Rinnova VIP"
+                                    }
                                     </button>
                                 </div>
                             </div>
@@ -103,6 +105,11 @@ class Homepage extends React.Component {
                 {
                     this.state.step === "pay" && this.state.stripe_client_secret && 
                     <div className="container">
+                        <div className="row text-center">
+                            <h1 className="m-0">Pagamento</h1>
+                            <p className="fs-4 fw-semibold">{centToPrice(this.state.price)}€ per un anno di VIP</p>
+                        </div>
+
                         <div className="row">
                             <div className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
                                 <Elements options={{ clientSecret: this.state.stripe_client_secret }} stripe={stripePromise}>
