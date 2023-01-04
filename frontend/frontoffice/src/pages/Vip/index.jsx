@@ -10,7 +10,7 @@ import moment from "moment";
 import Loading from "../../components/Loading";
 import CustomerAPI from "modules/api/customer";
 import UserAPI from "modules/api/user";
-import { getUsername } from "modules/auth";
+import { getUsername, isAuthenticated } from "modules/auth";
 
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
@@ -32,6 +32,8 @@ class Homepage extends React.Component {
     }
 
     async componentDidMount() {
+        isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}`; } } );
+
         try {
             this.setState({ 
                 price: await CustomerAPI.getVIPPrice(),
