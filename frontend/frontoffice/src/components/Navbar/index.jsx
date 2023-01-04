@@ -2,7 +2,7 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import { isAuthenticated, getUsername } from "modules/auth"
+import { isAuthenticated, getUsername } from "modules/auth";
 import UserAPI from "modules/api/user";
 
 export default class NavbarComponent extends React.Component {
@@ -12,7 +12,7 @@ export default class NavbarComponent extends React.Component {
             name: null,
             surname: null,
             username: null,
-            is_auth: true
+            is_auth: false
         };
     }
 
@@ -53,6 +53,7 @@ export default class NavbarComponent extends React.Component {
                                     !this.state.is_auth &&
                                     <Nav.Link className="text-dark" href="/fo/my-animals">Presentati</Nav.Link>
                                 }
+                                { this.state.is_auth && <Nav.Link className="text-dark" href="/fo/vip">VIP</Nav.Link> }
                             </Nav>
 
                             <div className="justify-content-end">
