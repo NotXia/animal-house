@@ -61,6 +61,10 @@ class Homepage extends React.Component {
                     this.state.stripe_client_secret && 
                     <div className="container">
                         <div className="row text-center">
+                            <p className="text-danger fw-semibold m-0">{ this.state.error_message }</p>
+                        </div>
+
+                        <div className="row text-center">
                             <h1 className="m-0">Pagamento</h1>
                             <p className="fs-4 fw-semibold">{centToPrice(this.state.price)}€ per un anno di VIP</p>
                         </div>

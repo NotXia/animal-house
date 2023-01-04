@@ -53,6 +53,10 @@ class Homepage extends React.Component {
                     this.state.step &&
                     <div className="container">
                         <div className="row text-center">
+                            <p className="text-danger fw-semibold m-0">{ this.state.error_message }</p>
+                        </div>
+
+                        <div className="row text-center">
                             {
                                 this.state.step === "overview" &&
                                 <h1>Scopri la nostra offerta VIP</h1>
