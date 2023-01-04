@@ -9,6 +9,8 @@ import { centToPrice } from "modules/currency";
 import moment from "moment";
 import Loading from "../../components/Loading";
 import CustomerAPI from "modules/api/customer";
+import UserAPI from "modules/api/user";
+import { getUsername } from "modules/auth";
 
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
@@ -18,16 +20,28 @@ class Homepage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            step: "overview",
+            step: "", // [recap, overview, pay]
+            price: 0,
             stripe_client_secret: null,
+
+            error_message: ""
         };
 
         this.payment = React.createRef();
         this.loading = React.createRef();
     }
 
-    componentDidMount() {
-        // this.startPayment();
+    async componentDidMount() {
+        try {
+            this.setState({ 
+                price: await CustomerAPI.getVIPPrice(),
+                step: await CustomerAPI.isVIP() ? "recap" : "overview",
+                vip_until: (await UserAPI.getAllData(await getUsername())).vip_until
+            });
+        }
+        catch (err) {
+            this.setState({ error_message: "Non è stato possibile caricare la pagina" });
+        }
     }
 
     render() {
@@ -41,8 +55,8 @@ class Homepage extends React.Component {
             <Loading ref={this.loading} />
             
             <main className="mt-3">
-
                 {
+                    // Per gli utenti non VIP
                     this.state.step === "overview" &&
                     <div className="container">
                         <div className="row text-center">
@@ -50,11 +64,35 @@ class Homepage extends React.Component {
                         </div>
                         <div className="row">
                             <div className="col-12 col-md-6 offset-md-3 border py-2">
-                                <p className="text-center fs-2">VIP</p>
-                                
+                                <p className="text-center fs-2 m-0">VIP</p>
+                                <p className="text-center fs-3">{centToPrice(this.state.price)}€</p>
+
                                 <div className="d-flex justify-content-center">
                                     <button className="btn btn-outline-primary" onClick={() => this.startPayment()}>
                                         Ottieni VIP
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                {
+                    // Per gli utenti già VIP
+                    this.state.step === "recap" &&
+                    <div className="container">
+                        <div className="row text-center">
+                            <h1>Grazie per essere un VIP</h1>
+                        </div>
+                        <div className="row">
+                            <div className="col-12 col-md-6 offset-md-3 border py-2">
+                                <p className="text-center fs-2">Il tuo abbonamento scade il {moment(this.state.vip_until).format("DD/MM/YYYY")}</p>
+                                <p className="text-center fs-3 m-0">Puoi rinnovare quando vuoi</p>
+                                <p className="text-center fs-3">{centToPrice(this.state.price)}€</p>
+                                
+                                <div className="d-flex justify-content-center">
+                                    <button className="btn btn-outline-primary" onClick={() => this.startPayment()}>
+                                        Rinnova VIP
                                     </button>
                                 </div>
                             </div>
@@ -82,7 +120,6 @@ class Homepage extends React.Component {
                 }
             </main>
 
-
             <Footer />
             </>
         );
@@ -91,7 +128,6 @@ class Homepage extends React.Component {
     async startPayment() {
         try {
             const payment_data = await CustomerAPI.startVIPCheckout();
-            console.log(payment_data)
 
             this.setState({ stripe_client_secret: payment_data.clientSecret, step: "pay" });
         }
