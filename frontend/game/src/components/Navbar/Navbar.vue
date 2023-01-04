@@ -17,6 +17,7 @@
                     <router-link to="/hubs-list" class="nav-link active">Sedi</router-link>
                     <a :href="`${DOMAIN}/fo/forum`" class="nav-link active">Forum</a>
                     <a v-if="!is_auth" :href="`${DOMAIN}/fo/my-animals`" class="nav-link active">Presentati</a>
+                    <a v-if="is_auth" :href="`${DOMAIN}/fo/vip`" class="nav-link active">VIP</a>
                 </div>
 
                 <div class="d-flex justify-content-end w-100">
@@ -58,7 +59,7 @@
 
 <script>
     import "bootstrap"; 
-    import { isAuthenticated, getUsername } from "modules/auth"
+    import { isAuthenticated, getUsername } from "modules/auth";
     import UserAPI from "modules/api/user";
 
     export default {
@@ -66,7 +67,7 @@
         
         data() {
             return {
-                is_auth: true,
+                is_auth: false,
                 username: null,
                 name: null,
                 surname: null,

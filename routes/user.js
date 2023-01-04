@@ -9,6 +9,7 @@ const animal_middleware = require("../middleware/animal");
 const animal_controller = require("../controllers/animal");
 const cart_middleware = require("../middleware/shop/cart");
 const cart_controller = require("../controllers/shop/cart");
+const customer_controller = require("../controllers/user.customer");
 
 /* Operazioni sull'utenza dei clienti */
 router.put("/customers/enable-me", auth_middleware([ ["to_activate_user"] ], []), user_controller.enableCustomer);
@@ -59,5 +60,9 @@ router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], 
 router.post("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateAddToCart ], cart_controller.addToCart);
 router.get("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateGetCart ], cart_controller.getCart);
 router.put("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateUpdateCart ], cart_controller.updateCart);
+
+router.post("/customers/vip/checkout", auth_middleware([ ["customer"] ], []), customer_controller.checkoutVIP);
+router.post("/customers/vip/success", auth_middleware([ ["customer"] ], []), customer_controller.successVIP);
+router.get("/customers/vip/price", customer_controller.priceVIP);
 
 module.exports = router;
