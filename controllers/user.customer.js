@@ -7,12 +7,29 @@ const moment = require("moment");
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 
+async function updateCustomerVIP(username) {
+    const user = await UserModel.findOne({ username: username });
+    const customer = await user.findType();
+
+    customer.payment_id = null; // Pulizia pagamento
+
+    // Incremento durata VIP
+    if (moment(customer.vip_until).isBefore(moment())) {
+        customer.vip_until = moment().add(1, "year").endOf("day");
+    }
+    else {
+        customer.vip_until = moment(customer.vip_until).add(1, "year").endOf("day");
+    }
+
+    await customer.save();
+}
+
 async function checkoutVIP(req, res) {
     const username = req.auth.username;
     let payment_intent = null;
 
     try {
-        // Estrazione ordine
+        // Estrazione utente
         const user = await UserModel.findOne({ username: username });
         if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
 
@@ -42,22 +59,14 @@ async function successVIP(req, res) {
         // Estrazione ordine
         const user = await UserModel.findOne({ username: username });
         if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        const customer = await user.findType();
 
         // Estrazione dati pagamento
-        const payment_data = await stripe.paymentIntents.retrieve(user.toJSON().payment_id);
+        const payment_data = await stripe.paymentIntents.retrieve(customer.toJSON().payment_id);
 
         // Aggiornamento durata abbonamento VIP
         if (payment_data.status === "succeeded") {
-            user.payment_id = null;
-            
-            if (moment(user.vip_until).isBefore(moment())) {
-                user.vip_until = moment().add(1, "year").endOf("day");
-            }
-            else {
-                user.vip_until = moment(user.vip_until).add(1, "year").endOf("day");
-            }
-
-            await user.save();
+            await updateCustomerVIP(username);
         }
         else {
             throw error.generate.PAYMENT_REQUIRED("Pagamento mancante");
