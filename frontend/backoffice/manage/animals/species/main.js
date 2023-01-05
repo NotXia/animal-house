@@ -76,6 +76,16 @@ $(async function () {
 
         /* Anteprima icona durante upload */
         $("#data-logo").on("change", function (e) {
+            Error.clearError("logo");
+            $("#logo-preview").hide();
+            
+            // Controllo dimensione
+            if (this.files[0].size > 50*1024) { // KB
+                Error.showError("logo", "Immagine troppo grande");
+                $("#data-logo").val("");
+                return;
+            }
+
             let reader = new FileReader();
             reader.onload = function (e) {
                 $("#logo-preview").show();
