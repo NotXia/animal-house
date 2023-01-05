@@ -15,27 +15,6 @@ const service3 = "111111111111111111111113";
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
-
-    const operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service1, service2 ]);
-    await curr_session.put(`/users/operators/${operator1.username}`)
-    .send({ working_time: { 
-        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
-        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
-    } }).set({ Authorization: `Bearer ${admin_token}` });
-
-    const operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service2 ]);
-    await curr_session.put(`/users/operators/${operator2.username}`)
-    .send({ working_time: { 
-        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
-        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
-    } }).set({ Authorization: `Bearer ${admin_token}` });
-
-    const operator3 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service3 ]);
-    await curr_session.put(`/users/operators/${operator3.username}`)
-    .send({ working_time: { 
-        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
-        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
-    } }).set({ Authorization: `Bearer ${admin_token}` });
 });
 
 describe("Creazione di hub", function () {
@@ -194,6 +173,29 @@ describe("Creazione di hub", function () {
 });
 
 describe("Ricerca di hub", function() {
+    test("Setup", async function () {
+        const operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service1, service2 ]);
+        await curr_session.put(`/users/operators/${operator1.username}`)
+        .send({ working_time: { 
+            monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
+            tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+        } }).set({ Authorization: `Bearer ${admin_token}` });
+    
+        const operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service2 ]);
+        await curr_session.put(`/users/operators/${operator2.username}`)
+        .send({ working_time: { 
+            monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+            tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+        } }).set({ Authorization: `Bearer ${admin_token}` });
+    
+        const operator3 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service3 ]);
+        await curr_session.put(`/users/operators/${operator3.username}`)
+        .send({ working_time: { 
+            monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+            tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+        } }).set({ Authorization: `Bearer ${admin_token}` });
+    });
+
     test("Ricerca singolo", async function () {
         const hub = await curr_session.get('/hubs/BLQ1').expect(200);
         expect(hub).toBeDefined();

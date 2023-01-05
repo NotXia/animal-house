@@ -150,10 +150,12 @@ function updateUser(is_operator) {
                 if (!operator) { throw error.generate.FORBIDDEN("L'utente non è un operatore"); }
 
                 // Controllo esistenza hub orario lavorativo
-                for (const day of utils.WEEKS) {
-                    for (const slot of data.operator.working_time[day]) {
-                        const hub = await HubModel.findOne({ code: slot.hub });
-                        if (!hub) { throw error.generate.BAD_REQUEST([{ field: "working_time", message: `Hub ${slot.hub} inesistente` }]); }
+                if (data.operator.working_time) {
+                    for (const day of utils.WEEKS) {
+                        for (const slot of data.operator.working_time[day]) {
+                            const hub = await HubModel.findOne({ code: slot.hub });
+                            if (!hub) { throw error.generate.BAD_REQUEST([{ field: "working_time", message: `Hub ${slot.hub} inesistente` }]); }
+                        }
                     }
                 }
 
