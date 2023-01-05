@@ -6,6 +6,7 @@
             <router-link to="/services-list" class="link-dark mx-2">Servizi</router-link>
             <router-link to="/hubs-list" class="link-dark mx-2">Sedi</router-link>
             <a :href="`${DOMAIN}/fo/forum`" className="link-dark mx-2">Forum</a>
+            <a v-if="!is_auth" :href="`${DOMAIN}/fo/my-animals`" className="link-dark mx-2">Presentati</a>
             <a v-if="is_auth" :href="`${DOMAIN}/fo/vip`" className="link-dark mx-2">VIP</a>
             <hr>
             <p className="m-0">&copy; Animal House {{ moment().format("YYYY") }}</p>
