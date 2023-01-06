@@ -35,7 +35,7 @@ discountSchema.methods.getData = function() {
 
 discountSchema.statics.getDiscountForProduct = async function(barcode, is_vip=false) {
     // Seleziona lo sconto che inizia più recentemente e con il valore più alto
-    const product_discounts = await this.find({ type: "shop", identifier: barcode, start_date: {"$lte": new Date()} });
+    const product_discounts = await this.find({ type: "shop", identifier: barcode, start_date: {"$lte": new Date()}, end_date: {"$gt": new Date()} });
     product_discounts.sort((d1, d2) => moment(d2.start_date).diff(moment(d1.start_date)) || d2.discount - d1.discount);
 
     let discount = product_discounts.length > 0 ? product_discounts[0].discount : 0;
