@@ -25,6 +25,7 @@ export default class FooterComponent extends React.Component {
                     <a href="/services-list" className="link-dark mx-2">Servizi</a>
                     <a href="/hubs-list" className="link-dark mx-2">Sedi</a>
                     <a href="/fo/forum" className="link-dark mx-2">Forum</a>
+                    { !this.state.is_auth && <a href="/fo/my-animals" className="link-dark mx-2">Presentati</a> }
                     { this.state.is_auth && <a href="/fo/vip" className="link-dark mx-2">VIP</a> }
                     <hr />
                     <p className="m-0">&copy; Animal House { moment().format("YYYY") }</p>

@@ -35,9 +35,6 @@ const image_apis = {
     "lucertola": [
         { url: "https://nekos.life/api/v2/img/lizard", get: (res) => res.url }
     ],
-    "uccello": [
-        { url: "https://some-random-api.ml/img/birb", get: (res) => res.link }
-    ],
     "volpe": [
         { url: "https://randomfox.ca/floof/", get: (res) => res.image }
     ],
