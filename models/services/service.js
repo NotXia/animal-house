@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const DiscountModel = require("../discount");
 
 const serviceScheme = mongoose.Schema({
     name: { 
@@ -31,13 +32,14 @@ const serviceScheme = mongoose.Schema({
     }]
 });
 
-serviceScheme.methods.getData = function() {
+serviceScheme.methods.getData = async function(is_vip=false) {
     return {
         id: this._id,
         name: this.name,
         description: this.description,
         duration: this.duration,
-        price: this.price,
+        original_price: this.price,
+        price: Math.round(this.price * (1 - await DiscountModel.getVIPDiscount(is_vip))),
         online: this.online,
         target: this.target
     };

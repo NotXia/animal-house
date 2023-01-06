@@ -45,5 +45,14 @@ discountSchema.statics.getDiscountForProduct = async function(barcode, is_vip=fa
     return Math.max(discount, vip_discount)/100;
 };
 
+discountSchema.statics.getVIPDiscount = async function(is_vip=false) {
+    let vip_discount = 0;
+    if (is_vip) { 
+        vip_discount = (await this.findOne({ type: "vip" }))?.discount ?? 0; 
+    }
+
+    return vip_discount/100;
+};
+
 
 module.exports = mongoose.model("discount", discountSchema);
