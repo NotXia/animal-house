@@ -127,6 +127,7 @@ $(async function () {
 
         /* Passaggio alla modalità creazione di un cliente */
         $("#start_create-btn").on("click", function (e) {
+            resetAnimals();
             Form.resetForm();
             Mode.creation();
         });
@@ -186,6 +187,10 @@ async function fetchAnimals(username) {
     } catch (err) {
         Mode.error(err.responseJSON.message ? err.responseJSON.message : "Si è verificato un errore");
     }
+}
+
+function resetAnimals() {
+    $("#animals-container").html("");
 }
 
 function displayAnimals(animalsList) {
