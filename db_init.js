@@ -74,7 +74,7 @@ async function init() {
     } catch(err) {}
 
     try {
-        await new PriceModel({ name: "vip", price: 8999 }).save();
+        await new PriceModel({ name: "vip", price: 19999 }).save();
     }
     catch (err) {}
 
@@ -82,7 +82,7 @@ async function init() {
         if (!await DiscountModel.findOne({ type: "vip" })) {
             await new DiscountModel({
                 type: "vip",
-                discount: 15,
+                discount: 20,
                 start_date: "2023-01-01"
             }).save();
         }
