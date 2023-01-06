@@ -24,7 +24,7 @@ const discountSchema = mongoose.Schema({
 });
 
 discountSchema.statics.getDiscountForProduct = async function(barcode, is_vip=false) {
-    const discount = (await this.findOne({ type: "shop", identifier: barcode, start_date: {"$gte": new Date()} }))?.discount ?? 0;
+    const discount = (await this.findOne({ type: "shop", identifier: barcode, start_date: {"$lte": new Date()} }))?.discount ?? 0;
     let vip_discount = 0;
     if (is_vip) { vip_discount = (await this.findOne({ type: "vip" }))?.discount ?? 0; }
 

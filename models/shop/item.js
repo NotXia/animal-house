@@ -68,7 +68,7 @@ async function productGetData(product, is_vip=false) {
         }) ),
         target_species: product.target_species,
         original_price: product.price,
-        price: product.price * (1 - await DiscountModel.getDiscountForProduct(product.barcode, is_vip)),
+        price: Math.round( product.price * (1 - await DiscountModel.getDiscountForProduct(product.barcode, is_vip)) ),
         quantity: product.quantity
     }
 }
