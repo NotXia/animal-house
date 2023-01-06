@@ -18,6 +18,7 @@
 
         computed: {
             DOMAIN() { return process.env.VUE_APP_DOMAIN; },
+
             mayUserBeInterested() {
                 const user_preferences = getUserPreferences();
                 if (!user_preferences || !user_preferences.species) { return false; }
@@ -29,6 +30,10 @@
                 }
 
                 return false;
+            },
+
+            discountAmount() {
+                return Math.round( (1 - (this.service.price / this.service.original_price)) * 100 );
             }
         }
     }
@@ -46,7 +51,15 @@
                              data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Potrebbe interessarti" />
                     </div>
                 </h2>
-                <p class="m-0 fs-5">Prezzo: {{ centToPrice(service.price) }}€</p>
+                <div v-if="service.price === service.original_price">
+                    <p class="m-0 fs-5">Prezzo: {{ centToPrice(service.price) }}€</p>
+                </div>
+                <div v-if="service.price !== service.original_price">
+                    <p class="m-0 fs-5">Prezzo: 
+                        <span class="text-decoration-line-through fs-6">{{ centToPrice(service.original_price) }}€</span> 
+                        {{ centToPrice(service.price) }}€ (-{{discountAmount}}%)
+                    </p>
+                </div>
                 <p class="m-0 fs-5">Durata: {{ service.duration }} min.</p>
                 <p style="white-space: pre-line" class="m-0 mt-2">{{ service.description }}</p>
 
