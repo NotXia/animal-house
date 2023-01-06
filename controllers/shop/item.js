@@ -125,7 +125,7 @@ async function searchItem(req, res) {
             { $limit: parseInt(req.query.page_size) },
         ], { collation: {locale: "en", strength: 2} }); // Per l'ordinamento case insensitive
 
-        items = items.map(item => (new ItemModel(item)).getData()); // Conversione del risultato nel formato corretto
+        items = await Promise.all( items.map(async item => await (new ItemModel(item)).getData(req.auth.is_vip)) ); // Conversione del risultato nel formato corretto
     }
     catch (err) {
         return error.response(err, res);
@@ -148,7 +148,7 @@ async function searchItemByBarcode(req, res) {
         return error.response(err, res);
     }
     
-    return res.status(utils.http.OK).json(item.getData());
+    return res.status(utils.http.OK).json(await item.getData(req.auth.is_vip));
 }
 
 /*
@@ -165,7 +165,7 @@ async function searchSingleItem(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(out_item.getData());
+    return res.status(utils.http.OK).json(await out_item.getData(req.auth.is_vip));
 }
 
 /*
@@ -226,7 +226,7 @@ async function updateItemById(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.OK).json(updated_item.getData());
+    return res.status(utils.http.OK).json(await updated_item.getData());
 }
 
 /* 

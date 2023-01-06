@@ -4,6 +4,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const CustomerModel = require("./customer");
 const OperatorModel = require("./operator");
 const path = require('path');
+const moment = require("moment");
 
 const permissionSchema = mongoose.Schema({
     operator: { type: Boolean, default: false },
@@ -153,6 +154,14 @@ userScheme.methods.updateType = async function(updated_data) {
     const Model = this.isOperator() ? OperatorModel : CustomerModel;
 
     return await Model.findByIdAndUpdate(this.type_id, updated_data, { new: true, runValidators: true });
+};
+
+
+userScheme.statics.isVIP = async function(username) {
+    const user = await this.findOne({ username: username });
+    const customer = await user.findType();
+    
+    return moment(customer.vip_until).isSameOrAfter(moment());
 };
 
 module.exports = mongoose.model("users", userScheme);

@@ -5,6 +5,7 @@
 const mongoose = require("mongoose");
 const ValidationError = mongoose.Error.ValidationError
 const path = require("path");
+const DiscountModel = require("../discount.js");
 
 const itemSchema = mongoose.Schema({
     name: {
@@ -56,7 +57,7 @@ itemSchema.pre("validate", function (next) {
     }
 });
 
-function productGetData(product) {
+async function productGetData(product, is_vip=false) {
     return {
         barcode: product.barcode,
         name: product.name,
@@ -66,19 +67,20 @@ function productGetData(product) {
             description: image.description
         }) ),
         target_species: product.target_species,
-        price: product.price,
+        original_price: product.price,
+        price: product.price * (1 - await DiscountModel.getDiscountForProduct(product.barcode, is_vip)),
         quantity: product.quantity
     }
 }
 
-itemSchema.methods.getData = function() {
+itemSchema.methods.getData = async function(is_vip=false) {
     return {
         id: this._id,
         name: this.name,
         description: this.description,
         category: this.category,
         relevance: this.relevance,
-        products: this.products.map(product => productGetData(product))
+        products: await Promise.all( this.products.map(async product => await productGetData(product, is_vip)) )
     };
 };
 
@@ -88,7 +90,7 @@ itemSchema.statics.getProductByBarcode = async function(barcode) {
     if (!item) { return null; }
 
     // Estrazione prodotto
-    return productGetData(item.products.find((product) => product.barcode === barcode));
+    return await productGetData(item.products.find((product) => product.barcode === barcode));
 };
 
 itemSchema.statics.updateProductAmount = async function(barcode, factor) {
