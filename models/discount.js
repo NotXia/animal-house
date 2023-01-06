@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 const discountSchema = mongoose.Schema({
     type: {
@@ -33,7 +34,11 @@ discountSchema.methods.getData = function() {
 };
 
 discountSchema.statics.getDiscountForProduct = async function(barcode, is_vip=false) {
-    const discount = (await this.findOne({ type: "shop", identifier: barcode, start_date: {"$lte": new Date()} }))?.discount ?? 0;
+    // Seleziona lo sconto che inizia più recentemente e con il valore più alto
+    const product_discounts = await this.find({ type: "shop", identifier: barcode, start_date: {"$lte": new Date()} });
+    product_discounts.sort((d1, d2) => moment(d2.start_date).diff(moment(d1.start_date)) || d2.discount - d1.discount);
+
+    let discount = product_discounts.length > 0 ? product_discounts[0].discount : 0;
     let vip_discount = 0;
     if (is_vip) { vip_discount = (await this.findOne({ type: "vip" }))?.discount ?? 0; }
 
