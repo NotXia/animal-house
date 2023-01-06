@@ -84,13 +84,13 @@ itemSchema.methods.getData = async function(is_vip=false) {
     };
 };
 
-itemSchema.statics.getProductByBarcode = async function(barcode) {
+itemSchema.statics.getProductByBarcode = async function(barcode, is_vip=false) {
     // Ricerca item che contiene barcode
     const item = await this.findOne({ "products.barcode": barcode }).exec();
     if (!item) { return null; }
 
     // Estrazione prodotto
-    return await productGetData(item.products.find((product) => product.barcode === barcode));
+    return await productGetData(item.products.find((product) => product.barcode === barcode), is_vip);
 };
 
 itemSchema.statics.updateProductAmount = async function(barcode, factor) {
