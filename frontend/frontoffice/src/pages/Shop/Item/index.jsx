@@ -49,7 +49,7 @@ class ShopItem extends React.Component {
         let to_search_barcode = this.props.searchParams.get("barcode");
 
         // Estrazione dati item
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
+        api_request({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
         .then((item) => {
             let product_index = 0;
             
