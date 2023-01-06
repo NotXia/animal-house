@@ -6,6 +6,7 @@ import * as Mode from "../mode.js";
 import * as Form from "../form.js";
 import { priceToCents, basename } from "/js/utilities.js";
 import * as ItemAPI from "../ItemAPI.js";
+import * as DiscountHandler from "./discount.js"
 
 export let product_editor;
 
@@ -71,6 +72,17 @@ export async function init() {
         tab_indexes_order.splice(curr_position, 1);     // Rimozione come posizione tra i tab
 
         focusOnTab(to_focus_index);
+    });
+
+    DiscountHandler.init();
+
+    $("#button-start-discount-product").on("click", function () {
+        DiscountHandler.renderDiscountsOf(currentSelectedBarcode());
+    });
+
+    $("#form-discount").on("submit", async (e) => {
+        e.preventDefault();
+        DiscountHandler.addDiscountTo(currentSelectedBarcode());
     });
 }
 
