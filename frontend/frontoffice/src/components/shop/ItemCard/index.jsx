@@ -30,12 +30,13 @@ export default class ItemCard extends React.Component {
     }
 
     render() {
-        let price_text = this.getItemPriceString();
+        const reference_product = this.getReferenceProduct();
+        const price_element = this.getItemPriceElement();
         const user_interested = this.mayUserBeInterested();
 
         return (<>
             <Link to={`/shop/item?id=${this.props.item.id}`} className={`${css["card-link"]}`} 
-                  aria-label={`${user_interested ? "Potrebbe interessarti:" : ""} ${this.props.item.name}, ${price_text} ${this.available ? "" : "Non disponibile"}`}>
+                  aria-label={`${user_interested ? "Potrebbe interessarti:" : ""} ${this.props.item.name}, ${reference_product ? reference_product.price : ""} ${this.available ? "" : "Non disponibile"}`}>
                 <div className={`${css["card-container"]} position-relative`}>
                     <Container>
                         <Row>
@@ -48,7 +49,7 @@ export default class ItemCard extends React.Component {
                                 this.available &&
                                 <>
                                     <p className={`text-center fs-4 m-0`}>{this.props.item.name}</p>
-                                    <p className={`fw-semibold text-center fs-5 m-0`}>{price_text}</p>
+                                    <p className={`fw-semibold text-center fs-5 m-0`}>{price_element}</p>
                                     <div className={`position-absolute top-0 end-0 p-0 ${user_interested ? "" : "d-none"}`} aria-hidden="true">
                                         <div className="d-flex justify-content-end m-3">
                                             <div style={{ width: "1.5rem" }}>
@@ -64,7 +65,7 @@ export default class ItemCard extends React.Component {
                                 <>
                                     <p className={`text-center fs-4 m-0 ${css["card-text-unavailable"]}`}>{this.props.item.name}</p>
                                     <p className={`fw-semibold text-center fs-6 m-0 text-decoration-underline`}>Non disponibile</p>
-                                    <p className={`fw-semibold text-center fs-5 m-0 ${css["card-text-unavailable"]}`}>{price_text}</p>
+                                    <p className={`fw-semibold text-center fs-5 m-0 ${css["card-text-unavailable"]}`}>{price_element}</p>
                                 </>
                             }
                         </Row>
@@ -86,18 +87,39 @@ export default class ItemCard extends React.Component {
         else                               { return `${process.env.REACT_APP_DOMAIN}/shop/images/default.png`; }
     }
 
-    getItemPriceString() {
+    getReferenceProduct() {
         /**
-         * Il prezzo rappresentante è quello del prodotto di minor costo.
+         * Il rappresentante è il prodotto di minor costo.
          * - Se ci sono prodotti non disponibili, vengono ignorati nel calcolo.
-         * - Se tutti i prodotti sono finiti, restituisce stringa vuota.
          */
-        if (!this.available) { return ""; }
+        if (!this.available) { return null; }
 
-        let min_cost_product = this.available_products.reduce((prev, curr) => prev.price < curr.price ? prev : curr); // Estrae il prodotto di costo minore
-        const price = centToPrice(min_cost_product.price);
+        return this.available_products.reduce((prev, curr) => prev.price < curr.price ? prev : curr); // Estrae il prodotto di costo minore
+    }
 
-        return this.available_products.length > 1 ? `A partire da ${price}€` : `${price}€`;
+    getItemPriceElement() {
+        const reference_product = this.getReferenceProduct();
+        if (!reference_product) return null;
+
+        const price = centToPrice(reference_product.price);
+        const original_price = centToPrice(reference_product.original_price);
+
+        if (reference_product.price === reference_product.original_price) { // Prodotto non scontato
+            return this.available_products.length > 1 ? <span>A partire da {price}€</span> : <span>{price}€</span>
+        }
+        else {
+            if (this.available_products.length > 1) {
+                return <span>
+                    A partire da <span className="text-decoration-line-through fs-6 m-0 fw-normal">{original_price}€</span> {price}€
+                </span>
+            }
+            else {
+                return <div>
+                    <p className="text-decoration-line-through fs-6 m-0 fw-normal">{original_price}€</p>
+                    {price}€
+                </div>
+            }
+        }
     }
 
     /**

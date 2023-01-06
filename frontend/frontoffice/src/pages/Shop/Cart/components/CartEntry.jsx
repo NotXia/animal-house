@@ -77,7 +77,17 @@ class CartEntry extends React.Component {
                                     </button>
                                 </div>
                                 <div aria-label={`${centToPrice(cart_entry.product.price)}€ cadauno`}>
-                                    <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                    {
+                                        cart_entry.product.price === cart_entry.product.original_price &&
+                                        <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                    }
+                                    {
+                                        cart_entry.product.price !== cart_entry.product.original_price &&
+                                        <div>
+                                            <span aria-hidden="true" className="text-decoration-line-through">{centToPrice(cart_entry.product.original_price)}€</span>&nbsp;
+                                            <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
