@@ -18,13 +18,13 @@ const auth_middleware = require("../middleware/auth");
 router.post("/items/", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]),  shop_middleware.item.validateCreate ], shop_controller.item.create);
 
 /* Cerca determinati item dello shop paginandoli secondo un dato criterio */
-router.get("/items/", shop_middleware.item.validateSearch, shop_controller.item.search);
+router.get("/items/", [auth_middleware([], [], false), shop_middleware.item.validateSearch], shop_controller.item.search);
 
 /* Cerca un item dello shop per barcode di uno dei prodotto associati */
-router.get("/items/barcode/:barcode", [ shop_middleware.item.validateSearchByBarcode ], shop_controller.item.searchByBarcode);
+router.get("/items/barcode/:barcode", [ auth_middleware([], [], false), shop_middleware.item.validateSearchByBarcode ], shop_controller.item.searchByBarcode);
 
 /* Cerca un singolo item */
-router.get("/items/:item_id", shop_middleware.item.validateSearchItem, shop_controller.item.searchItem);
+router.get("/items/:item_id", [auth_middleware([], [], false), shop_middleware.item.validateSearchItem], shop_controller.item.searchItem);
 
 /* Modifica di un item */
 router.put("/items/:item_id", [ auth_middleware([ ["operator", "shop_write"] ], [ ["admin"] ]), shop_middleware.item.validateUpdateItem ], shop_controller.item.updateItem);

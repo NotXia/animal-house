@@ -157,10 +157,8 @@ userScheme.methods.updateType = async function(updated_data) {
 };
 
 
-userScheme.statics.isVIP = async function(username) {
-    const user = await this.findOne({ username: username });
-    const customer = await user.findType();
-    
+userScheme.methods.isVIP = async function() {
+    const customer = await this.findType();
     return moment(customer.vip_until).isSameOrAfter(moment());
 };
 
