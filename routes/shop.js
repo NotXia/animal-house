@@ -4,12 +4,14 @@ const router = express.Router();
 const shop_controller = {
     item: require("../controllers/shop/item"),
     category: require("../controllers/shop/category"),
-    order: require("../controllers/shop/order")
+    order: require("../controllers/shop/order"),
+    discount: require("../controllers/shop/discount")
 };
 const shop_middleware = {
     item: require("../middleware/shop/item"),
     category: require("../middleware/shop/category"),
-    order: require("../middleware/shop/order")
+    order: require("../middleware/shop/order"),
+    discount: require("../middleware/shop/discount")
 };
 const auth_middleware = require("../middleware/auth");
 
@@ -50,6 +52,12 @@ router.delete("/orders/:order_id", [ auth_middleware([ ["customer"] ], [ ["admin
 
 router.post("/orders/:order_id/checkout", [ auth_middleware([ ["customer"] ] , []), shop_middleware.order.validateCheckout ], shop_controller.order.checkout);
 router.post("/orders/:order_id/success", shop_middleware.order.validateSuccess, shop_controller.order.success);
+
+
+router.get("/products/:barcode/discounts/", shop_controller.discount.get);
+router.post("/products/:barcode/discounts/", shop_middleware.discount.add, shop_controller.discount.add);
+router.delete("/products/discounts/:id", shop_middleware.discount.delete, shop_controller.discount.delete);
+
 
 
 module.exports = router;
