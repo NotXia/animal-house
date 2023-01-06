@@ -75,7 +75,7 @@ async function createItem(req, res) {
         return error.response(err, res);
     }
 
-    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(new_item.getData());
+    return res.status(utils.http.CREATED).location(`${req.baseUrl}/items/${new_item._id}`).json(await new_item.getData());
 }
 
 /*
