@@ -26,6 +26,8 @@ export async function renderDiscountsOf(barcode) {
         `);
     }
 
+    discounts.sort((d1, d2) => moment(d1.start_date).diff(moment(d2.start_date)));
+
     for (const discount of discounts) {
         $("#table-discount").append(`
             <tr>
