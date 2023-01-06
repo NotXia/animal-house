@@ -158,6 +158,8 @@ userScheme.methods.updateType = async function(updated_data) {
 
 
 userScheme.methods.isVIP = async function() {
+    if (this.isOperator()) { return false; }
+    
     const customer = await this.findType();
     return moment(customer.vip_until).isSameOrAfter(moment());
 };
