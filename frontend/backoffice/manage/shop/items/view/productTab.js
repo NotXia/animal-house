@@ -220,7 +220,7 @@ function loadProductData(product) {
     $("#input-product\\.barcode").val(product.barcode);
     $("#input-product\\.name").val(product.name);
     product_editor.setData(product.description ? product.description : "");
-    $("#input-product\\.price").val(currency(product.price, { fromCents: true }));
+    $("#input-product\\.price").val(currency(product.original_price, { fromCents: true }));
     $("#input-product\\.quantity").val(product.quantity);
     if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
     if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }
