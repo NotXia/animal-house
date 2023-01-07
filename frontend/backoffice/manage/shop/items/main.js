@@ -163,7 +163,7 @@ function loadItemSelectorModal(items) {
     for (const item_struct of items) {
         const item = item_struct.item;
         const focus_data = item_struct.focus;
-        let button_id = `button-select-item-${item.id}`;
+        let button_id = `button-select-item-${item.id}-${focus_data}`;
 
         const products_barcode_string = item.products.map((product) => product.barcode).join(", ")
 
