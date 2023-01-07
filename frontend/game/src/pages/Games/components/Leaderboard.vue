@@ -42,7 +42,9 @@
     
                     <ol class="list-group">
                         <li v-for="rank, index in leaderboard" class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center w-100">
+                            <p class="visually-hidden">Posizione {{index+1}}: giocatore {{rank.player.username}} con {{rank.points}} punti</p>
+                            <div class="d-flex justify-content-between align-items-center w-100"
+                                 aria-hidden="true">
                                 <div class="d-flex align-items-center w-100">
                                     <span>{{ index+1 }}.&nbsp;</span>
                                     <div class="d-flex align-items-center justify-content-center overflow-hidden border rounded-circle" style="height: 2rem; width: 2rem;">
