@@ -11,6 +11,7 @@ import SearchParamsHook from "../../../hooks/SearchParams";
 import Comment from "./components/Comment";
 import { getUsername, isAdmin, isAuthenticated } from "modules/auth.js";
 import Footer from "../../../components/Footer";
+import Badge from "../../../components/forum/Badge";
 
 
 const COMMENT_PAGE_SIZE = 10;
@@ -86,7 +87,8 @@ class SinglePost extends React.Component {
                                         {/* Intestazione post */}
                                         <div>
                                             <h1 className="m-0">{this.state.post.title}</h1>
-                                            <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>
+                                            <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>&nbsp;
+                                            <Badge username={this.state.post.author} />
                                         </div>
 
                                         {/* Operazioni su post */}
