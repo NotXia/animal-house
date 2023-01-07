@@ -1,6 +1,6 @@
 import React from "react";
 import moment from "moment";
-
+import Badge from "../../../../components/forum/Badge";
 
 class SinglePost extends React.Component {
     constructor(props) {
@@ -24,7 +24,11 @@ class SinglePost extends React.Component {
 
                 <div aria-hidden="true">
                     <p className="m-0">
-                        <span className=" fw-semibold">@{comment.author}</span> <span className="m-0" style={{ fontSize: "0.8rem" }}>{moment(comment.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+                        <div className="d-flex align-items-center">
+                            <span className=" fw-semibold">@{comment.author}</span>
+                            <Badge username={comment.author} />&nbsp;
+                            <span className="m-0" style={{ fontSize: "0.8rem" }}>{moment(comment.creationDate).format("DD/MM/YYYY HH:mm")}</span>
+                        </div>
                     </p>
                     <p className="m-0">{comment.content}</p>
                 </div>
