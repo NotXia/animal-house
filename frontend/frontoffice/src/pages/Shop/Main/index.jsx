@@ -14,6 +14,7 @@ import category_css from "./category.module.css";
 import { updateURLQuery, removeQueryFromURL } from "../../../utilities/url";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import Footer from "../../../components/Footer";
+import { api_request } from "modules/auth";
 
 const PAGE_SIZE = 24;
 
@@ -325,7 +326,7 @@ class ShopMain extends React.Component {
             this.curr_page_index += 1;
 
             try {
-                const items = await $.ajax({ 
+                const items = await api_request({ 
                     method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
                     data: { 
                         page_size: PAGE_SIZE, page_number: this.curr_page_index, 

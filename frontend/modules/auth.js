@@ -82,7 +82,9 @@ export async function isAuthenticated() {
 export async function api_request(ajax_request) {
     // Aggiunge l'header di autenticazione
     if (!ajax_request.headers) { ajax_request.headers = {}; }
-    ajax_request.headers.Authorization = `Bearer ${await _getAccessToken()}`;
+    if (await isAuthenticated()) {
+        ajax_request.headers.Authorization = `Bearer ${await _getAccessToken()}`;
+    }
     
     return $.ajax(ajax_request);
 }
