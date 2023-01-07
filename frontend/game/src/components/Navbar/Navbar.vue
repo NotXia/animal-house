@@ -12,10 +12,11 @@
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     <router-link to="/" class="nav-link active">Home</router-link>
-                    <a :href="`${DOMAIN}/fo/shop`" class="nav-link active">Shop</a>
                     <router-link to="/services-list" class="nav-link active">Servizi</router-link>
+                    <a :href="`${DOMAIN}/fo/shop`" class="nav-link active">Shop</a>
                     <router-link to="/hubs-list" class="nav-link active">Sedi</router-link>
                     <a :href="`${DOMAIN}/fo/forum`" class="nav-link active">Forum</a>
+                    <router-link to="/play" class="nav-link active">Giochi</router-link>
                     <a v-if="!is_auth" :href="`${DOMAIN}/fo/my-animals`" class="nav-link active">Presentati</a>
                     <a v-if="is_auth" :href="`${DOMAIN}/fo/vip`" class="nav-link active">VIP</a>
                 </div>

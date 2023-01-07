@@ -45,10 +45,11 @@ export default class NavbarComponent extends React.Component {
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="me-auto">
                                 <Nav.Link className="text-dark" href="/">Home</Nav.Link>
-                                <Nav.Link className="text-dark" href="/fo/shop">Shop</Nav.Link>
                                 <Nav.Link className="text-dark" href="/services-list">Servizi</Nav.Link>
+                                <Nav.Link className="text-dark" href="/fo/shop">Shop</Nav.Link>
                                 <Nav.Link className="text-dark" href="/hubs-list">Sedi</Nav.Link>
                                 <Nav.Link className="text-dark" href="/fo/forum">Forum</Nav.Link>
+                                <Nav.Link className="text-dark" href="/play">Giochi</Nav.Link>
                                 {
                                     !this.state.is_auth &&
                                     <Nav.Link className="text-dark" href="/fo/my-animals">Presentati</Nav.Link>

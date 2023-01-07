@@ -21,10 +21,11 @@ export default class FooterComponent extends React.Component {
             <footer className="mt-5 mb-3">
                 <div className="w-100 text-center">
                     <a href="/" className="link-dark mx-2">Home</a>
-                    <a href="/fo/shop" className="link-dark mx-2">Shop</a>
                     <a href="/services-list" className="link-dark mx-2">Servizi</a>
+                    <a href="/fo/shop" className="link-dark mx-2">Shop</a>
                     <a href="/hubs-list" className="link-dark mx-2">Sedi</a>
                     <a href="/fo/forum" className="link-dark mx-2">Forum</a>
+                    <a href="/play" className="link-dark mx-2">Giochi</a>
                     { !this.state.is_auth && <a href="/fo/my-animals" className="link-dark mx-2">Presentati</a> }
                     { this.state.is_auth && <a href="/fo/vip" className="link-dark mx-2">VIP</a> }
                     <hr />
