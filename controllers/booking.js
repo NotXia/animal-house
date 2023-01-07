@@ -35,7 +35,8 @@ async function insertAppointment(req, res) {
         }
 
         // Salvataggio prezzo
-        newAppointment.price = (await ServiceModel.findById(newAppointment.service_id).exec()).price;
+        const service = await ServiceModel.findById(newAppointment.service_id).exec();
+        newAppointment.price = (await service.getData(req.auth.is_vip)).price;
 
         let toInsertAppointment = await new BookingModel(newAppointment).save();
         return res.status(utils.http.CREATED)

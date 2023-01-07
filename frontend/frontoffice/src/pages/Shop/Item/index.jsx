@@ -6,6 +6,7 @@
 
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -48,7 +49,7 @@ class ShopItem extends React.Component {
         let to_search_barcode = this.props.searchParams.get("barcode");
 
         // Estrazione dati item
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
+        api_request({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
         .then((item) => {
             let product_index = 0;
             
@@ -124,6 +125,7 @@ class ShopItem extends React.Component {
                                     <section aria-label="Dati del prodotto">
                                         <h1 className="fs-1 mb-1">{this.state.item.name}</h1>
                                         <h2 className="fs-2 overflow-hidden" aria-label={product_name_aria_label}>{this.currProduct().name}</h2>
+                                        { this.renderDiscount() }
                                         <p className="fs-3 fw-semibold">{`${centToPrice(this.currProduct().price)}€`}</p>
                                     </section>
                                 </Col>
@@ -269,6 +271,18 @@ class ShopItem extends React.Component {
     viewProductAtIndex(index) {
         this.setState({ product_index: index });
         updateURLQuery("barcode", this.state.item.products[index].barcode);
+    }
+
+    renderDiscount() {
+        const product = this.currProduct();
+        if (product.price === product.original_price) { return null; }
+
+        const discount = Math.round((1 - (product.price / product.original_price)) * 100) ;
+
+        return <div aria-label={`Sconto del ${discount}% sul prezzo originale di ${centToPrice(product.original_price)}€`}>
+            <span className="text-decoration-line-through fs-5">{centToPrice(product.original_price)}€</span>&nbsp;
+            <span className="fs-4 fw-semibold">-{discount}%</span>
+        </div>
     }
 
 }

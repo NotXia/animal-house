@@ -3,6 +3,7 @@ const utils = require("../../utilities");
 const error = require("../../error_handler");
 const CategoryModel = require("../../models/shop/category");
 const validator = require('express-validator');
+const ItemModel = require("../../models/shop/item");
 
 /* Creazione di una nuova categoria */
 async function insertCategory(req, res) {
@@ -47,6 +48,10 @@ async function updateCategory(req, res) {
 
         for (const [field, value] of Object.entries(updated_data)) { updated_category[field] = value; }
         await updated_category.save();
+
+        if (updated_category.name) { // È cambiato il nome della categoria
+            await ItemModel.updateMany({ category: to_change_category }, { category: updated_category.name });
+        }
     }
     catch (err) {
         if (err.code === utils.MONGO_DUPLICATED_KEY) {

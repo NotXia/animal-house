@@ -9,10 +9,11 @@
 </template>
 
 <script>
-    import "bootstrap/dist/css/bootstrap.min.css";
-
     export default {
         name: "loading",
     }
 </script>
 
+<style lang="scss">
+    @import "../../scss/bootstrap.scss";
+</style>

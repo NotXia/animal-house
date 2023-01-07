@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import Navbar from "../../../components/Navbar";
 import LoadingScreen from "../../../components/Loading";
 import $ from "jquery";

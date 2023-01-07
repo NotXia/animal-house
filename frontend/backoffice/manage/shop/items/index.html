@@ -12,6 +12,7 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/ckeditor.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/35.1.0/classic/translations/it.js"></script>
     <script src="https://unpkg.com/currency.js@2.0.4/dist/currency.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <link href="/css/style.css" rel="stylesheet">
     <link href="./css/product_tab.css" rel="stylesheet">
     <link href="/css/icon.css" rel="stylesheet">
@@ -140,7 +141,11 @@
                     <div class="row mt-2">
                         <div class="col-12 col-lg-2 offset-lg-2">
                             <div class="d-flex justify-content-center align-items-center w-100 h-100">
-                                <button id="button-start-delete-product" class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-product">Cancella prodotto</button>
+                                <button id="button-start-delete-product" class="btn btn-outline-danger mx-1" type="button" data-bs-toggle="modal" data-bs-target="#modal-delete-product">Cancella prodotto</button>
+                                <button id="button-start-discount-product" class="btn btn-outline-primary mx-1" type="button" 
+                                        data-bs-toggle="modal" data-bs-target="#modal-discount-product">
+                                    Aggiunti sconto
+                                </button>
                             </div>
                         </div>
                         <div class="col-12 col-lg-6">
@@ -260,6 +265,66 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale sconti -->
+    <div class="modal fade" id="modal-discount-product" tabindex="-1" aria-labelledby="modal-discount-product-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-4" id="modal-discount-product-label">Sconta prodotto</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="muted">Nota: lo sconto applicato è sempre quello con data di inizio più recente e con valore maggiore.</p>
+                    <table class="table" id="container-table-discount">
+                        <thead>
+                            <tr>
+                                <th>Data inizio</th>
+                                <th>Data fine</th>
+                                <th>Sconto</th>
+                                <th>Operazioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-discount">
+                        </tbody>
+                    </table>
+
+                    <div id="container-discount-alert"></div>
+
+                    <p class="fw-semibold m-0">Aggiungi sconto</p>
+                    <form id="form-discount">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-6 col-md-4">
+                                    <label for="input-discount-start_date" class="fs-6 fw-semibold">Data inizio</label>
+                                    <input type="date" id="input-discount-start_date" class="form-control" required>
+                                </div>
+
+                                <div class="col-6 col-md-4">
+                                    <label for="input-discount-end_date" class="fs-6 fw-semibold">Data fine</label>
+                                    <input type="date" id="input-discount-end_date" class="form-control" required>
+                                </div>
+                                
+                                <div class="col-12 col-md-4">
+                                    <label for="input-discount-amount" class="fs-6 fw-semibold">% Sconto</label>
+                                    <input type="number" min="0" step="1" max="100" id="input-discount-amount" class="form-control" required>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-center mt-1">
+                                        <button id="button-discount-create" class="btn btn-outline-success btn-sm" type="submit">Aggiungi</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Chiudi</button>
                 </div>
             </div>
         </div>

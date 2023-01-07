@@ -80,6 +80,16 @@ $(document).ready(async function() {
 
         /* Anteprima icona durante upload */
         $("#data-icon").on("change", function (e) { 
+            Error.clearError("icon");
+            $("#icon-preview").hide();
+            
+            // Controllo dimensione
+            if (this.files[0].size > 50*1024) { // KB
+                Error.showError("icon", "Immagine troppo grande");
+                $("#data-icon").val("");
+                return;
+            }
+
             let reader = new FileReader();
             reader.onload = function (e) {
                 $("#icon-preview").show();

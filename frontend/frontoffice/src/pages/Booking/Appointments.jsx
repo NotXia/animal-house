@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import Navbar from "../../components/Navbar";
 import { getUsername, isAuthenticated } from "modules/auth.js";
 import moment from "moment";
@@ -59,6 +60,14 @@ class Appointments extends React.Component {
                         <h1>I miei appuntamenti</h1>
                         <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
                     </div>
+
+                    {/* Nessun appuntamento */}
+                    {
+                        this.state.appointments_today.length === 0 &&
+                        this.state.appointments_tomorrow.length === 0 &&
+                        this.state.appointments_other.length === 0 &&
+                        <p className="fs-5">Non hai nessun appuntamento pianificato</p>
+                    }
 
                     {/* Appuntamenti di oggi */}
                     {

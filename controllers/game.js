@@ -21,25 +21,22 @@ function randomOfArray(array) {
  */
 
 const image_apis = {
-    "dog": [
+    "cane": [
         { url: "https://dog.ceo/api/breeds/image/random", get: (res) => res.message },
         { url: "http://shibe.online/api/shibes", get: (res) => res[0] },
         { url: "https://random.dog/woof?filter=mp4,webm", get: (res) => `https://random.dog/${res}` }
     ],
-    "cat": [
+    "gatto": [
         { url: "https://cataas.com/cat?json=true", get: (res) => `https://cataas.com${res.url}` },
         { url: "https://aws.random.cat/meow", get: (res) => res.file }
     ],
-    "bunny": [
+    "coniglio": [
         { url: "https://api.bunnies.io/v2/loop/random/?media=gif", get: (res) => res.media.gif }
     ],
-    "lizard": [
+    "lucertola": [
         { url: "https://nekos.life/api/v2/img/lizard", get: (res) => res.url }
     ],
-    "bird": [
-        { url: "https://some-random-api.ml/img/birb", get: (res) => res.link }
-    ],
-    "fox": [
+    "volpe": [
         { url: "https://randomfox.ca/floof/", get: (res) => res.image }
     ],
     "koala": [
@@ -49,38 +46,56 @@ const image_apis = {
         { url: "https://some-random-api.ml/img/panda", get: (res) => res.link },
         { url: "https://some-random-api.ml/animal/red_panda", get: (res) => res.image }
     ],
-    "duck": [
+    "papera": [
         { url: "https://random-d.uk/api/random", get: (res) => res.url }
     ],
-    "kangaroo": [
+    "canguro": [
         { url: "https://some-random-api.ml/animal/kangaroo", get: (res) => res.image }
     ],
 }
 
 const fact_apis = {
-    "cat": [
+    "gatto": [
         { url: "https://meowfacts.herokuapp.com", get: (res) => res.data[0] },
         { url: "https://some-random-api.ml/facts/cat", get: (res) => res.fact }
     ],
-    "dog": [
+    "cane": [
         { url: "https://dog-api.kinduff.com/api/facts", get: (res) => res.facts[0] },
         { url: "https://some-random-api.ml/facts/dog", get: (res) => res.fact }
     ],
     "panda": [
         { url: "https://some-random-api.ml/facts/panda", get: (res) => res.fact }
     ],
-    "fox": [
+    "volpe": [
         { url: "https://some-random-api.ml/facts/fox", get: (res) => res.fact }
     ],
     "koala": [
         { url: "https://some-random-api.ml/facts/koala", get: (res) => res.fact }
     ],
-    "bird": [
+    "uccello": [
         { url: "https://some-random-api.ml/facts/bird", get: (res) => res.fact }
     ],
-    "kangaroo": [
+    "canguro": [
         { url: "https://some-random-api.ml/animal/kangaroo", get: (res) => res.fact }
     ]
+}
+
+
+async function _getAnimalImage(animal) {
+    // Scelta API
+    const api = randomOfArray(image_apis[animal]);
+
+    // Estrazione immagine
+    const res = await axios({ method: "GET", url: api.url });
+    image_url = api.get(res.data);
+
+    return image_url;
+}
+
+
+
+async function getAvailableFactsAnimals(req, res) {
+    return res.status(utils.http.OK).json(Object.keys(fact_apis));
 }
 
 // Restituisce un fatto sugli animali
@@ -116,12 +131,7 @@ async function getAnimalImage(req, res) {
         animal = req.query.animal ? String(req.query.animal).toLowerCase() : randomOfArray(Object.keys(image_apis));
         if (!image_apis[animal]) { throw error.generate.NOT_FOUND("Animale non disponibile"); }
 
-        // Scelta API
-        const api = randomOfArray(image_apis[animal]);
-
-        // Estrazione immagine
-        const res = await axios({ method: "GET", url: api.url });
-        image_url = api.get(res.data);
+        image_url = await _getAnimalImage(animal);
     } catch (err) {
         return error.response(err, res);
     }
@@ -483,6 +493,7 @@ function getLeaderboard(RankModel) {
 
 
 module.exports = {
+    getAvailableFactsAnimals: getAvailableFactsAnimals,
     getAnimalFact: getAnimalFact,
     getAnimalImage: getAnimalImage,
     quizInit: quizInit,

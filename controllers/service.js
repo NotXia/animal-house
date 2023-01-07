@@ -12,7 +12,7 @@ async function insertService(req, res) {
         let toInsertService = await new ServiceModel(newService).save();
         return res.status(utils.http.CREATED)
             .location(`${req.baseUrl}/${toInsertService._id}`)
-            .json(toInsertService.getData());
+            .json(await toInsertService.getData());
     } catch (err) {
         if (err.code === utils.MONGO_DUPLICATED_KEY) {
             err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
@@ -46,7 +46,7 @@ async function getServices(req, res) {
         }
 
         services = await ServiceModel.find(query).exec();
-        services = services.map(service => service.getData());
+        services = await Promise.all( services.map(async service => await service.getData(req.auth.is_vip)) );
         
         return res.status(utils.http.OK).json(services);
     } catch (err) {
@@ -60,7 +60,7 @@ async function getServiceById(req, res) {
         const service = await ServiceModel.findOne({ _id: req.params.service_id }).exec();
         if (!service) { throw error.generate.NOT_FOUND("Servizio inesistente"); }
         
-        return res.status(utils.http.OK).json(service.getData());
+        return res.status(utils.http.OK).json(await service.getData(req.auth.is_vip));
     } catch (err) {
         return error.response(err, res);
     }
@@ -77,7 +77,7 @@ async function updateService(req, res) {
         for (const [field, value] of Object.entries(updated_data)) { updated_service[field] = value; }
         await updated_service.save();
 
-        return res.status(utils.http.OK).json(updated_service.getData());
+        return res.status(utils.http.OK).json(await updated_service.getData());
     } catch (err) {
         return error.response(err, res);
     }

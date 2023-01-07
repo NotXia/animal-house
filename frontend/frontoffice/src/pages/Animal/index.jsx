@@ -1,11 +1,14 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import $ from "jquery";
 import Navbar from "../../components/Navbar";
 import AnimalAPI from "modules/api/animals";
 import { isAuthenticated, getUsername } from "modules/auth";
+import { getUserPreferences } from "modules/preferences";
 import AnimalCard from "./components/AnimalCard";
 import Footer from "../../components/Footer";
+import Loading from "../../components/Loading";
 
 
 class Animals extends React.Component {
@@ -14,6 +17,7 @@ class Animals extends React.Component {
         this.state = {
             animals: [],
             current_create_card: null,
+            is_auth: false,
 
             error_message: ""
         };
@@ -22,20 +26,33 @@ class Animals extends React.Component {
         this.handleUpdatedAnimal = this.handleUpdatedAnimal.bind(this);
         this.handleDeletedAnimal = this.handleDeletedAnimal.bind(this);
         
-        isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}` } } );
+        this.loading = new React.createRef();
+        // isAuthenticated().then(is_auth => { if (!is_auth) { window.location = `${process.env.REACT_APP_BASE_PATH}/login?return=${window.location.href}` } } );
     }
 
     componentDidMount() {
-    (async () => {
-        try {
-            const animals = await AnimalAPI.getUserAnimals(await getUsername());
-
-            this.setState({ animals: animals })
-        }
-        catch (err) {
-            this.setState({ error_message: "Non è stato possibile trovare gli animali" });
-        }
-    })();
+        this.loading.current.wrap(async () => {
+            this.setState({ is_auth: await isAuthenticated() });
+    
+            if (await isAuthenticated()) { 
+                // Caricamento animali reali
+                try {
+                    const animals = await AnimalAPI.getUserAnimals(await getUsername());
+        
+                    this.setState({ animals: animals })
+                }
+                catch (err) {
+                    this.setState({ error_message: "Non è stato possibile trovare gli animali" });
+                }
+            }
+            else {
+                // Caricamento da local storage
+                const user_preferences = getUserPreferences();
+                if (user_preferences && user_preferences.animals) {
+                    this.setState({ animals: user_preferences.animals })
+                }
+            }
+        });
     }
 
     render() {
@@ -45,11 +62,12 @@ class Animals extends React.Component {
             </Helmet>
             
             <Navbar />
+            <Loading ref={this.loading}/>
 
             <main className="mt-3">
                 <div className="container">
                     <div className="row">
-                        <h1>I miei animali</h1>
+                        <h1>{`${ this.state.is_auth ? "I miei animali" : "Presentati" }`}</h1>
                         <p className="text-center text-danger fw-semibold fs-5">{this.state.error_message}</p>
                     </div>
 

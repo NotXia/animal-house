@@ -28,6 +28,40 @@ beforeAll(async function () {
     service1 = (await curr_session.post('/services/').send({ name: "Pranzo di Pasqua", description: "A", duration: 60, price: 1000, online: true }).set({ Authorization: `Bearer ${admin_token}` })).body;
     service2 = (await curr_session.post('/services/').send({ name: "Pranzo di Natale", description: "A", duration: 25, price: 1000, online: false }).set({ Authorization: `Bearer ${admin_token}` })).body;
     
+    await curr_session.post('/hubs/').send({
+        code: "BLQ1",
+        name: "Animali carini e coccolosi di S.G. Srl",
+        address: { city: "Bologna", street: "Via delle prove", number: "15/B", postal_code: "40100" },
+        position: { type: "Point", coordinates: [0.0, 0.0] },
+        opening_time: { 
+            monday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            tuesday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            wednesday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            thursday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            friday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            saturday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            sunday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+        },
+        phone: "051000000", email: "animalicarini@coccolosi.it"
+    }).set({ Authorization: `Bearer ${admin_token}` });
+
+    await curr_session.post('/hubs/').send({
+        code: "BLQ2",
+        name: "Animali carini e coccolosi di S.G. Srl",
+        address: { city: "Bologna", street: "Via delle prove", number: "15/B", postal_code: "40100" },
+        position: { type: "Point", coordinates: [0.0, 0.0] },
+        opening_time: { 
+            monday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            tuesday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            wednesday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            thursday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            friday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            saturday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+            sunday: [{ start: moment("0:00", "HH:mm").format(), end: moment("23:59", "HH:mm").format() }],
+        },
+        phone: "051000000", email: "animalicarini@coccolosi.it"
+    }).set({ Authorization: `Bearer ${admin_token}` });
+
     operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [service1.id, service2.id]);
     await curr_session.put(`/users/operators/${operator1.username}`)
     .send({ working_time: { 
@@ -320,5 +354,8 @@ describe("", function () {
         await curr_session.delete(`/services/${service2.id}`).set({ Authorization: `Bearer ${admin_token}` });
         await AnimalModel.findByIdAndDelete(animal1._id);
         await SpeciesModel.findByIdAndDelete(species1._id);
+
+        await curr_session.delete('/hubs/BLQ1').set({ Authorization: `Bearer ${admin_token}` });
+        await curr_session.delete('/hubs/BLQ2').set({ Authorization: `Bearer ${admin_token}` });
     });
 });

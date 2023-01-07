@@ -1,6 +1,8 @@
 import React from "react";
+import "../../scss/bootstrap.scss";
 import { Helmet } from "react-helmet";
 import { logout } from "modules/auth"
+import { clearUserPreferences } from "modules/preferences";
 
 export default class Logout extends React.Component {
     constructor(props) {
@@ -8,7 +10,10 @@ export default class Logout extends React.Component {
     }
 
     render() {
-        logout().then(() => { window.location.href = "/"; });
+        logout().then(() => {
+            clearUserPreferences();
+            window.location.href = "/"; 
+        });
 
         return (<>
             <Helmet>

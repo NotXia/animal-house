@@ -8,6 +8,7 @@ const HangmanRankModel = require("../models/games/hangman_rank");
 const MemoryRankModel = require("../models/games/memory_rank");
 
 
+router.get("/animals/facts/list", game_controller.getAvailableFactsAnimals);
 router.get("/animals/facts/", game_middleware.validateAnimalFact, game_controller.getAnimalFact);
 router.get("/animals/images/", game_middleware.validateAnimalImage, game_controller.getAnimalImage);
 

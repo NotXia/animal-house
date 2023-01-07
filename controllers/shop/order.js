@@ -32,7 +32,7 @@ async function createOrder(req, res) {
         // Estrazione prodotti dell'ordine
         for (const barcode of ordered_products_barcode) {
             const item = await ItemModel.findOne({ "products.barcode": barcode }).exec();
-            const product = await ItemModel.getProductByBarcode(barcode);
+            const product = await ItemModel.getProductByBarcode(barcode, req.auth.is_vip);
             if (!product) { throw error.generate.NOT_FOUND("Sono presenti prodotti inesistenti"); }
 
             product.item_name = item.name;

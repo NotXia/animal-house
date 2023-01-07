@@ -4,6 +4,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const CustomerModel = require("./customer");
 const OperatorModel = require("./operator");
 const path = require('path');
+const moment = require("moment");
 
 const permissionSchema = mongoose.Schema({
     operator: { type: Boolean, default: false },
@@ -103,6 +104,7 @@ userScheme.methods.getAllData = async function() {
     }
     else {
         out.address = data.customer.address;
+        out.vip_until = data.customer.vip_until;
     }
 
     return out;
@@ -123,6 +125,9 @@ userScheme.methods.getPublicData = async function() {
         out.phone = data.phone,
         out.role = data.operator.role;
         out.services_id = data.operator.services_id;
+    }
+    else {
+        out.vip_until = data.customer.vip_until;
     }
 
     return out;
@@ -149,6 +154,14 @@ userScheme.methods.updateType = async function(updated_data) {
     const Model = this.isOperator() ? OperatorModel : CustomerModel;
 
     return await Model.findByIdAndUpdate(this.type_id, updated_data, { new: true, runValidators: true });
+};
+
+
+userScheme.methods.isVIP = async function() {
+    if (this.isOperator()) { return false; }
+    
+    const customer = await this.findType();
+    return moment(customer.vip_until).isSameOrAfter(moment());
 };
 
 module.exports = mongoose.model("users", userScheme);
