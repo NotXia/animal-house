@@ -6,10 +6,11 @@
     import { isAuthenticated } from "modules/auth";
     import GameAPI from "modules/api/games";
     import MemoryCard from "./components/MemoryCard.vue";
+    import Leaderboard from "./components/Leaderboard.vue";
 
     export default {
         name: "MemoryView",
-        components: { Navbar, AHFooter, Loading, MemoryCard },
+        components: { Navbar, AHFooter, Loading, MemoryCard, Leaderboard },
 
         data() {
             return {
@@ -26,6 +27,7 @@
 
         computed: {
             DOMAIN() { return process.env.VUE_APP_DOMAIN; },
+            getLeaderboard() { return GameAPI.memory.getLeaderboard; }
         },
 
         methods: {
@@ -87,6 +89,10 @@
                     <h1>Memory</h1>
                     <p class="fs-5">Metti alla prova la tua memoria</p> 
                     <button class="btn btn-outline-primary btn-lg px-4 py-2" :onclick="startGame">Inizia</button>
+
+                    <div class="mt-3">
+                        <Leaderboard :get="getLeaderboard" />
+                    </div>
                 </div>
             </section>
         </div>
