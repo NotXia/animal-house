@@ -64,7 +64,17 @@ class ServiceSelector extends React.Component {
                             <div className="d-flex align-items-center">
                                 <span className="fw-semibold fs-4">{service.name}</span>
                                 <span className="mx-1 border-end border-dark">&nbsp;</span>
-                                <span className="fs-5 mx-1">{centToPrice(service.price)}€</span>
+                                {
+                                    service.price === service.original_price &&
+                                    <span className="fs-5 mx-1">{centToPrice(service.price)}€</span>
+                                }
+                                {
+                                    service.price !== service.original_price &&
+                                    <span className="fs-5 mx-1">
+                                        <span className="fs-6 text-decoration-line-through">{centToPrice(service.original_price)}€</span>&nbsp;
+                                        <span className="fs-5">{centToPrice(service.price)}€</span>
+                                    </span>
+                                }
                                 <span className="mx-1 border-end border-dark">&nbsp;</span>
                                 <span className="fs-5 mx-1">{service.duration} min.</span>
                             </div>
