@@ -4,12 +4,10 @@ import * as DiscountAPI from "../DiscountAPI.js";
 
 export function init() {
     $("#input-discount-start_date").on("change", () => {
-        console.log($("#input-discount-start_date").val())
         $("#input-discount-end_date").attr("min", $("#input-discount-start_date").val());
     });
 
     $("#input-discount-end_date").on("change", () => {
-        console.log($("#input-discount-end_date").val())
         $("#input-discount-start_date").attr("max", $("#input-discount-end_date").val());
     });
 }
@@ -18,12 +16,11 @@ export function init() {
 export async function renderDiscountsOf(barcode) {
     const discounts = await DiscountAPI.getProductDiscounts(barcode);
     $("#table-discount").html("");
+    $("#container-discount-alert").html("");
 
     // Nessuno sconto
     if (discounts.length === 0) {
-        return $("#container-table-discount").after(`
-            <p class="text-center w-100">Nessuno sconto programmato</p>
-        `);
+        return $("#container-discount-alert").html(`<p class="text-center w-100">Nessuno sconto programmato</p>`);
     }
 
     discounts.sort((d1, d2) => moment(d1.start_date).diff(moment(d2.start_date)));
