@@ -30,6 +30,8 @@ class UserBadge extends React.Component {
 
     async initBadge() {
         try {
+            document.querySelectorAll('[class*="tooltip"]').forEach(e => e.remove()); // Pulizia tooltip
+            
             const user = await UserAPI.getProfile(this.props.username);
 
             this.setState({ 
@@ -45,14 +47,14 @@ class UserBadge extends React.Component {
         if (this.state.user?.vip_until && moment(this.state.user?.vip_until).isSameOrAfter(moment())) {
             return (
                 <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/vip.png`} alt="Utente VIP" style={this.props.style ? this.props.style : { height: "1rem" }}
-                     data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Questo utente è un VIP!"/>
+                     data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Questo utente è un VIP!" data-bs-trigger="hover" />
             );
         }
         // Operatore
         else if (this.state.user?.role) {
             return (
                 <img src={`${process.env.REACT_APP_DOMAIN}/logos/logo.png`} alt="Operatore" style={this.props.style ? this.props.style : { height: "1.2rem" }}
-                     data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Profilo di un operatore di Animal House"/>
+                     data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Profilo di un operatore di Animal House" data-bs-trigger="hover" />
             );
         }
         else {
