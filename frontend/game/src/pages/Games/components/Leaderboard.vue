@@ -50,7 +50,7 @@
                                     </div>
                                     &nbsp;
                                     <span>
-                                        <a :href="`${DOMAIN}/fo/profile?username=NotXia`">@{{rank.player.username}}</a>
+                                        <a :href="`${DOMAIN}/fo/profile?username=${rank.player.username}`">@{{rank.player.username}}</a>
                                     </span>
                                 </div>
     
