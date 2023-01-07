@@ -112,7 +112,7 @@ class ProfilePage extends React.Component {
                                                 <h1 className="fs-2 fw-semibold m-0">
                                                     <span className="visually-hidden">Profilo di</span>
                                                     <div className="d-flex align-items-center">
-                                                        <span>@{this.state.profile.username}</span>
+                                                        <span>@{this.state.profile.username}</span>&nbsp;
                                                         <Badge username={this.state.profile.username} style={{ height: "2rem" }} />
                                                     </div>
                                                 </h1>
