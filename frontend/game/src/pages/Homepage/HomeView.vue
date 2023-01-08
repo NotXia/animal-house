@@ -86,6 +86,18 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-12 my-2">
+                    <a href="/fo/vip" class="btn btn-outline-light text-dark border border-secondary rounded-3 p-3 h-100 w-100">
+                        <div class="d-flex justify-content-center">
+                            <img :src="`${DOMAIN}/img/icons/vip.png`" alt="" style="height: 8rem">
+                        </div>
+                        <h2 class="text-center fs-1">VIP</h2>
+                        <p class="m-0 fs-5">Passa all'abbonamento VIP, ti aspettano tantissimi benefici!</p>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </main>
 
