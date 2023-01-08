@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import Navbar from "../../components/Navbar";
 import SearchParamsHook from "../../hooks/SearchParams";
 import { Link } from "react-router-dom";
@@ -8,6 +9,7 @@ import AnimalAPI from "modules/api/animals";
 import ServiceAPI from "modules/api/service";
 import HubAPI from "modules/api/hub";
 import moment from "moment"
+import Footer from "../../components/Footer";
 
 
 class OrderSuccess extends React.Component {
@@ -96,6 +98,8 @@ class OrderSuccess extends React.Component {
                 </section>
 
             </main>
+
+            <Footer />
         </>);
     }
 

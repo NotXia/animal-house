@@ -1,9 +1,11 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import Navbar from "../../components/Navbar";
 import { isAuthenticated, isOperator } from "modules/auth";
 import ProfileSettingsPage from "./Profile";
 import SecuritySettingsPage from "./Security";
+import Footer from "../../components/Footer";
 
 
 class SettingsPage extends React.Component {
@@ -51,6 +53,8 @@ class SettingsPage extends React.Component {
                     </div>
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 }

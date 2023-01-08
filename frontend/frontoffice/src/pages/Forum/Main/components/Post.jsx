@@ -3,9 +3,10 @@ import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import BlogAPI from "../../../../import/api/blog";
+import BlogAPI from "modules/api/blog";
 import moment from "moment";
 import { Link } from "react-router-dom";
+import Badge from "../../../../components/forum/Badge";
 
 
 class CreatePost extends React.Component {
@@ -61,7 +62,10 @@ class CreatePost extends React.Component {
                             <Row>
                                 <Col xs={post.images.length > 0 ? "8" : "12"}>
                                     <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
-                                    <p>@{post.author}</p>
+                                    <div className="d-flex align-items-center">
+                                        <p className="m-0">@{post.author}</p>&nbsp;
+                                        <Badge username={post.author} />
+                                    </div>
 
                                     <div className={`text-truncate my-2`}>
                                         <p className={`fs-6 text-truncate`}>{post.content}</p>

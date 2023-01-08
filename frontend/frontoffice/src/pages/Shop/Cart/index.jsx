@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import Navbar from "../../../components/Navbar";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
@@ -7,11 +8,12 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from 'react-bootstrap/Button';
 import NumberInput from "../../../components/form/NumberInput";
-import { centToPrice } from "../../../utilities/currency"
-import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { centToPrice } from "modules/currency"
+import { isAuthenticated, getUsername, api_request } from "modules/auth"
 import css from "./cart.module.css";
 import { Link } from "react-router-dom";
 import CartEntry from "./components/CartEntry";
+import Footer from "../../../components/Footer";
 
 class Cart extends React.Component {
     constructor(props) {
@@ -114,20 +116,25 @@ class Cart extends React.Component {
                         <Col xs={{ span: 12, order: 1 }} md={{ span: 4, order: 2 }} className="mb-3 mb-md-0">
                             <section aria-label="Procedi con ordine">
                                 <div className={`${css["container-checkout"]}`}>
-                                    <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{this.getOrderTotalString()}€</span></p>
-                                    <div className="d-flex justify-content-center">
-                                        <Link to={`/shop/checkout`} className="text-decoration-none text-black">
-                                            <Button variant="outline-primary" className="mb-1">
-                                                <span className="fs-6">Procedi con l'ordine</span>
-                                            </Button>
-                                        </Link>
-                                    </div>
+                                    <p className="fs-4 text-center">Totale <span className="fw-semibold fs-2">{centToPrice(this.getOrderTotal())}€</span></p>
+                                    {
+                                        this.getOrderTotal() > 0 &&
+                                        <div className="d-flex justify-content-center">
+                                            <Link to={`/shop/checkout`} className="text-decoration-none text-black">
+                                                <Button variant="outline-primary" className="mb-1">
+                                                    <span className="fs-6">Procedi con l'ordine</span>
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    }
                                 </div>
                             </section>
                         </Col>
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 
@@ -211,12 +218,12 @@ class Cart extends React.Component {
         });
     }
 
-    getOrderTotalString() {
+    getOrderTotal() {
         let total = 0;
 
         for (const entry of this.state.cart_entries) { total += entry.quantity * entry.product.price; }
 
-        return centToPrice(total);
+        return total;
     }
 }
 

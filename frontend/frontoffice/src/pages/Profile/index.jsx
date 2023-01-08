@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import Navbar from "../../components/Navbar";
 import Loading from "../../components/Loading";
 import SearchParamsHook from "../../hooks/SearchParams";
@@ -8,6 +9,8 @@ import ServiceAPI from "modules/api/service.js";
 import AnimalAPI from "modules/api/animals.js";
 import BlogAPI from "modules/api/blog.js";
 import Post from "../Forum/Main/components/Post";
+import Footer from "../../components/Footer";
+import Badge from "../../components/forum/Badge";
 
 
 const POST_PAGE_SIZE = 5;
@@ -106,7 +109,13 @@ class ProfilePage extends React.Component {
                                     <div className="col-12 col-md-6">
                                         <div className="d-flex align-items-center h-100">
                                             <div>
-                                                <h1 className="fs-2 fw-semibold m-0"><span className="visually-hidden">Profilo di</span> @{this.state.profile.username}</h1>
+                                                <h1 className="fs-2 fw-semibold m-0">
+                                                    <span className="visually-hidden">Profilo di</span>
+                                                    <div className="d-flex align-items-center">
+                                                        <span>@{this.state.profile.username}</span>&nbsp;
+                                                        <Badge username={this.state.profile.username} style={{ height: "2rem" }} />
+                                                    </div>
+                                                </h1>
                                                 <p className="fs-4 mb-0">{this.state.profile.name} {this.state.profile.surname}</p>
 
                                                 {
@@ -193,6 +202,8 @@ class ProfilePage extends React.Component {
                     }
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 

@@ -64,5 +64,5 @@ module.exports.verifyOrderOwnership = async function(order_id, username) {
     const order = await OrderModel.findById(order_id).exec();
     if (!order) { return error.generate.NOT_FOUND(); }
 
-    if (order.customer !== username) { return error.generate.FORBIDDEN("Non sei il proprietario"); }
+    if (order.customer !== username) { return error.generate.FORBIDDEN("Non autorizzato"); }
 }

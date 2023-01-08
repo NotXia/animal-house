@@ -4,6 +4,7 @@ import $ from "jquery";
 import Navbar from "../../../components/Navbar";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import { Link } from "react-router-dom";
+import Footer from "../../../components/Footer";
 
 
 class OrderSuccess extends React.Component {
@@ -41,6 +42,8 @@ class OrderSuccess extends React.Component {
                     </Link>
                 </div>
             </main>
+
+            <Footer />
         </>);
     }
 

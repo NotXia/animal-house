@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -12,6 +13,8 @@ import Collapse from "react-bootstrap/Collapse";
 import category_css from "./category.module.css";
 import { updateURLQuery, removeQueryFromURL } from "../../../utilities/url";
 import SearchParamsHook from "../../../hooks/SearchParams";
+import Footer from "../../../components/Footer";
+import { api_request, isAuthenticated } from "modules/auth";
 
 const PAGE_SIZE = 24;
 
@@ -34,6 +37,8 @@ class ShopMain extends React.Component {
             species_collapse_open: false,
             sort_collapse_open: false,
 
+            is_auth: false,
+
             error_message: ""
         };
 
@@ -54,6 +59,9 @@ class ShopMain extends React.Component {
         $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/animals/species/` })
         .then( (species) => this.setState({ shop_species: species }) )
         .catch((err) => { this.setState({ error_message: "Si è verificato un errore durante il caricamento della pagina" }) });
+
+        isAuthenticated().then(is_auth => this.setState({ is_auth: is_auth }) );
+        
         
         const search_query = this.props.searchParams.get("search"),
               category_query = this.props.searchParams.get("category"),
@@ -199,6 +207,18 @@ class ShopMain extends React.Component {
                                         </div>
                                     </form>
                                 </Col>
+
+                                {/* Carrello */}
+                                <Col xs={{span: 1}} md={{span: 2}} lg={{span: 3}}>
+                                    {
+                                        this.state.is_auth &&
+                                        <div className="d-flex justify-content-end align-items-center">
+                                            <a href="/fo/shop/cart" className="btn btn-outline-primary p-1">
+                                                <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/cart.png`} alt="Carrello" style={{ height: "1.8rem" }} />
+                                            </a>
+                                        </div>
+                                    }
+                                </Col>
                             </Row>
                             
                             {/* Messaggio di errore */}
@@ -235,6 +255,8 @@ class ShopMain extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 
@@ -321,7 +343,7 @@ class ShopMain extends React.Component {
             this.curr_page_index += 1;
 
             try {
-                const items = await $.ajax({ 
+                const items = await api_request({ 
                     method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/`,
                     data: { 
                         page_size: PAGE_SIZE, page_number: this.curr_page_index, 

@@ -14,7 +14,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import NumberInput from "../../../../components/form/NumberInput";
-import { centToPrice } from "../../../../utilities/currency"
+import { centToPrice } from "modules/currency"
 import { Link } from "react-router-dom";
 
 class CartEntry extends React.Component {
@@ -77,7 +77,17 @@ class CartEntry extends React.Component {
                                     </button>
                                 </div>
                                 <div aria-label={`${centToPrice(cart_entry.product.price)}€ cadauno`}>
-                                    <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                    {
+                                        cart_entry.product.price === cart_entry.product.original_price &&
+                                        <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                    }
+                                    {
+                                        cart_entry.product.price !== cart_entry.product.original_price &&
+                                        <div>
+                                            <span aria-hidden="true" className="text-decoration-line-through">{centToPrice(cart_entry.product.original_price)}€</span>&nbsp;
+                                            <span aria-hidden="true">{centToPrice(cart_entry.product.price)}€ cad.</span>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>

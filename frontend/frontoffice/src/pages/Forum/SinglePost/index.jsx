@@ -1,14 +1,17 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
-import BlogAPI from "../../../import/api/blog";
+import BlogAPI from "modules/api/blog";
 import SearchParamsHook from "../../../hooks/SearchParams";
 import Comment from "./components/Comment";
-import { getUsername, isAdmin } from "modules/auth.js";
+import { getUsername, isAdmin, isAuthenticated } from "modules/auth.js";
+import Footer from "../../../components/Footer";
+import Badge from "../../../components/forum/Badge";
 
 
 const COMMENT_PAGE_SIZE = 10;
@@ -21,6 +24,7 @@ class SinglePost extends React.Component {
             comments: [],
             username: "",
             is_admin: true,
+            is_auth: false,
 
             next_page: 0,
 
@@ -40,12 +44,14 @@ class SinglePost extends React.Component {
             const comments = await BlogAPI.getCommentsOf(this.post_id, COMMENT_PAGE_SIZE, 0);
             const username = await getUsername().catch((err) => "");
             const is_admin = await isAdmin();
+            const is_auth = await isAuthenticated();
 
             this.setState({ 
                 post: post,
                 comments: comments,
                 username: username,
                 is_admin: is_admin,
+                is_auth: is_auth,
                 next_page: 1
             });
         }
@@ -81,7 +87,8 @@ class SinglePost extends React.Component {
                                         {/* Intestazione post */}
                                         <div>
                                             <h1 className="m-0">{this.state.post.title}</h1>
-                                            <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>
+                                            <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>&nbsp;
+                                            <Badge username={this.state.post.author} />
                                         </div>
 
                                         {/* Operazioni su post */}
@@ -169,12 +176,15 @@ class SinglePost extends React.Component {
                         <div className="col-12 col-md-4">
                             <section aria-label="Commenti">
                                 {/* Form commento */}
-                                <Row className="mt-2">
-                                    <form onSubmit={(e) => { e.preventDefault(); this.addComment(); }}>
-                                        <textarea ref={this.input.comment_text} className="form-control" placeholder="Commenta il post"></textarea>
-                                        <button className="btn btn-outline-primary mt-2">Invia</button>
-                                    </form>
-                                </Row>
+                                {
+                                    this.state.is_auth && 
+                                    <Row className="mt-2">
+                                        <form onSubmit={(e) => { e.preventDefault(); this.addComment(); }}>
+                                            <textarea ref={this.input.comment_text} className="form-control" placeholder="Commenta il post"></textarea>
+                                            <button className="btn btn-outline-primary mt-2">Invia</button>
+                                        </form>
+                                    </Row>
+                                }
 
                                 {/* Commenti */}
                                 <Row className="mt-2 overflow-auto" style={{ maxHeight: "30rem" }} id="container-comments">
@@ -191,6 +201,8 @@ class SinglePost extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

@@ -1,12 +1,14 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
-import { isAuthenticated } from "../../../import/auth.js"
-import OrderAPI from "../../../import/api/order.js"
+import { isAuthenticated } from "modules/auth"
+import OrderAPI from "modules/api/order.js"
 import OrderRow from "./components/OrderRow"
+import Footer from "../../../components/Footer";
 
 const PAGE_SIZE = 10;
 const AH_OPENING_YEAR = 2015;
@@ -104,6 +106,8 @@ class OrdersPage extends React.Component {
                     </Row>
                 </Container>
             </main>
+
+            <Footer />
         </>);
     }
 

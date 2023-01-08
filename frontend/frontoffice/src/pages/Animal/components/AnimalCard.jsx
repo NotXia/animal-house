@@ -1,10 +1,10 @@
 import React from "react";
-import $ from "jquery";
 import TextInput from "../../../components/form/TextInput";
 import SpeciesAPI from "modules/api/species";
 import AnimalAPI from "modules/api/animals";
 import FileAPI from "modules/api/file";
-import { getUsername } from "modules/auth";
+import { getUsername, isAuthenticated } from "modules/auth";
+import { updateUserPreferences, loadUserPreferences } from "modules/preferences";
 
 
 class AnimalCard extends React.Component {
@@ -12,6 +12,7 @@ class AnimalCard extends React.Component {
         super(props);
         this.state = {
             mode: "",
+            is_auth: false,
 
             species: [],
             
@@ -28,16 +29,16 @@ class AnimalCard extends React.Component {
         }
     }
 
-    componentDidMount() {
-        (async () => {
-            try {
-                const species = await SpeciesAPI.getSpecies();
-                this.setState({ species: species });
-            }
-            catch (err) {
-                this.setState({ error_message: "Non è stato possibile caricare i dati" });
-            }
-        })()
+    async componentDidMount() {
+        this.setState({ is_auth: await isAuthenticated() });
+
+        try {
+            const species = await SpeciesAPI.getSpecies();
+            this.setState({ species: species });
+        }
+        catch (err) {
+            this.setState({ error_message: "Non è stato possibile caricare i dati" });
+        }
 
         if (this.props.animal) {
             this.setState({ 
@@ -65,14 +66,19 @@ class AnimalCard extends React.Component {
                             { this.renderPicture() }
 
                             {/* Upload immagine */}
-                            <div className="position-absolute bottom-0 end-0">
-                                <button className="btn btn-link p-0" onClick={() => this.input.profile.current.click()} type="button">
-                                    <span className="visually-hidden">{this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }</span>
-                                    <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/camera.png`} alt="" style={{ height: "1.5rem", width: "1.5rem" }} />
-                                </button>
-                            </div>
-                            <input ref={this.input.profile} className="visually-hidden" type="file" accept="image/*" onChange={(e) => this.handleProfilePreview(e)} 
-                                   aria-label={this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }  aria-hidden="true" />
+                            {
+                                this.state.is_auth &&
+                                <>
+                                    <div className="position-absolute bottom-0 end-0">
+                                        <button className="btn btn-link p-0" onClick={() => this.input.profile.current.click()} type="button">
+                                            <span className="visually-hidden">{this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }</span>
+                                            <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/camera.png`} alt="" style={{ height: "1.5rem", width: "1.5rem" }} />
+                                        </button>
+                                    </div>
+                                    <input ref={this.input.profile} className="visually-hidden" type="file" accept="image/*" onChange={(e) => this.handleProfilePreview(e)} 
+                                        aria-label={this.state.animal?.name ? `Carica immagine per ${this.state.animal.name}` : "Carica immagine per il tuo animale" }  aria-hidden="true" />
+                                </>
+                            }
                         </div>
 
                         {/* Input form */}
@@ -176,18 +182,39 @@ class AnimalCard extends React.Component {
         const animal_data = {
             name: this.input.name.current.value(),
             species: this.input.species.current.value,
-            image_path: this.input.profile.current.files.length > 0 ? await FileAPI.uploadRaw(this.input.profile.current.files) : (this.state.animal?.image_path ?? "")
+            image_path: ""
+        }
+
+        // Gestione upload immagine di profilo
+        if (this.state.is_auth && this.input.profile.current.files.length > 0) {
+            animal_data.image_path = await FileAPI.uploadRaw(this.input.profile.current.files);
         }
 
         try {
             if (this.state.animal) { // Animale già esistente (aggiornamento)
-                new_animal = await AnimalAPI.updateAnimalById(this.state.animal.id, animal_data);
+                if (this.state.is_auth) {
+                    new_animal = await AnimalAPI.updateAnimalById(this.state.animal.id, animal_data);
+                    await loadUserPreferences();
+                }
+                else { // Se ospite
+                    animal_data.id = this.state.animal.id;
+                    updateUserPreferences.animals.update(animal_data);
+                    new_animal = animal_data;
+                }
                 this.props.onUpdate(new_animal);
 
                 this.setState({ animal: new_animal, mode: "read" });
             }
             else { // Animale da creare
-                new_animal = await AnimalAPI.createAnimalForUser(await getUsername(), animal_data);
+                if (this.state.is_auth) {
+                    new_animal = await AnimalAPI.createAnimalForUser(await getUsername(), animal_data);
+                    await loadUserPreferences();
+                }
+                else { // Se ospite
+                    animal_data.id = Date.now();
+                    updateUserPreferences.animals.create(animal_data);
+                    new_animal = animal_data;
+                }
                 this.props.onCreate(new_animal);
             }
         }
@@ -199,7 +226,13 @@ class AnimalCard extends React.Component {
     /* Gestisce la cancellazione */
     async handleDelete() {
         try {
-            await AnimalAPI.deleteAnimalById(this.state.animal.id);
+            if (this.state.is_auth) {
+                await AnimalAPI.deleteAnimalById(this.state.animal.id);
+                await loadUserPreferences();
+            }
+            else { // Se ospite
+                updateUserPreferences.animals.delete(this.state.animal);
+            }
             this.props.onDelete(this.state.animal);
         }
         catch (err) {

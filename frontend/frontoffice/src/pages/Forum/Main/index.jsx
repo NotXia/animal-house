@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -7,9 +8,10 @@ import Col from "react-bootstrap/Col";
 import Navbar from "../../../components/Navbar";
 import CreatePost from "./components/CreatePost";
 import Post from "./components/Post";
-import BlogAPI from "../../../import/api/blog";
+import BlogAPI from "modules/api/blog";
 import { Modal } from "bootstrap";
 import { isAuthenticated } from "modules/auth.js"
+import Footer from "../../../components/Footer";
 
 
 const PAGE_SIZE = 10;
@@ -126,6 +128,8 @@ class ForumMain extends React.Component {
                 </Container>
             </main>
             
+            <Footer />
+
             {/* Modale creazione post */}
             <div className="modal fade" id="modal-create_post" tabIndex="-1" aria-labelledby="modal-create_post-label" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">

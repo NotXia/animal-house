@@ -6,6 +6,7 @@ import * as Mode from "../mode.js";
 import * as Form from "../form.js";
 import { priceToCents, basename } from "/js/utilities.js";
 import * as ItemAPI from "../ItemAPI.js";
+import * as DiscountHandler from "./discount.js"
 
 export let product_editor;
 
@@ -71,6 +72,17 @@ export async function init() {
         tab_indexes_order.splice(curr_position, 1);     // Rimozione come posizione tra i tab
 
         focusOnTab(to_focus_index);
+    });
+
+    DiscountHandler.init();
+
+    $("#button-start-discount-product").on("click", function () {
+        DiscountHandler.renderDiscountsOf(currentSelectedBarcode());
+    });
+
+    $("#form-discount").on("submit", async (e) => {
+        e.preventDefault();
+        DiscountHandler.addDiscountTo(currentSelectedBarcode());
     });
 }
 
@@ -220,7 +232,7 @@ function loadProductData(product) {
     $("#input-product\\.barcode").val(product.barcode);
     $("#input-product\\.name").val(product.name);
     product_editor.setData(product.description ? product.description : "");
-    $("#input-product\\.price").val(currency(product.price, { fromCents: true }));
+    $("#input-product\\.price").val(currency(product.original_price, { fromCents: true }));
     $("#input-product\\.quantity").val(product.quantity);
     if (product.target_species) { product.target_species.forEach((species) => $(`input[name="target_species"][value="${species}"]`).prop("checked", true)); }
     if (product.images) { product.images.forEach((image) => ImageInput.addRow(image.path, image.description)); }

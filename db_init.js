@@ -7,6 +7,8 @@ const UserModel = require("./models/auth/user");
 const OperatorModel = require("./models/auth/operator");
 const HubModel = require("./models/services/hub");
 const PermissionModel = require("./models/auth/permission");
+const PriceModel = require("./models/price");
+const DiscountModel = require("./models/discount");
 
 
 async function init() {
@@ -70,6 +72,21 @@ async function init() {
             }).save();
         }
     } catch(err) {}
+
+    try {
+        await new PriceModel({ name: "vip", price: 19999 }).save();
+    }
+    catch (err) {}
+
+    try {
+        if (!await DiscountModel.findOne({ type: "vip" })) {
+            await new DiscountModel({
+                type: "vip",
+                discount: 20,
+                start_date: "2023-01-01"
+            }).save();
+        }
+    } catch (err) {}
     
     await mongoose.connection.close();
     await mongoose.disconnect();

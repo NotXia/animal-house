@@ -1,5 +1,6 @@
 import $ from "jquery";
 import { DOMAIN } from "./const";
+import { clearOnlyCustomerPreferences } from "./preferences";
 
 /**
  * Operazioni sull'access token
@@ -7,6 +8,7 @@ import { DOMAIN } from "./const";
 
 const _ACCESS_TOKEN_NAME = "access_token";
 const _ACCESS_TOKEN_EXPIRATION = "access_token_expiration"; 
+
 
 let _current_refresh_request = null; // Per salvare la richiesta di refresh dei token attualmente in corso (ed evitare richieste multiple)
 
@@ -29,6 +31,10 @@ async function _requestNewToken() {
             _setAccessToken(data.access_token.value, data.access_token.expiration);
         }).catch((err) => {
             _current_refresh_request = null;
+            clearOnlyCustomerPreferences(); // Cancella preferenze se login fallito
+        }).fail((err) => {
+            _current_refresh_request = null;
+            clearOnlyCustomerPreferences(); // Cancella preferenze se login fallito
         }).always(() => {
             _current_refresh_request = null;
         });
@@ -76,7 +82,9 @@ export async function isAuthenticated() {
 export async function api_request(ajax_request) {
     // Aggiunge l'header di autenticazione
     if (!ajax_request.headers) { ajax_request.headers = {}; }
-    ajax_request.headers.Authorization = `Bearer ${await _getAccessToken()}`;
+    if (await isAuthenticated()) {
+        ajax_request.headers.Authorization = `Bearer ${await _getAccessToken()}`;
+    }
     
     return $.ajax(ajax_request);
 }
@@ -126,7 +134,7 @@ export async function logout() {
  * Decodifica del token JWT
  * Fonte: https://stackoverflow.com/questions/38552003/how-to-decode-jwt-token-in-javascript-without-using-a-library
  */
-function _parseJwt(token) {
+export function _parseJwt(token) {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {

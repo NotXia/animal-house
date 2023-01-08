@@ -9,6 +9,7 @@ const error = require("../error_handler");
 const mailer = require("./email/mailer");
 const file_controller = require("./file.js");
 const path = require('path');
+const HubModel = require("../models/services/hub");
 
 
 async function saveProfilePicture(image_name) {
@@ -147,6 +148,17 @@ function updateUser(is_operator) {
             if (is_operator && data.operator) {
                 let operator = await OperatorModel.findById(user.type_id).exec();
                 if (!operator) { throw error.generate.FORBIDDEN("L'utente non è un operatore"); }
+
+                // Controllo esistenza hub orario lavorativo
+                if (data.operator.working_time) {
+                    for (const day of utils.WEEKS) {
+                        for (const slot of data.operator.working_time[day]) {
+                            const hub = await HubModel.findOne({ code: slot.hub });
+                            if (!hub) { throw error.generate.BAD_REQUEST([{ field: "working_time", message: `Hub ${slot.hub} inesistente` }]); }
+                        }
+                    }
+                }
+
                 for (const [field, value] of Object.entries(data.operator)) { operator[field] = value; }
                 await operator.save();
             } 

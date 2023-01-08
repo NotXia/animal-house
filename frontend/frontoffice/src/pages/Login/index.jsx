@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../scss/bootstrap.scss";
 import css from "./login.module.css";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -7,7 +8,8 @@ import Col from "react-bootstrap/Col";
 import Button from 'react-bootstrap/Button';
 import TextInput from "../../components/form/TextInput";
 import Form from 'react-bootstrap/Form';
-import { login, isAuthenticated } from "../../import/auth.js"
+import { login, isAuthenticated } from "modules/auth"
+import { loadUserPreferences } from "modules/preferences";
 import $ from "jquery"
 import SearchParamsHook from "../../hooks/SearchParams";
 
@@ -49,6 +51,10 @@ class Login extends React.Component {
                     <Col xs="12" lg="5" className="min-vh-100">
                         <div className="d-flex justify-content-center align-items-center h-100 w-100">
                             <div className="w-50">
+                                <div className="d-flex justify-content-center">
+                                    <a href="/" aria-label="Torna alla home"><img src={`${process.env.REACT_APP_DOMAIN}/logos/logo.png`} alt="" style={{ height: "4rem" }} /></a>
+                                </div>
+
                                 <h1 className="text-center mb-4">Animal House</h1>
                                 <p className="invalid-feedback d-block text-center" aria-live="assertive">{this.state.error_message}</p>
                                 <form onSubmit={this.loginHandler}>
@@ -61,6 +67,10 @@ class Login extends React.Component {
                                     <div className="mb-2 d-flex justify-content-center">
                                         <Form.Check ref={this.input.remember_me} type="checkbox" id="data-rememeberme" label="Resta connesso" />
                                     </div>
+                                    <div className="mb-2 d-flex justify-content-center">
+                                        <a className="text-center" href="/fo/signup">Non hai un account?</a>
+                                    </div>
+
                                     <div className="d-flex justify-content-center">
                                         <Button type="submit">Accedi</Button>
                                     </div>
@@ -107,6 +117,8 @@ class Login extends React.Component {
         const remember_me = this.input.remember_me.current.checked;
 
         if (await login(username, password, remember_me)) {
+            await loadUserPreferences();
+
             const return_url = this.props.searchParams.get("return") ? this.props.searchParams.get("return") : "/"; // Gestisce l'indirizzo a cui tornare
             window.location.href = return_url;
         }

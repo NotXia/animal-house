@@ -6,6 +6,7 @@
 
 import React from "react";
 import { Helmet } from "react-helmet";
+import "../../../scss/bootstrap.scss";
 import $ from "jquery";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -14,11 +15,12 @@ import Button from 'react-bootstrap/Button';
 import NumberInput from "../../../components/form/NumberInput";
 import Navbar from "../../../components/Navbar";
 import SearchParamsHook from "../../../hooks/SearchParams";
-import { centToPrice } from "../../../utilities/currency"
+import { centToPrice } from "modules/currency"
 import ImagesViewer from "../../../components/shop/ImagesViewer";
 import ProductCard from "../../../components/shop/ProductCard";
-import { isAuthenticated, getUsername, api_request } from "../../../import/auth.js"
+import { isAuthenticated, getUsername, api_request } from "modules/auth"
 import { updateURLQuery } from "../../../utilities/url";
+import Footer from "../../../components/Footer";
 
 let __relevance_increased= false;
 
@@ -47,7 +49,7 @@ class ShopItem extends React.Component {
         let to_search_barcode = this.props.searchParams.get("barcode");
 
         // Estrazione dati item
-        $.ajax({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
+        api_request({ method: "GET", url: `${process.env.REACT_APP_DOMAIN}/shop/items/${decodeURIComponent(item_id)}` })
         .then((item) => {
             let product_index = 0;
             
@@ -123,10 +125,20 @@ class ShopItem extends React.Component {
                                     <section aria-label="Dati del prodotto">
                                         <h1 className="fs-1 mb-1">{this.state.item.name}</h1>
                                         <h2 className="fs-2 overflow-hidden" aria-label={product_name_aria_label}>{this.currProduct().name}</h2>
+                                        { this.renderDiscount() }
                                         <p className="fs-3 fw-semibold">{`${centToPrice(this.currProduct().price)}€`}</p>
                                     </section>
                                 </Col>
                                 <Col xs="12" md="4">
+                                    {
+                                        this.state.logged &&
+                                        <div className="d-flex justify-content-end align-items-center d-none d-md-flex" aria-hidden="true">
+                                            <a href="/fo/shop/cart" className="btn btn-outline-primary p-1" aria-hidden="true">
+                                                <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/cart.png`} alt="Carrello" style={{ height: "1.8rem" }} />
+                                            </a>
+                                        </div>
+                                    }
+
                                     { this.renderAddToCartButton() }
                                 </Col>
                             </Row>
@@ -144,6 +156,15 @@ class ShopItem extends React.Component {
 
                         {/* Immagini */}
                         <Col xs={{ span: 12, order: 1 }} md="5">
+                            {
+                                this.state.logged &&
+                                <div className="d-flex justify-content-end align-items-center d-flex d-md-none mb-2 me-3" aria-hidden="true">
+                                    <a href="/fo/shop/cart" className="btn btn-outline-primary p-1" aria-hidden="true">
+                                        <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/cart.png`} alt="Carrello" style={{ height: "1.8rem" }} />
+                                    </a>
+                                </div>
+                            }
+
                             <section aria-label="Immagini del prodotto">
                                 <div>
                                     <ImagesViewer key={`images-viewer-${this.state.product_index}`} images={this.currProduct().images}/>
@@ -152,7 +173,11 @@ class ShopItem extends React.Component {
                         </Col>
                     </Row>
                 </Container>
+
+                <a href="/fo/shop/cart" className="visually-hidden" aria-hidden="true">Vai al carrello</a>
             </main>
+
+            <Footer />
         </>);
     }
 
@@ -266,6 +291,18 @@ class ShopItem extends React.Component {
     viewProductAtIndex(index) {
         this.setState({ product_index: index });
         updateURLQuery("barcode", this.state.item.products[index].barcode);
+    }
+
+    renderDiscount() {
+        const product = this.currProduct();
+        if (product.price === product.original_price) { return null; }
+
+        const discount = Math.round((1 - (product.price / product.original_price)) * 100) ;
+
+        return <div aria-label={`Sconto del ${discount}% sul prezzo originale di ${centToPrice(product.original_price)}€`}>
+            <span className="text-decoration-line-through fs-5">{centToPrice(product.original_price)}€</span>&nbsp;
+            <span className="fs-4 fw-semibold">-{discount}%</span>
+        </div>
     }
 
 }

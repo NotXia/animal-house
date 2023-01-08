@@ -36,7 +36,7 @@ module.exports.verifyPostOwnership = function(source) {
         if (!post) { return next(error.generate.NOT_FOUND()); }
 
         if (post.author === req.auth.username) { return next(); }
-        return next(error.generate.FORBIDDEN("Non sei il proprietario"));
+        return next(error.generate.FORBIDDEN("Non autorizzato"));
     }
 }
 
@@ -53,6 +53,6 @@ module.exports.verifyCommentOwnership = function (post_id_source, comment_index_
         if (!post || !post.comments[comment_index]) { return next(error.generate.NOT_FOUND()); }
 
         if (post.comments[comment_index].author === req.auth.username) { return next(); }
-        return next(error.generate.FORBIDDEN("Non sei il proprietario"));
+        return next(error.generate.FORBIDDEN("Non autorizzato"));
     }
 }
