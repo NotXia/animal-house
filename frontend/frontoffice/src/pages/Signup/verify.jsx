@@ -11,9 +11,8 @@ class Success extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            canSendMail: false,
-            mailSent: false,
-            message: ""
+            state: "",
+            mailSent: false
         };
     }
 
@@ -31,21 +30,20 @@ class Success extends React.Component {
                 headers: { Authorization: `Bearer ${this.token}` }
             });
 
-            this.setState({ message: "Account attivato correttamente" });
+            this.setState({ state: "success" });
         }
         catch (err) {
             switch (err.status) {
                 case 401:
-                    this.setState({ message: "Non siamo riusciti a verificare l'account", canSendMail: true });
-                    $("#result").html("Non attivato");
+                    this.setState({ state: "failure" });
                     break;
 
                 case 403:
-                    this.setState({ message: "L'account è già attivo" });
+                    this.setState({ state: "active" });
                     break;
 
                 default:
-                    this.setState({ message: "Si è verificato un erorre" });
+                    this.setState({ state: "error" });
                     break;
             }
         }
@@ -62,13 +60,35 @@ class Success extends React.Component {
             <main className="d-flex justify-content-center align-items-center w-100" style={{ minHeight: "69vh" }}>
                 <div className="text-center">
                     <div aria-live="assertive" role="alert">
-                        <p className="fs-3">{this.state.message}</p>
-                    </div>
-
-                    <div className={`${this.state.canSendMail ? "" : "d-none"}`}>
-                        <button className="btn btn-outline-primary" onClick={() => this.resendMail()} disabled={this.state.mailSent}>
-                            { this.state.mailSent ? "Ti abbiamo inviato una nuova mail" : "Invia nuova mail" }
-                        </button>
+                        {
+                            this.state.state === "success" &&
+                            <>
+                                <p className="fs-2 fw-semibold m-0">Benvenuto in Animal House</p>
+                                <p className="fs-3">L'account è stato attivato correttamente</p>
+                                <a className="btn btn-primary btn-lg" href="/fo/login">Accedi ora</a>
+                            </>
+                        }
+                        {
+                            this.state.state === "failure" &&
+                            <>
+                                <p className="fs-3">Non siamo riusciti a verificare l'account</p>
+                                <button className="btn btn-outline-primary" onClick={() => this.resendMail()} disabled={this.state.mailSent}>
+                                    { this.state.mailSent ? "Ti abbiamo inviato una nuova mail" : "Invia nuova mail" }
+                                </button>
+                            </>
+                        }
+                        {
+                            this.state.state === "active" &&
+                            <>
+                                <p className="fs-3">L'account è già attivo</p>
+                            </>
+                        }
+                        {
+                            this.state.state === "error" &&
+                            <>
+                                <p className="fs-3">Si è verificato un erorre</p>
+                            </>
+                        }
                     </div>
                 </div>
             </main>
