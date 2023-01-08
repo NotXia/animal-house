@@ -76,7 +76,7 @@
                 </div>
 
                 <div class="col-12 col-lg-4 my-2">
-                    <a href="/games" class="btn btn-outline-light text-dark border border-secondary rounded-3 p-3 h-100">
+                    <a href="/play" class="btn btn-outline-light text-dark border border-secondary rounded-3 p-3 h-100">
                         <div class="d-flex justify-content-center">
                             <img :src="`${DOMAIN}/img/icons/game.png`" alt="" class="home-icon">
                         </div>

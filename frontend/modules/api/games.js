@@ -20,6 +20,11 @@ const GameAPI = {
                 }
             });
         },
+        async getLeaderboard() {
+            return await $.ajax({ 
+                method: "GET", url: `${DOMAIN}/games/quiz/leaderboard`
+            });
+        }
     },
 
     hangman: {
@@ -39,6 +44,11 @@ const GameAPI = {
                 }
             });
         },
+        async getLeaderboard() {
+            return await $.ajax({ 
+                method: "GET", url: `${DOMAIN}/games/hangman/leaderboard`
+            });
+        }
     },
 
     memory: {
@@ -58,6 +68,11 @@ const GameAPI = {
                 }
             });
         },
+        async getLeaderboard() {
+            return await $.ajax({ 
+                method: "GET", url: `${DOMAIN}/games/memory/leaderboard`
+            });
+        }
     },
 
     curiosity: {

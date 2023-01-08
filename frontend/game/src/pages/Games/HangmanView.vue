@@ -5,10 +5,11 @@
     import Loading from "../../components/Loading/Loading.vue";
     import { isAuthenticated } from "modules/auth";
     import GameAPI from "modules/api/games";
+    import Leaderboard from "./components/Leaderboard.vue";
 
     export default {
         name: "HangmanView",
-        components: { Navbar, AHFooter, Loading },
+        components: { Navbar, AHFooter, Loading, Leaderboard },
 
         data() {
             return {
@@ -26,7 +27,8 @@
         computed: {
             DOMAIN() { return process.env.VUE_APP_DOMAIN; },
             LETTERS() { return ("ABCDEFGHIJKLMNOPQRSTUVWXYZ").split(""); },
-            MAX_ATTEMPTS() { return 6; }
+            MAX_ATTEMPTS() { return 6; },
+            getLeaderboard() { return GameAPI.hangman.getLeaderboard; }
         },
 
         methods: {
@@ -91,6 +93,10 @@
                     <h1>Gioco dell'impiccato</h1>
                     <p class="fs-5">Metti alla prova la tua capacità di indovinare gli animali</p> 
                     <button class="btn btn-outline-primary btn-lg px-4 py-2" :onclick="startGame">Inizia</button>
+
+                    <div class="mt-3">
+                        <Leaderboard :get="getLeaderboard" />
+                    </div>
                 </div>
             </section>
         </div>

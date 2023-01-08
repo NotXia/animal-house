@@ -2,10 +2,11 @@
     <footer class="mt-5 mb-3">
         <div class="w-100 text-center">
             <router-link to="/" class="link-dark mx-2">Home</router-link>
-            <a :href="`${DOMAIN}/fo/shop`" className="link-dark mx-2">Shop</a>
             <router-link to="/services-list" class="link-dark mx-2">Servizi</router-link>
+            <a :href="`${DOMAIN}/fo/shop`" className="link-dark mx-2">Shop</a>
             <router-link to="/hubs-list" class="link-dark mx-2">Sedi</router-link>
             <a :href="`${DOMAIN}/fo/forum`" className="link-dark mx-2">Forum</a>
+            <router-link to="/play" class="link-dark mx-2">Giochi</router-link>
             <a v-if="!is_auth" :href="`${DOMAIN}/fo/my-animals`" className="link-dark mx-2">Presentati</a>
             <a v-if="is_auth" :href="`${DOMAIN}/fo/vip`" className="link-dark mx-2">VIP</a>
             <hr>

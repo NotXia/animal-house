@@ -6,10 +6,11 @@
     import { isAuthenticated } from "modules/auth";
     import GameAPI from "modules/api/games";
     import he from "he";
+    import Leaderboard from "./components/Leaderboard.vue";
 
     export default {
-        name: "HomeView",
-        components: { Navbar, AHFooter, Loading },
+        name: "QuizView",
+        components: { Navbar, AHFooter, Loading, Leaderboard },
 
         data() {
             return {
@@ -27,7 +28,8 @@
         },
 
         computed: {
-            DOMAIN() { return process.env.VUE_APP_DOMAIN; }
+            DOMAIN() { return process.env.VUE_APP_DOMAIN; },
+            getLeaderboard() { return GameAPI.quiz.getLeaderboard; }
         },
 
         methods: {
@@ -84,11 +86,17 @@
 
     <main style="height: 80vh">
         <div v-if="!game_id" class="d-flex align-items-center justify-content-center h-100">
-            <div class="text-center">
-                <h1>Animal Quiz</h1>
-                <p class="fs-5">Metti alla prova la tua conoscenza sugli animali rispondendo a queste domande</p> 
-                <button class="btn btn-outline-primary btn-lg px-4 py-2" :onclick="startGame">Inizia</button>
-            </div>
+            <section aria-label="Gioca al quiz">
+                <div class="text-center">
+                    <h1>Animal Quiz</h1>
+                    <p class="fs-5">Metti alla prova la tua conoscenza sugli animali rispondendo a queste domande</p> 
+                    <button class="btn btn-outline-primary btn-lg px-4 py-2" :onclick="startGame">Inizia</button>
+
+                    <div class="mt-3">
+                        <Leaderboard :get="getLeaderboard" />
+                    </div>
+                </div>
+            </section>
         </div>
 
         <div v-if="game_id" class="d-flex align-items-center justify-content-center h-100">

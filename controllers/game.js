@@ -9,6 +9,7 @@ const HangmanModel = require("../models/games/hangman.js");
 const HangmanRankModel = require("../models/games/hangman_rank.js");
 const MemoryModel = require("../models/games/memory.js");
 const MemoryRankModel = require("../models/games/memory_rank.js");
+const UserModel = require("../models/auth/user.js");
 
 function randomOfArray(array) {
     return array[Math.floor(Math.random()*array.length)];
@@ -470,6 +471,26 @@ async function memoryAttempt(req, res) {
     }
 }
 
+function getLeaderboard(RankModel) {
+    return async function (req, res) {
+        try {
+            let rank = await RankModel.find({}).sort({ points: "desc" }).limit(10);
+
+            rank = await Promise.all(
+                rank.map(async r => ({
+                    player: await (await UserModel.findOne({ username: r.player })).getPublicData(),
+                    points: r.points
+                }))
+            );
+
+            return res.status(utils.http.OK).json(rank);
+        }
+        catch (err) {
+            return error.response(err, res);
+        }
+    }
+}
+
 
 module.exports = {
     getAvailableFactsAnimals: getAvailableFactsAnimals,
@@ -480,5 +501,6 @@ module.exports = {
     hangmanInit: hangmanInit,
     hangmanAttempt: hangmanAttempt,
     memoryInit: memoryInit,
-    memoryAttempt: memoryAttempt
+    memoryAttempt: memoryAttempt,
+    getLeaderboard: getLeaderboard
 }
