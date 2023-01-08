@@ -49,7 +49,7 @@ async function _render(order, container) {
             <p class="m-0 fw-semibold">${address}</p>
         </div>
         <div class="col-12 col-md-6 text-end">
-            <p class="m-0 fw-semibold fs-4">Stato: ${STATUSES_IT[status_index]}</p>
+            <p class="m-0 fw-semibold fs-4">Stato: ${STATUSES_IT[status_index].toUpperCase()}</p>
             ${next_state}
         </div>
         ${await renderProducts(order.products)}
