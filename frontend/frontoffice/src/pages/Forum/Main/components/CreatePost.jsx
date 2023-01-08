@@ -45,11 +45,11 @@ class CreatePost extends React.Component {
                 <form ref={this.form} className="w-100" onSubmit={(e) => { e.preventDefault(); this.createPost(); } }>
                     <TextInput ref={this.input.title} id="__createpost-title" name="title" type="text" label="Titolo" required />
                     
-                    <textarea ref={this.input.content} className="form-control w-100" placeholder="Contenuto del post" style={{height: "7rem", resize: "none"}} defaultValue=""></textarea>
+                    <textarea ref={this.input.content} className="form-control w-100" placeholder="Contenuto del post" style={{height: "7rem", resize: "none"}} defaultValue="" required></textarea>
                     
                     <div className="form-floating mt-2">
-                        <select ref={this.input.topic} className="form-select" aria-label="Topic del post" defaultValue="null">
-                            <option disabled value="null">-</option>
+                        <select ref={this.input.topic} className="form-select" aria-label="Topic del post" defaultValue="" required>
+                            <option disabled value="">-</option>
                             {
                                 this.state.topics.map((topic) => (
                                     <option key={topic.name} value={topic.name}>{topic.name}</option>
