@@ -55,7 +55,7 @@ class Signup extends React.Component {
                     <Row>
                         <Col xs="12" lg={{span: 6, offset: 3}}>
                             <div className={css["form-card"]}>
-                                <form>
+                                <form onSubmit={this.createUser}>
                                     <Container>
                                     <Row>
                                         <div className="d-flex justify-content-center">
@@ -122,7 +122,7 @@ class Signup extends React.Component {
                                     <Row className="mt-4">
                                         <Col lg="12">
                                             <div className="d-flex justify-content-center">
-                                                <Button type="submit" variant="primary" onClick={this.createUser}>Registrati</Button>
+                                                <Button type="submit" variant="primary">Registrati</Button>
                                             </div>
                                         </Col>
                                     </Row>
@@ -163,7 +163,7 @@ class Signup extends React.Component {
             valid = valid & (await input.current.validate());
         }
 
-        return valid && !this.state.password_confirmed;
+        return valid && this.state.password_confirmed;
     }
 
     async createUser(e) {
