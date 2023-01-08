@@ -43,7 +43,7 @@ async function _render(order, container) {
         next_state = "";
     }
 
-    let vip_logo = moment(customer.vip_until).isSameOrAfter(moment()) ? "<img src='/img/icons/vip.png' style='height: 1.5rem'>" : "";
+    let vip_logo = moment(customer.vip_until).isSameOrAfter(moment()) ? "<img src='/img/icons/vip.png' alt='' style='height: 1.5rem'><span class='visually-hidden'>Cliente VIP</span>" : "";
 
     let status_index = STATUSES.indexOf(order.status);
 
@@ -52,7 +52,7 @@ async function _render(order, container) {
             <p class="m-0 fw-semibold fs-3">Ordine del ${moment(order.creationDate).format("DD/MM/YYYY, HH:mm")}</p>
             <p class="m-0 fw-semibold fs-4">Cliente: ${customer.name} ${customer.surname} (${customer.username}) ${vip_logo}</p>
             <p class="m-0">${order.pickup ? "Ritiro in sede" : "Consegna a domicilio"}</p>
-            <p class="m-0 fw-semibold">${address}</p>
+            <p class="m-0 fw-semibold"><span class="visually-hidden">Indirizzo di consegna: </span>${address}</p>
         </div>
         <div class="col-12 col-md-6 text-end">
             <p class="m-0 fw-semibold fs-4">Stato: ${STATUSES_IT[status_index].toUpperCase()}</p>
@@ -76,7 +76,10 @@ async function _render(order, container) {
  * @returns Codice HTML della tabella dei prodotti completa
  */
 async function renderProducts(products) {
-    let out = "<table class='table'>";
+    let out = `
+        <span class="visually-hidden">Contenuto ordine</span>
+        <table class='table'>
+    `;
     
     out += `<tr>
         <th style="width: 20%">Barcode</th>
