@@ -87,7 +87,7 @@ class Success extends React.Component {
                                 <p className="fs-3 m-0">L'account è stato attivato correttamente</p>
                                 {
                                     this.state.animal_loaded &&
-                                    <p className="fs-3">Ti abbiamo associato gli animali che ci hai presentato</p>
+                                    <p className="fs-3 m-0">Ti abbiamo associato gli animali che ci hai presentato</p>
                                 }
                                 <a className="btn btn-primary btn-lg mt-2" href="/fo/login">Accedi ora</a>
                             </>
