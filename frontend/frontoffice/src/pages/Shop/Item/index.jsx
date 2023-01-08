@@ -130,6 +130,15 @@ class ShopItem extends React.Component {
                                     </section>
                                 </Col>
                                 <Col xs="12" md="4">
+                                    {
+                                        this.state.logged &&
+                                        <div className="d-flex justify-content-end align-items-center d-none d-md-flex" aria-hidden="true">
+                                            <a href="/fo/shop/cart" className="btn btn-outline-primary p-1" aria-hidden="true">
+                                                <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/cart.png`} alt="Carrello" style={{ height: "1.8rem" }} />
+                                            </a>
+                                        </div>
+                                    }
+
                                     { this.renderAddToCartButton() }
                                 </Col>
                             </Row>
@@ -147,6 +156,15 @@ class ShopItem extends React.Component {
 
                         {/* Immagini */}
                         <Col xs={{ span: 12, order: 1 }} md="5">
+                            {
+                                this.state.logged &&
+                                <div className="d-flex justify-content-end align-items-center d-flex d-md-none mb-2 me-3" aria-hidden="true">
+                                    <a href="/fo/shop/cart" className="btn btn-outline-primary p-1" aria-hidden="true">
+                                        <img src={`${process.env.REACT_APP_DOMAIN}/img/icons/cart.png`} alt="Carrello" style={{ height: "1.8rem" }} />
+                                    </a>
+                                </div>
+                            }
+
                             <section aria-label="Immagini del prodotto">
                                 <div>
                                     <ImagesViewer key={`images-viewer-${this.state.product_index}`} images={this.currProduct().images}/>
@@ -155,6 +173,8 @@ class ShopItem extends React.Component {
                         </Col>
                     </Row>
                 </Container>
+
+                <a href="/fo/shop/cart" className="visually-hidden" aria-hidden="true">Vai al carrello</a>
             </main>
 
             <Footer />
