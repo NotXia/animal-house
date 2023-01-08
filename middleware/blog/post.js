@@ -6,6 +6,7 @@ const utils = require("../utils");
 
 const validateInsertPost = [
     // L'autore lo prendo da auth.
+    blog_validator.validateTitle("body", REQUIRED),
     blog_validator.validateContent("body", REQUIRED),
     blog_validator.validateTopicName("body", REQUIRED, "topic"),
     blog_validator.validateTagUsers("body", OPTIONAL),
@@ -20,6 +21,7 @@ const validateSearchPosts = [
     query("oldest").optional().isBoolean().withMessage("Formato non valido"),
     user_validator.validateUsername("query", OPTIONAL, "authors.*"),
     blog_validator.validateTopicName("query", OPTIONAL, "topic"),
+    blog_validator.validateTitle("query", OPTIONAL, "title"),
     utils.validatorErrorHandler
 ];
 
@@ -31,6 +33,7 @@ const validateSearchPostById = [
 const validateUpdatePost = [
     // L'autore lo prendo da auth.
     blog_validator.validatePostId("param", REQUIRED),
+    blog_validator.validateTitle("body", OPTIONAL),
     blog_validator.validateContent("body", OPTIONAL),
     blog_validator.validateTopicName("body", OPTIONAL, "topic"),
     blog_validator.validateTagUsers("body", OPTIONAL),

@@ -1,0 +1,30 @@
+.card-container {
+    border: 1px solid #d4d4d4;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    height: 100%;
+    border-radius: 1rem;
+}
+
+.card-container:hover {
+    background-color: lightgray;
+}
+
+.card-link, .card-link:hover {
+    text-decoration: none;
+    color: black;
+}
+
+.card-image-container {
+    height: 12rem;
+    width: 100%;
+}
+
+.card-image {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.card-text-unavailable {
+    color: #a0a0a0;
+}

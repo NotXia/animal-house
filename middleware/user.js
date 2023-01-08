@@ -17,7 +17,9 @@ function _getUserData(source) {
             surname: source.surname,
             gender: source.gender,
             phone: source.phone,
-            permissions: source.permissions
+            permissions: source.permissions,
+            enabled: source.enabled,
+            picture: source.picture
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -35,6 +37,7 @@ function _getOperatorData(source) {
         {
             role: source.role,
             services_id: source.services_id,
+            working_time: source.working_time
         }
     ).filter(([_, v]) => v != null)); 
 }
@@ -71,6 +74,7 @@ function validateNewUserData(source) {
         user_validator.validateSurname(source, REQUIRED),
         user_validator.validateGender(source, OPTIONAL),
         user_validator.validatePhone(source, OPTIONAL),
+        user_validator.validateProfilePicture(source, OPTIONAL),
     ];
 }
 
@@ -86,6 +90,7 @@ const validateInsertOperator = [
     user_validator.validatePermissions("body", OPTIONAL),
     operator_validator.validateRole("body", OPTIONAL),
     operator_validator.validateListOfServicesId("body", OPTIONAL),
+    operator_validator.validateWorkingTime("body", REQUIRED),
     utils.validatorErrorHandler,
     groupOperatorData("body")
 ];
@@ -112,6 +117,8 @@ function validateUpdateUserData(source) {
         user_validator.validateGender(source, OPTIONAL),
         user_validator.validatePhone(source, OPTIONAL),
         user_validator.validatePermissions(source, OPTIONAL),
+        user_validator.validateEnabled(source, OPTIONAL),
+        user_validator.validateProfilePicture(source, OPTIONAL),
     ];
 }
 
@@ -122,7 +129,10 @@ const validateUpdateCustomer = [
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params"),
     function (req, _, next) {
-        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
+        // Solo uno superuser può modificare i permessi / flag enabled
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); }
+        if (req.body.enabled && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi abilitare/disabilitare la tua utenza"); }
+        
         next();
     },
     groupCustomerData("body")
@@ -133,10 +143,14 @@ const validateUpdateOperator = [
     validateUpdateUserData("body"),
     operator_validator.validateRole("body", OPTIONAL),
     operator_validator.validateListOfServicesId("body", OPTIONAL),
+    operator_validator.validateWorkingTime("body", OPTIONAL),
     utils.validatorErrorHandler,
     user_validator.verifyUserOwnership("params"),
     function (req, _, next) {
-        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } // Solo uno superuser può modificare i permessi
+        // Solo uno superuser può modificare i permessi / flag enabled
+        if (req.body.permission && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi modificare i tuoi permessi"); } 
+        if (req.body.enabled && !req.auth.superuser) { throw new error.generate.FORBIDDEN("Non puoi abilitare/disabilitare la tua utenza"); }
+        
         next();
     },
     groupOperatorData("body")
@@ -154,6 +168,21 @@ const validateSearchPermissionByName = [
     utils.validatorErrorHandler
 ];
 
+const validateSendVerificationMail = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+];
+
+
+const validateUsernameAvailability = [
+    user_validator.validateUsername("param", REQUIRED),
+    utils.validatorErrorHandler,
+];
+
+const validateEmailAvailability = [
+    user_validator.validateEmail("param", REQUIRED, "email"),
+    utils.validatorErrorHandler,
+];
 
 
 module.exports = {
@@ -164,5 +193,8 @@ module.exports = {
     validateUpdateOperator : validateUpdateOperator,
     validateDeleteUser : validateDeleteUser,
     validateSearchUserProfile : validateSearchUserProfile,
-    validateSearchPermissionByName: validateSearchPermissionByName
+    validateSearchPermissionByName: validateSearchPermissionByName,
+    validateSendVerificationMail: validateSendVerificationMail,
+    validateUsernameAvailability: validateUsernameAvailability,
+    validateEmailAvailability: validateEmailAvailability
 }

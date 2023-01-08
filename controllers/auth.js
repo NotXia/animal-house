@@ -11,11 +11,10 @@ const error = require("../error_handler");
 
 /**
  * Crea i token (access + refresh) associati ad un utente.
- * @param user_id   Id dell'utente
+ * @param jwt_payload   Contenuto da inserire nel token
  * @returns I token creati nel formato { tipo { valore, scadenza } }
  */
-function createTokens(user_id, username, is_operator) {
-    const jwt_payload = { id: user_id, username: username, is_operator: is_operator };
+function createTokens(jwt_payload) {
     const access_token = jwt.sign(jwt_payload, process.env.ACCESS_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.ACCESS_TOKEN_EXP });
     const refresh_token = jwt.sign(jwt_payload, process.env.REFRESH_TOKEN_KEY, { algorithm: process.env.JWT_ALGORITHM, expiresIn: process.env.REFRESH_TOKEN_EXP });
 
@@ -59,11 +58,12 @@ async function storeRefreshToken(user_id, token, expiration_time) {
  */
 function setRefreshTokenCookie(res, token, token_id, expiration) {
     const cookie_option = {
-        expires: new Date(expiration),
         httpOnly: true,
         path: "/auth",
-        secure: process.env.TESTING ? false : true // Altrimenti l'ambiente di test non riesce a utilizzarli
+        secure: process.env.SCHEMA === "https",
+        // sameSite: "strict"
     };
+    if (expiration) { cookie_option.expires = new Date(expiration); }
 
     res.cookie("refresh_token", token, cookie_option);
     res.cookie("refresh_token_id", token_id, cookie_option);
@@ -75,17 +75,19 @@ function setRefreshTokenCookie(res, token, token_id, expiration) {
  */
 async function loginController(req, res) {
     const user = req.user; // I dati dell'utente elaborati da Passport
-    const tokens = createTokens(user.id, user.username, user.is_operator);
+    const tokens = createTokens({ id: user.id, username: user.username, is_operator: user.is_operator });
 
-    // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
+    req.body.remember_me = req.body.remember_me === "true";
+
     try {
+        // Salvataggio del refresh token, tenendo traccia dell'id per semplificare la ricerca del token nelle operazioni future
         tokens.refresh.id = await storeRefreshToken(user.id, tokens.refresh.value, tokens.refresh.expiration);
     }
     catch (err) {
         return res.sendStatus(utils.http.INTERNAL_SERVER_ERROR);
     }
 
-    setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, tokens.refresh.expiration);
+    setRefreshTokenCookie(res, tokens.refresh.value, tokens.refresh.id, (req.body.remember_me ? tokens.refresh.expiration : null));
     return res.status(utils.http.OK).json({ access_token: tokens.access });
 }
 
@@ -114,7 +116,7 @@ function refreshController(req, res) {
 
             // Rinnovo e salvataggio token
             await TokenModel.findByIdAndDelete(old_refresh_token_id);
-            tokens = createTokens(token.id, token.username, token.is_operator);
+            tokens = createTokens({ id: token.id, username: token.username, is_operator: token.is_operator });
             tokens.refresh.id = await storeRefreshToken(token.id, tokens.refresh.value, tokens.refresh.expiration);
         }
         catch (err) {
@@ -154,5 +156,6 @@ function logoutController(req, res) {
 module.exports = { 
     login: loginController,
     refresh: refreshController,
-    logout: logoutController
+    logout: logoutController,
+    createTokens: createTokens,
 }

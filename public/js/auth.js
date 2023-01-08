@@ -21,10 +21,11 @@ async function _requestNewToken() {
         _current_refresh_request = $.ajax({
             type: "POST",
             url: "/auth/refresh",
+            xhrFields: { withCredentials: true }
         }).done(function (data, textStatus, jqXHR) {
             _setAccessToken(data.access_token.value, data.access_token.expiration);
         }).catch((err) => {
-            console.log(err.responseJSON);
+            _current_refresh_request = null;
         }).always(() => {
             _current_refresh_request = null;
         });
@@ -41,7 +42,10 @@ function _setAccessToken(token, expiration) {
 
 /* Restituisce l'access token, rinnovandolo se necessario */
 async function _getAccessToken() {
-    if (!_isAccessTokenValid()) { await _requestNewToken(); }
+    if (!_isAccessTokenValid()) { 
+        _removeAccessToken();
+        await _requestNewToken();
+    }
 
     return sessionStorage.getItem(_ACCESS_TOKEN_NAME);
 }
@@ -57,8 +61,8 @@ function _removeAccessToken() {
  * Indica se l'utente è autenticato.
  * @returns {boolean} true se l'utente è autenticato, false altrimenti
 */
-async function isAuthenticated() {
-    return (await _getAccessToken() != undefined);
+export async function isAuthenticated() {
+    return ((await _getAccessToken()) != null);
 }
 
 /** 
@@ -66,7 +70,7 @@ async function isAuthenticated() {
  * @param ajax_request parametri della richiesta (stessi di $.ajax)
  * @returns Promise della richiesta
 */
-async function api_request(ajax_request) {
+export async function api_request(ajax_request) {
     // Aggiunge l'header di autenticazione
     if (!ajax_request.headers) { ajax_request.headers = {}; }
     ajax_request.headers.Authorization = `Bearer ${await _getAccessToken()}`;
@@ -78,16 +82,16 @@ async function api_request(ajax_request) {
  * Gestisce l'autenticazione dell'utente.
  * @param {string} username 
  * @param {string} password 
- * @param {boolean} operator se true richiede l'autenticazione per un dipendente, se false per un cliente
  * @returns {boolean} true se l'autenticazione ha avuto successo, false altrimenti
  */ 
-async function login(username, password, operator=false) {
+export async function login(username, password, remember_me) {
     let logged = false;
 
     await $.ajax({
         type: "POST",
         url: "/auth/login",
-        data: { username: username, password: password }
+        data: { username: username, password: password, remember_me: remember_me },
+        xhrFields: { withCredentials: true }
     }).done(function (data, textStatus, jqXHR) {
         _setAccessToken(data.access_token.value, data.access_token.expiration);
         logged = true;
@@ -104,13 +108,49 @@ async function login(username, password, operator=false) {
 /**
  * Gestisce il logout dell'utente.
  */
-async function logout() {
+export async function logout() {
     await $.ajax({
         url: "/auth/logout",
-        type: 'POST'
+        type: 'POST',
+        xhrFields: { withCredentials: true }
     }).always(function () {
         _removeAccessToken();
     }).catch(function () {
         _removeAccessToken();
     });
+}
+
+/**
+ * Decodifica del token JWT
+ * Fonte: https://stackoverflow.com/questions/38552003/how-to-decode-jwt-token-in-javascript-without-using-a-library
+ */
+function _parseJwt(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+};
+
+/**
+ * Restituisce i dati dell'access token
+ */
+export async function getTokenData() {
+    return _parseJwt(await _getAccessToken());
+}
+
+/**
+ * Indica se l'utente è un operatore
+ */
+export async function isOperator() {
+    return (await getTokenData()).is_operator;
+}
+
+/**
+ * Indica se l'utente è un operatore
+ */
+export  async function getUsername() {
+    return (await getTokenData()).username;
 }

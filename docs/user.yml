@@ -34,6 +34,8 @@ paths:
               type: string
             surname:
               type: string
+            picture:
+              type: string
             gender:
               type: string
               enum: ["m", "f", "altro"]
@@ -136,18 +138,22 @@ paths:
               type: string
             surname:
               type: string
+            picture:
+              type: string
             gender:
               type: string
             phone:
               type: string
             address:
               $ref: "#/definitions/Address"
-            permission:
+            enabled:
+              type: boolean
+              description: Account abilitato (modificabile solo dagli amministratori)
+            permissions:
               description: Permessi dell'utente (modificabile solo dagli amministratori)
-              type: object
-              properties:
-                permesso:
-                  type: boolean
+              type: array
+              items:
+                type: string
       responses:
         200:
           description: "Modificato con successo"
@@ -247,23 +253,26 @@ paths:
               type: string
             surname:
               type: string
+            picture:
+              type: string
             gender:
               type: string
               enum: ["m", "f", "altro"]
             phone:
               type: string
-            permission:
-              type: object
-              properties:
-                permesso:
-                  type: boolean
+            permissions:
+              type: array
+              items:
+                type: string
             role:
               type: string
             services_id:
               type: array
               items:
                 $ref: "definitions/utils.yml#/definitions/ObjectId"
-          required: [ username, password, email, name, surname ]
+            working_time:
+              $ref: "#/definitions/WorkingTime"
+          required: [ username, password, email, name, surname, working_time ]
       responses:
         201:
           description: "Creato con successo"
@@ -366,6 +375,8 @@ paths:
               type: string
             surname:
               type: string
+            picture:
+              type: string
             gender:
               type: string
             phone:
@@ -376,12 +387,15 @@ paths:
               type: array
               items:
                 $ref: "definitions/utils.yml#/definitions/ObjectId"
-            permission:
+            enabled:
+              type: boolean
+            permissions:
               description: Permessi dell'utente (modificabile solo dagli amministratori)
-              type: object
-              properties:
-                permesso:
-                  type: boolean
+              type: array
+              items:
+                type: string
+            working_time:
+              $ref: "#/definitions/WorkingTime"
       responses:
         200:
           description: "Modificato con successo"
@@ -488,6 +502,38 @@ paths:
         500:
           description: "Internal server error"
 
+  /users/permissions/:
+    get:
+      tags:
+      - "Permessi"
+      summary: "Ricerca dei dati di tutti i permessi"
+      description: |
+        Restituisce i dati associati a tutti i permessi.
+
+        Richiede autenticazione
+      produces:
+      - "application/json"
+      parameters:
+      responses:
+        200:
+          description: "Trovato con successo"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                url:
+                  type: string
+              required: [ name ]
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
   /users/permissions/{permission_name}:
     get:
       tags:
@@ -534,6 +580,115 @@ paths:
         500:
           description: "Internal server error"
 
+  /users/customers/enable-me:
+    put:
+      tags:
+      - "Clienti"
+      summary: "Attivazione utenza cliente"
+      description: |
+        Gestisce l'attivazione dell'utenza di un cliente.
+
+        Richiede permessi [ ["to_activate_user"] ], []
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Attivato con successo"
+          schema:
+              $ref: "#/definitions/CustomerUserAll"
+        401:
+          description: "Non autenticato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        403:
+          description: "Utenza già attiva"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utenza inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /users/customers/{username}/verification-mail:
+    get:
+      tags:
+      - "Clienti"
+      summary: "Invio email verifica account"
+      description: |
+        Gestisce il (ri)invio della mail di verifica dell'account del cliente.
+      responses:
+        204:
+          description: "Inviato con successo"
+        403:
+          description: "Utenza già attiva"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        404:
+          description: "Utenza inesistente"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /users/usernames/available/{username}:
+    get:
+      tags:
+      - "Utenti"
+      summary: "Disponibilità username"
+      description: |
+        Verifica se un dato username è disponibile
+      parameters:
+      - name: username
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            type: object
+            properties:
+              available:
+                type: boolean
+                description: "true se disponibile, false altrimenti"
+            required: [available]
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        500:
+          description: "Internal server error"
+
+  /users/emails/available/{email}:
+    get:
+      tags:
+      - "Utenti"
+      summary: "Disponibilità email"
+      description: |
+        Verifica se una dato email è disponibile
+      parameters:
+      - name: email
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Ok"
+          schema:
+            type: object
+            properties:
+              available:
+                type: boolean
+                description: "true se disponibile, false altrimenti"
+            required: [available]
+        400:
+          description: "Input malformato"
+          schema:
+            $ref: "definitions/utils.yml#/definitions/ValidationErrorMessage"
+        500:
+          description: "Internal server error"
 
 definitions:
 
@@ -548,11 +703,13 @@ definitions:
         type: string
       surname:
         type: string
+      picture:
+        type: string
       gender:
         type: string
       phone:
         type: string
-      permission:
+      permissions:
         type: array
         items:
           type: string
@@ -560,7 +717,7 @@ definitions:
         type: boolean
       address:
         $ref: "#/definitions/Address"
-    required: [ username, email, name, surname, permission, enabled ]
+    required: [ username, email, name, surname, permissions, enabled ]
 
   CustomerUserProfile:
     type: object
@@ -571,7 +728,9 @@ definitions:
         type: string
       surname:
         type: string
-    required: [ username, name, surname ]
+      picture:
+        type: string
+    required: [ username, name, surname, picture]
 
   OperatorUserAll:
     type: object
@@ -583,12 +742,14 @@ definitions:
       name:
         type: string
       surname:
+        type: string      
+      picture:
         type: string
       gender:
         type: string
       phone:
         type: string
-      permission:
+      permissions:
         type: array
         items:
           type: string
@@ -600,7 +761,9 @@ definitions:
         type: array
         items:
           $ref: "definitions/utils.yml#/definitions/ObjectId"
-    required: [ username, email, phone, name, surname, permission, enabled, role, services_id ]
+      working_time:
+        $ref: "#/definitions/WorkingTime"
+    required: [ username, email, phone, name, surname, permissions, enabled, role, services_id, working_time ]
 
   OperatorUserProfile:
     type: object
@@ -610,6 +773,8 @@ definitions:
       name:
         type: string
       surname:
+        type: string
+      picture:
         type: string
       email:
         type: string
@@ -634,3 +799,54 @@ definitions:
         type: string
       postal_code:
         type: string
+
+  WorkingSlot:
+    type: object
+    properties:
+      time:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date-time
+          end:
+            type: string
+            format: date-time
+        required: [ start, end ]
+      hub:
+        type: string
+        description: Codice dell'hub
+    required: [ time, hub ]
+
+  WorkingTime:
+    type: object
+    properties:
+      monday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      tuesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      wednesday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      thursday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      friday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      saturday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+      sunday:
+        type: array
+        items:
+          $ref: "#/definitions/WorkingSlot"
+    required: [ monday, tuesday, wednesday, thursday, friday, saturday, sunday ]

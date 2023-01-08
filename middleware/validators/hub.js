@@ -6,8 +6,8 @@ const { WEEKS } = require("../../utilities");
 const moment = require("moment");
 const error = require("../../error_handler");
 
-module.exports.validateCode =       (source, required=true, field_name="code") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape().matches(/^[A-Z]{3}[1-9][0-9]*$/).withMessage("Codice malformato"); }
-module.exports.validateName =       (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().escape(); }
+module.exports.validateCode =       (source, required=true, field_name="code") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim().matches(/^[A-Z]{3}[1-9][0-9]*$/).withMessage("Codice malformato"); }
+module.exports.validateName =       (source, required=true, field_name="name") => { return utils.handleRequired(validator[source](field_name), required).notEmpty().withMessage("Valore mancante").trim(); }
 module.exports.validateAddress =    (source, required=true, field_name="address") => { return customerValidator.validateAddress(source, required, field_name); }
 module.exports.validateOpeningTime = function (source, required=true, field_name="opening_time") {
     let out = [ utils.handleRequired(validator[source](field_name), required) ];
@@ -21,20 +21,32 @@ module.exports.validateOpeningTime = function (source, required=true, field_name
     out.push(
         // Verifica validità intervalli temporali
         function (req, res, next) {
-            if (!req[source][field_name]) {
-                return next();
-            }
+            if (!req[source][field_name]) { return next(); }
+
             for (const week of WEEKS) {
                 if (!req[source][field_name][week]) { return next(); }
+                
+                let slots = []; // Per gli slot validati
 
                 for (const opening_time of req[source][field_name][week]) {
+                    // Controllo che inizio e fine siano consistenti
                     if (moment(opening_time.start).isSameOrAfter(moment(opening_time.end))) { 
-                        next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
+                        return next( error.generate.BAD_REQUEST([{ field: field_name, message: "Intervallo di tempo invalido" }]) );
+                    }
+
+                    // Salvataggio degli slot validi (per verifica sovrapposizioni)
+                    slots.push( moment.range(moment(opening_time.start), moment(opening_time.end)) );
+                }
+
+                // Controllo sovrapposizioni
+                for (let i=0; i<slots.length; i++) {
+                    for (let j=i+1; j<slots.length; j++) {
+                        if (slots[i].overlaps(slots[j])) { return next( error.generate.BAD_REQUEST([{ field: field_name, message: "Gli intervalli si sovrappongono" }]) ); }
                     }
                 }
             }
-
-            next();
+            
+            return next();
         }
     )
 

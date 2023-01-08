@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
+    <script src="/js/form-validation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js" integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/profile.css" rel="stylesheet">
+    <script type="module">
+        import {isAuthenticated, isOperator} from "/js/auth.js";
+        isAuthenticated().then(async function (is_auth) { 
+            if (!is_auth) { window.location.href = "/admin/login.html"; } 
+            if (!await isOperator()) { window.location.href = "/"; } 
+        });
+    </script>
+    
+    <title>Gestione operatori</title>
+</head>
+<body>
+    <header>
+        <div id="navbar-placeholder"></div>
+    </header>
+    
+    <main>
+        <div class="d-flex justify-content-center mt-2 mb-2">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
+                        <div class="d-flex justify-content-center">
+                            <form id="search_user_form" class="d-flex" role="search">
+                                <input id="search-user-input" class="form-control" type="input" name="username" placeholder="Cerca utente">
+                                <button class="ps-2 pe-2 btn btn-link" type="submit" aria-label="Cerca">
+                                    <img src="/img/icons/search.png" alt="Cerca" class="button-icon">
+                                </button>
+                            </form>
+    
+                            <div id="start_create-container" class="ms-3">
+                                <button type="button" id="start_create-btn" class="btn btn-outline-dark text-truncate" aria-label="Crea un nuovo operatore">Crea nuovo</button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center">
+                            <p data-feedback-for="global" class="invalid-feedback d-block w-100 text-center" aria-live="polite"></p>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <div id="container-success"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="operator-form">
+            <div class="container">
+                <div class="row mt-2 mb-4">
+                    <div id="button-container" class="d-flex justify-content-center align-items-center">
+                        <div id="enable_modify-container">
+                            <button type="button" id="modify-btn" class="btn btn-outline-dark">Abilita modifiche</button>
+                        </div>
+                        <div id="modify-container">
+                            <div class="d-flex justify-content-center">
+                                <button type="button" id="save-btn" class="btn btn-outline-success mx-1">Salva modifiche</button>
+                                <button type="button" class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#confirm_delete-modal">Elimina utente</button>
+                                <button type="button" id="revert-btn" class="btn btn-outline-secondary mx-1">Annulla modifiche</button>
+                            </div>
+                        </div>
+                        <div id="create-container">
+                            <button type="button" id="create-btn" class="btn btn-outline-success">Crea operatore</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-10">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-username" class="fs-6 fw-semibold">Username</label>
+                                        <input id="data-username" type="text" class="form-control" name="username">
+                                        <label for="data-username" data-feedback-for="username" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-password" class="fs-6 fw-semibold">Password</label>
+                                        <input id="data-password" type="password" class="form-control" name="password">
+                                        <label for="data-password" data-feedback-for="password" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <div class="w-100">
+                                        <label for="data-email" class="fs-6 fw-semibold">Email</label>
+                                        <input id="data-email" type="email" class="form-control" name="email">
+                                        <label for="data-email" data-feedback-for="email" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6">
+                                <div class="d-flex justify-content-start mb-2">
+                                    <div class="w-100">
+                                        <label for="data-name" class="fs-6 fw-semibold">Nome</label>
+                                        <input id="data-name" type="text" class="form-control" name="name">
+                                        <label for="data-name" data-feedback-for="name" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <div class="d-flex justify-content-end mb-2">
+                                    <div class="w-100">
+                                        <label for="data-surname" class="fs-6 fw-semibold">Cognome</label>
+                                        <input id="data-surname" type="text" class="form-control" name="surname">
+                                        <label for="data-surname" data-feedback-for="surname" class="invalid-feedback d-block" aria-live="polite"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 order-1">
+                                <fieldset name="data-gender">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <div>
+                                            <legend class="fs-6 fw-semibold">Genere:</legend>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-M" name="gender" value="M">
+                                            <label class="form-check-label" for="data-gender-M">Maschio</label>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-F" name="gender" value="F">
+                                            <label class="form-check-label" for="data-gender-F">Femmina</label>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Non-Binary" name="gender" value="Non-binary">
+                                            <label class="form-check-label" for="data-gender-Non-Binary">Non-binario</label>
+                                            <input class="form-check-input ms-2" type="radio" id="data-gender-Altro" name="gender" value="Altro">
+                                            <label class="form-check-label" for="data-gender-Altro">Altro</label>
+                                        </div>
+                                    </div>
+                                    <label for="data-gender" data-feedback-for="gender" class="invalid-feedback d-block text-center" aria-live="polite"></label>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-2 mb-2 order-first">
+                        <div class="d-flex justify-content-center mb-2">
+                            <div class="col-5 col-md-9">
+                                <div class="profile_picture-container">
+                                    <img src="/profiles/images/default.png" alt="Immagine di profilo dell'operatore" id="profile-picture" class="profile_picture">
+                                </div>
+                            </div>
+                        </div>
+                        <label for="data-picture" class="form-label fs-6 fw-semibold">Carica immagine</label>
+                        <input class="form-control" type="file" id="data-picture" accept="image/png, image/jpeg">
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="d-flex justify-content-start mb-2">
+                            <div class="w-100">
+                                <label for="data-phone" class="fs-6 fw-semibold">Telefono</label>
+                                <input id="data-phone" type="tel" class="form-control" name="phone">
+                                <label for="data-phone" data-feedback-for="phone" class="invalid-feedback d-block" aria-live="polite"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <div class="d-flex justify-content-end mb-2">
+                            <div class="w-100">
+                                <label for="data-role" class="fs-6 fw-semibold">Ruolo</label>
+                                <input id="data-role" type="text" class="form-control" name="role">
+                                <label for="data-role" data-feedback-for="role" class="invalid-feedback d-block" aria-live="polite"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-12">
+                        <fieldset id="permissions-fieldset">
+                            <legend class="fs-6 fw-semibold">Permessi</legend>
+
+                            <div class="form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="data-enabled" name="enabled">
+                                <label class="form-check-label" for="data-enabled">abilitato</label>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-12">
+                        <fieldset id="services-fieldset">
+                            <legend class="fs-6 fw-semibold">Servizi</legend>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                        <h2 class="form-check-label fs-6 fw-semibold">Orario lavorativo</h2>
+                        <label data-feedback-for="working_time" class="invalid-feedback d-block" aria-live="polite"></label>
+                        
+                        <div class="accordion" id="working_time-accordion"></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="mb-4"></div>
+    </main>
+
+    <!-- Modal conferma cancellazione -->
+    <div class="modal fade" id="confirm_delete-modal" tabindex="-1" aria-labelledby="confirm_delete-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm_delete-modal-label">Sei sicuro?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No</button>
+                    <button id="delete-btn" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Si</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loading-container"></div>
+</body>
+
+<script type="module" src="./main.js"></script>
+
+</html>

@@ -1,0 +1,18 @@
+:root {
+    --product-tab-width: 10rem;
+    --product-tab-height: 6rem;
+}
+
+.product-tab-name-container {
+    width: var(--product-tab-width);
+}
+
+.product-tab-image-container {
+    width: var(--product-tab-width);
+    height: var(--product-tab-height);
+}
+
+.product-tab-image {
+    max-width: var(--product-tab-width);
+    max-height: var(--product-tab-height);
+}

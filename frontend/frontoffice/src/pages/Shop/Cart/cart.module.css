@@ -1,0 +1,14 @@
+.container-image {
+    width: 12rem;
+    height: 12rem;
+}
+
+.text-total {
+    font-size: 2rem;
+}
+
+.container-checkout {
+    border: 1px solid #d4d4d4;
+    border-radius: 0.5rem;
+    padding: 2rem
+}

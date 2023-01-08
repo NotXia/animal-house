@@ -6,6 +6,26 @@ const PermissionModel = require("../models/auth/permission");
 const bcrypt = require("bcrypt");
 const utils = require("../utilities");
 const error = require("../error_handler");
+const mailer = require("./email/mailer");
+const file_controller = require("./file.js");
+const path = require('path');
+const HubModel = require("../models/services/hub");
+
+
+async function saveProfilePicture(image_name) {
+    const picture = path.basename(image_name); // Normalizzazione percorso
+    await file_controller.utils.claim([picture], process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH);
+}
+
+async function deleteProfilePicture(image_name) {
+    const picture = path.basename(image_name); // Normalizzazione percorso
+
+    // Non si può cancellare l'immagine di default
+    if (picture == path.basename(process.env.PROFILE_PICTURE_DEFAULT_URL)) { return; }
+
+    await file_controller.utils.delete([picture], process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH);
+}
+
 
 async function insertOperator(req, res) {
     let data = res.locals; // Estrae i dati validati
@@ -17,6 +37,8 @@ async function insertOperator(req, res) {
     try {
         new_operator = await new OperatorModel(data.operator).save();
         
+        if (data.user.picture) { await saveProfilePicture(data.user.picture); } 
+
         data.user.enabled = true;
         data.user.permissions.push("operator");
         data.user.type_id = new_operator._id;
@@ -43,10 +65,21 @@ async function insertCustomer(req, res) {
     try {
         new_customer = await new CustomerModel(data.customer).save();
 
-        data.user.permissions = data.user.permissions.concat(["customer"]);
+        if (data.user.picture) { await saveProfilePicture(data.user.picture); } 
+
+        data.user.permissions = ["to_activate_user"];
         data.user.type_id = new_customer._id;
         data.user.type_name = "customer";
         new_user = await new UserModel(data.user).save();
+
+        if (data.user.email.includes("@animalhouse")) {
+            new_user.enabled = true;
+            new_user.permissions = ["customer", "post_write", "comment_write"];
+            await new_user.save();
+        }
+        else {
+            mailer.sendWelcomeEmail(new_user);
+        }
 
         return res.status(utils.http.CREATED).location(`${req.baseUrl}/customers/${new_user.username}`).json(await new_user.getAllData());
     } catch (e) {
@@ -96,18 +129,36 @@ function updateUser(is_operator) {
         try {
             // Aggiornamento dei dati generici dell'utente
             if (data.user) { 
-                if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
                 user = await UserModel.findOne({ username: req.params.username });
+
+                // Aggiornamento immagine di profilo
+                if (data.user.picture && data.user.picture != user.picture) {
+                    await saveProfilePicture(data.user.picture);
+                    if (user.picture) { await deleteProfilePicture(user.picture); }
+                    user.picture = path.basename(data.user.picture);
+                }
+
+                if (data.user.password) { data.user.password = await bcrypt.hash(data.user.password, parseInt(process.env.SALT_ROUNDS)) };
                 if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
                 for (const [field, value] of Object.entries(data.user)) { user[field] = value; }
                 await user.save();
-        
             }
 
             // Aggiornamento dei dati specifici
             if (is_operator && data.operator) {
                 let operator = await OperatorModel.findById(user.type_id).exec();
                 if (!operator) { throw error.generate.FORBIDDEN("L'utente non è un operatore"); }
+
+                // Controllo esistenza hub orario lavorativo
+                if (data.operator.working_time) {
+                    for (const day of utils.WEEKS) {
+                        for (const slot of data.operator.working_time[day]) {
+                            const hub = await HubModel.findOne({ code: slot.hub });
+                            if (!hub) { throw error.generate.BAD_REQUEST([{ field: "working_time", message: `Hub ${slot.hub} inesistente` }]); }
+                        }
+                    }
+                }
+
                 for (const [field, value] of Object.entries(data.operator)) { operator[field] = value; }
                 await operator.save();
             } 
@@ -135,7 +186,9 @@ function deleteUser(is_operator) {
             if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
             
             // Cancellazione utenza
-            await UserModel.findByIdAndDelete(user._id);
+            const deleted_user = await UserModel.findByIdAndDelete(user._id);
+
+            if (deleted_user.picture) { await deleteProfilePicture(deleted_user.picture); }
 
             // Cancellazione dati specifici
             if (is_operator) {
@@ -152,6 +205,18 @@ function deleteUser(is_operator) {
     }
 }
 
+// Ricerca di tutti i permessi
+async function getPermissions(req, res) {
+    try {
+        let permissions = await PermissionModel.find().exec();
+        permissions = permissions.map((permission) => permission.getData());
+        
+        return res.status(utils.http.OK).json(permissions);
+    } catch (err) {
+        return error.response(err, res);
+    }
+}
+
 // Ricerca dei dati di un permesso
 async function searchPermissionByName(req, res) {
     try {
@@ -164,6 +229,67 @@ async function searchPermissionByName(req, res) {
     }
 }
 
+// Gestisce l'attivazione dell'account di un cliente
+async function enableCustomer(req, res) {
+    let user;
+
+    try {
+        user = await UserModel.findOne({ username: req.auth.username, type_name: "customer" });
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (user.enabled) { throw error.generate.FORBIDDEN("Utente già abilitato"); }
+
+        user.enabled = true;
+        user.permissions = ["customer", "post_write", "comment_write"];
+        await user.save();
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json(await user.getAllData());
+}
+
+// Gestisce l'invio di una nuova email di verifica dell'account
+async function sendVerificationMail(req, res) {
+    try {
+        user = await UserModel.findOne({ username: req.params.username, type_name: "customer" });
+        if (!user) { throw error.generate.NOT_FOUND("Utente inesistente"); }
+        if (user.enabled) { throw error.generate.FORBIDDEN("Utente già abilitato"); }
+
+        await mailer.sendVerificationEmail(user);
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.sendStatus(utils.http.NO_CONTENT);
+}
+
+
+// Controlla la disponibilità di uno username
+async function checkUsernameAvailability(req, res) {
+    let user;
+
+    try {
+        user = await UserModel.findOne({ username: req.params.username }).exec();
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json({ available: user ? false : true });
+}
+
+// Controlla la disponibilità di una email
+async function checkEmailAvailability(req, res) {
+    let user;
+
+    try {
+        user = await UserModel.findOne({ email: req.params.email }).exec();
+    } catch (err) {
+        return error.response(err, res);
+    }
+
+    return res.status(utils.http.OK).json({ available: user ? false : true });
+}
+
 
 module.exports = {
     insertOperator: insertOperator,
@@ -172,5 +298,10 @@ module.exports = {
     searchUserProfile: searchUserProfile,
     updateUser: updateUser,
     deleteUser: deleteUser,
-    getPermissionByName: searchPermissionByName
+    getPermissions: getPermissions,
+    getPermissionByName: searchPermissionByName,
+    enableCustomer: enableCustomer,
+    sendVerificationMail: sendVerificationMail,
+    checkUsernameAvailability: checkUsernameAvailability,
+    checkEmailAvailability: checkEmailAvailability
 }

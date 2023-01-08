@@ -1,0 +1,6 @@
+
+.no-arrow-controls {
+    -webkit-appearance: none !important;
+    margin: 0;
+    -moz-appearance: textfield !important;
+}

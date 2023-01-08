@@ -1,0 +1,9 @@
+.button-icon {
+    height: 1.5rem;
+    font-size: 1.25rem;
+}
+
+.category-icon, .species-icon, .topic-icon {
+    max-height: 2rem;
+    max-width: 2rem;
+}

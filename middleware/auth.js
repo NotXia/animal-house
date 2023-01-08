@@ -15,7 +15,7 @@ function isSubset(subset, superset) {
  *          auth_middleware([ ["write_shop", "read_shop"] ], [ ["admin"] ]) -> ammette utenti con permessi (admin OR (write_shop AND read_shop)). admin è superuser
  *          auth_middleware() -> ammette utenti autenticati, non richiede permessi particolari
  */
-function auth_middleware(required_permissions=[], superuser_permissions=[]) {
+function auth_middleware(required_permissions=[], superuser_permissions=[], mandatory=true) {
     return [ 
         /* Verifica la presenza e validità dell'access token */
         expressJwt.expressjwt({
@@ -23,18 +23,27 @@ function auth_middleware(required_permissions=[], superuser_permissions=[]) {
             algorithms: [process.env.JWT_ALGORITHM]
         }),
         function (err, req, res, next) {
-            if (err.name === "UnauthorizedError") { return next(error.generate.UNAUTHORIZED("Token non valido")); }
+            if (err.name === "UnauthorizedError") {
+                if (!mandatory) { return next(); }
+                return next(error.generate.UNAUTHORIZED("Token non valido")); 
+            }
             return next();
         },
 
         /* Verifica i permessi */
         async function (req, res, next) {
-            if (required_permissions.length === 0 && superuser_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
-
-            // Estrazione permessi
-            const user = await UserModel.findById(req.auth.id, { permissions: 1 });
+            if (!req.auth && !mandatory) { 
+                req.auth = {};
+                req.auth.is_vip = false;
+                return next(); 
+            }
+            // Estrazione dati utente
+            const user = await UserModel.findOne({ username: req.auth.username });
             const user_permissions = user.permissions;
+            req.auth.permissions = user.permissions;
+            req.auth.is_vip = await user.isVIP();
 
+            if (required_permissions.length === 0 && superuser_permissions.length === 0) { return next(); } // Caso in cui non sono richiesti permessi particolari
 
             // Verifica se uno dei gruppi di permessi da superuser è soddisfatto
             for (const permissions of superuser_permissions) {

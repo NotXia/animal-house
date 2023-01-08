@@ -9,12 +9,15 @@ const animal_middleware = require("../middleware/animal");
 const animal_controller = require("../controllers/animal");
 const cart_middleware = require("../middleware/shop/cart");
 const cart_controller = require("../controllers/shop/cart");
+const customer_controller = require("../controllers/user.customer");
 
 /* Operazioni sull'utenza dei clienti */
+router.put("/customers/enable-me", auth_middleware([ ["to_activate_user"] ], []), user_controller.enableCustomer);
+router.get("/customers/:username/verification-mail", user_middleware.validateSendVerificationMail, user_controller.sendVerificationMail);
 router.post("/customers/", [ user_middleware.validateInsertCustomer ], user_controller.insertCustomer);
-router.get("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(is_operator=false));
-router.put("/customers/:username", [ auth_middleware([ ["user"] ] , [ ["admin"] ]), user_middleware.validateUpdateCustomer ], user_controller.updateUser(is_operator=false));
-router.delete("/customers/:username", [ auth_middleware([ ["user"] ], [ ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(is_operator=false));
+router.get("/customers/:username", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), user_middleware.validateSearchUser ], user_controller.searchUser(is_operator=false));
+router.put("/customers/:username", [ auth_middleware([ ["customer"] ] , [ ["admin"] ]), user_middleware.validateUpdateCustomer ], user_controller.updateUser(is_operator=false));
+router.delete("/customers/:username", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), user_middleware.validateDeleteUser ], user_controller.deleteUser(is_operator=false));
 
 /* Operazioni sull'utenza degli operatori */
 router.post("/operators/", [ auth_middleware([], [ ["admin"] ]), user_middleware.validateInsertOperator ], user_controller.insertOperator);
@@ -35,6 +38,12 @@ router.put("/operators/:username/working-time/", [ auth_middleware([ ["operator"
 router.get("/operators/:username/availabilities/", operator_middleware.validateGetAvailabilities, operator_controller.getAvailabilities);
 
 
+/* Controllo sulla disponibilità di uno username */
+router.get("/usernames/available/:username", user_middleware.validateUsernameAvailability, user_controller.checkUsernameAvailability);
+/* Controllo sulla disponibilità di una mail */
+router.get("/emails/available/:email", user_middleware.validateEmailAvailability, user_controller.checkEmailAvailability);
+
+
 /* Operazioni profilo degli utenti */
 router.get("/profiles/:username", user_middleware.validateSearchUserProfile, user_controller.searchUserProfile);
 
@@ -44,11 +53,16 @@ router.get("/customers/:username/animals/", animal_middleware.validateGetAnimals
 router.put("/customers/:username/animals/", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator"] ]), animal_middleware.validateUpdateUserAnimals ], animal_controller.updateUserAnimals)
 
 /* Operazioni sui permessi */
+router.get("/permissions/", [ auth_middleware() ], user_controller.getPermissions);
 router.get("/permissions/:permission_name", [ auth_middleware([ ["operator"] ], [ ["admin"] ]), user_middleware.validateSearchPermissionByName ], user_controller.getPermissionByName);
 
 /* Operazioni sul carrello shop */
 router.post("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateAddToCart ], cart_controller.addToCart);
 router.get("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateGetCart ], cart_controller.getCart);
 router.put("/customers/:username/cart/", [ auth_middleware([ ["customer"] ], [ ["admin"] ]), cart_middleware.validateUpdateCart ], cart_controller.updateCart);
+
+router.post("/customers/vip/checkout", auth_middleware([ ["customer"] ], []), customer_controller.checkoutVIP);
+router.post("/customers/vip/success", auth_middleware([ ["customer"] ], []), customer_controller.successVIP);
+router.get("/customers/vip/price", customer_controller.priceVIP);
 
 module.exports = router;

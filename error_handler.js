@@ -55,11 +55,12 @@ function _errorGenerator(code) {
     Le funzioni hanno signature f(message="")
 */
 const errors = {
-    BAD_REQUEST:    _errorGenerator(http.BAD_REQUEST),
-    UNAUTHORIZED:   _errorGenerator(http.UNAUTHORIZED),
-    FORBIDDEN:      _errorGenerator(http.FORBIDDEN),
-    NOT_FOUND:      _errorGenerator(http.NOT_FOUND),
-    CONFLICT:      _errorGenerator(http.CONFLICT)
+    BAD_REQUEST:        _errorGenerator(http.BAD_REQUEST),
+    PAYMENT_REQUIRED:   _errorGenerator(http.PAYMENT_REQUIRED),
+    UNAUTHORIZED:       _errorGenerator(http.UNAUTHORIZED),
+    FORBIDDEN:          _errorGenerator(http.FORBIDDEN),
+    NOT_FOUND:          _errorGenerator(http.NOT_FOUND),
+    CONFLICT:           _errorGenerator(http.CONFLICT)
 }
 
 /**
@@ -68,12 +69,14 @@ const errors = {
 function errorResponse(err, res) {
     switch (err.code) {
         case http.BAD_REQUEST:
+        case http.PAYMENT_REQUIRED:
         case http.UNAUTHORIZED:
         case http.FORBIDDEN:
         case http.NOT_FOUND:
         case http.CONFLICT:
             return res.status(err.code).json(JSON.parse(err.message));
         default:
+            console.error(err);
             return res.status(http.INTERNAL_SERVER_ERROR).json(formatErrorMessage("Problema interno"));
     }
 }

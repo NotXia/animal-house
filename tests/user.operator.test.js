@@ -167,6 +167,24 @@ describe("Inserimento/Aggiornamento orario lavorativo", function () {
                 }
             }).expect(400);
     });
+
+    test("Aggiornamento errato - Slot sovrapposti", async function () {
+        await curr_session.put(`/users/operators/${operator2.username}/working-time/`)
+            .set({ Authorization: `Bearer ${operator2.token}` })
+            .send({
+                working_time: { 
+                    monday: [
+                        { time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() },  hub: "MXP1" },
+                        { time: { start: moment("12:00", "HH:mm").format(), end: moment("15:00", "HH:mm").format() },  hub: "MXP1" }
+                    ], 
+                    tuesday: [
+                        { time: { start: moment("9:00", "HH:mm").format(), end: moment("13:00", "HH:mm").format() }, hub: "MXP1" },
+                        { time: { start: moment("13:00", "HH:mm").format(), end: moment("17:00", "HH:mm").format() }, hub: "MXP1" }
+                    ], 
+                    wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
+            }).expect(400);
+    });
+
 });
 
 describe("Ricerca orario lavorativo", function () {

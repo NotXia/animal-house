@@ -8,6 +8,7 @@ const validateInsertService = [
     validator.validateServiceDescription("body", REQUIRED),
     validator.validateServiceDuration("body", REQUIRED),
     validator.validateServicePrice("body", REQUIRED),
+    validator.validateServiceOnline("body", REQUIRED),
     validator.validateServiceTarget("body", OPTIONAL),
     utils.validatorErrorHandler
 ];
@@ -29,6 +30,7 @@ const validateUpdateService = [
     validator.validateServiceDescription("body", OPTIONAL),
     validator.validateServiceDuration("body", OPTIONAL),
     validator.validateServicePrice("body", OPTIONAL),
+    validator.validateServiceOnline("body", OPTIONAL),
     validator.validateServiceTarget("body", OPTIONAL),
     utils.validatorErrorHandler
 ];

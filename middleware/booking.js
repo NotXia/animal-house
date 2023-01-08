@@ -15,7 +15,18 @@ const validateInsertAppointment = [
     animal_validator.validateAnimalId("body", REQUIRED, "animal_id"),
     user_validator.validateUsername("body", REQUIRED, "operator"),
     hub_validator.validateCode("body", REQUIRED, "hub"),
-    utils.validatorErrorHandler
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        if ((req.body.customer != req.auth.username) && (req.body.operator != req.auth.username)) {
+            return next(error.generate.FORBIDDEN("Non puoi prenotare per gli altri utenti"));
+        }
+        let err = await animal_validator.verifyAnimalOwnership(req.body.animal_id, req.body.customer)
+        if (err) { return next(err); }
+
+        return next();
+    }
 ]
 
 const validateSearchAvailabilities = [
@@ -62,6 +73,24 @@ const validateDeleteAppointment = [
 
         return next();
     }
+];
+
+const validateCheckout  = [
+    booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
+    utils.validatorErrorHandler,
+    async function (req, res, next) {
+        if (req.auth.superuser) { return next(); }
+
+        let err = await booking_validator.verifyAppointmentOwnership(req.params.appointment_id, req.auth.username);
+        if (err) { return next(err); }
+
+        return next();
+    }
+];
+
+const validateSuccess = [
+    booking_validator.validateAppointmentId("param", REQUIRED, "appointment_id"),
+    utils.validatorErrorHandler
 ]
 
 module.exports = {
@@ -69,5 +98,7 @@ module.exports = {
     validateSearchAvailabilities: validateSearchAvailabilities,
     validateGetAppointmentById: validateGetAppointmentById,
     validateGetAppointmentsByUser: validateGetAppointmentsByUser,
-    validateDeleteAppointment: validateDeleteAppointment
+    validateDeleteAppointment: validateDeleteAppointment,
+    validateCheckout: validateCheckout,
+    validateSuccess: validateSuccess
 }

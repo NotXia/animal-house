@@ -12,4 +12,8 @@ router.get("/", [ auth_middleware([ ["customer"] ], [ ["admin"], ["operator"] ])
 
 router.delete("/:appointment_id", [ auth_middleware([ ["customer"], ["operator"] ], [ ["admin"] ]), booking_middleware.validateDeleteAppointment ], booking_controller.deleteAppointment);
 
+router.post("/:appointment_id/checkout", [ auth_middleware([ ["customer"] ] , []), booking_middleware.validateCheckout ], booking_controller.checkout);
+router.post("/:appointment_id/success", booking_middleware.validateSuccess, booking_controller.paymentSuccess);
+
+
 module.exports = router;

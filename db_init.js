@@ -6,64 +6,90 @@ const mongoose = require("mongoose");
 const UserModel = require("./models/auth/user");
 const OperatorModel = require("./models/auth/operator");
 const HubModel = require("./models/services/hub");
+const PermissionModel = require("./models/auth/permission");
+const PriceModel = require("./models/price");
+const DiscountModel = require("./models/discount");
 
 
 async function init() {
-    await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`);
+    if (process.env.PROTECTED_DB) { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}?authSource=admin`); }
+    else { await mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_DATABASE_NAME}`); }
 
-    const hq = await new HubModel({
-        code: "MXP1",
-        name: "Sede centrale",
-        address: {
-            city: "Milano", street: "Via Vincenzo Monti", number: "51", postal_code: "20123"
-        },
-        position: {
-            type: "Point", coordinates: [45.483509, 9.189438]
-        },
-        opening_time: {
-            monday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
-            tuesday:    [{ start: createTime("00:00"), end: createTime("23:59") }],
-            wednesday:  [{ start: createTime("00:00"), end: createTime("23:59") }],
-            thursday:   [{ start: createTime("00:00"), end: createTime("23:59") }],
-            friday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
-            saturday:   [{ start: createTime("00:00"), end: createTime("23:59") }],
-            sunday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
-        }
-    }).save().catch((err) => { console.log(err.message); });
+    try {
+        await new PermissionModel({ name: "admin", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "operator", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "customer", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "post_write", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "comment_write", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "warehouse", urls: [""] }).save().catch(err => {});
+        await new PermissionModel({ name: "shop_write", urls: [""] }).save().catch(err => {});
+    } catch(err) {}
 
-    
-    if (!(await UserModel.findOne({ username: "admin" }).exec())) {
-        const admin_user = await new OperatorModel({
-            role: "Admin",
-            working_time: {
-                monday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
-                tuesday:    [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
-                wednesday:  [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
-                thursday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
-                friday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
-                saturday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
-                sunday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }]
+    try {
+        const hq = await new HubModel({
+            code: "MXP1",
+            name: "Sede centrale",
+            address: { city: "Milano", street: "Via Vincenzo Monti", number: "51", postal_code: "20123" },
+            position: { type: "Point", coordinates: [45.483509, 9.189438] },
+            opening_time: {
+                monday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
+                tuesday:    [{ start: createTime("00:00"), end: createTime("23:59") }],
+                wednesday:  [{ start: createTime("00:00"), end: createTime("23:59") }],
+                thursday:   [{ start: createTime("00:00"), end: createTime("23:59") }],
+                friday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
+                saturday:   [{ start: createTime("00:00"), end: createTime("23:59") }],
+                sunday:     [{ start: createTime("00:00"), end: createTime("23:59") }],
             }
-        }).save().catch((err) => { console.log(err.message); });
-        await new UserModel({
-            username: "admin",
-            password: await bcrypt.hash("admin", parseInt(process.env.SALT_ROUNDS)),
-            email: "admin@admin.it",
-            name: "Admin",
-            surname: "Admin",
-            enabled: true,
-            permissions: ["admin"],
-            type_id: admin_user._id,
-            type_name: "operator"
-        }).save().catch((err) => { console.log(err.message); });
-    }
+        }).save();
+    } catch(err) {}
 
+    try {
+        if (!(await UserModel.findOne({ username: "admin" }).exec())) {
+            const admin_user = await new OperatorModel({
+                role: "Admin",
+                working_time: {
+                    monday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                    tuesday:    [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                    wednesday:  [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                    thursday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                    friday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                    saturday:   [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }],
+                    sunday:     [{ time: { start: createTime("00:00"), end: createTime("23:59") }, hub: "MXP1" }]
+                }
+            }).save();
+
+            await new UserModel({
+                username: "admin",
+                password: await bcrypt.hash("admin", parseInt(process.env.SALT_ROUNDS)),
+                email: "admin@admin.it",
+                name: "Admin",
+                surname: "Admin",
+                enabled: true,
+                permissions: ["admin"],
+                gender: "Altro",
+                type_id: admin_user._id,
+                type_name: "operator"
+            }).save();
+        }
+    } catch(err) {}
+
+    try {
+        await new PriceModel({ name: "vip", price: 19999 }).save();
+    }
+    catch (err) {}
+
+    try {
+        if (!await DiscountModel.findOne({ type: "vip" })) {
+            await new DiscountModel({
+                type: "vip",
+                discount: 20,
+                start_date: "2023-01-01"
+            }).save();
+        }
+    } catch (err) {}
+    
     await mongoose.connection.close();
+    await mongoose.disconnect();
 };
 
-
 module.exports = init;
-
-if (!process.env.TESTING) {
-    init();
-}

@@ -1,7 +1,10 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const CustomerModel = require("./customer");
 const OperatorModel = require("./operator");
+const path = require('path');
+const moment = require("moment");
 
 const permissionSchema = mongoose.Schema({
     operator: { type: Boolean, default: false },
@@ -35,6 +38,10 @@ const userScheme = mongoose.Schema({
         match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     },
 
+    picture: {
+        type: String, default: ""
+    },
+
     name: { type: String, required: true },
     surname: { type: String, required: true },
     gender: { type: String },
@@ -48,13 +55,15 @@ const userScheme = mongoose.Schema({
     creationDate: {
         type: Date,
         required: true,
-        default: new Date()
+        default: () => new Date()
     },
 
     permissions: [{ type: String }],
     type_id: { type: ObjectId, required: true },
     type_name: { type: String, required: true, enum: ['customer', 'operator'] }
-}, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
+}, { toJSON: { virtuals: true }, toObject: { virtuals: true }, collation: {locale: "en", strength: 2} });
+
+userScheme.index({ "username": 1});
 
 userScheme.virtual("customer", {
     ref: CustomerModel.collection.collectionName,
@@ -85,14 +94,17 @@ userScheme.methods.getAllData = async function() {
         phone: data.phone,
         permissions: data.permissions,
         enabled: data.enabled,
+        picture: data.picture ? path.join(process.env.PROFILE_PICTURE_IMAGES_BASE_URL, data.picture) : process.env.PROFILE_PICTURE_DEFAULT_URL
     };
 
     if (this.isOperator()) {
         out.role = data.operator.role;
         out.services_id = data.operator.services_id;
+        out.working_time = (await this.findType()).getWorkingTimeData()
     }
     else {
         out.address = data.customer.address;
+        out.vip_until = data.customer.vip_until;
     }
 
     return out;
@@ -105,6 +117,7 @@ userScheme.methods.getPublicData = async function() {
         username: data.username,
         name: data.name,
         surname: data.surname,
+        picture: data.picture != "" ? path.join(process.env.PROFILE_PICTURE_IMAGES_BASE_URL, data.picture) : process.env.PROFILE_PICTURE_DEFAULT_URL
     };
 
     if (this.isOperator()) {
@@ -112,6 +125,9 @@ userScheme.methods.getPublicData = async function() {
         out.phone = data.phone,
         out.role = data.operator.role;
         out.services_id = data.operator.services_id;
+    }
+    else {
+        out.vip_until = data.customer.vip_until;
     }
 
     return out;
@@ -138,6 +154,14 @@ userScheme.methods.updateType = async function(updated_data) {
     const Model = this.isOperator() ? OperatorModel : CustomerModel;
 
     return await Model.findByIdAndUpdate(this.type_id, updated_data, { new: true, runValidators: true });
+};
+
+
+userScheme.methods.isVIP = async function() {
+    if (this.isOperator()) { return false; }
+    
+    const customer = await this.findType();
+    return moment(customer.vip_until).isSameOrAfter(moment());
 };
 
 module.exports = mongoose.model("users", userScheme);

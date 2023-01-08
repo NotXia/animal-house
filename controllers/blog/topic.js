@@ -3,6 +3,7 @@ const utils = require("../../utilities");
 const error = require("../../error_handler");
 const TopicModel = require("../../models/blog/topic");
 const validator = require('express-validator');
+const PostModel = require("../../models/blog/post");
 
 /* Creazione di un nuovo topic */
 async function insertTopic(req, res) {
@@ -47,8 +48,15 @@ async function updateTopic(req, res) {
         
         for (const [field, value] of Object.entries(updated_data)) { updated_topic[field] = value; }
         await updated_topic.save();
+
+        if (updated_data.name) { // È cambiato il nome del topic
+            await PostModel.updateMany({ topic: to_change_topic }, { topic: updated_data.name });
+        }
     }
     catch (err) {
+        if (err.code === utils.MONGO_DUPLICATED_KEY) {
+            err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
+        }
         return error.response(err, res);
     }
 

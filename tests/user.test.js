@@ -4,6 +4,9 @@ const utils = require("./utils/utils");
 const session = require('supertest-session');
 const { createTime } = require("../utilities");
 const bcrypt = require("bcrypt");
+const path = require("path");
+const fs = require("fs");
+const moment = require("moment");
 
 const HubModel = require("../models/services/hub");
 const UserModel = require("../models/auth/user");
@@ -13,6 +16,9 @@ const PermissionModel = require("../models/auth/permission");
 let curr_session = session(app);
 let admin_token;
 
+const img1 = path.resolve(path.join(__dirname, "/resources/img1.png"));
+const img2 = path.resolve(path.join(__dirname, "/resources/img2.png"));
+
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
 });
@@ -20,10 +26,16 @@ beforeAll(async function () {
 
 describe("Registrazione di un cliente", function () {
     test("Registrazione corretta", async function () {
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img1)
+            .expect(200);
+        const image_path = res.body[0];
+
         await curr_session.post('/users/customers/').send({
             username: "Marcolino23", password: "MarcobelloNapoli32!",
             email: "marconi17@gmail.com", phone: "3212345678",
-            name: "Luigi", surname: "Pirandello",
+            name: "Luigi", surname: "Pirandello", picture: image_path,
             address:{ city: "Salò", street: "Viale del vittoriale", number: "23", postal_code: "40100" }
         }).expect(201);
 
@@ -33,6 +45,7 @@ describe("Registrazione di un cliente", function () {
         expect(user.email).toEqual("marconi17@gmail.com");
         expect(user.customer).toBeDefined();
         expect(user.customer.address.city).toEqual("Salò");
+        expect( fs.existsSync(path.join(process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH, image_path)) ).toBeTruthy();
     });
 
     test("Registrazione errata - username esistente", async function () {
@@ -78,7 +91,7 @@ describe("Ricerca di un cliente", function () {
 describe("Modifica della password di un cliente", function () {
     test("Modifica password come admin", async function () {
         await curr_session.put('/users/customers/Marcolino23').send({ 
-            password: "MarcoBologna17!"
+            password: "MarcoBologna17!", enabled: false
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
 
         const user = await UserModel.findOne({ username: "Marcolino23" }, { password: 1 }).exec();
@@ -94,11 +107,39 @@ describe("Modifica della password di un cliente", function () {
     });
 });
 
+describe("Modifica immagine di profilo", function () {
+    test("Modifica corretta", async function () {
+        let res = await curr_session.post(`/files/images/`)
+            .set({ Authorization: `Bearer ${admin_token}`, "content-type": "application/octet-stream" })
+            .attach("file0", img2)
+            .expect(200);
+        const image_path = res.body[0];
+
+        await curr_session.put('/users/customers/Marcolino23').send({ 
+            picture: image_path
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+
+        expect( fs.existsSync(path.join(process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH, image_path)) ).toBeTruthy();
+    });
+
+    test("Modifica password non soddisfacendo i requisiti minimi", async function () {
+        let res = await curr_session.put('/users/customers/Marcolino23').send({ 
+            password: "12345"
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
+        expect(res.body[0].field).toEqual("password");
+        expect(res.body[0].message).toBeDefined();
+    });
+});
+
 describe("Cancellazione di un cliente", function () {
     test("Cancellazione come admin", async function () {
+        const to_delete_user = await UserModel.findOne({ username: "Marcolino23" }).exec();
+
         await curr_session.delete('/users/customers/Marcolino23').set({ Authorization: `Bearer ${admin_token}` }).expect(204);
         
         expect(await UserModel.findOne({ username: "Marcolino23" }).exec()).toBeNull();
+        expect( fs.existsSync(path.join(process.env.PROFILE_PICTURE_IMAGES_DIR_ABS_PATH, to_delete_user.picture)) ).toBeFalsy();
+
     });
 });
 
@@ -114,7 +155,8 @@ describe("Registrazione e cancellazione operatore - senza permesso admin (non au
             username: "Luigino23", password: "LuiginoVerona33!",
             email: "luigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            role: "Pissicologo"
+            role: "Pissicologo",
+            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).expect(401);
 
         expect(await UserModel.findOne({ username: "Luigino23" }).exec()).toBeNull();
@@ -139,13 +181,21 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             username: "Luigino234", password: "LuiginoVerona33!",
             email: "luigino444@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
-            permission: { operator: true }, role: "Quoco"
+            permission: { operator: true }, role: "Quoco",
+            working_time: { 
+                monday: [
+                    { time: {start: moment("9:00", "HH:mm").format(), end: moment("10:00", "HH:mm").format()}, hub: "MPX1" }
+                ], 
+                tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] 
+            }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(201);
 
         const user = await UserModel.findOne({ username: "Luigino234" }).populate("operator").exec();
         expect(user).toBeDefined();
         expect(await bcrypt.compare("LuiginoVerona33!", user.password)).toBeTruthy();
         expect(user.operator).toBeDefined();
+        expect(user.operator.working_time.monday.length).toEqual(1);
+        expect(user.operator.working_time.tuesday.length).toEqual(0);
     });
 
     test("Creazione di un cliente", async function () {
@@ -162,6 +212,7 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "sicuramentenonluigino44@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
             permission: { operator: true },
+            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
         const user = await UserModel.findOne({ username: "Marcolino23" }).populate("operator").exec();
@@ -175,12 +226,22 @@ describe("Registrazione e login operatore - tramite permesso admin", function ()
             email: "marconi17@gmail.com",
             name: "Gabriele", surname: "D'Annunzio",
             permission: { operator: true },
+            working_time: { monday: [], tuesday: [], wednesday: [], thursday: [], friday: [], saturday: [], sunday: [] }
         }).set({ Authorization: `Bearer ${admin_token}` }).expect(409);
 
         expect(await UserModel.findOne({ username: "NonSonoMarcolino23" }).exec()).toBeNull();
         const user = await UserModel.findOne({ email: "marconi17@gmail.com" }).populate("operator").exec();
         expect(user.operator).toBeNull();
         expect(res.body.message).toBeDefined();
+    }),
+
+    test("Registrazione errata di un operatore - orario lavorativo mancante", async function () {
+        await curr_session.post('/users/operators/').send({
+            username: "Luigino2345", password: "LuiginoVerona33!",
+            email: "luigino4444@gmail.com",
+            name: "Gabriele", surname: "D'Annunzio",
+            permission: { operator: true }, role: "Quoco",
+        }).set({ Authorization: `Bearer ${admin_token}` }).expect(400);
     }),
 
     test("Cancellazione cliente", async function () {
@@ -262,6 +323,24 @@ describe("Modifica di un operatore", function () {
     });
 });
 
+describe("Test disponibilità username / email", function () {
+    test("Verifica username", async function () {
+        let res = await curr_session.get('/users/usernames/available/Luigino234').expect(200);
+        expect(res.body.available).toBeFalsy();
+
+        res = await curr_session.get('/users/usernames/available/CiaoneLuigino').expect(200);
+        expect(res.body.available).toBeTruthy();
+    });
+
+    test("Verifica email", async function () {
+        let res = await curr_session.get('/users/emails/available/newnewluigino01@gmail.com').expect(200);
+        expect(res.body.available).toBeFalsy();
+
+        res = await curr_session.get('/users/emails/available/ciaoneluigino01@gmail.com').expect(200);
+        expect(res.body.available).toBeTruthy();
+    });
+});
+
 
 describe("Cancellazione di un operatore - tramite permesso admin", function () {
     test("Cancellazione di un operatore", async function () {
@@ -275,11 +354,16 @@ describe("Cancellazione di un operatore - tramite permesso admin", function () {
 
 describe("Ricerca di permessi", function () {
     test("Ricerca corretta", async function () {
-        await new PermissionModel({ name: "test_permission", url: "/admin/control_panel" }).save();
+        const res = await curr_session.get('/users/permissions/').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
+        expect(res.body.length).toBeGreaterThanOrEqual(0);
+    });
+
+    test("Ricerca corretta", async function () {
+        await new PermissionModel({ name: "test_permission", urls: ["/admin/control_panel"] }).save();
 
         const res = await curr_session.get('/users/permissions/test_permission').set({ Authorization: `Bearer ${admin_token}` }).expect(200);
         expect(res.body.name).toEqual("test_permission");
-        expect(res.body.url).toEqual("/admin/control_panel");
+        expect(res.body.urls).toEqual(["/admin/control_panel"]);
 
         await PermissionModel.findOneAndDelete({ name: "test_permission" });
     });

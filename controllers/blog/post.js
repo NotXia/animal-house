@@ -45,15 +45,16 @@ async function searchPosts(req, res) {
         // Composizione query di ricerca
         if (req.query.authors) { query.author = { "$in": req.query.authors }; }
         if (req.query.topic) { query.topic = req.query.topic; }
+        if (req.query.title) { query.title = {"$regex" : `.*${req.query.title}.*`, "$options" : "i"}; }
 
         // Composizione criterio di
-        let sort_criteria = { creationDate: "desc" };
-        if (req.query.oldest) { sort_criteria = { creationDate: "asc" }; }
+        let sort_criteria = { creationDate: "desc", _id: "asc" };
+        if (req.query.oldest) { sort_criteria = { creationDate: "asc", _id: "asc" }; }
     
         let posts = await PostModel.find(query)
                             .sort(sort_criteria)
+                            .skip(req.query.page_number*req.query.page_size)
                             .limit(req.query.page_size)
-                            .skip(req.query.page_number)
                             .exec();
 
         posts = posts.map((post) => post.getData());
@@ -146,14 +147,14 @@ async function insertComment(req, res) {
         content : req.body.content
     };
     try {
-        updated_post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : comment } }, { new: true });
+        updated_post = await PostModel.findByIdAndUpdate(req.params.post_id, { $push : { comments : { $each: [comment], $position: 0 } } }, { new: true });
         if (!updated_post) { throw error.generate.NOT_FOUND("Post inesistente"); }
     } catch (err) {
         return error.response(err, res);
     }
     return res.status(utils.http.CREATED)
                 .location(`${req.baseUrl}/posts/${req.params.post_id}/comments/${updated_post.comments.length-1}`)
-                .json( updated_post.getCommentByIndexData(updated_post.comments.length-1) );
+                .json( updated_post.getCommentByIndexData(0) );
 }
 
 // Ricerca dei commenti dato un id di un post

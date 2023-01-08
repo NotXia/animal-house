@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+    <script type="module">
+        import {isAuthenticated, isOperator} from "/js/auth.js";
+        isAuthenticated().then(async function (is_auth) { 
+            if (is_auth) { 
+                if (await isOperator()) { window.location.href = "/admin/"; } 
+                else { window.location.href = "/"; } 
+            } 
+        });
+    </script>
+    
+    <title>Login</title>
+</head>
+<body>
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+            <h1>LOGIN</h1>
+            <div id="error_alert-container"></div>
+
+            <form id="login_form">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Accedi</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+<script type="module">
+    import {login, isOperator} from "/js/auth.js";
+
+    $(document).ready(function() {
+        $("#login_form").submit(async function(e) {
+            e.preventDefault();
+            
+            if (await login(this.username.value, this.password.value, false)) {
+                if (await isOperator()) {
+                    window.location.href = "/admin/";
+                }
+                else {
+                    window.location.href = "/";
+                }
+            }
+            else {
+                // Rimuove l'eventuale alert vecchio e crea un nuovo alert
+                $("#error_alert-container").html("");
+                $("#error_alert-container").append(`
+                    <div id="error_alert" class="alert alert-danger p-2" role="alert">
+                        Credenziali errate
+                    </div>
+                `);
+                // Il popup si può chiudere cliccandoci
+                $("#error_alert").on("click", function() { new bootstrap.Alert("#error_alert").close(); })
+            }
+        });
+    });
+</script>
+
+</html>

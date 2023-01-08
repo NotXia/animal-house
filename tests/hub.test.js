@@ -15,27 +15,6 @@ const service3 = "111111111111111111111113";
 
 beforeAll(async function () {
     admin_token = await utils.loginAsAdmin(curr_session);
-
-    const operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service1, service2 ]);
-    await curr_session.put(`/users/operators/${operator1.username}/working-time`)
-    .send({ working_time: { 
-        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
-        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
-    } }).set({ Authorization: `Bearer ${admin_token}` });
-
-    const operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service2 ]);
-    await curr_session.put(`/users/operators/${operator2.username}/working-time`)
-    .send({ working_time: { 
-        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
-        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
-    } }).set({ Authorization: `Bearer ${admin_token}` });
-
-    const operator3 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service3 ]);
-    await curr_session.put(`/users/operators/${operator3.username}/working-time`)
-    .send({ working_time: { 
-        monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
-        tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
-    } }).set({ Authorization: `Bearer ${admin_token}` });
 });
 
 describe("Creazione di hub", function () {
@@ -50,7 +29,7 @@ describe("Creazione di hub", function () {
                 postal_code: "40100"
             },
             position: {
-                type: "Point", coordinates: [44.499192, 11.327076] // Porta San Felice
+                type: "Point", coordinates: [11.327076, 44.499192] // Porta San Felice
             },
             opening_time: { 
                 monday: [{ start: moment("9:00", "HH:mm").format(), end: moment("19:00", "HH:mm").format() }],
@@ -75,8 +54,8 @@ describe("Creazione di hub", function () {
         expect(hub).toBeDefined();
         expect(hub.code).toEqual("BLQ1");
         expect(moment(hub.opening_time.monday[0].start).local().format()).toEqual(moment("9:00", "HH:mm").local().format());
-        expect(hub.position.coordinates[0]).toEqual(44.499192);
-        expect(hub.position.coordinates[1]).toEqual(11.327076);
+        expect(hub.position.coordinates[0]).toEqual(11.327076);
+        expect(hub.position.coordinates[1]).toEqual(44.499192);
     });
 
     test("Creazione corretta", async function () {
@@ -90,7 +69,7 @@ describe("Creazione di hub", function () {
                 postal_code: "40100"
             },
             position: {
-                type: "Point", coordinates: [44.484245, 11.356587] // Porta Santo Stefano
+                type: "Point", coordinates: [11.356587, 44.484245] // Porta Santo Stefano
             },
             opening_time: { 
                 monday: [{ start: moment("04:00", "HH:mm").format(), end: moment("23:00", "HH:mm").format() }],
@@ -194,6 +173,29 @@ describe("Creazione di hub", function () {
 });
 
 describe("Ricerca di hub", function() {
+    test("Setup", async function () {
+        const operator1 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service1, service2 ]);
+        await curr_session.put(`/users/operators/${operator1.username}`)
+        .send({ working_time: { 
+            monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ1" }], 
+            tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+        } }).set({ Authorization: `Bearer ${admin_token}` });
+    
+        const operator2 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service2 ]);
+        await curr_session.put(`/users/operators/${operator2.username}`)
+        .send({ working_time: { 
+            monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+            tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+        } }).set({ Authorization: `Bearer ${admin_token}` });
+    
+        const operator3 = await utils.loginAsOperatorWithPermission(curr_session, [], [ service3 ]);
+        await curr_session.put(`/users/operators/${operator3.username}`)
+        .send({ working_time: { 
+            monday: [{ time: {start: moment("9:00", "HH:mm"), end: moment("13:00", "HH:mm")}, hub: "BLQ2" }], 
+            tuesday: [], wednesday: [], thursday: [],  friday: [],  saturday: [],  sunday: [] 
+        } }).set({ Authorization: `Bearer ${admin_token}` });
+    });
+
     test("Ricerca singolo", async function () {
         const hub = await curr_session.get('/hubs/BLQ1').expect(200);
         expect(hub).toBeDefined();

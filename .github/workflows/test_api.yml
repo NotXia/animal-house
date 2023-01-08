@@ -6,8 +6,10 @@ on:
       - docs/**
 
 env:
+  ENVIRONMENT_LOADED: true
   MONGODB_URL: mongodb://localhost:27017
   MONGODB_DATABASE_NAME: AnimalHouse
+  PROTECTED_DB: false
   SALT_ROUNDS: 1
   JWT_ALGORITHM: HS256
   ACCESS_TOKEN_KEY: ${{secrets.ACCESS_TOKEN_KEY}}
@@ -22,6 +24,9 @@ env:
   BLOG_IMAGES_BASE_URL: "/posts/images"
   CUSTOMER_ANIMAL_IMAGES_DIR_ABS_PATH: "./public/animals/images"
   CUSTOMER_ANIMAL_IMAGES_BASE_URL: "/animals/images"
+  PROFILE_PICTURE_IMAGES_DIR_ABS_PATH: "./public/profiles/images"
+  PROFILE_PICTURE_IMAGES_BASE_URL: "/profiles/images"
+  PROFILE_PICTURE_DEFAULT_URL: "/profiles/images/default.png"
 
 jobs:  
   build:

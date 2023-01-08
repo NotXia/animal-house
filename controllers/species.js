@@ -3,6 +3,7 @@ const SpeciesModel = require("../models/animals/species");
 const utils = require("../utilities");
 const error = require("../error_handler");
 const { matchedData } = require('express-validator');
+const AnimalModel = require("../models/animals/animal");
 
 // Inserimento di una specie
 async function addSpecies(req, res) {
@@ -48,8 +49,15 @@ async function updateSpecies(req, res) {
         for (const [field, value] of Object.entries(updated_data)) { updated_species[field] = value; }
         await updated_species.save();
 
+        if (updated_data.name) { // È cambiato il nome della specie
+            await AnimalModel.updateMany({ species: to_change_species }, { species: updated_data.name });
+        }
+
         return res.status(utils.http.OK).json(updated_species.getData());
     } catch (err) {
+        if (err.code === utils.MONGO_DUPLICATED_KEY) {
+            err = error.generate.CONFLICT({ field: "name", message: "Nome già in uso" });
+        }
         return error.response(err, res);
     }
 }

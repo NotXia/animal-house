@@ -1,0 +1,9 @@
+/*
+    Dimensione delle icone (specie, topic, categorie)
+*/
+
+img.ah-icon {
+    max-height: 2rem;
+    max-width: 2rem;
+    margin: 0 0.2rem 0 0.2rem;
+}

@@ -257,9 +257,9 @@ definitions:
         type: string
       number:
         type: string
-      postalcode:
+      postal_code:
         type: string
-    required: [ city, street, number, postalcode ]
+    required: [ city, street, number, postal_code ]
 
   GeoJSONPoint:
     type: object

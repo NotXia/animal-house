@@ -9,6 +9,9 @@ const postSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    title: {
+        type: String, required: true
+    },
     content: {
         type: String, required: true
     },
@@ -23,11 +26,11 @@ const postSchema = mongoose.Schema({
         creationDate: {
             type: Date,
             required: true,
-            default: new Date()
+            default: () => new Date()
         },
         updateDate: {
             type: Date,
-            default: new Date()
+            default: () => new Date()
         }
     }],
     topic: { 
@@ -49,7 +52,7 @@ const postSchema = mongoose.Schema({
     creationDate: {
         type: Date,
         required: true,
-        default: new Date()
+        default: () => new Date()
     }
 });
 
@@ -57,6 +60,7 @@ postSchema.methods.getData = function() {
     return {
         id: this._id,
         author: this.author,
+        title: this.title,
         content: this.content,
         topic: this.topic,
         tag_users: this.tag_users,
