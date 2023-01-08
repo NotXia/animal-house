@@ -48,6 +48,10 @@ class ServiceSelector extends React.Component {
 
                 <div className="row">
                     {
+                        this.state.animals.length === 0 &&
+                        <p className="fs-5">Nessun animale con cui prenotare</p>
+                    }
+                    {
                         this.state.animals.map((animal) => {
                             let image_path = animal.image_path ? `${process.env.REACT_APP_DOMAIN}${animal.image_path}` : `${process.env.REACT_APP_DOMAIN}/animals/images/default.png`;
 

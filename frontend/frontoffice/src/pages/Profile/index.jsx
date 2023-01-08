@@ -136,7 +136,7 @@ class ProfilePage extends React.Component {
                                         
                             {/* Animali */}
                             {
-                                !this.state.is_operator &&
+                                !this.state.is_operator && this.state.animals?.length > 0 &&
                                 <section aria-label="Animali dell'utente" className="mt-5">
                                     <h2 className="fs-5 fw-semibold text-center">Animali di {this.state.profile.name}</h2>
                                     <div className="row">
@@ -163,7 +163,7 @@ class ProfilePage extends React.Component {
 
                             {/* Servizi */}
                             {
-                                this.state.is_operator &&
+                                this.state.is_operator && this.state.services?.length > 0 &&
                                 <section aria-label="Servizi dell'operatore" className="mt-5">
                                     <h2 className="fs-5 fw-semibold text-center">Servizi offerti da {this.state.profile.name}</h2>
                                     <div className="row">

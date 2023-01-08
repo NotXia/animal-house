@@ -82,6 +82,10 @@ class Animals extends React.Component {
                     <section aria-label="Lista dei miei animali">
                         <div className="row">
                             {
+                                this.state.animals.length === 0 &&
+                                <p className="fs-5">Non hai nessun animale :(</p>
+                            }
+                            {
                                 this.state.animals.map((animal) => (
                                     <div key={animal.id} className="col-12 col-md-6 col-lg-4 my-3">
                                         <AnimalCard animal={animal} onUpdate={this.handleUpdatedAnimal} onDelete={this.handleDeletedAnimal} />
