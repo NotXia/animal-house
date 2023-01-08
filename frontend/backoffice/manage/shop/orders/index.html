@@ -16,6 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/he/1.2.0/he.min.js"
         integrity="sha512-PEsccDx9jqX6Dh4wZDCnWMaIO3gAaU0j46W//sSqQhUQxky6/eHZyeB3NrXD2xsyugAKd4KPiDANkcuoEa2JuA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <link href="/css/style.css" rel="stylesheet">
     <script type="module">
         import { isAuthenticated, isOperator } from "/js/auth.js";
@@ -33,16 +34,10 @@
         <div id="navbar-placeholder"></div>
     </header>
 
-    <main>
-        <div class="d-flex justify-content-center mt-2 mb-2">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 col-md-8 offset-md-2 col-lg-4 offset-lg-4 mb-2">
-                        <div class="d-flex justify-content-center">
-                            <input role="search" id="search-order" class="form-control" type="input" placeholder="Cerca ordine">
-                        </div>
-                    </div>
-                </div>
+    <main class="mt-3">
+        <div id="orders-container" class="container">
+            <div class="row">
+                <h1>Ordini</h1>
             </div>
         </div>
     </main>
