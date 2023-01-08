@@ -22,6 +22,10 @@ $(document).ready(async function() {
     });
 });
 
+/**
+ * Ricerca tutti gli ordini da evadere, rimuovendo quindi quelli in attesa di pagamento, consegnati o cancellati.
+ * @returns Restituisce gli ordini filtrati
+ */
 async function getOrders() {
     let orders = await api_request({
         type: "GET", url: `/shop/orders/`,
@@ -32,8 +36,9 @@ async function getOrders() {
     });
 
     orders = orders.filter((order) => !["pending", "delivered", "cancelled"].includes(order.status));
-    let users_isVip = {};
     
+    // Controllo se il cliente ha ancora un abbonamento VIP attivo
+    let users_isVip = {};
     for (const order of orders) {
         if (!(order.customer in users_isVip)) {
             const customer = await api_request({ type: "GET", url: `/users/profiles/${encodeURIComponent(order.customer)}` });
@@ -42,6 +47,7 @@ async function getOrders() {
         }
     }
 
+    // Ordinamento degli ordini, prima per VIP poi per data più vecchia
     orders.sort((o1, o2) => {
         if (users_isVip[o1.customer] && !users_isVip[o2.customer]) {
             return -1;

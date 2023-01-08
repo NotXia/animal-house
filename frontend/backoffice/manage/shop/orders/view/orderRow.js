@@ -5,7 +5,7 @@ const STATUSES = ["pending", "created", "processed", "ready", "delivered", "canc
 const STATUSES_IT = ["in attesa", "creato", "processato", "pronto", "consegnato", "cancellato"];
 
 /**
- * Restituisce il contenuto HTML di una riga degli ordini
+ * Aggiunge al container in input il contenuto di _render
  * @param {Order}    order          Dati dell'ordine
  * @param {String}   container      Container dove inserire il contenuto
  * @returns HTML della riga
@@ -19,6 +19,12 @@ export async function render(order, container) {
     await _render(order, `#order-${order.id}`);
 }
 
+/**
+ * Aggiunge al container in input il contenuto di una riga degli ordini
+ * @param {Order}    order          Dati dell'ordine
+ * @param {String}   container      Container dove inserire il contenuto
+ * @returns HTML della riga
+ */
 async function _render(order, container) {
     const customer = await api_request({ type: "GET", url: `/users/profiles/${encodeURIComponent(order.customer)}` });
 
@@ -64,6 +70,11 @@ async function _render(order, container) {
     });
 }
 
+/**
+ * Genera il codice HTML per una riga della tabella dei prodotti acquistati
+ * @param {Object[]} products Lista dei prodotti acquistati 
+ * @returns Codice HTML della tabella dei prodotti completa
+ */
 async function renderProducts(products) {
     let out = "<table class='table'>";
     
