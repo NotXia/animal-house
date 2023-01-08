@@ -5,6 +5,12 @@ export async function renderAppointment(container, appointment) {
     const animal = await $.ajax({ method: "GET", url: `/animals/${encodeURIComponent(appointment.animal_id)}` });
     const customer = await $.ajax({ method: "GET", url: `/users/profiles/${encodeURIComponent(appointment.customer)}` });
 
+    let vip_logo = `
+        <img src="/img/icons/vip.png" alt="" style="height: 1.3rem" />
+        <span class="visually-hidden">Cliente VIP</span>
+    `;
+    if (moment(customer.vip_until).isBefore(moment())) { vip_logo = ""; }
+
     $(container).append(`
         <div class="col-12 col-md-4" id="container-${appointment.id}">
             <div class="visually-hidden">
@@ -38,7 +44,7 @@ export async function renderAppointment(container, appointment) {
                         <div class="d-flex align-items-center justify-content-center border rounded-circle overflow-hidden mx-1" style="height: 1.5rem; width: 1.5rem">
                             <img src="${customer.picture}" alt="" class="h-100" />
                         </div>
-                        <span class="m-0 text-truncate">${customer.name} ${customer.surname}</span>
+                        <span class="m-0 text-truncate">${customer.name} ${customer.surname} ${vip_logo}</span>
                     </div>
                 </div>
 
