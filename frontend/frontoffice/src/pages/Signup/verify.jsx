@@ -5,6 +5,7 @@ import $ from "jquery";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { _parseJwt } from "modules/auth";
+import { getUserPreferences } from "modules/preferences";
 
 
 class Success extends React.Component {
@@ -12,7 +13,8 @@ class Success extends React.Component {
         super(props);
         this.state = {
             state: "",
-            mailSent: false
+            mailSent: false,
+            animal_loaded: false
         };
     }
 
@@ -25,10 +27,28 @@ class Success extends React.Component {
         try {
             if (!this.token) { return; }
 
+            // Abilitazione account
             await $.ajax({
                 method: "PUT", url: "/users/customers/enable-me",
                 headers: { Authorization: `Bearer ${this.token}` }
             });
+
+            // Inserimento animali presentati
+            const animals = getUserPreferences().animals;
+            if (animals) {
+                for (const animal of animals) {
+                    await $.ajax({
+                        method: "POST", url: `/users/customers/${encodeURIComponent(_parseJwt(this.token).username)}/animals/`,
+                        headers: { Authorization: `Bearer ${this.token}` },
+                        data: {
+                            name: animal.name,
+                            species: animal.species
+                        }
+                    });
+                }
+
+                this.setState({ animal_loaded: true });
+            }
 
             this.setState({ state: "success" });
         }
@@ -64,8 +84,12 @@ class Success extends React.Component {
                             this.state.state === "success" &&
                             <>
                                 <p className="fs-2 fw-semibold m-0">Benvenuto in Animal House</p>
-                                <p className="fs-3">L'account è stato attivato correttamente</p>
-                                <a className="btn btn-primary btn-lg" href="/fo/login">Accedi ora</a>
+                                <p className="fs-3 m-0">L'account è stato attivato correttamente</p>
+                                {
+                                    this.state.animal_loaded &&
+                                    <p className="fs-3 m-0">Ti abbiamo associato gli animali che ci hai presentato</p>
+                                }
+                                <a className="btn btn-primary btn-lg mt-2" href="/fo/login">Accedi ora</a>
                             </>
                         }
                         {
