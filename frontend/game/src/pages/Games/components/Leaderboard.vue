@@ -20,7 +20,6 @@
         async mounted() {
             try {
                 this.leaderboard = await this.get();
-                console.log(this.leaderboard)
             }
             catch (err) {
 
@@ -31,7 +30,7 @@
 
 <template>
 
-    <section aria-label="Classifica">
+    <section aria-label="Classifica" v-if="leaderboard.length > 0">
         <div class="container" style="min-width: 45vw;">
             <div class="row">
                 <p class="m-0 fw-semibold fs-5">Top 10</p>
