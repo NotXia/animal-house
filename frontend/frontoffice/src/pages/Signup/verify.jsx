@@ -53,7 +53,6 @@ class Success extends React.Component {
             this.setState({ state: "success" });
         }
         catch (err) {
-            console.log(err)
             switch (err.status) {
                 case 401:
                     this.setState({ state: "failure" });
