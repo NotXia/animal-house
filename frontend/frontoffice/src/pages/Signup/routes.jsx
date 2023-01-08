@@ -1,5 +1,6 @@
 import Signup from "./index";
 import Success from "./success";
+import Verify from "./verify";
 
 let routes = [
     {
@@ -9,6 +10,10 @@ let routes = [
     {
         path: "/signup/success",
         element: <Success />,
+    },
+    {
+        path: "/signup/verify",
+        element: <Verify />,
     }
 ]
 

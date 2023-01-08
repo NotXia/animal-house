@@ -29,7 +29,7 @@ class Success extends React.Component {
 
             <Navbar />
             
-            <main className="d-flex justify-content-center align-items-center w-100" style={{ minHeight: "80vh" }}>
+            <main className="d-flex justify-content-center align-items-center w-100" style={{ minHeight: "69vh" }}>
                 <Container className="my-4">
                     <Row>
                         <Col xs="12" lg={{span: 6, offset: 3}}>
