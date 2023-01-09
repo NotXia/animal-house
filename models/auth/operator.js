@@ -216,16 +216,17 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
         })) 
     );
 
-    // Rimuove le disponibilità passate o troppo vicine a ora
-    availabilities = availabilities.filter((availability) => moment(availability.time.start).isAfter(moment().add(2, "hours")));
+    if (slot_size) {
+        // Rimuove le disponibilità passate o troppo vicine a ora
+        availabilities = availabilities.filter((availability) => moment(availability.time.start).isAfter(moment().add(2, "hours")));
 
-    // Rimuove le disponibilità se l'hub è chiuso
-    let hubs = {};
-    for (const availability of availabilities) {
-        if (!hubs[availability.hub]) { hubs[availability.hub] = await HubModel.findOne({ code: availability.hub }); }
+        // Rimuove le disponibilità se l'hub è chiuso
+        let hubs = {};
+        for (const availability of availabilities) {
+            if (!hubs[availability.hub]) { hubs[availability.hub] = await HubModel.findOne({ code: availability.hub }); }
+        }
+        availabilities = availabilities.filter((availability) => hubs[availability.hub].isOpen(availability.time.start, availability.time.end));
     }
-    availabilities = availabilities.filter((availability) => hubs[availability.hub].isOpen(availability.time.start, availability.time.end));
-
     return availabilities;
 }
 
@@ -237,11 +238,11 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
  * @returns true se disponibile, false altrimenti
  */
 operatorScheme.methods.isAvailableAt = async function(start_date, end_date, hub) {
-    const availabilities = await this.getAvailabilityData(start_date, end_date, hub);
-    const query_interval = moment.range(start_date, end_date);
+    const availabilities = await this.getAvailabilityData(moment.utc(start_date), moment.utc(end_date), hub);
+    const query_interval = moment.range(moment.utc(start_date), moment.utc(end_date));
 
     for (const availability of availabilities) {
-        if (moment.range(availability.time.start, availability.time.end).contains(query_interval)) { 
+        if (moment.range(moment.utc(availability.time.start), moment.utc(availability.time.end)).contains(query_interval)) { 
             return true; 
         }
     }
