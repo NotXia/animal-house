@@ -29,8 +29,8 @@ export function getHubData() {
 
         for (let i=0; i<input_time_start.length; i++) {
             opening_slots.push({
-                start: moment(input_time_start[i].value, "HH:mm").format(),
-                end: moment(input_time_end[i].value, "HH:mm").format(),
+                start: moment.utc(input_time_start[i].value, "HH:mm").toISOString(),
+                end: moment.utc(input_time_end[i].value, "HH:mm").toISOString(),
             });
         }
         hub_data.opening_time[day] = opening_slots;

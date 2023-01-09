@@ -8,6 +8,7 @@ const { WEEKS } = require("../../utilities");
 const BookingModel = require("../services/booking");
 const ServiceModel = require("../services/service");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const HubModel = require("../services/hub");
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -217,6 +218,13 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
 
     // Rimuove le disponibilità passate o troppo vicine a ora
     availabilities = availabilities.filter((availability) => moment(availability.time.start).isAfter(moment().add(2, "hours")));
+
+    // Rimuove le disponibilità se l'hub è chiuso
+    let hubs = {};
+    for (const availability of availabilities) {
+        if (!hubs[availability.hub]) { hubs[availability.hub] = await HubModel.findOne({ code: availability.hub }); }
+    }
+    availabilities = availabilities.filter((availability) => hubs[availability.hub].isOpen(availability.time.start, availability.time.end));
 
     return availabilities;
 }

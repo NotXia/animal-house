@@ -40,11 +40,11 @@ export function addTimeSlotTo(day_of_week, start_time, end_time, focus=false) {
                     <div class="d-flex justify-content-center">
                         <div class="w-50">
                             <label for="data-${day_of_week}-${index}-time-start">Inizio</label>
-                            <input type="time" class="form-control" name="opening_time-${day_of_week}-${index}-time-start" id="data-${day_of_week}-${index}-time-start" value="${start_time ? moment(start_time).format("HH:mm") : ""}">
+                            <input type="time" class="form-control" name="opening_time-${day_of_week}-${index}-time-start" id="data-${day_of_week}-${index}-time-start" value="${start_time ? moment.utc(start_time).format("HH:mm") : ""}">
                         </div>
                         <div class="w-50">
                             <label for="data-${day_of_week}-${index}-time-end">Fine</label>
-                            <input type="time" class="form-control" name="opening_time-${day_of_week}-${index}-time-end" id="data-${day_of_week}-${index}-time-end" value="${end_time ? moment(end_time).format("HH:mm") : ""}">
+                            <input type="time" class="form-control" name="opening_time-${day_of_week}-${index}-time-end" id="data-${day_of_week}-${index}-time-end" value="${end_time ? moment.utc(end_time).format("HH:mm") : ""}">
                         </div>
                     </div>
                 </div>
