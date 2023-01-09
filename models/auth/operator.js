@@ -163,6 +163,7 @@ function createSlots(availabilities, slot_size) {
 operatorScheme.methods.getAvailabilityData = async function(start_date, end_date, hub, slot_size) {
     // Normalizzazione valori delle date
     start_date = moment.utc(moment.parseZone(start_date).format("YYYY-MM-DD"), "YYYY-MM-DD").startOf("day");
+    if (start_date.isBefore(moment())) { start_date = moment.utc(); } // Per evitare prenotazioni al passato
     end_date = moment.utc(moment.parseZone(end_date).format("YYYY-MM-DD"), "YYYY-MM-DD").endOf("day");
 
     let availabilities = [];
@@ -213,6 +214,9 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
             operator_username: (await this.getUserData()).username
         })) 
     );
+
+    // Rimuove le disponibilità passate o troppo vicine a ora
+    availabilities = availabilities.filter((availability) => moment(availability.time.start).isAfter(moment().add(2, "hours")));
 
     return availabilities;
 }
