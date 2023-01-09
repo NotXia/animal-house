@@ -18,7 +18,7 @@
 
 <template>
 
-    <div class="card">
+    <div class="memory-card">
         <div :class="`card-inner ${reveal ? '' : 'cover'}`">
 
             <div class="card-front border border-dark rounded">
@@ -46,7 +46,7 @@
 
 <style strict>
 
-.card {
+.memory-card {
     background-color: transparent;
     border: 0;
     width: 100%;
