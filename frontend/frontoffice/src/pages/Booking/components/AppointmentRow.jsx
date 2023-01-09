@@ -40,7 +40,7 @@ class AppointmentCard extends React.Component {
             <div className="w-100 border rounded p-2 py-3">
                 <p className="invalid-feedback d-block fs-5 fw-semibold text-center m-0" aria-live="assertive">{this.state.error_message}</p>
                 
-                <p className="fs-5 fw-semibold text-center mb-1">{ moment(this.props.appointment.time_slot.start).format("DD/MM/YYYY HH:mm") }</p>
+                <p className="fs-5 fw-semibold text-center mb-1">{ moment.utc(this.props.appointment.time_slot.start).format("DD/MM/YYYY HH:mm") }</p>
                 {
                     (this.state.animal && this.state.service && this.state.hub) && 
                     (<>
@@ -87,7 +87,7 @@ class AppointmentCard extends React.Component {
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Annulla"></button>
                         </div>
                         <div className="modal-body">
-                            Stai cancellando l'appuntamento per {this.state.animal?.name} del {moment(this.props.appointment.time_slot.start).format("DD/MM/YYYY")} alle {moment(this.props.appointment.time_slot.start).format("HH:mm")}
+                            Stai cancellando l'appuntamento per {this.state.animal?.name} del {moment.utc(this.props.appointment.time_slot.start).format("DD/MM/YYYY")} alle {moment.utc(this.props.appointment.time_slot.start).format("HH:mm")}
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>

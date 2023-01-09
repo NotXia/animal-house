@@ -5,7 +5,7 @@ import { api_request } from "/js/auth.js";
 import { centToPrice } from "/js/utilities.js";
 import * as Form from "./form.js";
 import * as Mode from "./mode.js";
-import * as ServiceRow from "./view/serviceRow.js";
+import * as ServiceRow from "./view/ServiceRow.js";
 
 let NavbarHandler;
 let LoadingHandler;

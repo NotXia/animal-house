@@ -15,8 +15,8 @@ export async function renderAppointment(container, appointment) {
         <div class="col-12 col-md-4" id="container-${appointment.id}">
             <div class="visually-hidden">
                 <p>
-                    ${service.name} per il giorno ${moment(appointment.time_slot.start).format("DD/MM/YYYY")}
-                    dalle ${moment(appointment.time_slot.start).format("HH:mm")} alle ${moment(appointment.time_slot.end).format("HH:mm")}.
+                    ${service.name} per il giorno ${moment.utc(appointment.time_slot.start).format("DD/MM/YYYY")}
+                    dalle ${moment.utc(appointment.time_slot.start).format("HH:mm")} alle ${moment.utc(appointment.time_slot.end).format("HH:mm")}.
                     Presso hub ${appointment.hub}
                 </p>
             </div>
@@ -25,8 +25,8 @@ export async function renderAppointment(container, appointment) {
                 <div aria-hidden="true">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <p class="m-0 fs-5 fw-semibold">${moment(appointment.time_slot.start).format("HH:mm")} - ${moment(appointment.time_slot.end).format("HH:mm")}</p>
-                            <p class="m-0 fs-6 fw-semibold">${moment(appointment.time_slot.start).format("DD/MM/YYYY")}</p>
+                            <p class="m-0 fs-5 fw-semibold">${moment.utc(appointment.time_slot.start).format("HH:mm")} - ${moment.utc(appointment.time_slot.end).format("HH:mm")}</p>
+                            <p class="m-0 fs-6 fw-semibold">${moment.utc(appointment.time_slot.start).format("DD/MM/YYYY")}</p>
                         </div>
                         <p class="m-0 fs-5 fw-semibold">${appointment.hub}</p>
                     </div>

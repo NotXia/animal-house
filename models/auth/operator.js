@@ -8,6 +8,7 @@ const { WEEKS } = require("../../utilities");
 const BookingModel = require("../services/booking");
 const ServiceModel = require("../services/service");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const HubModel = require("../services/hub");
 
 const workingSlot = mongoose.Schema({
     time: { 
@@ -43,8 +44,8 @@ const operatorScheme = mongoose.Schema({
  */
 function formatTimeSlot(time) {
     return {
-        start: moment(time.start).local().format(),
-        end: moment(time.end).local().format()
+        start: moment.utc(time.start).format(),
+        end: moment.utc(time.end).format()
     };
 }
 
@@ -162,8 +163,9 @@ function createSlots(availabilities, slot_size) {
  */
 operatorScheme.methods.getAvailabilityData = async function(start_date, end_date, hub, slot_size) {
     // Normalizzazione valori delle date
-    start_date = moment(start_date).startOf("day");
-    end_date = moment(end_date).endOf("day");
+    start_date = moment.utc(moment.parseZone(start_date).format("YYYY-MM-DD"), "YYYY-MM-DD").startOf("day");
+    if (start_date.isBefore(moment())) { start_date = moment.utc(); } // Per evitare prenotazioni al passato
+    end_date = moment.utc(moment.parseZone(end_date).format("YYYY-MM-DD"), "YYYY-MM-DD").endOf("day");
 
     let availabilities = [];
     let unavailable_slots = [];
@@ -173,8 +175,8 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
         for (const work_time of this.working_time[WEEKS[working_day.isoWeekday()-1]]) { // Individua la settimana corretta
             if (!hub || work_time.hub === hub) {
                 // Imposta l'orario con la data corretta (quella della richiesta) 
-                let start_time = moment(work_time.time.start).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
-                let end_time = moment(work_time.time.end).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
+                let start_time = moment.utc(work_time.time.start).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
+                let end_time = moment.utc(work_time.time.end).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
             
                 availabilities.push({
                     time: moment.range(start_time, end_time),
@@ -213,6 +215,16 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
             operator_username: (await this.getUserData()).username
         })) 
     );
+
+    // Rimuove le disponibilità passate o troppo vicine a ora
+    availabilities = availabilities.filter((availability) => moment(availability.time.start).isAfter(moment().add(2, "hours")));
+
+    // Rimuove le disponibilità se l'hub è chiuso
+    let hubs = {};
+    for (const availability of availabilities) {
+        if (!hubs[availability.hub]) { hubs[availability.hub] = await HubModel.findOne({ code: availability.hub }); }
+    }
+    availabilities = availabilities.filter((availability) => hubs[availability.hub].isOpen(availability.time.start, availability.time.end));
 
     return availabilities;
 }
