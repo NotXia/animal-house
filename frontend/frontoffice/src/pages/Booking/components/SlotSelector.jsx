@@ -56,8 +56,8 @@ class SlotSelector extends React.Component {
                         {
                             this.getAvailableStartTimes().map((slot) => (
                                 <button key={slot} className="btn btn-outline-primary fs-5 p-2 px-4 m-2" onClick={() => this.handleSlotSelection(slot)} 
-                                        aria-label={`Prenota per le ${moment(slot).format("HH:mm")}`}>
-                                    {moment(slot).format("HH:mm")}
+                                        aria-label={`Prenota per le ${moment.utc(slot).format("HH:mm")}`}>
+                                    {moment.utc(slot).format("HH:mm")}
                                 </button>
                             ))
                         }

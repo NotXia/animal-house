@@ -130,8 +130,8 @@ function getFormOperatorWorkingTime() {
         for (let i=0; i<input_hub.length; i++) {
             working_slots.push({
                 time: {
-                    start: moment(input_time_start[i].value, "HH:mm").format(),
-                    end: moment(input_time_end[i].value, "HH:mm").format(),
+                    start: moment.utc(input_time_start[i].value, "HH:mm").format(),
+                    end: moment.utc(input_time_end[i].value, "HH:mm").format(),
                 },
                 hub: input_hub[i].value
             });

@@ -154,7 +154,7 @@ class Booking extends React.Component {
                             <div className="d-flex justify-content-center">
                                 <div>
                                     <h2 className="text-center">Riepilogo</h2>
-                                    <p className="fs-4 m-0 text-center fw-semibold">{moment(this.state.slot?.time.start).format("DD/MM/YYYY")} alle {moment(this.state.slot?.time.start).format("HH:mm")}</p>
+                                    <p className="fs-4 m-0 text-center fw-semibold">{moment.utc(this.state.slot?.time.start).format("DD/MM/YYYY")} alle {moment.utc(this.state.slot?.time.start).format("HH:mm")}</p>
                                     <p className="fs-5 mb-2">Prenotazione per: <span className="fw-semibold">{this.state.animal?.name}</span></p>
                                     <p className="fs-5 m-0">Servizio: <span className="fw-semibold">{this.state.service?.name}</span></p>
                                     <p className="fs-5 m-0">Durata: <span className="fw-semibold">{this.state.service?.duration} minuti</span></p>
