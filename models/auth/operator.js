@@ -43,8 +43,8 @@ const operatorScheme = mongoose.Schema({
  */
 function formatTimeSlot(time) {
     return {
-        start: moment(time.start).local().format(),
-        end: moment(time.end).local().format()
+        start: moment.utc(time.start).format(),
+        end: moment.utc(time.end).format()
     };
 }
 
@@ -162,8 +162,8 @@ function createSlots(availabilities, slot_size) {
  */
 operatorScheme.methods.getAvailabilityData = async function(start_date, end_date, hub, slot_size) {
     // Normalizzazione valori delle date
-    start_date = moment(start_date).startOf("day");
-    end_date = moment(end_date).endOf("day");
+    start_date = moment.utc(moment.parseZone(start_date).format("YYYY-MM-DD"), "YYYY-MM-DD").startOf("day");
+    end_date = moment.utc(moment.parseZone(end_date).format("YYYY-MM-DD"), "YYYY-MM-DD").endOf("day");
 
     let availabilities = [];
     let unavailable_slots = [];
@@ -173,8 +173,8 @@ operatorScheme.methods.getAvailabilityData = async function(start_date, end_date
         for (const work_time of this.working_time[WEEKS[working_day.isoWeekday()-1]]) { // Individua la settimana corretta
             if (!hub || work_time.hub === hub) {
                 // Imposta l'orario con la data corretta (quella della richiesta) 
-                let start_time = moment(work_time.time.start).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
-                let end_time = moment(work_time.time.end).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
+                let start_time = moment.utc(work_time.time.start).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
+                let end_time = moment.utc(work_time.time.end).set({ date: working_day.date(), month: working_day.month(), year: working_day.year() });
             
                 availabilities.push({
                     time: moment.range(start_time, end_time),
