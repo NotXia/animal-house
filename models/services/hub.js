@@ -78,8 +78,8 @@ hubSchema.methods.isOpen = function(start_time, end_time) {
     const query_interval = moment.range(start_time, end_time);
 
     for (const opening of this.opening_time[query_week]) {
-        let opening_start = moment.utc(opening.start).set({ day: start_time.day(), month: start_time.month(), year: start_time.year() });
-        let opening_end = moment.utc(opening.end).set({ day: end_time.day(), month: end_time.month(), year: end_time.year() });
+        let opening_start = moment.utc(opening.start).set({ date: start_time.date(), month: start_time.month(), year: start_time.year() });
+        let opening_end = moment.utc(opening.end).set({ date: end_time.date(), month: end_time.month(), year: end_time.year() });
         const opening_interval = moment.range(opening_start, opening_end);
 
         // L'hub è aperto
