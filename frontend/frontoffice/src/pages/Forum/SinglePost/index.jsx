@@ -12,6 +12,7 @@ import Comment from "./components/Comment";
 import { getUsername, isAdmin, isAuthenticated } from "modules/auth.js";
 import Footer from "../../../components/Footer";
 import Badge from "../../../components/forum/Badge";
+import UserAPI from "modules/api/user";
 
 
 const COMMENT_PAGE_SIZE = 10;
@@ -25,6 +26,7 @@ class SinglePost extends React.Component {
             username: "",
             is_admin: true,
             is_auth: false,
+            author_data: null,
 
             next_page: 0,
 
@@ -45,6 +47,7 @@ class SinglePost extends React.Component {
             const username = await getUsername().catch((err) => "");
             const is_admin = await isAdmin();
             const is_auth = await isAuthenticated();
+            const author_data = await UserAPI.getProfile(post.author);
 
             this.setState({ 
                 post: post,
@@ -52,7 +55,8 @@ class SinglePost extends React.Component {
                 username: username,
                 is_admin: is_admin,
                 is_auth: is_auth,
-                next_page: 1
+                next_page: 1,
+                author_data: author_data
             });
         }
         catch (err) {
@@ -87,8 +91,13 @@ class SinglePost extends React.Component {
                                         {/* Intestazione post */}
                                         <div>
                                             <h1 className="m-0">{this.state.post.title}</h1>
-                                            <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>&nbsp;
-                                            <Badge username={this.state.post.author} />
+                                            <div className="d-flex align-items-center">
+                                                <div className="d-flex align-items-center justify-content-center border rounded-circle overflow-auto" style={{ height: "2rem", width: "2rem" }}>
+                                                    <img src={`${process.env.REACT_APP_DOMAIN}${this.state.author_data?.picture}`} alt="" style={{ height: "100%" }}/>
+                                                </div>&nbsp;
+                                                <a href={`/fo/profile?username=${this.state.post.author}`}>@{this.state.post.author}</a>&nbsp;
+                                                <Badge username={this.state.post.author} />
+                                            </div>
                                         </div>
 
                                         {/* Operazioni su post */}
