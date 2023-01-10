@@ -107,7 +107,7 @@ class ProfilePage extends React.Component {
 
                                     {/* Anagrafica */}
                                     <div className="col-12 col-md-6">
-                                        <div className="d-flex align-items-center h-100">
+                                        <div className="d-flex justify-content-center justify-content-md-start align-items-center mt-2 mt-md-0 h-100">
                                             <div>
                                                 <h1 className="fs-2 fw-semibold m-0">
                                                     <span className="visually-hidden">Profilo di</span>

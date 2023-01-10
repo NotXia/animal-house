@@ -79,10 +79,11 @@ class ForumMain extends React.Component {
                     <Row>
                         <section aria-label="Selettore argomento">
                             <div className="d-flex justify-content-center overflow-auto mb-3">
+                                <div className="d-flex" style={{ maxWidth: "100%" }}>
                                 {
                                     this.state.topics.map((topic) => (
                                         <label type="radio" key={topic.name} className={`btn btn-outline-primary mx-1 ${topic.name === this.state.selected_topic ? "active" : ""}`}>
-                                            <div className="d-flex align-items-center justify-content-center">
+                                            <div className="d-flex align-items-center justify-content-center h-100">
                                                 <img src={`data:image/*;base64,${topic.icon}`} alt="" style={{ height: "2rem" }} className="me-1" />
                                                 <span className="visually-hidden">Argomento: </span>{topic.name}
                                             </div>
@@ -90,6 +91,7 @@ class ForumMain extends React.Component {
                                         </label>
                                     ))
                                 }
+                                </div>
                             </div>
                         </section>
                     </Row>

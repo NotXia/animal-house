@@ -10,7 +10,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
+                <div class="navbar-nav me-auto">
                     <router-link to="/" class="nav-link active">Home</router-link>
                     <router-link to="/services-list" class="nav-link active">Servizi</router-link>
                     <a :href="`${DOMAIN}/fo/shop`" class="nav-link active">Shop</a>
@@ -21,7 +21,7 @@
                     <a v-if="is_auth" :href="`${DOMAIN}/fo/vip`" class="nav-link active">VIP</a>
                 </div>
 
-                <div class="d-flex justify-content-end w-100">
+                <div class="justify-content-end">
                     <div v-if="username" class="dropdown d-inline-block">
                         <button class="btn dropdown-toggle text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="d-inline-block">

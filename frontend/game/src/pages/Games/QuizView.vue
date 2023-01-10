@@ -110,9 +110,11 @@
 
                 <div class="row">
                     <div class="col-12 col-md-6" v-for="answer in answers" :key="answer">
-                        <button class="btn btn-outline-primary w-100 px-2 py-4 mx-3 my-2 fs-5" :onclick="() => submitAnswer(answer)">
-                            {{ answer }}
-                        </button>
+                        <div class="mx-3 my-2 ">
+                            <button class="btn btn-outline-primary w-100 px-2 py-4 fs-5" :onclick="() => submitAnswer(answer)">
+                                {{ answer }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

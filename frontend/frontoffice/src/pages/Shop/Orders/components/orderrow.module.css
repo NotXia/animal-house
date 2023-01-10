@@ -5,8 +5,9 @@
 
 .listitem-product {
     border: none;
-    border-top: 1px solid #cecece;
-    border-bottom: 1px solid #cecece;
+    border-top: 1px solid #cecece70;
+    border-bottom: 1px solid #cecece70;
+    list-style-type: none;
 }
 .list-product > .listitem-product:first-of-type {
     border-top: none;
