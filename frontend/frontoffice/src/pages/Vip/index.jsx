@@ -72,35 +72,37 @@ class Homepage extends React.Component {
                         </div>
 
                         <div className="row">
-                            <div className="col-12 col-md-6 offset-md-3 border border-primary rounded py-2 text-center">
-                                <section aria-label="Descrizione piano VIP">
-                                    <p className="fs-2 m-0 fw-semibold">VIP Animal House</p>
-                                    <p className="visually-hidden">{centToPrice(this.state.price)}€ per un anno di abbonamento</p>
-                                    <p className="fs-3 fw-semibold m-0" aria-hidden="true">{centToPrice(this.state.price)}€</p>
-                                    <p className="fs-5 muted" aria-hidden="true">per un anno di abbonamento</p>
-                                    
-                                    <h2 className="fs-5 fw-semibold m-0 text-decoration-underline">Vantaggi</h2>
-                                    <ul style={{ listStyleType: "none" }}>
-                                        <li className="fs-5 m-0">Sconti esclusivi per i tuoi acquisti nello shop</li>
-                                        <li className="fs-5 m-0">Riduzione del prezzo dei servizi che prenoti</li>
-                                        <li className="fs-5 m-0">Elaborazione prioritaria dei tuoi ordini</li>
-                                        <li className="fs-5 m-0">Un addetto dedicato a te quando vieni a trovarci</li>
-                                        <li className="fs-5 m-0">Un esclusivo badge per distinguerti nel forum</li>
-                                    </ul>
-                                </section>
+                            <div className="col-12 col-md-6 offset-md-3">
+                                <div className="border border-primary rounded py-2 text-center">
+                                    <section aria-label="Descrizione piano VIP">
+                                        <p className="fs-2 m-0 fw-semibold">VIP Animal House</p>
+                                        <p className="visually-hidden">{centToPrice(this.state.price)}€ per un anno di abbonamento</p>
+                                        <p className="fs-3 fw-semibold m-0" aria-hidden="true">{centToPrice(this.state.price)}€</p>
+                                        <p className="fs-5 muted" aria-hidden="true">per un anno di abbonamento</p>
+                                        
+                                        <h2 className="fs-5 fw-semibold m-0 text-decoration-underline">Vantaggi</h2>
+                                        <ul style={{ listStyleType: "none" }}>
+                                            <li className="fs-5 m-0">Sconti esclusivi per i tuoi acquisti nello shop</li>
+                                            <li className="fs-5 m-0">Riduzione del prezzo dei servizi che prenoti</li>
+                                            <li className="fs-5 m-0">Elaborazione prioritaria dei tuoi ordini</li>
+                                            <li className="fs-5 m-0">Un addetto dedicato a te quando vieni a trovarci</li>
+                                            <li className="fs-5 m-0">Un esclusivo badge per distinguerti nel forum</li>
+                                        </ul>
+                                    </section>
 
-                                <section aria-label="Acquista il piano VIP">
-                                    <div className="d-flex justify-content-center mb-2">
-                                        <a className="btn btn-primary" href={`${process.env.REACT_APP_BASE_PATH}/vip/pay`}>
-                                        {
-                                            this.state.step === "overview" && "Ottieni VIP"
-                                        }
-                                        {
-                                            this.state.step === "recap" && "Rinnova VIP"
-                                        }
-                                        </a>
-                                    </div>
-                                </section>
+                                    <section aria-label="Acquista il piano VIP">
+                                        <div className="d-flex justify-content-center mb-2">
+                                            <a className="btn btn-primary" href={`${process.env.REACT_APP_BASE_PATH}/vip/pay`}>
+                                            {
+                                                this.state.step === "overview" && "Ottieni VIP"
+                                            }
+                                            {
+                                                this.state.step === "recap" && "Rinnova VIP"
+                                            }
+                                            </a>
+                                        </div>
+                                    </section>
+                                </div>
                             </div>
                         </div>
                     </div>

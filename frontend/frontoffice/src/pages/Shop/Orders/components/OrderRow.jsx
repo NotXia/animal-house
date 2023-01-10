@@ -33,39 +33,45 @@ class OrderRow extends React.Component {
         const order = this.state.order;
 
         return (
-            <Container className={`${css["container-order"]} p-2 p-lg-3`}>
+            <Container>
                 <Row>
-                    <Col xs={{ span: 12, order: 2 }} md={{ span: 9, order: 1 }}>
-                        {/* Dati ordine */}
-                        <Row>
-                            <div className="d-flex justify-content-between px-3">
-                                <span className="fs-5">Ordinato il {moment(order.creationDate).format("DD/MM/YYYY")} alle {moment(order.creationDate).format("HH:mm")}</span>
-                                <span className="fs-5 m-0">{centToPrice(order.total)}€</span>
-                            </div>
-                        </Row>
-                        {/* Prodotti */}
-                        <Row>
-                            <ul className={`list-group p-0 ${css["list-product"]}`}>
-                                { 
-                                    order.products.map((product) => (
-                                        <li key={product.barcode} className={`list-group-item ${css["listitem-product"]}`}>
-                                            <ProductEntry product={product} />
-                                        </li>
-                                    ))
-                                }
-                            </ul>
-                        </Row>
-                    </Col>
+                    <Col>
+                        <Container className={`${css["container-order"]} py-2 py-lg-3`}>
+                            <Row>
+                                <Col xs={{ span: 12, order: 2 }} md={{ span: 9, order: 1 }}>
+                                    {/* Dati ordine */}
+                                    <Row>
+                                        <div className="d-flex justify-content-between px-3">
+                                            <span className="fs-5">Ordinato il {moment(order.creationDate).format("DD/MM/YYYY")} alle {moment(order.creationDate).format("HH:mm")}</span>
+                                            <span className="fs-5 m-0">{centToPrice(order.total)}€</span>
+                                        </div>
+                                    </Row>
+                                    {/* Prodotti */}
+                                    <Row>
+                                        <ul className={`p-0 ${css["list-product"]}`}>
+                                            { 
+                                                order.products.map((product) => (
+                                                    <li key={product.barcode} className={`${css["listitem-product"]}`}>
+                                                        <ProductEntry product={product} />
+                                                    </li>
+                                                ))
+                                            }
+                                        </ul>
+                                    </Row>
+                                </Col>
 
-                    {/* Operazioni */}
-                    <Col xs={{ span: 12, order: 1 }} md={{ span: 3, order: 2 }} className="mb-3 mb-md-0">
-                        <div className="text-center w-100">
-                            <OrderStatus status={order.status} type={order.pickup ? "takeway" : "delivery"} />
-                        </div>
-                        
-                        <div>
-                            { this.renderOperations(order.status, order.pickup ? "takeway" : "delivery") }
-                        </div>
+                                {/* Operazioni */}
+                                <Col xs={{ span: 12, order: 1 }} md={{ span: 3, order: 2 }} className="mb-3 mb-md-0">
+                                    <div className="text-center w-100">
+                                        <OrderStatus status={order.status} type={order.pickup ? "takeway" : "delivery"} />
+                                    </div>
+                                    
+                                    <div>
+                                        { this.renderOperations(order.status, order.pickup ? "takeway" : "delivery") }
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Container>
                     </Col>
                 </Row>
             </Container>

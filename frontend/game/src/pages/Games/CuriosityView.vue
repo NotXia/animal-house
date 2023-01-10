@@ -67,20 +67,25 @@
         <div class="d-flex justify-content-center overflow-auto">
             <div class="d-flex" style="max-width: 100%">
                 <section aria-label="Seleziona l'animale per cui vuoi una curiosità">
-                    <button v-for="animal in animals" :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact(animal.name)"
-                            :aria-label="`Curiosità su ${animal.name}`">
-                        <div class="d-flex justify-content-center align-items-center h-100">
-                            <img v-if="animal.logo" :src="`data:image/*;base64,${animal.logo}`" alt="" style="height: 1.5rem" class="me-1" />
-                            <span class="text-capitalize fs-5">{{ animal.name }}</span>
-                        </div>
-                    </button>
+                    <div class="d-flex justify-content-center overflow-auto">
+                        <div class="d-flex" style="max-width: 100%;">
+                            <button v-for="animal in animals" :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact(animal.name)"
+                                    :aria-label="`Curiosità su ${animal.name}`">
+                                <div class="d-flex justify-content-center align-items-center h-100">
+                                    <img v-if="animal.logo" :src="`data:image/*;base64,${animal.logo}`" alt="" style="height: 1.5rem" class="me-1" />
+                                    <span class="text-capitalize fs-5">{{ animal.name }}</span>
+                                </div>
+                            </button>
 
-                    <button :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact()">
-                        <div class="d-flex justify-content-center align-items-center h-100">
-                            <img :src="`${DOMAIN}/img/icons/random.png`" alt="" style="height: 1.5rem" class="me-1" />
-                            <span class="text-capitalize fs-5">Casuale</span>
+                            <button :class="`btn btn-outline-primary mx-1 ${this.animal === animal.name ? 'active' : ''}`" :onclick="() => this.getFact()">
+                                <div class="d-flex justify-content-center align-items-center h-100">
+                                    <img :src="`${DOMAIN}/img/icons/random.png`" alt="" style="height: 1.5rem" class="me-1" />
+                                    <span class="text-capitalize fs-5">Casuale</span>
+                                </div>
+                            </button>
                         </div>
-                    </button>
+                    </div>
+
                 </section>
             </div>
         </div>
