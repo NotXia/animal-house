@@ -69,7 +69,7 @@ class OrderSuccess extends React.Component {
                                 (this.state.appointment && this.state.animal && this.state.service && this.state.hub) &&
                                 <div className="text-center fs-4 border rounded p-2 py-3">
                                     <p className="m-0">
-                                        <span className="fw-semibold">{moment(this.state.appointment?.time_slot.start).format("DD/MM/YYYY")}</span> alle <span className="fw-semibold">{moment(this.state.appointment?.time_slot.start).format("HH:mm")}</span>
+                                        <span className="fw-semibold">{moment.utc(this.state.appointment?.time_slot.start).format("DD/MM/YYYY")}</span> alle <span className="fw-semibold">{moment.utc(this.state.appointment?.time_slot.start).format("HH:mm")}</span>
                                     </p>
                                     <p className="m-0">
                                         <span className="fw-semibold">{this.state.service?.name}</span> per <span className="fw-semibold">{this.state.animal?.name}</span>
