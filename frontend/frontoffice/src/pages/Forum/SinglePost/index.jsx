@@ -125,7 +125,7 @@ class SinglePost extends React.Component {
                             {/* Contenuto */}
                             <Row>
                                 <section aria-label="Contenuto post">
-                                    <span style={{whiteSpace: "pre-line"}}>{this.state.post.content}</span>
+                                    <span style={{whiteSpace: "pre-line"}} className="fs-4">{this.state.post.content}</span>
                                 </section>
                             </Row>
                             
