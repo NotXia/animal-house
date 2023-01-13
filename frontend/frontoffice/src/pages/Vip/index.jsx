@@ -81,17 +81,17 @@ class Homepage extends React.Component {
                                         <p className="fs-5 muted" aria-hidden="true">per un anno di abbonamento</p>
                                         
                                         <h2 className="fs-5 fw-semibold m-0 text-decoration-underline">Vantaggi</h2>
-                                        <ul style={{ listStyleType: "none" }}>
-                                            <li className="fs-5 m-0">Sconti esclusivi per i tuoi acquisti nello shop</li>
-                                            <li className="fs-5 m-0">Riduzione del prezzo dei servizi che prenoti</li>
-                                            <li className="fs-5 m-0">Elaborazione prioritaria dei tuoi ordini</li>
-                                            <li className="fs-5 m-0">Un addetto dedicato a te quando vieni a trovarci</li>
-                                            <li className="fs-5 m-0">Un esclusivo badge per distinguerti nel forum</li>
+                                        <ul className="list-group mx-1" style={{ listStyleType: "none" }}>
+                                            <li className="fs-5 my-1">Sconti esclusivi per i tuoi acquisti nello shop</li>
+                                            <li className="fs-5 my-1">Riduzione del prezzo dei servizi che prenoti</li>
+                                            <li className="fs-5 my-1">Elaborazione prioritaria dei tuoi ordini</li>
+                                            <li className="fs-5 my-1">Un addetto dedicato a te quando vieni a trovarci</li>
+                                            <li className="fs-5 my-1">Un esclusivo badge per distinguerti nel forum</li>
                                         </ul>
                                     </section>
 
                                     <section aria-label="Acquista il piano VIP">
-                                        <div className="d-flex justify-content-center mb-2">
+                                        <div className="d-flex justify-content-center my-2">
                                             <a className="btn btn-primary" href={`${process.env.REACT_APP_BASE_PATH}/vip/pay`}>
                                             {
                                                 this.state.step === "overview" && "Ottieni VIP"
