@@ -101,7 +101,7 @@ class HubSelector extends React.Component {
 
     render() {
         return (
-            <div className="container-fluid" style={{ height: this.props.style.height }}>
+            <div className="container-fluid">
                 <p className="invalid-feedback d-block fs-5 fw-semibold text-center" aria-live="assertive">{this.state.error_message}</p>
 
                 <div className={`d-flex justify-content-center`}>
@@ -110,7 +110,7 @@ class HubSelector extends React.Component {
                     </div>
                 </div>
 
-                <div className="row" style={{ height: this.props.style.height }}>
+                <div className="row" style={{ minHeight: this.props.style.height }}>
                     <div className="col-12 col-md-6" aria-hidden="true">
                         <div style={{ height: this.props.style.height, width: "100%" }}>
                             <MapContainer center={MAP_CENTER} zoom={5} style={{ width: "100%", height: "100%" }} >
@@ -135,7 +135,7 @@ class HubSelector extends React.Component {
                         </div>
                     </div>
 
-                    <div className="col-12 col-md-6" style={{ height: this.props.style.height, overflow: "auto" }}>
+                    <div className="col-12 col-md-6" style={{ maxHeight: this.props.style.height, overflow: "auto" }}>
                         <div className="list-group w-100">
                             {
                                 this.state.hubs.map((hub) => (

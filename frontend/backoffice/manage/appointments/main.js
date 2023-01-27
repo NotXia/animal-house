@@ -107,7 +107,7 @@ $(async function () {
 
                     $("#container-time_slot").append(`
                         <input id="input-date-${i}" class="visually-hidden" type="radio" name="date" required aria-required="true" />
-                        <label id="label-date-${i}" for="input-date-${i}" class="btn btn-outline-dark">${moment(availability.time.start).format("HH:mm")} (${availability.hub})</label>
+                        <label id="label-date-${i}" for="input-date-${i}" class="btn btn-outline-dark">${moment.utc(availability.time.start).format("HH:mm")} (${availability.hub})</label>
                     `);
 
                     $(`#input-date-${i}`).on("change", () => {

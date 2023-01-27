@@ -7,6 +7,7 @@ import BlogAPI from "modules/api/blog";
 import moment from "moment";
 import { Link } from "react-router-dom";
 import Badge from "../../../../components/forum/Badge";
+import UserAPI from "modules/api/user";
 
 
 class CreatePost extends React.Component {
@@ -25,7 +26,8 @@ class CreatePost extends React.Component {
         try {
             const topic = await BlogAPI.getTopic(this.props.post.topic);
             const comment_count = await BlogAPI.getCommentNumberOf(this.props.post.id);
-            this.setState({ topic: topic, comment_count: comment_count });
+            const author_data = await UserAPI.getProfile(this.props.post.author);
+            this.setState({ topic: topic, comment_count: comment_count, author_data: author_data });
         }
         catch (err) {
             this.setState({ error_message: "" });
@@ -63,6 +65,9 @@ class CreatePost extends React.Component {
                                 <Col xs={post.images.length > 0 ? "8" : "12"}>
                                     <h2 className="fs-5 fw-semibold mb-0 text-truncate">{post.title}</h2>
                                     <div className="d-flex align-items-center">
+                                        <div className="d-flex align-items-center justify-content-center border rounded-circle overflow-auto" style={{ height: "1.8rem", width: "1.8rem" }}>
+                                            <img src={`${process.env.REACT_APP_DOMAIN}${this.state.author_data?.picture}`} alt="" style={{ height: "100%" }}/>
+                                        </div>&nbsp;
                                         <p className="m-0">@{post.author}</p>&nbsp;
                                         <Badge username={post.author} />
                                     </div>
